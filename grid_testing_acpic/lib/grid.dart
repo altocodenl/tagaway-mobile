@@ -30,7 +30,6 @@ class Item {
 bool isSelectViewVisible = true;
 bool isUploadViewVisible = true;
 bool isUploadingInProcess = true;
-bool selectAll = false;
 
 class _GridState extends State<Grid> {
   List<Item> itemList;
@@ -54,6 +53,20 @@ class _GridState extends State<Grid> {
   }
   //TODO: access device gallery https://pub.dev/packages/image_picker
 
+  bool _all = false;
+  Object redrawObject = Object();
+
+  void _selectAllTapped (bool newValue){
+    setState(() {
+      _all = newValue;
+    });
+  }
+  redraw(){
+    setState(() {
+      redrawObject = Object();
+    });
+  }
+
   void showSelectView() {
     setState(() {
       isSelectViewVisible = !isSelectViewVisible;
@@ -72,13 +85,6 @@ class _GridState extends State<Grid> {
     });
   }
 
-  void selectAllItems() {
-    selectAll = true;
-  }
-
-  void deselectAllItems() {
-    selectAll = false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,12 +110,14 @@ class _GridState extends State<Grid> {
                     crossAxisSpacing: 5,
                   ),
                   itemCount: itemList.length,
+                  key: ValueKey<Object>(redrawObject),
                   itemBuilder: (BuildContext context, index) {
                     return GridItem(
                       item: itemList[index],
                       isSelectViewVisible: isSelectViewVisible,
                       isUploadViewVisible: isUploadViewVisible,
-                      selectAll: selectAll,
+                      all: _all,
+                      onChanged: _selectAllTapped,
                       isSelected: (bool value) {
                         setState(() {
                           if (value) {
@@ -118,7 +126,7 @@ class _GridState extends State<Grid> {
                             selectedList.remove(itemList[index]);
                           }
                         });
-                        print("$index : $value");
+                        // print("$index : $value");
                       },
                       key: Key(itemList[index].position.toString()),
                     );
@@ -171,7 +179,6 @@ class _GridState extends State<Grid> {
                               icon: Icon(Icons.more_horiz_rounded),
                               color: Colors.white,
                               onPressed: () {
-                                /**/
                                 // showCupertinoModalPopup(
                                 //   context: context,
                                 //   builder: (context) => CupertinoLogOut(),
@@ -195,9 +202,10 @@ class _GridState extends State<Grid> {
                         ),
                         onPressed: () {
                           showSelectView();
+                          _selectAllTapped(false);
+                          redraw();
                           setState(() {
                             selectedList.clear();
-                            deselectAllItems();
                           });
                         },
                         child: Text(
@@ -238,11 +246,11 @@ class _GridState extends State<Grid> {
                               ),
                             ),
                             onPressed: () {
+                              _selectAllTapped(true);
+                              redraw();
                               setState(() {
-                                selectAllItems();
                                 selectedList = List.from(itemList);
                               });
-                              print('Select All is $selectAll');
                             },
                             child: Row(
                               children: <Widget>[

@@ -7,7 +7,9 @@ class GridItem extends StatefulWidget {
   final ValueChanged<bool> isSelected;
   final bool isSelectViewVisible;
   final bool isUploadViewVisible;
-  final bool selectAll;
+  final bool all;
+  final ValueChanged<bool> onChanged;
+
 
   GridItem({
     this.key,
@@ -15,7 +17,8 @@ class GridItem extends StatefulWidget {
     this.isSelected,
     this.isSelectViewVisible,
     this.isUploadViewVisible,
-    this.selectAll,
+    this.all,
+    this.onChanged
   });
 
   @override
@@ -25,6 +28,12 @@ class GridItem extends StatefulWidget {
 class _GridItemState extends State<GridItem>
     with AutomaticKeepAliveClientMixin {
   bool isSelected = false;
+
+  @override
+  void initState(){
+    widget.all ? isSelected = true : false;
+    super.initState();
+  }
 
   void selectItem() {
     setState(() {
@@ -39,7 +48,6 @@ class _GridItemState extends State<GridItem>
 
   @override
   Widget build(BuildContext context) {
-    print('Is selected is $isSelected');
     super.build(context);
     return GestureDetector(
       // if isSelectViewVisible == false && isUploadViewVisible = true then you can select items. If not, you can't.
