@@ -14,37 +14,77 @@ import 'package:acpic/ui_elements/material_elements.dart';
 //https://api.flutter.dev/flutter/cupertino/CupertinoPageScaffold-class.html
 //https://api.flutter.dev/flutter/cupertino/CupertinoScrollbar-class.html
 //https://api.flutter.dev/flutter/widgets/OrientationBuilder-class.html
-
-final List<Map> myPhotos = List.generate(
-    1000, (index) => {"id": index, "name": index % 2 == 0 ? 1 : 2}).toList();
+import 'grid_item.dart';
 
 class Grid extends StatefulWidget {
   @override
   _GridState createState() => _GridState();
 }
 
+class Item {
+  Item({@required this.imgUrl, @required this.position});
+  String imgUrl;
+  int position;
+}
+
+bool isSelectViewVisible = true;
+bool isUploadViewVisible = true;
+bool isUploadingInProcess = true;
+
 class _GridState extends State<Grid> {
-  bool _isSelectVisible = true;
-  bool _isUploadingVisible = true;
-  bool _isUploadingInProcess = true;
+  List<Item> itemList;
+  List<Item> selectedList;
+
+  @override
+  void initState() {
+    loadList();
+    super.initState();
+  }
+
+  loadList() {
+    itemList = [];
+    selectedList = [];
+    List.generate(1000, (index) {
+      itemList.add(Item(
+          imgUrl:
+          ('images/img_' + (index % 2 == 0 ? 1 : 2).toString() + '.jpg'),
+          position: index));
+    });
+  }
+  //TODO: access device gallery https://pub.dev/packages/image_picker
+
+  bool _all = false;
+  Object redrawObject = Object();
+
+  void _selectAllTapped (bool newValue){
+    setState(() {
+      _all = newValue;
+    });
+  }
+  redraw(){
+    setState(() {
+      redrawObject = Object();
+    });
+  }
 
   void showSelectView() {
     setState(() {
-      _isSelectVisible = !_isSelectVisible;
+      isSelectViewVisible = !isSelectViewVisible;
     });
   }
 
   void showUploadingView() {
     setState(() {
-      _isUploadingVisible = !_isUploadingVisible;
+      isUploadViewVisible = !isUploadViewVisible;
     });
   }
 
   void showUploadingProcess() {
     setState(() {
-      _isUploadingInProcess = !_isUploadingInProcess;
+      isUploadingInProcess = !isUploadingInProcess;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +101,6 @@ class _GridState extends State<Grid> {
             Padding(
               padding: const EdgeInsets.only(bottom: 50.0),
               child: GridView.builder(
-                  //TODO: Make the image selection https://medium.com/flutterdevs/selecting-multiple-item-in-list-in-flutter-811a3049c56f
                   reverse: true,
                   shrinkWrap: true,
                   cacheExtent: 50,
@@ -70,31 +109,38 @@ class _GridState extends State<Grid> {
                     mainAxisSpacing: 5,
                     crossAxisSpacing: 5,
                   ),
-                  itemCount: myPhotos.length,
+                  itemCount: itemList.length,
+                  key: ValueKey<Object>(redrawObject),
                   itemBuilder: (BuildContext context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: AssetImage('images/img_' +
-                              myPhotos[index]['name'].toString() +
-                              '.jpg'),
-                        ),
-                        color: Color(0xFF8b8b8b),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    return GridItem(
+                      item: itemList[index],
+                      isSelectViewVisible: isSelectViewVisible,
+                      isUploadViewVisible: isUploadViewVisible,
+                      all: _all,
+                      onChanged: _selectAllTapped,
+                      isSelected: (bool value) {
+                        setState(() {
+                          if (value) {
+                            selectedList.add(itemList[index]);
+                          } else {
+                            selectedList.remove(itemList[index]);
+                          }
+                        });
+                        // print("$index : $value");
+                      },
+                      key: Key(itemList[index].position.toString()),
                     );
                   }),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0, right: 10),
               child: Visibility(
-                visible: _isUploadingInProcess,
+                visible: isUploadingInProcess,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Visibility(
-                      visible: _isSelectVisible,
+                      visible: isSelectViewVisible,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           primary: Color(0xFF5b6eff),
@@ -118,7 +164,7 @@ class _GridState extends State<Grid> {
                       ),
                     ),
                     Visibility(
-                      visible: _isSelectVisible,
+                      visible: isSelectViewVisible,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Container(
@@ -129,7 +175,7 @@ class _GridState extends State<Grid> {
                             color: Color(0xFF5b6eff),
                           ),
                           child: IconButton(
-                              // TODO: add the Android function
+                            // TODO: add the Android function
                               icon: Icon(Icons.more_horiz_rounded),
                               color: Colors.white,
                               onPressed: () {
@@ -156,6 +202,11 @@ class _GridState extends State<Grid> {
                         ),
                         onPressed: () {
                           showSelectView();
+                          _selectAllTapped(false);
+                          redraw();
+                          setState(() {
+                            selectedList.clear();
+                          });
                         },
                         child: Text(
                           'Cancel',
@@ -172,12 +223,12 @@ class _GridState extends State<Grid> {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 10, left: 10),
                   child: Visibility(
-                    visible: !_isSelectVisible,
+                    visible: !isSelectViewVisible,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Visibility(
-                          visible: _isUploadingVisible,
+                          visible: isUploadViewVisible,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               primary: Colors.white,
@@ -195,12 +246,16 @@ class _GridState extends State<Grid> {
                               ),
                             ),
                             onPressed: () {
-                              /**/
+                              _selectAllTapped(true);
+                              redraw();
+                              setState(() {
+                                selectedList = List.from(itemList);
+                              });
                             },
                             child: Row(
-                              children: [
+                              children: <Widget>[
                                 Stack(
-                                  overflow: Overflow.visible,
+                                  clipBehavior: Clip.none,
                                   children: [
                                     Image.asset(
                                       'images/icon-guide--upload.png',
@@ -232,9 +287,14 @@ class _GridState extends State<Grid> {
                           ),
                         ),
                         Visibility(
-                          visible: _isUploadingVisible,
+                          visible: isUploadViewVisible,
                           child: Text(
-                            '444,444 files selected',
+                            selectedList.length < 1
+                                ? 'No files selected'
+                                : selectedList.length < 2
+                                ? '1 file selected'
+                                : '${selectedList.length} files selected',
+                            // '444,444 files selected',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 12,
@@ -243,7 +303,7 @@ class _GridState extends State<Grid> {
                             ),
                           ),
                           replacement: Text(
-                            '1 / X files uploaded so far...',
+                            'X / ${selectedList.length} files uploaded so far...',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 12,
@@ -253,7 +313,7 @@ class _GridState extends State<Grid> {
                           ),
                         ),
                         Visibility(
-                          visible: _isUploadingVisible,
+                          visible: isUploadViewVisible,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               primary: Color(0xFF5b6eff),
@@ -311,3 +371,9 @@ class _GridState extends State<Grid> {
     );
   }
 }
+
+// final List<Map> myPhotos = List.generate(
+//     1000, (index) => {"id": index, "name": index % 2 == 0 ? 1 : 2}).toList();
+// AssetImage('images/img_' +
+//     myPhotos[index]['name'].toString() +
+//     '.jpg'),
