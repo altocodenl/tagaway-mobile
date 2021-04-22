@@ -1,21 +1,28 @@
 PODS:
   - Flutter (1.0.0)
-  - image_picker (0.0.1):
+  - photo_manager (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - video_player (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
+  - video_player (from `.symlinks/plugins/video_player/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  image_picker:
-    :path: ".symlinks/plugins/image_picker/ios"
+  photo_manager:
+    :path: ".symlinks/plugins/photo_manager/ios"
+  video_player:
+    :path: ".symlinks/plugins/video_player/ios"
 
 SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
-  image_picker: 50e7c7ff960e5f58faa4d1f4af84a771c671bc4a
+  photo_manager: a8db3597a3b44e17ecb331fa099731c99b849496
+  video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 

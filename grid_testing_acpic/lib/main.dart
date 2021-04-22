@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grid_testing_acpic/start.dart';
 import 'grid.dart';
 
 void main() {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
         // primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Grid(),
+      home: StartUpload(),
     );
   }
 }
