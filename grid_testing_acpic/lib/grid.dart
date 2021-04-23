@@ -126,39 +126,41 @@ class _GridState extends State<Grid> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(bottom: 50.0),
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: GridView.builder(
-                    reverse: true,
-                    shrinkWrap: true,
-                    cacheExtent: 50,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 5,
-                      crossAxisSpacing: 5,
-                    ),
-                    itemCount: itemList.length,
-                    key: ValueKey<Object>(redrawObject),
-                    itemBuilder: (BuildContext context, index) {
-                      return GridItem(
-                        item: itemList[index],
-                        isSelectViewVisible: isSelectViewVisible,
-                        isUploadViewVisible: isUploadViewVisible,
-                        all: _all,
-                        onChanged: _selectAllTapped,
-                        isSelected: (bool value) {
-                          setState(() {
-                            if (value) {
-                              selectedList.add(itemList[index]);
-                            } else {
-                              selectedList.remove(itemList[index]);
-                            }
-                          });
-                          // print("$index : $value");
-                        },
-                        key: Key(itemList[index].toString()),
-                      );
-                    }),
+              child: SizedBox.expand(
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: GridView.builder(
+                      reverse: true,
+                      shrinkWrap: true,
+                      cacheExtent: 50,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 5,
+                        crossAxisSpacing: 5,
+                      ),
+                      itemCount: itemList.length,
+                      key: ValueKey<Object>(redrawObject),
+                      itemBuilder: (BuildContext context, index) {
+                        return GridItem(
+                          item: itemList[index],
+                          isSelectViewVisible: isSelectViewVisible,
+                          isUploadViewVisible: isUploadViewVisible,
+                          all: _all,
+                          onChanged: _selectAllTapped,
+                          isSelected: (bool value) {
+                            setState(() {
+                              if (value) {
+                                selectedList.add(itemList[index]);
+                              } else {
+                                selectedList.remove(itemList[index]);
+                              }
+                            });
+                            // print("$index : $value");
+                          },
+                          key: Key(itemList[index].toString()),
+                        );
+                      }),
+                ),
               ),
             ),
             Padding(
