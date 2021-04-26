@@ -79,6 +79,10 @@ class _GridItemState extends State<GridItem>
                   ),
                 ),
               ),
+              widget.item.type == AssetType.video ? Align(
+                alignment: Alignment.bottomCenter,
+                child: Text(Duration(seconds:widget.item.duration).abs().toString(), style: TextStyle(color: Colors.white),),
+              ) : Container(),
               isSelected
                   ? Align(
                 alignment: Alignment.topRight,
@@ -97,7 +101,6 @@ class _GridItemState extends State<GridItem>
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }
 

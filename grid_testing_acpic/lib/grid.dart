@@ -130,6 +130,7 @@ class _GridState extends State<Grid> {
                 child: Directionality(
                   textDirection: TextDirection.rtl,
                   child: GridView.builder(
+                      //TODO: Fix case for when there are less than 30 images (it shoudl always start from the top in reverse order)
                       reverse: true,
                       shrinkWrap: true,
                       cacheExtent: 50,
