@@ -46,6 +46,15 @@ class _GridItemState extends State<GridItem>
     });
   }
 
+  String parseVideoDuration (Duration duration){
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -54,11 +63,11 @@ class _GridItemState extends State<GridItem>
       builder: (_, snapshot){
         final bytes = snapshot.data;
         // If we have no data, display a spinner
-        if (bytes == null) return CircularProgressIndicator();
+        if (bytes == null) return CircularProgressIndicator(valueColor:AlwaysStoppedAnimation<Color>(Color(0xFF5b6eff)),);
         // If there's data, display it as an image
         return GestureDetector(
-// if isSelectViewVisible == false && isUploadViewVisible = true then you can select items. If not, you can't.
-// Probably streaming the state of the bool's is the best option, since that way I can manipulate how the GridItem behaves.
+        // if isSelectViewVisible == false && isUploadViewVisible = true then you can select items. If not, you can't.
+        // Probably streaming the state of the bool's is the best option, since that way I can manipulate how the GridItem behaves.
           onTap: () {
             isSelectViewVisible == false && isUploadingInProcess == true
                 ? selectItem()
@@ -80,8 +89,12 @@ class _GridItemState extends State<GridItem>
                 ),
               ),
               widget.item.type == AssetType.video ? Align(
-                alignment: Alignment.bottomCenter,
-                child: Text(Duration(seconds:widget.item.duration).abs().toString(), style: TextStyle(color: Colors.white),),
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 5.0, bottom: 5),
+                  child: Text(parseVideoDuration(Duration(seconds: widget.item.duration)),
+                    style: TextStyle(color: Colors.white, fontSize: 14),),
+                ),
               ) : Container(),
               isSelected
                   ? Align(
