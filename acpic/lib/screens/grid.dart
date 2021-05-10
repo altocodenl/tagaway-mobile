@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:core';
+import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -32,26 +33,8 @@ bool isUploadViewVisible = true;
 bool isUploadingInProcess = true;
 
 class _GridState extends State<Grid> {
-  List<Item> itemList;
-  List<Item> selectedList;
-
-  @override
-  void initState() {
-    loadList();
-    super.initState();
-  }
-
-  loadList() {
-    itemList = [];
-    selectedList = [];
-    List.generate(1000, (index) {
-      itemList.add(Item(
-          imgUrl:
-          ('images/img_' + (index % 2 == 0 ? 1 : 2).toString() + '.jpg'),
-          position: index));
-    });
-  }
-  //TODO: access device gallery https://pub.dev/packages/image_picker
+  List<AssetEntity> itemList;
+  List<AssetEntity> selectedList;
 
   bool _all = false;
   Object redrawObject = Object();
@@ -85,6 +68,40 @@ class _GridState extends State<Grid> {
     });
   }
 
+  @override
+  void initState() {
+    loadList();
+    super.initState();
+  }
+
+  loadList() {
+    itemList = [];
+    selectedList = [];
+    _fetchAssets();
+  }
+
+  _fetchAssets() async {
+    FilterOptionGroup makeOption(){
+      final option = FilterOption();
+      return FilterOptionGroup()
+        ..addOrderOption(OrderOption(type: OrderOptionType.createDate, asc: false));
+    }
+    final option = makeOption();
+
+    // Set onlyAll to true, to fetch only the 'Recent' album
+    // which contains all the photos/videos in the storage
+    final albums = await PhotoManager.getAssetPathList(onlyAll: true, filterOption: option);
+    final recentAlbum = albums.first;
+
+    // Now that we got the album, fetch all the assets it contains
+    final recentAssets = await recentAlbum.getAssetListRange(
+      start: 0, // start at index 0
+      end: 1000000, // end at a very big index (to get all the assets)
+    );
+
+    // Update the state and notify UI
+    setState(() => itemList = recentAssets);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,37 +117,43 @@ class _GridState extends State<Grid> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(bottom: 50.0),
-              child: GridView.builder(
-                  reverse: true,
-                  shrinkWrap: true,
-                  cacheExtent: 50,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 5,
-                    crossAxisSpacing: 5,
-                  ),
-                  itemCount: itemList.length,
-                  key: ValueKey<Object>(redrawObject),
-                  itemBuilder: (BuildContext context, index) {
-                    return GridItem(
-                      item: itemList[index],
-                      isSelectViewVisible: isSelectViewVisible,
-                      isUploadViewVisible: isUploadViewVisible,
-                      all: _all,
-                      onChanged: _selectAllTapped,
-                      isSelected: (bool value) {
-                        setState(() {
-                          if (value) {
-                            selectedList.add(itemList[index]);
-                          } else {
-                            selectedList.remove(itemList[index]);
-                          }
-                        });
-                        // print("$index : $value");
-                      },
-                      key: Key(itemList[index].position.toString()),
-                    );
-                  }),
+              child: SizedBox.expand(
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: GridView.builder(
+                    //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
+                      reverse: true,
+                      shrinkWrap: true,
+                      cacheExtent: 50,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 5,
+                        crossAxisSpacing: 5,
+                      ),
+                      itemCount: itemList.length,
+                      key: ValueKey<Object>(redrawObject),
+                      itemBuilder: (BuildContext context, index) {
+                        return GridItem(
+                          item: itemList[index],
+                          isSelectViewVisible: isSelectViewVisible,
+                          isUploadViewVisible: isUploadViewVisible,
+                          all: _all,
+                          onChanged: _selectAllTapped,
+                          isSelected: (bool value) {
+                            setState(() {
+                              if (value) {
+                                selectedList.add(itemList[index]);
+                              } else {
+                                selectedList.remove(itemList[index]);
+                              }
+                            });
+                            // print("$index : $value");
+                          },
+                          key: Key(itemList[index].toString()),
+                        );
+                      }),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0, right: 10),
@@ -371,9 +394,3 @@ class _GridState extends State<Grid> {
     );
   }
 }
-
-// final List<Map> myPhotos = List.generate(
-//     1000, (index) => {"id": index, "name": index % 2 == 0 ? 1 : 2}).toList();
-// AssetImage('images/img_' +
-//     myPhotos[index]['name'].toString() +
-//     '.jpg'),

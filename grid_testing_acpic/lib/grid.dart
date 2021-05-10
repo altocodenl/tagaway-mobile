@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'dart:core';
 import 'dart:typed_data';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 import 'dart:io' show Platform;
 
 // IMPORT UI ELEMENTS
@@ -81,12 +80,6 @@ class _GridState extends State<Grid> {
     itemList = [];
     selectedList = [];
     _fetchAssets();
-    // List.generate(1000, (index) {
-    //   itemList.add(Item(
-    //       imgUrl:
-    //       ('images/img_' + (index % 2 == 0 ? 1 : 2).toString() + '.jpg'),
-    //       position: index));
-    // });
   }
 
   _fetchAssets() async {
@@ -130,7 +123,7 @@ class _GridState extends State<Grid> {
                 child: Directionality(
                   textDirection: TextDirection.rtl,
                   child: GridView.builder(
-                      //TODO: Fix case for when there are less than 30 images (it shoudl always start from the top in reverse order)
+                      //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                       reverse: true,
                       shrinkWrap: true,
                       cacheExtent: 50,

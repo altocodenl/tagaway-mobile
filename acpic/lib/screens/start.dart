@@ -2,13 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/cupertino_elements.dart';
-import 'package:acpic/ui_elements/android_elements.dart';
-import 'package:acpic/ui_elements/material_elements.dart';
+// import 'package:acpic/ui_elements/cupertino_elements.dart';
+// import 'package:acpic/ui_elements/android_elements.dart';
+import 'package:acpic/ui_elements//material_elements.dart';
 //IMPORT SCREENS
-import 'package:acpic/screens/grid.dart';
+import 'package:acpic/screens//grid.dart';
 
 //https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
@@ -69,14 +70,11 @@ class _StartUploadState extends State<StartUpload> {
                 RoundedButton(
                   title: 'Upload Pictures',
                   colour: Color(0xFF5b6eff),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return Grid();
-                        },
-                      ),
+                  onPressed: () async {
+                    final permitted = await PhotoManager.requestPermission();
+                    if (!permitted) return;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => Grid()),
                     );
                   },
                 ),
