@@ -60,30 +60,6 @@ class _TopRowState extends State<TopRow> {
             Visibility(
               visible: true,
               // isSelectViewVisible,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF5b6eff),
-                  minimumSize: Size(40, 40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  textStyle: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                onPressed: () {
-                  // showSelectView();
-                },
-                child: Text(
-                  'Select',
-                ),
-              ),
-            ),
-            Visibility(
-              visible: isSelectViewVisible,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Container(
