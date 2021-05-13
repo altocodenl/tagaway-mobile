@@ -1,57 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 import 'grid.dart';
 
-class GridItem extends StatelessWidget {
-  final Key key;
-  final AssetEntity item;
-  final ValueChanged<bool> isSelected;
-  final bool isSelectViewVisible;
-  final bool isUploadViewVisible;
-  final bool all;
-  final ValueChanged<bool> onChanged;
 
-  const GridItem({
-    this.key,
-    this.item,
-    this.isSelected,
-    this.isSelectViewVisible,
-    this.isUploadViewVisible,
-    this.all,
-    this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Uint8List> (
-      future: item.thumbData,
-        builder: (_, snapshot){
-          final bytes = snapshot.data;
-          // If we have no data, display a spinner
-          if (bytes == null) return CircularProgressIndicator(valueColor:AlwaysStoppedAnimation<Color>(Color(0xFF5b6eff)),);
-        return Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: MemoryImage(bytes),
-                ),
-              ),
-            ),
-          ],
-        );
-        }
-    );
-  }
-}
-
-
-
-
-class GridItemOld extends StatefulWidget {
+class GridItem extends StatefulWidget {
   final Key key;
   final AssetEntity item;
   final ValueChanged<bool> isSelected;
@@ -61,7 +14,7 @@ class GridItemOld extends StatefulWidget {
   final ValueChanged<bool> onChanged;
 
 
-  GridItemOld({
+  GridItem({
     this.key,
     this.item,
     this.isSelected,
@@ -72,10 +25,10 @@ class GridItemOld extends StatefulWidget {
   });
 
   @override
-  _GridItemOldState createState() => _GridItemOldState();
+  _GridItemState createState() => _GridItemState();
 }
 
-class _GridItemOldState extends State<GridItemOld>
+class _GridItemState extends State<GridItem>
     with AutomaticKeepAliveClientMixin {
   bool isSelected = false;
 
@@ -109,8 +62,8 @@ class _GridItemOldState extends State<GridItemOld>
         if (bytes == null) return CircularProgressIndicator(valueColor:AlwaysStoppedAnimation<Color>(Color(0xFF5b6eff)),);
         // If there's data, display it as an image
         return GestureDetector(
-        // if isSelectViewVisible == false && isUploadViewVisible = true then you can select items. If not, you can't.
-        // Probably streaming the state of the bool's is the best option, since that way I can manipulate how the GridItem behaves.
+          // if isSelectViewVisible == false && isUploadViewVisible = true then you can select items. If not, you can't.
+          // Probably streaming the state of the bool's is the best option, since that way I can manipulate how the GridItem behaves.
           onTap: () {
             isSelectViewVisible == false && isUploadingInProcess == true
                 ? selectItem()

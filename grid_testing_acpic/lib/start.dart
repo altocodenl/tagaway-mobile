@@ -15,12 +15,8 @@ import 'package:grid_testing_acpic/grid.dart';
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
 //https://api.flutter.dev/flutter/cupertino/CupertinoDialog-class.html
 
-class StartUpload extends StatefulWidget {
-  @override
-  _StartUploadState createState() => _StartUploadState();
-}
+class StartUpload extends StatelessWidget {
 
-class _StartUploadState extends State<StartUpload> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([

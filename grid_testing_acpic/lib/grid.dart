@@ -30,7 +30,7 @@ class Item {
   int position;
 }
 
-bool isSelectViewVisible = true;
+bool isSelectViewVisible = false;
 bool isUploadViewVisible = true;
 bool isUploadingInProcess = true;
 
