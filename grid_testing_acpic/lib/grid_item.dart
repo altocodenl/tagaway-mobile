@@ -59,6 +59,64 @@ class GridItem extends StatelessWidget {
   }
 }
 
+class SelectedAsset extends StatefulWidget {
+  // final ValueChanged<bool> isSelected;
+  // final bool all;
+  // final ValueChanged<bool> onChanged;
+  //
+  // SelectedAsset({this.isSelected, this.all, this.onChanged});
+
+  @override
+  _SelectedAssetState createState() => _SelectedAssetState();
+}
+
+class _SelectedAssetState extends State<SelectedAsset> {
+  bool isSelected = false;
+
+  @override
+  void initState() {
+    // widget.all ? isSelected = true : false;
+    super.initState();
+  }
+
+  void selectItem() {
+    setState(() {
+      isSelected = !isSelected;
+      // widget.isSelected(isSelected);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        selectItem();
+      },
+      child: Stack(
+        children: [
+          Expanded(
+            child: Container(
+              color: isSelected
+                  ? Color(0xFF5b6eff).withOpacity(.3)
+                  : Colors.transparent,
+            ),
+          ),
+          isSelected
+              ? Align(
+                  alignment: Alignment.topRight,
+                  child: Icon(
+                    Icons.circle,
+                    size: 25,
+                    color: Color(0xFF5b6eff),
+                  ),
+                )
+              : Container(),
+        ],
+      ),
+    );
+  }
+}
+
 //
 // class GridItem extends StatefulWidget {
 //   final Key key;
@@ -141,61 +199,3 @@ class GridItem extends StatelessWidget {
 //   @override
 //   bool get wantKeepAlive => true;
 // }
-
-class SelectedAsset extends StatefulWidget {
-  // final ValueChanged<bool> isSelected;
-  // final bool all;
-  // final ValueChanged<bool> onChanged;
-  //
-  // SelectedAsset({this.isSelected, this.all, this.onChanged});
-
-  @override
-  _SelectedAssetState createState() => _SelectedAssetState();
-}
-
-class _SelectedAssetState extends State<SelectedAsset> {
-  bool isSelected = false;
-
-  @override
-  void initState() {
-    // widget.all ? isSelected = true : false;
-    super.initState();
-  }
-
-  void selectItem() {
-    setState(() {
-      isSelected = !isSelected;
-      // widget.isSelected(isSelected);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        selectItem();
-      },
-      child: Stack(
-        children: [
-          Expanded(
-            child: Container(
-              color: isSelected
-                  ? Color(0xFF5b6eff).withOpacity(.3)
-                  : Colors.transparent,
-            ),
-          ),
-          isSelected
-              ? Align(
-                  alignment: Alignment.topRight,
-                  child: Icon(
-                    Icons.circle,
-                    size: 25,
-                    color: Color(0xFF5b6eff),
-                  ),
-                )
-              : Container(),
-        ],
-      ),
-    );
-  }
-}

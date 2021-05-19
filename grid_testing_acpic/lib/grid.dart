@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'dart:core';
 import 'dart:typed_data';
 import 'package:photo_manager/photo_manager.dart';
@@ -28,14 +29,17 @@ class GridPage extends StatelessWidget {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Grid(),
-            TopRow(),
-            BottomRow(),
-          ],
+    return ChangeNotifierProvider<RowController>(
+      create: (_) => RowController(),
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Grid(),
+              TopRow(),
+              BottomRow(),
+            ],
+          ),
         ),
       ),
     );
@@ -160,20 +164,19 @@ class TopRow extends StatefulWidget {
   _TopRowState createState() => _TopRowState();
 }
 
-bool isUploadingInProcess = false;
-
 class _TopRowState extends State<TopRow> {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0, right: 10),
       child: Visibility(
-        visible: !isUploadingInProcess,
+        visible: !(Provider.of<RowController>(context).isUploadingInProcess),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             Visibility(
-              visible: !isUploadingInProcess,
+              visible:
+                  !(Provider.of<RowController>(context).isUploadingInProcess),
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Container(
@@ -237,12 +240,6 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
-  void showUploadingProcess() {
-    setState(() {
-      isUploadingInProcess = !isUploadingInProcess;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
@@ -254,7 +251,8 @@ class _BottomRowState extends State<BottomRow> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Visibility(
-                visible: !isUploadingInProcess,
+                visible:
+                    !(Provider.of<RowController>(context).isUploadingInProcess),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Colors.white,
@@ -312,7 +310,8 @@ class _BottomRowState extends State<BottomRow> {
                 ),
               ),
               Visibility(
-                visible: !isUploadingInProcess,
+                visible:
+                    !(Provider.of<RowController>(context).isUploadingInProcess),
                 child: Text(
                   // selectedList.length < 1
                   //     ? 'No files selected'
@@ -339,7 +338,8 @@ class _BottomRowState extends State<BottomRow> {
                 ),
               ),
               Visibility(
-                visible: !isUploadingInProcess,
+                visible:
+                    !(Provider.of<RowController>(context).isUploadingInProcess),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Color(0xFF5b6eff),
@@ -355,7 +355,8 @@ class _BottomRowState extends State<BottomRow> {
                     ),
                   ),
                   onPressed: () {
-                    showUploadingProcess();
+                    Provider.of<RowController>(context, listen: false)
+                        .showUploadingProcess();
                   },
                   child: Text(
                     'Upload',
@@ -376,7 +377,8 @@ class _BottomRowState extends State<BottomRow> {
                     ),
                   ),
                   onPressed: () {
-                    showUploadingProcess();
+                    Provider.of<RowController>(context, listen: false)
+                        .showUploadingProcess();
                   },
                   child: Text(
                     'Cancel',
@@ -388,5 +390,13 @@ class _BottomRowState extends State<BottomRow> {
         ),
       ),
     );
+  }
+}
+
+class RowController extends ChangeNotifier {
+  bool isUploadingInProcess = false;
+  void showUploadingProcess() {
+    isUploadingInProcess = !isUploadingInProcess;
+    notifyListeners();
   }
 }
