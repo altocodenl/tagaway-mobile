@@ -21,6 +21,23 @@ import 'dart:io' show Platform;
 import 'grid_item.dart';
 
 class ProviderController extends ChangeNotifier {
+  Object redrawObject = Object();
+  redraw() {
+    redrawObject = Object();
+  }
+
+  bool all = false;
+  void selectAllTapped(bool newValue) {
+    all = newValue;
+    notifyListeners();
+  }
+
+  bool isSelectionInProcess = false;
+  void selectionInProcess() {
+    isSelectionInProcess = !isSelectionInProcess;
+    notifyListeners();
+  }
+
   bool isUploadingInProcess = false;
   void showUploadingProcess() {
     isUploadingInProcess = !isUploadingInProcess;
@@ -69,21 +86,6 @@ class Item {
 class _GridState extends State<Grid> {
   List<AssetEntity> itemList;
   List<AssetEntity> selectedList;
-
-  bool _all = false;
-  Object redrawObject = Object();
-
-  void _selectAllTapped(bool newValue) {
-    setState(() {
-      _all = newValue;
-    });
-  }
-
-  redraw() {
-    setState(() {
-      redrawObject = Object();
-    });
-  }
 
   @override
   void initState() {
@@ -141,12 +143,14 @@ class _GridState extends State<Grid> {
                 crossAxisSpacing: 5,
               ),
               itemCount: itemList.length,
-              key: ValueKey<Object>(redrawObject),
+              key: ValueKey<Object>(
+                  Provider.of<ProviderController>(context).redrawObject),
               itemBuilder: (BuildContext context, index) {
                 return GridItem(
                   item: itemList[index],
-                  all: _all,
-                  onChanged: _selectAllTapped,
+                  all: Provider.of<ProviderController>(context).all,
+                  onChanged:
+                      Provider.of<ProviderController>(context).selectAllTapped,
                   isSelected: (bool value) {
                     setState(() {
                       if (value) {
@@ -185,7 +189,7 @@ class _TopRowState extends State<TopRow> {
           children: <Widget>[
             Visibility(
               visible: !(Provider.of<ProviderController>(context)
-                  .isUploadingInProcess),
+                  .isSelectionInProcess),
               child: Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Container(
@@ -222,9 +226,12 @@ class _TopRowState extends State<TopRow> {
                   ),
                 ),
                 onPressed: () {
-                  // showSelectView();
-                  // _selectAllTapped(false);
-                  // redraw();
+                  Provider.of<ProviderController>(context, listen: false)
+                      .selectAllTapped(false);
+                  Provider.of<ProviderController>(context, listen: false)
+                      .redraw();
+                  Provider.of<ProviderController>(context, listen: false)
+                      .selectionInProcess();
                   // setState(() {
                   //   selectedList.clear();
                   // });
@@ -278,8 +285,12 @@ class _BottomRowState extends State<BottomRow> {
                     ),
                   ),
                   onPressed: () {
-                    // _selectAllTapped(true);
-                    // redraw();
+                    Provider.of<ProviderController>(context, listen: false)
+                        .selectAllTapped(true);
+                    Provider.of<ProviderController>(context, listen: false)
+                        .redraw();
+                    Provider.of<ProviderController>(context, listen: false)
+                        .selectionInProcess();
                     // setState(() {
                     //   selectedList = List.from(itemList);
                     // });
