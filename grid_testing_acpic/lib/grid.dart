@@ -33,8 +33,8 @@ class ProviderController extends ChangeNotifier {
   }
 
   bool isSelectionInProcess = false;
-  void selectionInProcess() {
-    isSelectionInProcess = !isSelectionInProcess;
+  void selectionInProcess(bool newValue) {
+    isSelectionInProcess = newValue;
     notifyListeners();
   }
 
@@ -231,7 +231,7 @@ class _TopRowState extends State<TopRow> {
                   Provider.of<ProviderController>(context, listen: false)
                       .redraw();
                   Provider.of<ProviderController>(context, listen: false)
-                      .selectionInProcess();
+                      .selectionInProcess(false);
                   // setState(() {
                   //   selectedList.clear();
                   // });
@@ -290,7 +290,7 @@ class _BottomRowState extends State<BottomRow> {
                     Provider.of<ProviderController>(context, listen: false)
                         .redraw();
                     Provider.of<ProviderController>(context, listen: false)
-                        .selectionInProcess();
+                        .selectionInProcess(true);
                     // setState(() {
                     //   selectedList = List.from(itemList);
                     // });
