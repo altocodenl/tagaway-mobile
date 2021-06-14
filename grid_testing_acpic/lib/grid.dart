@@ -152,14 +152,20 @@ class _GridState extends State<Grid> {
                   onChanged:
                       Provider.of<ProviderController>(context).selectAllTapped,
                   isSelected: (bool value) {
-                    setState(() {
-                      if (value) {
-                        selectedList.add(itemList[index]);
-                      } else {
-                        selectedList.remove(itemList[index]);
-                      }
-                    });
+                    if (value) {
+                      selectedList.add(itemList[index]);
+                    } else {
+                      selectedList.remove(itemList[index]);
+                    }
+                    // setState(() {
+                    //   if (value) {
+                    //     selectedList.add(itemList[index]);
+                    //   } else {
+                    //     selectedList.remove(itemList[index]);
+                    //   }
+                    // });
                     // print("$index : $value");
+                    print(selectedList.length);
                   },
                   key: Key(itemList[index].toString()),
                 );
