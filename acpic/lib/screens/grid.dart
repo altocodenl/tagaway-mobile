@@ -39,12 +39,13 @@ class _GridState extends State<Grid> {
   bool _all = false;
   Object redrawObject = Object();
 
-  void _selectAllTapped (bool newValue){
+  void _selectAllTapped(bool newValue) {
     setState(() {
       _all = newValue;
     });
   }
-  redraw(){
+
+  redraw() {
     setState(() {
       redrawObject = Object();
     });
@@ -81,16 +82,19 @@ class _GridState extends State<Grid> {
   }
 
   _fetchAssets() async {
-    FilterOptionGroup makeOption(){
+    FilterOptionGroup makeOption() {
       final option = FilterOption();
       return FilterOptionGroup()
-        ..addOrderOption(OrderOption(type: OrderOptionType.createDate, asc: false));
+        ..addOrderOption(
+            OrderOption(type: OrderOptionType.createDate, asc: false));
     }
+
     final option = makeOption();
 
     // Set onlyAll to true, to fetch only the 'Recent' album
     // which contains all the photos/videos in the storage
-    final albums = await PhotoManager.getAssetPathList(onlyAll: true, filterOption: option);
+    final albums = await PhotoManager.getAssetPathList(
+        onlyAll: true, filterOption: option);
     final recentAlbum = albums.first;
 
     // Now that we got the album, fetch all the assets it contains
@@ -121,7 +125,7 @@ class _GridState extends State<Grid> {
                 child: Directionality(
                   textDirection: TextDirection.rtl,
                   child: GridView.builder(
-                    //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
+                      //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                       reverse: true,
                       shrinkWrap: true,
                       cacheExtent: 50,
@@ -198,7 +202,7 @@ class _GridState extends State<Grid> {
                             color: Color(0xFF5b6eff),
                           ),
                           child: IconButton(
-                            // TODO: add the Android function
+                              // TODO: add the Android function
                               icon: Icon(Icons.more_horiz_rounded),
                               color: Colors.white,
                               onPressed: () {
@@ -315,8 +319,8 @@ class _GridState extends State<Grid> {
                             selectedList.length < 1
                                 ? 'No files selected'
                                 : selectedList.length < 2
-                                ? '1 file selected'
-                                : '${selectedList.length} files selected',
+                                    ? '1 file selected'
+                                    : '${selectedList.length} files selected',
                             // '444,444 files selected',
                             style: TextStyle(
                               fontFamily: 'Montserrat',

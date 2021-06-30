@@ -7,10 +7,10 @@ class GridItem extends StatelessWidget {
   final Key key;
   final AssetEntity item;
   final ValueChanged<bool> isSelected;
-  final bool all;
-  final ValueChanged<bool> onChanged;
 
-  GridItem({this.key, this.item, this.isSelected, this.all, this.onChanged});
+  final bool all;
+
+  GridItem({this.key, this.item, this.isSelected, this.all});
 
   String parseVideoDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -53,7 +53,6 @@ class GridItem extends StatelessWidget {
                 : Container(),
             SelectedAsset(
               all: all,
-              onChanged: onChanged,
               isSelected: isSelected,
             ),
           ],
@@ -65,10 +64,10 @@ class GridItem extends StatelessWidget {
 
 class SelectedAsset extends StatefulWidget {
   final ValueChanged<bool> isSelected;
-  final bool all;
-  final ValueChanged<bool> onChanged;
 
-  SelectedAsset({this.isSelected, this.all, this.onChanged});
+  final bool all;
+
+  SelectedAsset({this.isSelected, this.all});
 
   @override
   _SelectedAssetState createState() => _SelectedAssetState();
@@ -125,5 +124,3 @@ class _SelectedAssetState extends State<SelectedAsset>
   @override
   bool get wantKeepAlive => true;
 }
-
-//TODO: What if you move all this to grid.dart and try to use the ProviderController on this aswell

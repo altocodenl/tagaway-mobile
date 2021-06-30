@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'dart:core';
 import 'dart:typed_data';
+import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 
@@ -125,6 +126,12 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
+  // Stream<List<dynamic>> selectedListStatus() async* {
+  //   var i = await selectedList.length;
+  // }
+  //
+  // StreamController<int> sc = StreamController.broadcast();
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -149,8 +156,6 @@ class _GridState extends State<Grid> {
                 return GridItem(
                   item: itemList[index],
                   all: Provider.of<ProviderController>(context).all,
-                  onChanged:
-                      Provider.of<ProviderController>(context).selectAllTapped,
                   isSelected: (bool value) {
                     if (value) {
                       selectedList.add(itemList[index]);
@@ -180,6 +185,13 @@ class _GridState extends State<Grid> {
 class TopRow extends StatefulWidget {
   @override
   _TopRowState createState() => _TopRowState();
+}
+
+Stream<int> numberStream() async* {
+  for (int i = 1; i <= 10; i++) {
+    await Future.delayed(Duration(seconds: 1));
+    yield i;
+  }
 }
 
 class _TopRowState extends State<TopRow> {
@@ -238,6 +250,7 @@ class _TopRowState extends State<TopRow> {
                       .redraw();
                   Provider.of<ProviderController>(context, listen: false)
                       .selectionInProcess(false);
+
                   // setState(() {
                   //   selectedList.clear();
                   // });
@@ -297,6 +310,7 @@ class _BottomRowState extends State<BottomRow> {
                         .redraw();
                     Provider.of<ProviderController>(context, listen: false)
                         .selectionInProcess(true);
+
                     // setState(() {
                     //   selectedList = List.from(itemList);
                     // });
@@ -336,33 +350,43 @@ class _BottomRowState extends State<BottomRow> {
                 ),
               ),
               Visibility(
-                visible: !(Provider.of<ProviderController>(context)
-                    .isUploadingInProcess),
-                child: Text(
-                  // selectedList.length < 1
-                  //     ? 'No files selected'
-                  //     : selectedList.length < 2
-                  //     ? '1 file selected'
-                  //     : '${selectedList.length} files selected',
-                  '444,444 files selected',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
+                  visible: !(Provider.of<ProviderController>(context)
+                      .isUploadingInProcess),
+                  child: StreamBuilder(
+                    stream: numberStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError)
+                        return Text('This is an error');
+                      else if (snapshot.connectionState ==
+                          ConnectionState.waiting) return Text('Waiting');
+                      return Text('${snapshot.data}');
+                    },
+                  )
+                  // Text(
+                  //   // selectedList.length < 1
+                  //   //     ? 'No files selected'
+                  //   //     : selectedList.length < 2
+                  //   //     ? '1 file selected'
+                  //   //     : '${selectedList.length} files selected',
+                  //   '444,444 files selected',
+                  //   style: TextStyle(
+                  //     fontFamily: 'Montserrat',
+                  //     fontSize: 12,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Color(0xFF333333),
+                  //   ),
+                  // ),
+                  // replacement: Text(
+                  //   // 'X / ${selectedList.length} files uploaded so far...',
+                  //   'X/X files uploaded so far...',
+                  //   style: TextStyle(
+                  //     fontFamily: 'Montserrat',
+                  //     fontSize: 12,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Color(0xFF333333),
+                  //   ),
+                  // ),
                   ),
-                ),
-                replacement: Text(
-                  // 'X / ${selectedList.length} files uploaded so far...',
-                  'X/X files uploaded so far...',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-              ),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
                     .isUploadingInProcess),
