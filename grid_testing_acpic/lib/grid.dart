@@ -21,6 +21,29 @@ import 'dart:io' show Platform;
 //https://api.flutter.dev/flutter/widgets/OrientationBuilder-class.html
 import 'grid_item.dart';
 
+//Regarding the selectedList event issue:
+// Option 1: try to solve it through provider
+// Option 2: Create a Controller Class of the stream, add a subscriber in Grid and try to go for a controller.add() to try and add data to the stream. Then change it to broadcast
+// Option 3: Create the StreamController inside Grid and try to access it through a subscriber in BottomRow
+// Option 4: Inherited Widget + streams. Create a broadcast through a StreamController in a InheritedWidget and then reference it from Grid to add to sink
+// Option 5: Provider to send the value of selectedList.length upstream and then make it downstream through a broadcast
+
+// List ALL the cases where events will be needed in this view. Otherwise you'll go bananas.
+
+class NumberCreator {
+  NumberCreator() {
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      _controller.sink.add(_count);
+      _count++;
+    });
+  }
+
+  var _count = 1;
+
+  final _controller = StreamController<int>();
+  Stream<int> get stream => _controller.stream;
+}
+
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
   redraw() {
@@ -126,11 +149,10 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
-  // Stream<List<dynamic>> selectedListStatus() async* {
-  //   var i = await selectedList.length;
-  // }
-  //
-  // StreamController<int> sc = StreamController.broadcast();
+  selectedListLengthCounter() {
+    int currentSelectedListLength = selectedList.length;
+    print('Hello, this is $currentSelectedListLength');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,8 +181,10 @@ class _GridState extends State<Grid> {
                   isSelected: (bool value) {
                     if (value) {
                       selectedList.add(itemList[index]);
+                      selectedListLengthCounter();
                     } else {
                       selectedList.remove(itemList[index]);
+                      selectedListLengthCounter();
                     }
                     // setState(() {
                     //   if (value) {
@@ -170,7 +194,7 @@ class _GridState extends State<Grid> {
                     //   }
                     // });
                     // print("$index : $value");
-                    print(selectedList.length);
+                    // print(selectedList.length);
                   },
                   key: Key(itemList[index].toString()),
                 );
@@ -185,13 +209,6 @@ class _GridState extends State<Grid> {
 class TopRow extends StatefulWidget {
   @override
   _TopRowState createState() => _TopRowState();
-}
-
-Stream<int> numberStream() async* {
-  for (int i = 1; i <= 10; i++) {
-    await Future.delayed(Duration(seconds: 1));
-    yield i;
-  }
 }
 
 class _TopRowState extends State<TopRow> {
@@ -353,7 +370,7 @@ class _BottomRowState extends State<BottomRow> {
                   visible: !(Provider.of<ProviderController>(context)
                       .isUploadingInProcess),
                   child: StreamBuilder(
-                    stream: numberStream(),
+                    stream: NumberCreator().stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasError)
                         return Text('This is an error');
