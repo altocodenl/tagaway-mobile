@@ -22,13 +22,20 @@ import 'dart:io' show Platform;
 import 'grid_item.dart';
 
 //Regarding the selectedList event issue:
-// Option 1: try to solve it through provider
+// [NOPE] Option 1: try to solve it through provider
 // Option 2: Create a Controller Class of the stream, add a subscriber in Grid and try to go for a controller.add() to try and add data to the stream. Then change it to broadcast
-// Option 3: Create the StreamController inside Grid and try to access it through a subscriber in BottomRow
+// [NOPE] Option 3: Create the StreamController inside Grid and try to access it through a subscriber in BottomRow
 // Option 4: Inherited Widget + streams. Create a broadcast through a StreamController in a InheritedWidget and then reference it from Grid to add to sink
 // Option 5: Provider to send the value of selectedList.length upstream and then make it downstream through a broadcast
 
 // List ALL the cases where events will be needed in this view. Otherwise you'll go bananas.
+//selectedList.length > that will go for:
+//                                        Counter at BottomRow
+//                                        If selectedList.length > 0, then TopRow changes to selectionMode
+// all == true; must turn selectedList = List.from(itemList);
+// Through events can I avoid the setState() of 'all' in SelectedAsset()?
+// click of 'Cancel' in TopRow must call selectedList.clear();
+//
 
 class NumberCreator {
   NumberCreator() {
@@ -42,6 +49,31 @@ class NumberCreator {
 
   final _controller = StreamController<int>();
   Stream<int> get stream => _controller.stream;
+}
+
+class Broadcaster {
+  // Try option 2 here
+
+  final selectedListLengthController = StreamController<int>.broadcast();
+  Stream<int> get stream => selectedListLengthController.stream;
+
+  // How do I add a sink in Grid()?
+
+  //
+  // @override
+  // void dispose() {
+  //   selectedListLengthController.close();
+  //   super.dispose();
+  // }
+  //
+  // SelectedListLengthCounter() {
+  //   selectedListLengthController.sink.add(selectedList.length);
+  // }
+
+// selectedListLengthCounter() {
+//   int currentSelectedListLength = selectedList.length;
+//   print('Hello, this is $currentSelectedListLength');
+// }
 }
 
 class ProviderController extends ChangeNotifier {
@@ -149,11 +181,6 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
-  selectedListLengthCounter() {
-    int currentSelectedListLength = selectedList.length;
-    print('Hello, this is $currentSelectedListLength');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -181,10 +208,8 @@ class _GridState extends State<Grid> {
                   isSelected: (bool value) {
                     if (value) {
                       selectedList.add(itemList[index]);
-                      selectedListLengthCounter();
                     } else {
                       selectedList.remove(itemList[index]);
-                      selectedListLengthCounter();
                     }
                     // setState(() {
                     //   if (value) {
@@ -194,7 +219,7 @@ class _GridState extends State<Grid> {
                     //   }
                     // });
                     // print("$index : $value");
-                    // print(selectedList.length);
+                    print(selectedList.length);
                   },
                   key: Key(itemList[index].toString()),
                 );
