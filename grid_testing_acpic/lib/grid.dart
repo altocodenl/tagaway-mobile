@@ -37,45 +37,6 @@ import 'grid_item.dart';
 // click of 'Cancel' in TopRow must call selectedList.clear();
 //
 
-class NumberCreator {
-  NumberCreator() {
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      _controller.sink.add(_count);
-      _count++;
-    });
-  }
-
-  var _count = 1;
-
-  final _controller = StreamController<int>();
-  Stream<int> get stream => _controller.stream;
-}
-
-class Broadcaster {
-  // Try option 2 here
-
-  final selectedListLengthController = StreamController<int>.broadcast();
-  Stream<int> get stream => selectedListLengthController.stream;
-
-  // How do I add a sink in Grid()?
-
-  //
-  // @override
-  // void dispose() {
-  //   selectedListLengthController.close();
-  //   super.dispose();
-  // }
-  //
-  // SelectedListLengthCounter() {
-  //   selectedListLengthController.sink.add(selectedList.length);
-  // }
-
-// selectedListLengthCounter() {
-//   int currentSelectedListLength = selectedList.length;
-//   print('Hello, this is $currentSelectedListLength');
-// }
-}
-
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
   redraw() {
@@ -101,7 +62,22 @@ class ProviderController extends ChangeNotifier {
   }
 }
 
-class GridPage extends StatelessWidget {
+class GridPage extends StatefulWidget {
+  @override
+  _GridPageState createState() => _GridPageState();
+}
+
+class _GridPageState extends State<GridPage> {
+  final selectedListLengthController = StreamController<int>.broadcast();
+
+  // TODO: Would it make sense to use a StreamProvider<T> class for this Broadcast?
+
+  @override
+  void dispose() {
+    selectedListLengthController.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -116,9 +92,15 @@ class GridPage extends StatelessWidget {
         body: SafeArea(
           child: Stack(
             children: [
-              Grid(),
+              Grid(
+                selectedListLengthStreamController:
+                    selectedListLengthController,
+              ),
               TopRow(),
-              BottomRow(),
+              BottomRow(
+                selectedListLengthStreamController:
+                    selectedListLengthController,
+              ),
             ],
           ),
         ),
@@ -129,6 +111,9 @@ class GridPage extends StatelessWidget {
 
 // Grid
 class Grid extends StatefulWidget {
+  final StreamController<int> selectedListLengthStreamController;
+  Grid({@required this.selectedListLengthStreamController});
+
   @override
   _GridState createState() => _GridState();
 }
@@ -183,6 +168,8 @@ class _GridState extends State<Grid> {
 
   @override
   Widget build(BuildContext context) {
+    print('Drawing');
+    // TODO: Use Selector here (and the others) to avoid unnecesary redrawing.
     return Padding(
       padding: const EdgeInsets.only(bottom: 50.0),
       child: SizedBox.expand(
@@ -208,8 +195,12 @@ class _GridState extends State<Grid> {
                   isSelected: (bool value) {
                     if (value) {
                       selectedList.add(itemList[index]);
+                      widget.selectedListLengthStreamController.sink
+                          .add(selectedList.length);
                     } else {
                       selectedList.remove(itemList[index]);
+                      widget.selectedListLengthStreamController.sink
+                          .add(selectedList.length);
                     }
                     // setState(() {
                     //   if (value) {
@@ -312,6 +303,9 @@ class _TopRowState extends State<TopRow> {
 //Bottom Row
 
 class BottomRow extends StatefulWidget {
+  final StreamController<int> selectedListLengthStreamController;
+  BottomRow({@required this.selectedListLengthStreamController});
+
   @override
   _BottomRowState createState() => _BottomRowState();
 }
@@ -392,43 +386,48 @@ class _BottomRowState extends State<BottomRow> {
                 ),
               ),
               Visibility(
-                  visible: !(Provider.of<ProviderController>(context)
-                      .isUploadingInProcess),
-                  child: StreamBuilder(
-                    stream: NumberCreator().stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError)
-                        return Text('This is an error');
-                      else if (snapshot.connectionState ==
-                          ConnectionState.waiting) return Text('Waiting');
-                      return Text('${snapshot.data}');
-                    },
-                  )
-                  // Text(
-                  //   // selectedList.length < 1
-                  //   //     ? 'No files selected'
-                  //   //     : selectedList.length < 2
-                  //   //     ? '1 file selected'
-                  //   //     : '${selectedList.length} files selected',
-                  //   '444,444 files selected',
-                  //   style: TextStyle(
-                  //     fontFamily: 'Montserrat',
-                  //     fontSize: 12,
-                  //     fontWeight: FontWeight.bold,
-                  //     color: Color(0xFF333333),
-                  //   ),
-                  // ),
-                  // replacement: Text(
-                  //   // 'X / ${selectedList.length} files uploaded so far...',
-                  //   'X/X files uploaded so far...',
-                  //   style: TextStyle(
-                  //     fontFamily: 'Montserrat',
-                  //     fontSize: 12,
-                  //     fontWeight: FontWeight.bold,
-                  //     color: Color(0xFF333333),
-                  //   ),
-                  // ),
-                  ),
+                visible: !(Provider.of<ProviderController>(context)
+                    .isUploadingInProcess),
+                child: StreamBuilder(
+                  stream: widget.selectedListLengthStreamController.stream
+                      .asBroadcastStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError)
+                      return Text('There\'s been an error');
+                    else if (snapshot.connectionState ==
+                        ConnectionState.waiting)
+                      return Text(
+                        'No files selected',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333),
+                        ),
+                      );
+                    return Text(
+                        snapshot.data < 1
+                            ? 'No files selected'
+                            : '${snapshot.data} files selected',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333),
+                        ));
+                  },
+                ),
+                // replacement: Text(
+                //   // 'X / ${selectedList.length} files uploaded so far...',
+                //   'X/X files uploaded so far...',
+                //   style: TextStyle(
+                //     fontFamily: 'Montserrat',
+                //     fontSize: 12,
+                //     fontWeight: FontWeight.bold,
+                //     color: Color(0xFF333333),
+                //   ),
+                // ),
+              ),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
                     .isUploadingInProcess),
