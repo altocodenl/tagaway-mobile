@@ -7,6 +7,7 @@ import 'dart:core';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tuple/tuple.dart';
 import 'dart:io' show Platform;
 
 // IMPORT UI ELEMENTS
@@ -168,53 +169,61 @@ class _GridState extends State<Grid> {
 
   @override
   Widget build(BuildContext context) {
-    print('Drawing');
-    // TODO: Use Selector here (and the others) to avoid unnecesary redrawing.
+    print('Drawing entire view');
     return Padding(
       padding: const EdgeInsets.only(bottom: 50.0),
       child: SizedBox.expand(
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: GridView.builder(
-              //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
-              reverse: true,
-              shrinkWrap: true,
-              cacheExtent: 50,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 5,
-                crossAxisSpacing: 5,
-              ),
-              itemCount: itemList.length,
-              key: ValueKey<Object>(
-                  Provider.of<ProviderController>(context).redrawObject),
-              itemBuilder: (BuildContext context, index) {
-                return GridItem(
-                  item: itemList[index],
-                  all: Provider.of<ProviderController>(context).all,
-                  isSelected: (bool value) {
-                    if (value) {
-                      selectedList.add(itemList[index]);
-                      widget.selectedListLengthStreamController.sink
-                          .add(selectedList.length);
-                    } else {
-                      selectedList.remove(itemList[index]);
-                      widget.selectedListLengthStreamController.sink
-                          .add(selectedList.length);
-                    }
-                    // setState(() {
-                    //   if (value) {
-                    //     selectedList.add(itemList[index]);
-                    //   } else {
-                    //     selectedList.remove(itemList[index]);
-                    //   }
-                    // });
-                    // print("$index : $value");
-                    print(selectedList.length);
-                  },
-                  key: Key(itemList[index].toString()),
-                );
-              }),
+          child: Selector<ProviderController, Tuple2<Function, bool>>(
+            selector: (context, providerController) =>
+                Tuple2(providerController.redraw(), providerController.all),
+            builder: (context, providerData, child) {
+              print('Drawing GridView Builder');
+              return GridView.builder(
+                  //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
+                  reverse: true,
+                  shrinkWrap: true,
+                  cacheExtent: 50,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 5,
+                    crossAxisSpacing: 5,
+                  ),
+                  itemCount: itemList.length,
+                  key: ValueKey<Object>(providerData.item1),
+
+                  // Provider.of<ProviderController>(context).redrawObject),
+                  itemBuilder: (BuildContext context, index) {
+                    print('Drawing GridItem');
+                    return GridItem(
+                      item: itemList[index],
+                      all: providerData.item2,
+                      isSelected: (bool value) {
+                        if (value) {
+                          selectedList.add(itemList[index]);
+                          widget.selectedListLengthStreamController.sink
+                              .add(selectedList.length);
+                        } else {
+                          selectedList.remove(itemList[index]);
+                          widget.selectedListLengthStreamController.sink
+                              .add(selectedList.length);
+                        }
+                        // setState(() {
+                        //   if (value) {
+                        //     selectedList.add(itemList[index]);
+                        //   } else {
+                        //     selectedList.remove(itemList[index]);
+                        //   }
+                        // });
+                        // print("$index : $value");
+                        print(selectedList.length);
+                      },
+                      key: Key(itemList[index].toString()),
+                    );
+                  });
+            },
+          ),
         ),
       ),
     );

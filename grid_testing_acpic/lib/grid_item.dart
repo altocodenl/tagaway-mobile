@@ -20,6 +20,7 @@ class GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(' Checking the value of all $all');
     return FutureBuilder<Uint8List>(
       future: item.thumbData,
       builder: (_, snapshot) {
@@ -92,6 +93,7 @@ class _SelectedAssetState extends State<SelectedAsset>
 
   @override
   Widget build(BuildContext context) {
+    print('The value of all in SelectedAsset is ${widget.all}');
     super.build(context);
     return GestureDetector(
       onTap: () {
