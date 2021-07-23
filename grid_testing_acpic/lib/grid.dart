@@ -7,7 +7,6 @@ import 'dart:core';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:tuple/tuple.dart';
 import 'dart:io' show Platform;
 
 // IMPORT UI ELEMENTS
@@ -22,21 +21,12 @@ import 'dart:io' show Platform;
 //https://api.flutter.dev/flutter/widgets/OrientationBuilder-class.html
 import 'grid_item.dart';
 
-//Regarding the selectedList event issue:
-// [NOPE] Option 1: try to solve it through provider
-// Option 2: Create a Controller Class of the stream, add a subscriber in Grid and try to go for a controller.add() to try and add data to the stream. Then change it to broadcast
-// [NOPE] Option 3: Create the StreamController inside Grid and try to access it through a subscriber in BottomRow
-// Option 4: Inherited Widget + streams. Create a broadcast through a StreamController in a InheritedWidget and then reference it from Grid to add to sink
-// Option 5: Provider to send the value of selectedList.length upstream and then make it downstream through a broadcast
-
 // List ALL the cases where events will be needed in this view. Otherwise you'll go bananas.
 //selectedList.length > that will go for:
 //                                        Counter at BottomRow
 //                                        If selectedList.length > 0, then TopRow changes to selectionMode
-// all == true; must turn selectedList = List.from(itemList);
 // Through events can I avoid the setState() of 'all' in SelectedAsset()?
 // click of 'Cancel' in TopRow must call selectedList.clear();
-//
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -70,8 +60,6 @@ class GridPage extends StatefulWidget {
 
 class _GridPageState extends State<GridPage> {
   final selectedListLengthController = StreamController<int>.broadcast();
-
-  // TODO: Would it make sense to use a StreamProvider<T> class for this Broadcast?
 
   @override
   void dispose() {
@@ -167,19 +155,32 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
+  selectedListLengthSink() {
+    widget.selectedListLengthStreamController.sink.add(selectedList.length);
+  }
+
+  selectAll() {
+    if (Provider.of<ProviderController>(context, listen: false).all == true) {
+      selectedList = List.from(itemList);
+      widget.selectedListLengthStreamController.sink.add(selectedList.length);
+    } else if (Provider.of<ProviderController>(context, listen: false)
+            .isSelectionInProcess ==
+        false) {
+      selectedList.clear();
+      widget.selectedListLengthStreamController.sink.add(selectedList.length);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('Drawing entire view');
     return Padding(
       padding: const EdgeInsets.only(bottom: 50.0),
       child: SizedBox.expand(
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: Selector<ProviderController, Tuple2<Function, bool>>(
-            selector: (context, providerController) =>
-                Tuple2(providerController.redraw(), providerController.all),
+          child: Selector<ProviderController, bool>(
+            selector: (context, providerController) => providerController.all,
             builder: (context, providerData, child) {
-              print('Drawing GridView Builder');
               return GridView.builder(
                   //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
@@ -191,33 +192,23 @@ class _GridState extends State<Grid> {
                     crossAxisSpacing: 5,
                   ),
                   itemCount: itemList.length,
-                  key: ValueKey<Object>(providerData.item1),
-
-                  // Provider.of<ProviderController>(context).redrawObject),
+                  key: ValueKey<Object>(
+                      Provider.of<ProviderController>(context).redrawObject),
                   itemBuilder: (BuildContext context, index) {
-                    print('Drawing GridItem');
+                    selectAll();
                     return GridItem(
                       item: itemList[index],
-                      all: providerData.item2,
+                      all: providerData,
                       isSelected: (bool value) {
                         if (value) {
                           selectedList.add(itemList[index]);
-                          widget.selectedListLengthStreamController.sink
-                              .add(selectedList.length);
+                          selectedListLengthSink();
                         } else {
                           selectedList.remove(itemList[index]);
-                          widget.selectedListLengthStreamController.sink
-                              .add(selectedList.length);
+                          selectedListLengthSink();
                         }
-                        // setState(() {
-                        //   if (value) {
-                        //     selectedList.add(itemList[index]);
-                        //   } else {
-                        //     selectedList.remove(itemList[index]);
-                        //   }
-                        // });
                         // print("$index : $value");
-                        print(selectedList.length);
+                        // print(selectedList.length);
                       },
                       key: Key(itemList[index].toString()),
                     );
@@ -292,10 +283,6 @@ class _TopRowState extends State<TopRow> {
                       .redraw();
                   Provider.of<ProviderController>(context, listen: false)
                       .selectionInProcess(false);
-
-                  // setState(() {
-                  //   selectedList.clear();
-                  // });
                 },
                 child: Text(
                   'Cancel',
@@ -320,6 +307,8 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
+  int selectedListLength = 0;
+
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
@@ -355,10 +344,6 @@ class _BottomRowState extends State<BottomRow> {
                         .redraw();
                     Provider.of<ProviderController>(context, listen: false)
                         .selectionInProcess(true);
-
-                    // setState(() {
-                    //   selectedList = List.from(itemList);
-                    // });
                   },
                   child: Row(
                     children: <Widget>[
@@ -398,15 +383,14 @@ class _BottomRowState extends State<BottomRow> {
                 visible: !(Provider.of<ProviderController>(context)
                     .isUploadingInProcess),
                 child: StreamBuilder(
-                  stream: widget.selectedListLengthStreamController.stream
-                      .asBroadcastStream(),
+                  stream: widget.selectedListLengthStreamController.stream,
                   builder: (context, snapshot) {
                     if (snapshot.hasError)
                       return Text('There\'s been an error');
                     else if (snapshot.connectionState ==
                         ConnectionState.waiting)
                       return Text(
-                        'No files selected',
+                        '${snapshot.connectionState}',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 12,
@@ -426,16 +410,16 @@ class _BottomRowState extends State<BottomRow> {
                         ));
                   },
                 ),
-                // replacement: Text(
-                //   // 'X / ${selectedList.length} files uploaded so far...',
-                //   'X/X files uploaded so far...',
-                //   style: TextStyle(
-                //     fontFamily: 'Montserrat',
-                //     fontSize: 12,
-                //     fontWeight: FontWeight.bold,
-                //     color: Color(0xFF333333),
-                //   ),
-                // ),
+                replacement: Text(
+                  'X / $selectedListLength files uploaded so far...',
+                  // 'X/X files uploaded so far...',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF333333),
+                  ),
+                ),
               ),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
