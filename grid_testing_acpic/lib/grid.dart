@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'dart:core';
 import 'dart:typed_data';
 import 'dart:async';
+import 'package:tuple/tuple.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 
@@ -22,11 +23,9 @@ import 'dart:io' show Platform;
 import 'grid_item.dart';
 
 // List ALL the cases where events will be needed in this view. Otherwise you'll go bananas.
-//selectedList.length > that will go for:
-//                                        Counter at BottomRow
-//                                        If selectedList.length > 0, then TopRow changes to selectionMode
+// If isUploadingInProcess = true; you shouldn't be able to select more pivs
+// If selectedList.length < itemList.length, then selectAllTapped = false;
 // Through events can I avoid the setState() of 'all' in SelectedAsset()?
-// click of 'Cancel' in TopRow must call selectedList.clear();
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -171,6 +170,8 @@ class _GridState extends State<Grid> {
     }
   }
 
+  imageSelector() {}
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -178,8 +179,9 @@ class _GridState extends State<Grid> {
       child: SizedBox.expand(
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: Selector<ProviderController, bool>(
-            selector: (context, providerController) => providerController.all,
+          child: Selector<ProviderController, Tuple2<Object, bool>>(
+            selector: (context, providerController) =>
+                Tuple2(providerController.redrawObject, providerController.all),
             builder: (context, providerData, child) {
               return GridView.builder(
                   //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
@@ -192,13 +194,14 @@ class _GridState extends State<Grid> {
                     crossAxisSpacing: 5,
                   ),
                   itemCount: itemList.length,
-                  key: ValueKey<Object>(
-                      Provider.of<ProviderController>(context).redrawObject),
+                  key: ValueKey<Object>(providerData.item1
+                      // Provider.of<ProviderController>(context).redrawObject
+                      ),
                   itemBuilder: (BuildContext context, index) {
                     selectAll();
                     return GridItem(
                       item: itemList[index],
-                      all: providerData,
+                      all: providerData.item2,
                       isSelected: (bool value) {
                         if (value) {
                           selectedList.add(itemList[index]);
@@ -207,8 +210,15 @@ class _GridState extends State<Grid> {
                           selectedList.remove(itemList[index]);
                           selectedListLengthSink();
                         }
+                        selectedList.length > 0
+                            ? Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .selectionInProcess(true)
+                            : Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .selectionInProcess(false);
                         // print("$index : $value");
-                        // print(selectedList.length);
+                        print(selectedList.length);
                       },
                       key: Key(itemList[index].toString()),
                     );
@@ -380,47 +390,73 @@ class _BottomRowState extends State<BottomRow> {
                 ),
               ),
               Visibility(
-                visible: !(Provider.of<ProviderController>(context)
-                    .isUploadingInProcess),
-                child: StreamBuilder(
-                  stream: widget.selectedListLengthStreamController.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError)
-                      return Text('There\'s been an error');
-                    else if (snapshot.connectionState ==
-                        ConnectionState.waiting)
+                  visible: !(Provider.of<ProviderController>(context)
+                      .isUploadingInProcess),
+                  child: StreamBuilder(
+                    stream: widget.selectedListLengthStreamController.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError)
+                        return Text('There\'s been an error');
+                      else if (snapshot.connectionState ==
+                          ConnectionState.waiting)
+                        return Text(
+                          'Waiting for data',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF333333),
+                          ),
+                        );
                       return Text(
-                        '${snapshot.connectionState}',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
-                        ),
-                      );
-                    return Text(
-                        snapshot.data < 1
-                            ? 'No files selected'
-                            : '${snapshot.data} files selected',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
-                        ));
-                  },
-                ),
-                replacement: Text(
-                  'X / $selectedListLength files uploaded so far...',
-                  // 'X/X files uploaded so far...',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
+                          snapshot.data < 1
+                              ? 'No files selected'
+                              : '${snapshot.data} files selected',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF333333),
+                          ));
+                    },
                   ),
-                ),
-              ),
+                  replacement: StreamBuilder(
+                      stream: widget.selectedListLengthStreamController.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError)
+                          return Text('There\'s been an error');
+                        else if (snapshot.connectionState ==
+                            ConnectionState.waiting)
+                          return Text(
+                            'Waiting for data',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF333333),
+                            ),
+                          );
+                        return Text(
+                            snapshot.data < 1
+                                ? 'No files selected'
+                                : 'X / ${snapshot.data} files uploaded so far...',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF333333),
+                            ));
+                      })
+                  //     Text(
+                  //   'X/X files uploaded so far...',
+                  //   style: TextStyle(
+                  //     fontFamily: 'Montserrat',
+                  //     fontSize: 12,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Color(0xFF333333),
+                  //   ),
+                  // ),
+                  ),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
                     .isUploadingInProcess),
