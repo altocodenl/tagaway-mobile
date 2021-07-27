@@ -22,11 +22,6 @@ import 'dart:io' show Platform;
 //https://api.flutter.dev/flutter/widgets/OrientationBuilder-class.html
 import 'grid_item.dart';
 
-// List ALL the cases where events will be needed in this view. Otherwise you'll go bananas.
-// If isUploadingInProcess = true; you shouldn't be able to select more pivs
-// If selectedList.length < itemList.length, then selectAllTapped = false;
-// Through events can I avoid the setState() of 'all' in SelectedAsset()?
-
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
   redraw() {
@@ -179,10 +174,11 @@ class _GridState extends State<Grid> {
       child: SizedBox.expand(
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: Selector<ProviderController, Tuple2<Object, bool>>(
+          child: Selector<ProviderController, Object>(
             selector: (context, providerController) =>
-                Tuple2(providerController.redrawObject, providerController.all),
+                (providerController.redrawObject),
             builder: (context, providerData, child) {
+              print('Building ItemGrid');
               return GridView.builder(
                   //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
@@ -194,14 +190,11 @@ class _GridState extends State<Grid> {
                     crossAxisSpacing: 5,
                   ),
                   itemCount: itemList.length,
-                  key: ValueKey<Object>(providerData.item1
-                      // Provider.of<ProviderController>(context).redrawObject
-                      ),
+                  key: ValueKey<Object>(providerData),
                   itemBuilder: (BuildContext context, index) {
                     selectAll();
                     return GridItem(
                       item: itemList[index],
-                      all: providerData.item2,
                       isSelected: (bool value) {
                         if (value) {
                           selectedList.add(itemList[index]);
@@ -218,7 +211,7 @@ class _GridState extends State<Grid> {
                                     listen: false)
                                 .selectionInProcess(false);
                         // print("$index : $value");
-                        print(selectedList.length);
+                        // print(selectedList.length);
                       },
                       key: Key(itemList[index].toString()),
                     );
@@ -446,17 +439,7 @@ class _BottomRowState extends State<BottomRow> {
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF333333),
                             ));
-                      })
-                  //     Text(
-                  //   'X/X files uploaded so far...',
-                  //   style: TextStyle(
-                  //     fontFamily: 'Montserrat',
-                  //     fontSize: 12,
-                  //     fontWeight: FontWeight.bold,
-                  //     color: Color(0xFF333333),
-                  //   ),
-                  // ),
-                  ),
+                      })),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
                     .isUploadingInProcess),

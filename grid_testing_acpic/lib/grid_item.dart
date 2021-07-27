@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
 import 'grid.dart';
 
 class GridItem extends StatelessWidget {
   final Key key;
   final AssetEntity item;
   final ValueChanged<bool> isSelected;
-  final bool all;
 
-  GridItem({this.key, this.item, this.isSelected, this.all});
+  GridItem({
+    this.key,
+    this.item,
+    this.isSelected,
+  });
 
   String parseVideoDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -51,7 +55,6 @@ class GridItem extends StatelessWidget {
                   )
                 : Container(),
             SelectedAsset(
-              all: all,
               isSelected: isSelected,
             ),
           ],
@@ -64,9 +67,9 @@ class GridItem extends StatelessWidget {
 class SelectedAsset extends StatefulWidget {
   final ValueChanged<bool> isSelected;
 
-  final bool all;
-
-  SelectedAsset({this.isSelected, this.all});
+  SelectedAsset({
+    this.isSelected,
+  });
 
   @override
   _SelectedAssetState createState() => _SelectedAssetState();
@@ -78,7 +81,9 @@ class _SelectedAssetState extends State<SelectedAsset>
 
   @override
   void initState() {
-    widget.all ? isSelected = true : false;
+    Provider.of<ProviderController>(context, listen: false).all
+        ? isSelected = true
+        : false;
     super.initState();
   }
 
@@ -94,7 +99,11 @@ class _SelectedAssetState extends State<SelectedAsset>
     super.build(context);
     return GestureDetector(
       onTap: () {
-        selectItem();
+        Provider.of<ProviderController>(context, listen: false)
+                    .isUploadingInProcess ==
+                false
+            ? selectItem()
+            : null;
       },
       child: Stack(
         children: [
