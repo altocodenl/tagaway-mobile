@@ -4,9 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'dart:core';
-import 'dart:typed_data';
 import 'dart:async';
-import 'package:tuple/tuple.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 
@@ -14,13 +12,13 @@ import 'dart:io' show Platform;
 // import 'package:acpic/ui_elements/cupertino_elements.dart';
 // import 'package:acpic/ui_elements/android_elements.dart';
 // import 'package:acpic/ui_elements/material_elements.dart';
+import 'grid_item.dart';
 
 //TODO: Make this view the default view until user logs out or revokes permission to access photos
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
 //https://api.flutter.dev/flutter/cupertino/CupertinoPageScaffold-class.html
 //https://api.flutter.dev/flutter/cupertino/CupertinoScrollbar-class.html
 //https://api.flutter.dev/flutter/widgets/OrientationBuilder-class.html
-import 'grid_item.dart';
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -165,8 +163,6 @@ class _GridState extends State<Grid> {
     }
   }
 
-  imageSelector() {}
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -178,7 +174,6 @@ class _GridState extends State<Grid> {
             selector: (context, providerController) =>
                 (providerController.redrawObject),
             builder: (context, providerData, child) {
-              print('Building ItemGrid');
               return GridView.builder(
                   //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
@@ -211,7 +206,6 @@ class _GridState extends State<Grid> {
                                     listen: false)
                                 .selectionInProcess(false);
                         // print("$index : $value");
-                        // print(selectedList.length);
                       },
                       key: Key(itemList[index].toString()),
                     );

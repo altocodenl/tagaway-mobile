@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
 import 'grid.dart';
 
@@ -56,6 +58,7 @@ class GridItem extends StatelessWidget {
                 : Container(),
             SelectedAsset(
               isSelected: isSelected,
+              item: item,
             ),
           ],
         );
@@ -66,10 +69,9 @@ class GridItem extends StatelessWidget {
 
 class SelectedAsset extends StatefulWidget {
   final ValueChanged<bool> isSelected;
+  final AssetEntity item;
 
-  SelectedAsset({
-    this.isSelected,
-  });
+  SelectedAsset({this.isSelected, this.item});
 
   @override
   _SelectedAssetState createState() => _SelectedAssetState();
@@ -105,6 +107,18 @@ class _SelectedAssetState extends State<SelectedAsset>
             ? selectItem()
             : null;
       },
+      onLongPress: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) {
+            if (widget.item.type == AssetType.image) {
+              return ImageBig(imageFile: widget.item.file);
+            } else {
+              return VideoBig(videoFile: widget.item.file);
+            }
+          }),
+        );
+      },
       child: Stack(
         children: [
           Expanded(
@@ -131,4 +145,99 @@ class _SelectedAssetState extends State<SelectedAsset>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class ImageBig extends StatelessWidget {
+  final Future<File> imageFile;
+  const ImageBig({Key key, @required this.imageFile}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      alignment: Alignment.center,
+      child: FutureBuilder<File>(
+        future: imageFile,
+        builder: (_, snapshot) {
+          final file = snapshot.data;
+          if (file == null) return Container();
+          return Image.file(file);
+        },
+      ),
+    );
+  }
+}
+
+class VideoBig extends StatefulWidget {
+  const VideoBig({Key key, this.videoFile}) : super(key: key);
+  final Future<File> videoFile;
+
+  @override
+  _VideoBigState createState() => _VideoBigState();
+}
+
+class _VideoBigState extends State<VideoBig> {
+  VideoPlayerController _controller;
+  bool initialized = false;
+
+  @override
+  void initState() {
+    _initVideo();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  _initVideo() async {
+    final video = await widget.videoFile;
+    _controller = VideoPlayerController.file(video)
+      // Play the video again when it ends
+      ..setLooping(true)
+      // initialize the controller and notify UI when done
+      ..initialize().then((_) => setState(() => initialized = true));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: initialized
+          // If the video is initialized, display it
+          ? Scaffold(
+              body: Center(
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  // Use the VideoPlayer widget to display the video.
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  // Wrap the play or pause in a call to `setState`. This ensures the
+                  // correct icon is shown.
+                  setState(() {
+                    // If the video is playing, pause it.
+                    if (_controller.value.isPlaying) {
+                      _controller.pause();
+                    } else {
+                      // If the video is paused, play it.
+                      _controller.play();
+                    }
+                  });
+                },
+                // Display the correct icon depending on the state of the player.
+                child: Icon(
+                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  //  Make icons the right color
+                ),
+              ),
+            )
+          // If the video is not yet initialized, display a spinner
+          : Center(child: CircularProgressIndicator()),
+      //  Make this circular progress indicator the right color
+    );
+  }
 }
