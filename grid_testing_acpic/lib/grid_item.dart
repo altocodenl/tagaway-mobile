@@ -215,6 +215,7 @@ class _VideoBigState extends State<VideoBig> {
                 ),
               ),
               floatingActionButton: FloatingActionButton(
+                backgroundColor: Color(0xFF5b6eff),
                 onPressed: () {
                   // Wrap the play or pause in a call to `setState`. This ensures the
                   // correct icon is shown.
@@ -231,13 +232,14 @@ class _VideoBigState extends State<VideoBig> {
                 // Display the correct icon depending on the state of the player.
                 child: Icon(
                   _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                  //  Make icons the right color
                 ),
               ),
             )
           // If the video is not yet initialized, display a spinner
-          : Center(child: CircularProgressIndicator()),
-      //  Make this circular progress indicator the right color
+          : Center(
+              child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5b6eff)),
+            )),
     );
   }
 }

@@ -15,10 +15,6 @@ import 'dart:io' show Platform;
 import 'grid_item.dart';
 
 //TODO: Make this view the default view until user logs out or revokes permission to access photos
-//https://api.flutter.dev/flutter/widgets/Flexible-class.html
-//https://api.flutter.dev/flutter/cupertino/CupertinoPageScaffold-class.html
-//https://api.flutter.dev/flutter/cupertino/CupertinoScrollbar-class.html
-//https://api.flutter.dev/flutter/widgets/OrientationBuilder-class.html
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
