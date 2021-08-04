@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
-import 'dart:io';
+import 'dart:io' show File;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
@@ -153,16 +153,21 @@ class ImageBig extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      alignment: Alignment.center,
-      child: FutureBuilder<File>(
-        future: imageFile,
-        builder: (_, snapshot) {
-          final file = snapshot.data;
-          if (file == null) return Container();
-          return Image.file(file);
-        },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+      ),
+      body: Container(
+        color: Colors.black,
+        alignment: Alignment.center,
+        child: FutureBuilder<File>(
+          future: imageFile,
+          builder: (_, snapshot) {
+            final file = snapshot.data;
+            if (file == null) return Container();
+            return Image.file(file);
+          },
+        ),
       ),
     );
   }
@@ -199,14 +204,19 @@ class _VideoBigState extends State<VideoBig> {
       ..setLooping(true)
       // initialize the controller and notify UI when done
       ..initialize().then((_) => setState(() => initialized = true));
+    _controller.play();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+      ),
       body: initialized
           // If the video is initialized, display it
           ? Scaffold(
+              backgroundColor: Colors.black,
               body: Center(
                 child: AspectRatio(
                   aspectRatio: _controller.value.aspectRatio,
