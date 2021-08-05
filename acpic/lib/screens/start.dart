@@ -15,12 +15,7 @@ import 'package:acpic/screens//grid.dart';
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
 //https://api.flutter.dev/flutter/cupertino/CupertinoDialog-class.html
 
-class StartUpload extends StatefulWidget {
-  @override
-  _StartUploadState createState() => _StartUploadState();
-}
-
-class _StartUploadState extends State<StartUpload> {
+class StartUpload extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -74,7 +69,7 @@ class _StartUploadState extends State<StartUpload> {
                     final permitted = await PhotoManager.requestPermission();
                     if (!permitted) return;
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => Grid()),
+                      MaterialPageRoute(builder: (_) => GridPage()),
                     );
                   },
                 ),
