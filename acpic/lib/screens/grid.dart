@@ -7,12 +7,14 @@ import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
+
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
+import 'package:acpic/ui_elements/constants.dart';
 
-//TODO: Make this view the default view until user logs out or revokes permission to access photos
+//TODO 10: Make this view the default view until user logs out or revokes permission to access photos
 
 import 'grid_item.dart';
 
@@ -171,7 +173,7 @@ class _GridState extends State<Grid> {
                 (providerController.redrawObject),
             builder: (context, providerData, child) {
               return GridView.builder(
-                  //TODO: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
+                  //TODO 12: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
                   shrinkWrap: true,
                   cacheExtent: 50,
@@ -241,10 +243,10 @@ class _TopRowState extends State<TopRow> {
                   width: 40,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),
-                    color: Color(0xFF5b6eff),
+                    color: kAltoBlue,
                   ),
                   child: IconButton(
-                      // TODO: add the Android function
+                      // TODO 3: add the Android function
                       icon: Icon(Icons.more_horiz_rounded),
                       color: Colors.white,
                       onPressed: () {
@@ -257,17 +259,12 @@ class _TopRowState extends State<TopRow> {
               ),
               replacement: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF8b8b8b),
+                  primary: kAltoGrey,
                   minimumSize: Size(40, 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  textStyle: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  textStyle: kButtonText,
                 ),
                 onPressed: () {
                   Provider.of<ProviderController>(context, listen: false)
@@ -318,17 +315,13 @@ class _BottomRowState extends State<BottomRow> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Colors.white,
-                    onPrimary: Color(0xFF5b6eff),
+                    onPrimary: kAltoBlue,
                     minimumSize: Size(40, 40),
-                    side: BorderSide(width: 1, color: Color(0xFF5b6eff)),
+                    side: BorderSide(width: 1, color: kAltoBlue),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    textStyle: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    textStyle: kSelectAllButton,
                   ),
                   onPressed: () {
                     Provider.of<ProviderController>(context, listen: false)
@@ -355,7 +348,7 @@ class _BottomRowState extends State<BottomRow> {
                               child: Icon(
                                 Icons.circle,
                                 size: 10,
-                                color: Color(0xFF5b6eff),
+                                color: kAltoBlue,
                               ),
                             ),
                           ),
@@ -384,23 +377,13 @@ class _BottomRowState extends State<BottomRow> {
                           ConnectionState.waiting)
                         return Text(
                           'Waiting for data',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF333333),
-                          ),
+                          style: kGridBottomRowText,
                         );
                       return Text(
                           snapshot.data < 1
                               ? 'No files selected'
                               : '${snapshot.data} files selected',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF333333),
-                          ));
+                          style: kGridBottomRowText);
                     },
                   ),
                   replacement: StreamBuilder(
@@ -412,40 +395,25 @@ class _BottomRowState extends State<BottomRow> {
                             ConnectionState.waiting)
                           return Text(
                             'Waiting for data',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
+                            style: kGridBottomRowText,
                           );
                         return Text(
                             snapshot.data < 1
                                 ? 'No files selected'
                                 : 'X / ${snapshot.data} files uploaded so far...',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ));
+                            style: kGridBottomRowText);
                       })),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
                     .isUploadingInProcess),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF5b6eff),
+                    primary: kAltoBlue,
                     minimumSize: Size(40, 40),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    textStyle: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    textStyle: kButtonText,
                   ),
                   onPressed: () {
                     Provider.of<ProviderController>(context, listen: false)
@@ -457,17 +425,12 @@ class _BottomRowState extends State<BottomRow> {
                 ),
                 replacement: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF8b8b8b),
+                    primary: kAltoGrey,
                     minimumSize: Size(40, 40),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    textStyle: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    textStyle: kButtonText,
                   ),
                   onPressed: () {
                     Provider.of<ProviderController>(context, listen: false)

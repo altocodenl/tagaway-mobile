@@ -1,8 +1,5 @@
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
-import 'package:acpic/ui_elements/android_elements.dart';
-import 'package:acpic/ui_elements/cupertino_elements.dart';
-import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:acpic/screens/start.dart';
 import 'package:acpic/screens/login_screen.dart';
@@ -20,11 +17,11 @@ class MyApp extends StatelessWidget {
         // primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginScreen(),
+      home: GridPage(),
     );
   }
 }
-
-// TODO: splash page
-// TODO: Hero animation
-//TODO: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
+// TODO 2: Move all repeated styles to a const file
+// TODO 15: splash page
+// TODO 14: Hero animation
+// TODO 13: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html

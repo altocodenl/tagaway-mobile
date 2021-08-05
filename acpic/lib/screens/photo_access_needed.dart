@@ -7,6 +7,9 @@ import 'dart:io' show Platform;
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
+import 'package:acpic/ui_elements/constants.dart';
+
+//TODO 9: implement this view's logic
 
 class PhotoAccessNeeded extends StatefulWidget {
   @override
@@ -32,7 +35,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               child: Image.asset(
                 'images/icon-guide--upload.png',
                 scale: 3,
-                //  TODO: Scale should depend on device and orientation
+                // TODO 6: Scale should depend on device and orientation
               ),
             ),
             Padding(
@@ -40,11 +43,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               child: Text(
                 'ac;pic needs access to your photos.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 25,
-                  color: Color(0xFF484848),
-                ),
+                style: kBigTitle,
               ),
             ),
             Padding(
@@ -52,24 +51,16 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               child: Text(
                 'We need access to your photos in order to upload them to your account.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14,
-                  color: Color(0xFF484848),
-                ),
+                style: kPlainText,
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              //TODO: Research the message for Android and change the routing for iOS and Android
+              //TODO 8: Research the message for Android and change the routing for iOS and Android
               child: RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 14,
-                    color: Color(0xFF484848),
-                  ),
+                  style: kPlainText,
                   children: <TextSpan>[
                     TextSpan(
                         text:
@@ -89,7 +80,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
             ),
             RoundedButton(
               title: 'Change settings',
-              colour: Color(0xFF5b6eff),
+              colour: kAltoBlue,
               onPressed: () {
                 /**/
               },

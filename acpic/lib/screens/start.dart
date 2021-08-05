@@ -5,11 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
-// import 'package:acpic/ui_elements/cupertino_elements.dart';
-// import 'package:acpic/ui_elements/android_elements.dart';
-import 'package:acpic/ui_elements//material_elements.dart';
+import 'package:acpic/ui_elements/cupertino_elements.dart';
+import 'package:acpic/ui_elements/android_elements.dart';
+import 'package:acpic/ui_elements/material_elements.dart';
+import 'package:acpic/ui_elements/constants.dart';
+
 //IMPORT SCREENS
-import 'package:acpic/screens//grid.dart';
+import 'package:acpic/screens/grid.dart';
 
 //https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
@@ -35,7 +37,7 @@ class StartUpload extends StatelessWidget {
                   child: Image.asset(
                     'images/icon-guide--upload.png',
                     scale: 3,
-                    //  TODO: Scale should depend on device and orientation
+                    //  TODO 7: Scale should depend on device and orientation
                   ),
                 ),
                 Padding(
@@ -43,11 +45,7 @@ class StartUpload extends StatelessWidget {
                   child: Text(
                     'Start organising and backing up your pictures.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 25,
-                      color: Color(0xFF484848),
-                    ),
+                    style: kBigTitle,
                   ),
                 ),
                 Padding(
@@ -55,16 +53,12 @@ class StartUpload extends StatelessWidget {
                   child: Text(
                     'Click the button below and start adding pictures.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 14,
-                      color: Color(0xFF484848),
-                    ),
+                    style: kPlainText,
                   ),
                 ),
                 RoundedButton(
                   title: 'Upload Pictures',
-                  colour: Color(0xFF5b6eff),
+                  colour: kAltoBlue,
                   onPressed: () async {
                     final permitted = await PhotoManager.requestPermission();
                     if (!permitted) return;

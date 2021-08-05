@@ -5,6 +5,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
 import 'grid.dart';
+import 'package:acpic/ui_elements/constants.dart';
 
 class GridItem extends StatelessWidget {
   final Key key;
@@ -31,7 +32,7 @@ class GridItem extends StatelessWidget {
         final bytes = snapshot.data;
         if (bytes == null)
           return CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5b6eff)),
+            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
           );
         return Stack(
           children: [
@@ -123,9 +124,8 @@ class _SelectedAssetState extends State<SelectedAsset>
         children: [
           Expanded(
             child: Container(
-              color: isSelected
-                  ? Color(0xFF5b6eff).withOpacity(.3)
-                  : Colors.transparent,
+              color:
+                  isSelected ? kAltoBlue.withOpacity(.3) : Colors.transparent,
             ),
           ),
           isSelected
@@ -134,7 +134,7 @@ class _SelectedAssetState extends State<SelectedAsset>
                   child: Icon(
                     Icons.circle,
                     size: 25,
-                    color: Color(0xFF5b6eff),
+                    color: kAltoBlue,
                   ),
                 )
               : Container(),
@@ -225,7 +225,7 @@ class _VideoBigState extends State<VideoBig> {
                 ),
               ),
               floatingActionButton: FloatingActionButton(
-                backgroundColor: Color(0xFF5b6eff),
+                backgroundColor: kAltoBlue,
                 onPressed: () {
                   // Wrap the play or pause in a call to `setState`. This ensures the
                   // correct icon is shown.
@@ -248,7 +248,7 @@ class _VideoBigState extends State<VideoBig> {
           // If the video is not yet initialized, display a spinner
           : Center(
               child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5b6eff)),
+              valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
             )),
     );
   }

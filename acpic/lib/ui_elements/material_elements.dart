@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:acpic/ui_elements/constants.dart';
 
 class SnackbarGlobal {
   SnackbarGlobal._();
   static buildSnackbar(
       BuildContext context, String message, String backgroundColorSnackbar) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           '$message',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Montserrat',
-            fontSize: 16,
-            color: Color(0xFF333333),
-          ),
+          style: kSnackbarText,
         ),
         backgroundColor: Color(backgroundColorSnackbar == 'green'
             ? 0xFF04E762
             : backgroundColorSnackbar == 'red'
                 ? 0xFFD33E43
                 : 0xFFffff00),
-        // Todo: turn the nested ternaries into a Map
+        // Todo 16: turn the nested ternaries into a Map
         //  var colors = {green: '#04E762', red: '#D33E43', yellow: '#ffff00'};
       ),
     );
@@ -49,12 +45,7 @@ class RoundedButton extends StatelessWidget {
           height: 42.0,
           child: Text(
             title,
-            style: TextStyle(
-              fontFamily: "Montserrat",
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.white,
-            ),
+            style: kButtonText,
           ),
         ),
       ),

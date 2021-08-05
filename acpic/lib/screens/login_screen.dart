@@ -7,6 +7,8 @@ import 'dart:io' show Platform;
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
+import 'package:acpic/ui_elements/constants.dart';
+
 //IMPORT SCREENS
 import 'start.dart';
 
@@ -32,28 +34,19 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.only(bottom: 10.0),
               child: Text(
                 'ac;pic',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                  color: Color(0xFF5b6eff),
-                ),
+                style: kAcpicMain,
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 30),
               child: Text(
                 'A home for your pictures',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 20,
-                  color: Color(0xFF484848),
-                ),
+                style: kSubtitle,
               ),
             ),
             TextField(
-              // TODO: Fix the small jump when jumping from username to password
-              //TODO: Use cupertino TextField class
+              //TODO 4: Fix the small jump when jumping from username to password
+              //TODO 5: Use cupertino TextField class
               //https://api.flutter.dev/flutter/cupertino/CupertinoTextField-class.html
               keyboardType: TextInputType.emailAddress,
               autofocus: true,
@@ -85,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             RoundedButton(
               title: 'Log In',
-              colour: Color(0xFF5b6eff),
+              colour: kAltoBlue,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -108,12 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text(
                     'Forgot password?',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 14,
-                      color: Color(0xFF484848),
-                      decoration: TextDecoration.underline,
-                    ),
+                    style: kPlainHypertext,
                   ),
                 ),
               ),
@@ -133,12 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: Text(
                   'Don\'t have an account? Request an invite.',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 14,
-                    color: Color(0xFF484848),
-                    decoration: TextDecoration.underline,
-                  ),
+                  style: kPlainHypertext,
                 ),
               ),
             ),
