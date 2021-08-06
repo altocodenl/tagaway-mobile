@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:acpic/ui_elements/constants.dart';
+
+enum Option { logOut }
 
 class AndroidInvite extends StatelessWidget {
   @override
@@ -24,6 +27,32 @@ class AndroidInvite extends StatelessWidget {
               /**/
             },
             child: Text('Send')),
+      ],
+    );
+  }
+}
+
+class AndroidLogOut extends StatelessWidget {
+  const AndroidLogOut({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton(
+      icon: Icon(
+        Icons.more_horiz_rounded,
+        color: Colors.white,
+      ),
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<Option>>[
+        const PopupMenuItem<Option>(
+          value: Option.logOut,
+          child: Text(
+            'Log Out',
+            textAlign: TextAlign.right,
+            style: kSelectAllButton,
+          ),
+        ),
       ],
     );
   }

@@ -82,6 +82,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               title: 'Change settings',
               colour: kAltoBlue,
               onPressed: () {
+                // TODO 10: Implement this
                 /**/
               },
             ),

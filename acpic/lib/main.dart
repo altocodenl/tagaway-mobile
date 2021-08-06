@@ -17,11 +17,10 @@ class MyApp extends StatelessWidget {
         // primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: GridPage(),
+      home: LoginScreen(),
     );
   }
 }
-// TODO 2: Move all repeated styles to a const file
-// TODO 15: splash page
-// TODO 14: Hero animation
-// TODO 13: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
+// TODO 16: splash page
+// TODO 15: Hero animation
+// TODO 14: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html

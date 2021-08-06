@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:acpic/ui_elements/constants.dart';
 
 class CupertinoInvite extends StatelessWidget {
   @override
@@ -35,24 +36,36 @@ class CupertinoInvite extends StatelessWidget {
 }
 
 class CupertinoLogOut extends StatelessWidget {
+  const CupertinoLogOut({
+    Key key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return CupertinoActionSheet(
-      actions: [
-        CupertinoActionSheetAction(
-          onPressed: () {
-            // Here goes the log out /**/
-          },
-          child: Text('Log Out'),
-          isDestructiveAction: true,
-        )
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        child: Text('Cancel'),
+    return IconButton(
+        icon: Icon(Icons.more_horiz_rounded),
+        color: Colors.white,
         onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-    );
+          showCupertinoModalPopup(
+            context: context,
+            builder: (context) => CupertinoActionSheet(
+              actions: [
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    // Here goes the log out /**/
+                  },
+                  child: Text('Log Out'),
+                  isDestructiveAction: true,
+                )
+              ],
+              cancelButton: CupertinoActionSheetAction(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
+          );
+        });
   }
 }

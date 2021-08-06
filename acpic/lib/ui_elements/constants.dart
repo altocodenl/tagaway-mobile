@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGrey = Color(0xFF8b8b8b);
 const kTextGrey = Color(0xFF484848);
+const kTextDarkGrey = Color(0xFF333333);
 
 const kAcpicMain = TextStyle(
   fontFamily: 'Montserrat',
@@ -47,7 +48,7 @@ const kGridBottomRowText = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 12,
   fontWeight: FontWeight.bold,
-  color: Color(0xFF333333),
+  color: kTextDarkGrey,
 );
 
 const kSelectAllButton = TextStyle(
@@ -60,5 +61,5 @@ const kSnackbarText = TextStyle(
   fontWeight: FontWeight.bold,
   fontFamily: 'Montserrat',
   fontSize: 16,
-  color: Color(0xFF333333),
+  color: kTextDarkGrey,
 );

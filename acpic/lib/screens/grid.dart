@@ -14,7 +14,7 @@ import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 
-//TODO 10: Make this view the default view until user logs out or revokes permission to access photos
+//TODO 11: Make this view the default view until user logs out or revokes permission to access photos
 
 import 'grid_item.dart';
 
@@ -173,7 +173,7 @@ class _GridState extends State<Grid> {
                 (providerController.redrawObject),
             builder: (context, providerData, child) {
               return GridView.builder(
-                  //TODO 12: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
+                  //TODO 13: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
                   shrinkWrap: true,
                   cacheExtent: 50,
@@ -245,16 +245,7 @@ class _TopRowState extends State<TopRow> {
                     borderRadius: BorderRadius.circular(100),
                     color: kAltoBlue,
                   ),
-                  child: IconButton(
-                      // TODO 3: add the Android function
-                      icon: Icon(Icons.more_horiz_rounded),
-                      color: Colors.white,
-                      onPressed: () {
-                        showCupertinoModalPopup(
-                          context: context,
-                          builder: (context) => CupertinoLogOut(),
-                        );
-                      }),
+                  child: Platform.isIOS ? CupertinoLogOut() : AndroidLogOut(),
                 ),
               ),
               replacement: ElevatedButton(
