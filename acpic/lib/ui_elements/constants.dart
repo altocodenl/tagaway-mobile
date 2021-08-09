@@ -33,7 +33,7 @@ const kBigTitle = TextStyle(
 
 const kPlainText = TextStyle(
   fontFamily: 'Montserrat',
-  fontSize: 14,
+  fontSize: 16,
   color: kTextGrey,
 );
 

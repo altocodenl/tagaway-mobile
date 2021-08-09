@@ -49,11 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   TextField(
-                    //TODO 5: Use cupertino TextField class
-                    //https://api.flutter.dev/flutter/cupertino/CupertinoTextField-class.html
                     keyboardType: TextInputType.emailAddress,
                     autofocus: true,
                     textAlign: TextAlign.center,
+                    enableSuggestions: true,
                     decoration: InputDecoration(
                       hintText: 'Username or email',
                       contentPadding: EdgeInsets.symmetric(

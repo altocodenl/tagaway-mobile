@@ -27,7 +27,7 @@ class StartUpload extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -37,11 +37,10 @@ class StartUpload extends StatelessWidget {
                   child: Image.asset(
                     'images/icon-guide--upload.png',
                     scale: 3,
-                    //  TODO 7: Scale should depend on device and orientation
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.only(bottom: 20),
                   child: Text(
                     'Start organising and backing up your pictures.',
                     textAlign: TextAlign.center,
@@ -49,7 +48,7 @@ class StartUpload extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: Text(
                     'Click the button below and start adding pictures.',
                     textAlign: TextAlign.center,

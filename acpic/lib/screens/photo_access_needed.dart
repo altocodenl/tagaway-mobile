@@ -26,67 +26,68 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
     return Scaffold(
       body: SafeArea(
           child: Padding(
-        padding: const EdgeInsets.only(left: 10, right: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Image.asset(
-                'images/icon-guide--upload.png',
-                scale: 3,
-                // TODO 6: Scale should depend on device and orientation
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text(
-                'ac;pic needs access to your photos.',
-                textAlign: TextAlign.center,
-                style: kBigTitle,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Text(
-                'We need access to your photos in order to upload them to your account.',
-                textAlign: TextAlign.center,
-                style: kPlainText,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              //TODO 8: Research the message for Android and change the routing for iOS and Android
-              child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: kPlainText,
-                  children: <TextSpan>[
-                    TextSpan(
-                        text:
-                            'Click on the button below to change ac;pic\'s access from '),
-                    TextSpan(
-                        text: 'None',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                      text: ' to',
-                    ),
-                    TextSpan(
-                        text: ' All Photos.',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ],
+        padding: const EdgeInsets.only(left: 12, right: 12),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Image.asset(
+                  'images/icon-guide--upload.png',
+                  scale: 3,
                 ),
               ),
-            ),
-            RoundedButton(
-              title: 'Change settings',
-              colour: kAltoBlue,
-              onPressed: () {
-                // TODO 10: Implement this
-                /**/
-              },
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Text(
+                  'ac;pic needs access to your photos.',
+                  textAlign: TextAlign.center,
+                  style: kBigTitle,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Text(
+                  'We need access to your photos in order to upload them to your account.',
+                  textAlign: TextAlign.center,
+                  style: kPlainText,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                //TODO 8: Research the message for Android and change the routing for iOS and Android
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: kPlainText,
+                    children: <TextSpan>[
+                      TextSpan(
+                          text:
+                              'Click on the button below to change ac;pic\'s access from '),
+                      TextSpan(
+                          text: 'None',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(
+                        text: ' to',
+                      ),
+                      TextSpan(
+                          text: ' All Photos.',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ),
+              RoundedButton(
+                title: 'Change settings',
+                colour: kAltoBlue,
+                onPressed: () {
+                  // TODO 10: Implement this
+                  /**/
+                },
+              ),
+            ],
+          ),
         ),
       )),
     );
