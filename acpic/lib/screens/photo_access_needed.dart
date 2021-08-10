@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -82,8 +83,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                 title: 'Change settings',
                 colour: kAltoBlue,
                 onPressed: () {
-                  // TODO 10: Implement this
-                  /**/
+                  openAppSettings();
                 },
               ),
             ],
