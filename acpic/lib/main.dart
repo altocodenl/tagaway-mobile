@@ -10,13 +10,31 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  Future<void> _checkPermission() async {
+    final serviceStatus = await Permission.photos.status;
+    final isPhotoOk = serviceStatus == ServiceStatus.enabled;
+    final status = await Permission.photos.request();
+    if (status == PermissionStatus.granted) {
+      print('Permission was granted');
+    } else if (status == PermissionStatus.denied) {
+      print('Permission denied');
+    } else if (status == PermissionStatus.limited) {
+      print('Permission limited');
+    } else if (status == PermissionStatus.permanentlyDenied) {
+      print('Permission permanently denied');
+    }
+  }
+
+  // Check the Podfile, that's why you always get permanently denied https://github.com/Baseflow/flutter-permission-handler/issues/620
+
   @override
   Widget build(BuildContext context) {
+    _checkPermission();
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: PhotoAccessNeeded(),
+      home: LoginScreen(),
     );
   }
 }
