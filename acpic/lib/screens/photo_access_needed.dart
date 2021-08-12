@@ -10,8 +10,6 @@ import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 
-//TODO 9: implement this view's logic
-
 class PhotoAccessNeeded extends StatefulWidget {
   @override
   _PhotoAccessNeededState createState() => _PhotoAccessNeededState();
@@ -57,7 +55,8 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                //TODO 8: Research the message for Android and change the routing for iOS and Android
+                //TODO 9: Research the message for Android and change the routing for iOS and Android and implement conditionals
+                // iOS 'None' and 'Partial'; Android 'Denied'
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(

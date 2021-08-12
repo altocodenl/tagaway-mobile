@@ -10,9 +10,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  Future<void> _checkPermission() async {
+  Future<void> checkPermission() async {
     final serviceStatus = await Permission.photos.status;
-    final isPhotoOk = serviceStatus == ServiceStatus.enabled;
+    // final isPhotoOk = serviceStatus == ServiceStatus.enabled;
     final status = await Permission.photos.request();
     if (status == PermissionStatus.granted) {
       print('Permission was granted');
@@ -25,11 +25,9 @@ class MyApp extends StatelessWidget {
     }
   }
 
-  // Check the Podfile, that's why you always get permanently denied https://github.com/Baseflow/flutter-permission-handler/issues/620
-
   @override
   Widget build(BuildContext context) {
-    _checkPermission();
+    checkPermission();
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -38,6 +36,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+//TODO 8: implement Photo access needed conditional navigation and listening permissions in real time so app does not crash on
+// change of permissions https://stackoverflow.com/questions/55442995/flutter-how-do-i-listen-to-permissions-real-time
 // TODO 16: splash page
 // TODO 15: Hero animation
 // TODO 14: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
