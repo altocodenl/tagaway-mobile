@@ -13,6 +13,7 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'start.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const String id = 'login_screen';
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }

@@ -1,3 +1,4 @@
+import 'package:acpic/screens/recover_password.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
@@ -32,7 +33,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginScreen(),
+      initialRoute: ,
+      routes: {
+        LoginScreen.id: (context)=> LoginScreen(),
+        PhotoAccessNeeded.id: (context)=> PhotoAccessNeeded(),
+        GridPage.id: (context)=> GridPage(),
+      },
     );
   }
 }

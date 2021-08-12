@@ -44,6 +44,7 @@ class ProviderController extends ChangeNotifier {
 }
 
 class GridPage extends StatefulWidget {
+  static const String id = 'grid_screen';
   @override
   _GridPageState createState() => _GridPageState();
 }

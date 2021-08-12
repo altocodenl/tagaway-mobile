@@ -11,6 +11,7 @@ import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 
 class PhotoAccessNeeded extends StatefulWidget {
+  static const String id = 'photo_access_needed';
   @override
   _PhotoAccessNeededState createState() => _PhotoAccessNeededState();
 }
