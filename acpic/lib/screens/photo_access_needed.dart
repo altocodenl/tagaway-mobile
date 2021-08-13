@@ -12,6 +12,7 @@ import 'package:acpic/ui_elements/constants.dart';
 
 class PhotoAccessNeeded extends StatefulWidget {
   static const String id = 'photo_access_needed';
+
   @override
   _PhotoAccessNeededState createState() => _PhotoAccessNeededState();
 }
@@ -23,6 +24,8 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    final arguments = ModalRoute.of(context).settings.arguments as Map;
+    if (arguments != null) print(arguments['permissionLevel']);
     return Scaffold(
       body: SafeArea(
           child: Padding(

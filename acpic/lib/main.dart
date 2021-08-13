@@ -11,35 +11,57 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  Future<void> checkPermission() async {
-    final serviceStatus = await Permission.photos.status;
-    // final isPhotoOk = serviceStatus == ServiceStatus.enabled;
-    final status = await Permission.photos.request();
-    if (status == PermissionStatus.granted) {
-      print('Permission was granted');
-    } else if (status == PermissionStatus.denied) {
-      print('Permission denied');
-    } else if (status == PermissionStatus.limited) {
-      print('Permission limited');
-    } else if (status == PermissionStatus.permanentlyDenied) {
-      print('Permission permanently denied');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    checkPermission();
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: ,
+      home: SplashScreen(),
       routes: {
-        LoginScreen.id: (context)=> LoginScreen(),
-        PhotoAccessNeeded.id: (context)=> PhotoAccessNeeded(),
-        GridPage.id: (context)=> GridPage(),
+        LoginScreen.id: (context) => LoginScreen(),
+        PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
+        GridPage.id: (context) => GridPage(),
       },
     );
+  }
+}
+
+Future<String> checkPermission(BuildContext context) async {
+  final serviceStatus = await Permission.photos.status;
+  // final isPhotoOk = serviceStatus == ServiceStatus.enabled;
+  // final status = await Permission.photos.request();
+  if (serviceStatus == PermissionStatus.granted) {
+    print('granted');
+    return 'granted';
+  } else if (serviceStatus == PermissionStatus.denied) {
+    print('denied');
+    return 'denied';
+  } else if (serviceStatus == PermissionStatus.limited) {
+    print('limited');
+    return 'limited';
+  } else if (serviceStatus == PermissionStatus.restricted) {
+    print('restricted');
+    return 'restricted';
+  } else if (serviceStatus == PermissionStatus.permanentlyDenied) {
+    print('permanently denied');
+    return 'permanently denied';
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  static const String id = 'splash_screen';
+  @override
+  Widget build(BuildContext context) {
+    checkPermission(context).then((value) {
+      if (value == 'granted' || value == 'denied') {
+        Navigator.pushReplacementNamed(context, LoginScreen.id);
+      } else {
+        Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
+            arguments: {'permissionLevel': checkPermission(context)});
+      }
+    });
+    return Container();
   }
 }
 
