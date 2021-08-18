@@ -66,11 +66,15 @@ class StartUpload extends StatelessWidget {
                   title: 'Upload Pictures',
                   colour: Color(0xFF5b6eff),
                   onPressed: () async {
-                    final permitted = await PhotoManager.requestPermission();
-                    if (!permitted) return;
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => GridPage()),
-                    );
+                    final permitted =
+                        await PhotoManager.requestPermissionExtend();
+                    if (permitted.isAuth) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => GridPage()),
+                      );
+                    } else {
+                      PhotoManager.openSetting();
+                    }
                   },
                 ),
               ],

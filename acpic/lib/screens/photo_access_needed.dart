@@ -1,7 +1,9 @@
 // IMPORT FLUTTER PACKAGES
+import 'package:acpic/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
@@ -9,8 +11,11 @@ import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
+//IMPORT SCREENS
+import 'package:acpic/screens/grid.dart';
 
 class PhotoAccessNeeded extends StatefulWidget {
+  // const PhotoAccessNeeded({Key? key}) : super(key: key);
   static const String id = 'photo_access_needed';
 
   @override
@@ -24,8 +29,8 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    final arguments = ModalRoute.of(context).settings.arguments as Map;
-    if (arguments != null) print(arguments['permissionLevel']);
+    final flag =
+        ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
     return Scaffold(
       body: SafeArea(
           child: Padding(
@@ -59,28 +64,50 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                //TODO 9: Research the message for Android and change the routing for iOS and Android and implement conditionals
+
                 // iOS 'None' and 'Partial'; Android 'Denied'
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: kPlainText,
-                    children: <TextSpan>[
-                      TextSpan(
-                          text:
-                              'Click on the button below to change ac;pic\'s access from '),
-                      TextSpan(
-                          text: 'None',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      TextSpan(
-                        text: ' to',
+                child: flag.permissionLevel == 'permanent'
+                    ? RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: kPlainText,
+                          children: <TextSpan>[
+                            TextSpan(
+                                text:
+                                    'Click on the button below to change ac;pic\'s access from '),
+                            TextSpan(
+                                text: Platform.isIOS ? 'None' : 'Denied',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                              text: ' to',
+                            ),
+                            TextSpan(
+                                text: Platform.isIOS
+                                    ? ' All Photos.'
+                                    //TODO 9: Research the message for Android and change the routing for iOS and Android and implement conditionals
+                                    : ' Allowed',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      )
+                    : RichText(
+                        // TODO 10: What are we going to do with 'Limited' access?
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: kPlainText,
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: 'Your permission level for ac;pic is '),
+                            TextSpan(
+                                text: 'Selected Photos.\n\n',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                              text:
+                                  'If you are OK with that, click on the button below to upload your allowed photos and videos.',
+                            ),
+                          ],
+                        ),
                       ),
-                      TextSpan(
-                          text: ' All Photos.',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
               ),
               RoundedButton(
                 title: 'Change settings',

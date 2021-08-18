@@ -6,11 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:acpic/screens/start.dart';
 import 'package:acpic/screens/login_screen.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+  // const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -45,11 +44,12 @@ Future<String> checkPermission(BuildContext context) async {
     return 'restricted';
   } else if (serviceStatus == PermissionStatus.permanentlyDenied) {
     print('permanently denied');
-    return 'permanently denied';
+    return 'permanent';
   }
 }
 
 class SplashScreen extends StatelessWidget {
+  // const SplashScreen({Key? key}) : super(key: key);
   static const String id = 'splash_screen';
   @override
   Widget build(BuildContext context) {
@@ -58,11 +58,17 @@ class SplashScreen extends StatelessWidget {
         Navigator.pushReplacementNamed(context, LoginScreen.id);
       } else {
         Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
-            arguments: {'permissionLevel': checkPermission(context)});
+            arguments: PermissionLevelFlag(permissionLevel: value));
       }
     });
     return Container();
   }
+}
+
+class PermissionLevelFlag {
+  final String permissionLevel;
+
+  PermissionLevelFlag({this.permissionLevel});
 }
 
 //TODO 8: implement Photo access needed conditional navigation and listening permissions in real time so app does not crash on
