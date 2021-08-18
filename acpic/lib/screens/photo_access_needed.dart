@@ -15,7 +15,6 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/screens/grid.dart';
 
 class PhotoAccessNeeded extends StatefulWidget {
-  // const PhotoAccessNeeded({Key? key}) : super(key: key);
   static const String id = 'photo_access_needed';
 
   @override
@@ -64,8 +63,6 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-
-                // iOS 'None' and 'Partial'; Android 'Denied'
                 child: flag.permissionLevel == 'permanent'
                     ? RichText(
                         textAlign: TextAlign.center,
@@ -73,10 +70,27 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                           style: kPlainText,
                           children: <TextSpan>[
                             TextSpan(
-                                text:
-                                    'Click on the button below to change ac;pic\'s access from '),
+                                text: Platform.isIOS
+                                    ? 'Tap on the button below to change ac;pic\'s access from '
+                                    : 'Tap on the button below and go to '),
                             TextSpan(
-                                text: Platform.isIOS ? 'None' : 'Denied',
+                                text: Platform.isAndroid ? 'Permissions.' : '',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                              text: Platform.isAndroid ? ' Then tap on ' : '',
+                            ),
+                            TextSpan(
+                                text: Platform.isAndroid
+                                    ? 'Files and media. \n\n'
+                                    : '',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                              text: Platform.isAndroid
+                                  ? ' Change ac;pic\'s access from '
+                                  : '',
+                            ),
+                            TextSpan(
+                                text: Platform.isIOS ? 'None' : 'Deny',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             TextSpan(
                               text: ' to',
@@ -84,14 +98,14 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                             TextSpan(
                                 text: Platform.isIOS
                                     ? ' All Photos.'
-                                    //TODO 9: Research the message for Android and change the routing for iOS and Android and implement conditionals
-                                    : ' Allowed',
+                                    //TODO 8: Android is going to need for the permission to be checked again, since when it moves from "deny" to "allowed" is does not kill the app.
+                                    : ' Allow access to media only',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
                       )
                     : RichText(
-                        // TODO 10: What are we going to do with 'Limited' access?
+                        // TODO: What are we going to do with 'Limited' access?
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           style: kPlainText,

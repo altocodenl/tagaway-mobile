@@ -129,7 +129,7 @@ class _GridState extends State<Grid> {
     }
 
     final option = makeOption();
-
+    // TODO 10: Implement PhotoManager.presentLimited()
     // Set onlyAll to true, to fetch only the 'Recent' album
     // which contains all the photos/videos in the storage
     final albums = await PhotoManager.getAssetPathList(

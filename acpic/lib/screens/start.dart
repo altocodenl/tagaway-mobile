@@ -1,4 +1,5 @@
 // IMPORT FLUTTER PACKAGES
+import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +13,7 @@ import 'package:acpic/ui_elements/constants.dart';
 
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
+import 'package:acpic/main.dart';
 
 //https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
@@ -66,6 +68,10 @@ class StartUpload extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => GridPage()),
                       );
                     } else {
+                      Navigator.pushReplacementNamed(
+                          context, PhotoAccessNeeded.id,
+                          arguments: PermissionLevelFlag(
+                              permissionLevel: 'permanent'));
                       //** send to photo access needed?**//
                     }
                   },

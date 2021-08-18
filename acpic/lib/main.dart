@@ -70,8 +70,8 @@ class PermissionLevelFlag {
 
   PermissionLevelFlag({this.permissionLevel});
 }
-
-//TODO 8: implement Photo access needed conditional navigation and listening permissions in real time so app does not crash on
+//TODO 7: Research what to do with Android and the always 'granted'.
+//TODO 9: implement Photo access needed conditional navigation and listening permissions in real time so app does not crash on
 // change of permissions https://stackoverflow.com/questions/55442995/flutter-how-do-i-listen-to-permissions-real-time
 // TODO 16: splash page
 // TODO 15: Hero animation
