@@ -63,7 +63,8 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: flag.permissionLevel == 'permanent'
+                child: Platform.isIOS && flag.permissionLevel == 'permanent' ||
+                        Platform.isAndroid && flag.permissionLevel == 'denied'
                     ? RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(

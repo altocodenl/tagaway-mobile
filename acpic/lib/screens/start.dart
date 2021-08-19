@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -20,6 +21,13 @@ import 'package:acpic/main.dart';
 //https://api.flutter.dev/flutter/cupertino/CupertinoDialog-class.html
 
 class StartUpload extends StatelessWidget {
+  bool recurringUser = false;
+
+  saveLocalRecurringUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('true', recurringUser);
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -68,12 +76,13 @@ class StartUpload extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => GridPage()),
                       );
                     } else {
-                      Navigator.pushReplacementNamed(
-                          context, PhotoAccessNeeded.id,
-                          arguments: PermissionLevelFlag(
-                              permissionLevel: 'permanent'));
+                      // Navigator.pushReplacementNamed(
+                      //     context, PhotoAccessNeeded.id,
+                      //     arguments: PermissionLevelFlag(
+                      //         permissionLevel: 'permanent'));
                       //** send to photo access needed?**//
                     }
+                    saveLocalRecurringUser();
                   },
                 ),
               ],

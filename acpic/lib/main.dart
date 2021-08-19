@@ -1,9 +1,11 @@
-import 'package:acpic/screens/recover_password.dart';
+// IMPORT FLUTTER PACKAGES
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io' show Platform;
+//IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
-import 'package:flutter/material.dart';
-import 'package:acpic/screens/start.dart';
 import 'package:acpic/screens/login_screen.dart';
 
 void main() => runApp(MyApp());
@@ -27,7 +29,10 @@ class MyApp extends StatelessWidget {
 }
 
 Future<String> checkPermission(BuildContext context) async {
-  final serviceStatus = await Permission.photos.status;
+  final serviceStatus = Platform.isIOS
+      ? await Permission.photos.status
+      : await Permission.storage.status;
+
   // final isPhotoOk = serviceStatus == ServiceStatus.enabled;
   // final status = await Permission.photos.request();
   if (serviceStatus == PermissionStatus.granted) {
@@ -54,7 +59,9 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     checkPermission(context).then((value) {
-      if (value == 'granted' || value == 'denied') {
+      if (Platform.isIOS
+          ? (value == 'granted' || value == 'denied')
+          : (value == 'granted')) {
         Navigator.pushReplacementNamed(context, LoginScreen.id);
       } else {
         Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
