@@ -5,6 +5,8 @@ PODS:
   - photo_manager (1.0.0):
     - Flutter
     - FlutterMacOS
+  - shared_preferences (0.0.1):
+    - Flutter
   - video_player (0.0.1):
     - Flutter
 
@@ -12,6 +14,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - video_player (from `.symlinks/plugins/video_player/ios`)
 
 EXTERNAL SOURCES:
@@ -21,6 +24,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler/ios"
   photo_manager:
     :path: ".symlinks/plugins/photo_manager/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
   video_player:
     :path: ".symlinks/plugins/video_player/ios"
 
@@ -28,6 +33,7 @@ SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   photo_manager: 84fa94fbeb82e607333ea9a13c43b58e0903a463
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
 
 PODFILE CHECKSUM: ad7c2f2bd016381a8632239774bd0264d21ba31c

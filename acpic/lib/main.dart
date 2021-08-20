@@ -53,15 +53,40 @@ Future<String> checkPermission(BuildContext context) async {
   }
 }
 
-class SplashScreen extends StatelessWidget {
-  // const SplashScreen({Key? key}) : super(key: key);
+class SplashScreen extends StatefulWidget {
   static const String id = 'splash_screen';
+
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  bool recurringUserLocal;
+  Future myFuture;
+
+  Future<bool> getLocalRecurringUserBool() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool recurringUser = (prefs.getBool('recurringUser') ?? false);
+    recurringUser ? recurringUserLocal = true : recurringUserLocal = false;
+    print('recurringUser $recurringUser');
+    return recurringUser;
+  }
+
+  @override
+  void initState() {
+    Platform.isAndroid ? myFuture = getLocalRecurringUserBool() : null;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     checkPermission(context).then((value) {
       if (Platform.isIOS
           ? (value == 'granted' || value == 'denied')
-          : (value == 'granted')) {
+          : (value == 'granted' ||
+              value == 'denied' && recurringUserLocal == false ||
+              recurringUserLocal == null)) {
+        // print('I am inside checkPermission $recurringUserLocal');
         Navigator.pushReplacementNamed(context, LoginScreen.id);
       } else {
         Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,

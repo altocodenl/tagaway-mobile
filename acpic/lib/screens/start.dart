@@ -21,11 +21,9 @@ import 'package:acpic/main.dart';
 //https://api.flutter.dev/flutter/cupertino/CupertinoDialog-class.html
 
 class StartUpload extends StatelessWidget {
-  bool recurringUser = false;
-
-  saveLocalRecurringUser() async {
+  Future<bool> saveLocalRecurringUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('true', recurringUser);
+    prefs.setBool('recurringUser', true);
   }
 
   @override
@@ -82,7 +80,7 @@ class StartUpload extends StatelessWidget {
                       //         permissionLevel: 'permanent'));
                       //** send to photo access needed?**//
                     }
-                    saveLocalRecurringUser();
+                    Platform.isAndroid ? saveLocalRecurringUser() : null;
                   },
                 ),
               ],
