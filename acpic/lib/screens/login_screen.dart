@@ -91,6 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       );
+                      // This makes the keyboard disappear
+                      FocusManager.instance.primaryFocus?.unfocus();
                     },
                   ),
                   Builder(

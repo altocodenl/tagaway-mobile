@@ -1,9 +1,9 @@
 // IMPORT FLUTTER PACKAGES
+import 'dart:ui';
 import 'package:acpic/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
@@ -28,6 +28,7 @@ class PhotoAccessNeeded extends StatefulWidget {
 class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
   @override
   Widget build(BuildContext context) {
+    print('I am in the PhotoAccessNeeded build');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
