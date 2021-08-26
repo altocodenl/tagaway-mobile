@@ -32,16 +32,21 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // print('state = $state');
+    print('state = $state');
     if (state == AppLifecycleState.resumed) {
       setState(() {
         resumed = true;
       });
       checkPermission(context).then((value) {
         if (resumed == true && value == 'granted') {
-          print('send to grid');
-        } else {
-          print('Stay here');
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => GridPage()),
+          );
+        } else if (resumed == true && value == 'denied' ||
+            value == 'limited' ||
+            value == 'permanent') {
+          Navigator.pushReplacementNamed(context, '/PhotoAccessNeeded',
+              arguments: PermissionLevelFlag(permissionLevel: value));
         }
       });
       print('resumed $resumed');

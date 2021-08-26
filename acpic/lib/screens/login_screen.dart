@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -14,11 +16,18 @@ import 'start.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // TODO: Delete this function later. This is just to make the interface work as it should
+  Future<bool> loggedInLocal() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('LoggedIn', true);
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
@@ -83,6 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
+                      // TODO: Delete this function later. This is just to make the interface work as it should
+                      loggedInLocal();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -91,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       );
+
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
