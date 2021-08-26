@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
-
 //IMPORT SCREENS
-import 'start.dart';
+import 'request_permission.dart';
+import 'package:acpic/screens/grid.dart';
+import 'package:acpic/screens/photo_access_needed.dart';
+
+//IMPORT SERVICES
+import 'package:acpic/services/checkPermission.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -25,13 +28,16 @@ class _LoginScreenState extends State<LoginScreen> {
   // TODO: Delete this function later. This is just to make the interface work as it should
   Future<bool> loggedInLocal() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('LoggedIn', true);
+    prefs.setBool('loggedIn', true);
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    final flag =
+        ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
+    // final recurrence = ModalRoute.of(context).settings.arguments as bool;
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -94,14 +100,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       // TODO: Delete this function later. This is just to make the interface work as it should
                       loggedInLocal();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return StartUpload();
-                          },
-                        ),
-                      );
+                      // TODO: Incorporate the loggedIn bool
+                      if (flag.permissionLevel == 'denied') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return RequestPermission();
+                            },
+                          ),
+                        );
+                      } else if (flag.permissionLevel == 'granted') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => GridPage()),
+                        );
+                      } else {
+                        checkPermission(context).then((value) {
+                          Navigator.pushReplacementNamed(
+                              context, PhotoAccessNeeded.id,
+                              arguments:
+                                  PermissionLevelFlag(permissionLevel: value));
+                        });
+                      }
 
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
@@ -151,3 +171,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+// States:
+// First time: 'denied' && recurringUserLocal == false || recurringUserLocal == null; => goes to RequestPermission [1]
+// Other times: 'granted' && recurringUserLocal == true; => goes to Grid [2]
+//              'limited' && recurringUserLocal == true; => goes to PhotoAccessNeeded [3]
+//              'denied' || 'permanent' && recurringUserLocal == true; => goes to PhotoAccessNeeded [3]

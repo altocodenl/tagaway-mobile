@@ -1,4 +1,5 @@
 // IMPORT FLUTTER PACKAGES
+import 'package:acpic/screens/request_permission.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.id: (context) => LoginScreen(),
         PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
         GridPage.id: (context) => GridPage(),
+        RequestPermission.id: (context) => RequestPermission(),
       },
     );
   }
@@ -41,34 +43,52 @@ class _SplashScreenState extends State<SplashScreen> {
   bool recurringUserLocal;
   bool loggedInLocal;
   Future myFuture;
+  Future myFutureLoggedIn;
 
   Future<bool> getLocalRecurringUserBool() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool recurringUser = (prefs.getBool('recurringUser') ?? false);
     recurringUser ? recurringUserLocal = true : recurringUserLocal = false;
+    print('recurringUser $recurringUser');
+    return recurringUser;
+  }
+
+  // TODO: Delete this function later. This is just to make the interface work as it should
+  Future<bool> getLocalLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     bool loggedIn = (prefs.getBool('loggedIn') ?? false);
     loggedIn ? loggedInLocal = true : loggedInLocal = false;
-    print('recurringUser $recurringUser');
     print('loggedIn $loggedIn');
-    return recurringUser;
+    return loggedIn;
   }
 
   @override
   void initState() {
     Platform.isAndroid ? myFuture = getLocalRecurringUserBool() : null;
+    myFutureLoggedIn = getLocalLoggedIn();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     checkPermission(context).then((value) {
-      if (Platform.isIOS
-          ? (value == 'denied')
-          : (value == 'denied' && recurringUserLocal == false ||
-              recurringUserLocal == null)) {
-        // TODO: Logged in check goes here.
-        Navigator.pushReplacementNamed(context, LoginScreen.id);
-      } else if (value == 'granted') {
+      if (loggedInLocal == false) {
+        Navigator.pushReplacementNamed(context, LoginScreen.id, arguments: {
+          PermissionLevelFlag(permissionLevel: value),
+          recurringUserLocal
+        }
+            // add recurringUserLocal
+            );
+      } else if ((Platform.isIOS
+          ? (value == 'denied' && loggedInLocal == true)
+          : (value == 'denied' &&
+                  loggedInLocal == true &&
+                  recurringUserLocal == false ||
+              recurringUserLocal == null))) {
+        Navigator.pushReplacementNamed(context, RequestPermission.id);
+      } else if (value == 'granted' &&
+          loggedInLocal == true &&
+          recurringUserLocal == true) {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => GridPage()),
         );
@@ -82,13 +102,14 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 // States:
-// First time: 'denied' && recurringUserLocal == false || recurringUserLocal == null && loggedIn == false; => goes to LogIn
-// Other times: 'denied' && recurringUserLocal == false || recurringUserLocal == null && loggedIn == true; => goes to Start (Request Permission)
-//              'denied' && recurringUserLocal == true && loggedIn == true; => goes Need Photo Access
-//              'granted' && recurringUserLocal == true && loggedIn == true; => goes to Grid
-//              'granted' && recurringUserLocal == true && loggedIn == false; => goes to LogIn
-//              'limited' && recurringUserLocal == true && loggedIn == true; => goes to Need Photo Access
-//              'limited' && recurringUserLocal == true && loggedIn == false; => goes to LogIn
+// First time: 'denied' && recurringUserLocal == false || recurringUserLocal == null && loggedIn == false; => goes to LogIn [1]
+// Other times: 'granted' && recurringUserLocal == true && loggedIn == false; => goes to LogIn [1]
+//              'limited' && recurringUserLocal == true && loggedIn == false; => goes to LogIn [1]
+//              'denied' || 'permanent' && recurringUserLocal == true && loggedIn == false; => goes to LogIn [1]
+//              'denied' && recurringUserLocal == false || recurringUserLocal == null && loggedIn == true; => goes to Request Permission [2]
+//              'granted' && recurringUserLocal == true && loggedIn == true; => goes to Grid [3]
+//              'denied' || 'permanent' && recurringUserLocal == true && loggedIn == true; => goes Need Photo Access [4]
+//              'limited' && recurringUserLocal == true && loggedIn == true; => goes to Need Photo Access [4]
 
 //TODO 9: implement Photo access needed conditional navigation and listening permissions in real time so app does not crash on
 // change of permissions https://stackoverflow.com/questions/55442995/flutter-how-do-i-listen-to-permissions-real-time
