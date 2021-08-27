@@ -28,7 +28,6 @@ class PhotoAccessNeeded extends StatefulWidget {
 class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
   @override
   Widget build(BuildContext context) {
-    print('I am in the PhotoAccessNeeded build');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

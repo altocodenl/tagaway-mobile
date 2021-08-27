@@ -13,9 +13,9 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'request_permission.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
-
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
+import 'package:acpic/services/local_vars_shared_prefs.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -25,19 +25,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // TODO: Delete this function later. This is just to make the interface work as it should
-  Future<bool> loggedInLocal() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('loggedIn', true);
-  }
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     final flag =
         ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
-    // final recurrence = ModalRoute.of(context).settings.arguments as bool;
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -99,7 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     colour: kAltoBlue,
                     onPressed: () {
                       // TODO: Delete this function later. This is just to make the interface work as it should
-                      loggedInLocal();
+                      SharedPreferencesService.instance
+                          .setBooleanValue('loggedIn', true);
                       // TODO: Incorporate the loggedIn bool
                       if (flag.permissionLevel == 'denied') {
                         Navigator.push(

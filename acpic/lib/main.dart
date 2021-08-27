@@ -1,5 +1,6 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:acpic/screens/request_permission.dart';
+import 'package:acpic/services/local_vars_shared_prefs.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,11 +11,13 @@ import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
+import 'package:acpic/services/local_vars_shared_prefs.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // const MyApp({Key? key}) : super(key: key);
+  bool tester = false;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,8 +43,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool recurringUserLocal;
-  bool loggedInLocal;
+  bool recurringUserLocal = false;
+  bool loggedInLocal = false;
   Future myFuture;
   Future myFutureLoggedIn;
 
@@ -53,19 +56,21 @@ class _SplashScreenState extends State<SplashScreen> {
     return recurringUser;
   }
 
-  // TODO: Delete this function later. This is just to make the interface work as it should
-  Future<bool> getLocalLoggedIn() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool loggedIn = (prefs.getBool('loggedIn') ?? false);
-    loggedIn ? loggedInLocal = true : loggedInLocal = false;
-    print('loggedIn $loggedIn');
-    return loggedIn;
-  }
-
   @override
   void initState() {
-    Platform.isAndroid ? myFuture = getLocalRecurringUserBool() : null;
-    myFutureLoggedIn = getLocalLoggedIn();
+    Platform.isAndroid
+        ? myFuture = SharedPreferencesService.instance
+            .getBooleanValue('recurringUser')
+            .then((value) => setState(() {
+                  recurringUserLocal = value;
+                }))
+        : null;
+    // TODO: Delete this function later. This is just to make the interface work as it should
+    myFutureLoggedIn = SharedPreferencesService.instance
+        .getBooleanValue('loggedIn')
+        .then((value) => setState(() {
+              loggedInLocal = value;
+            }));
     super.initState();
   }
 
@@ -73,18 +78,18 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     checkPermission(context).then((value) {
       if (loggedInLocal == false) {
-        Navigator.pushReplacementNamed(context, LoginScreen.id, arguments: {
-          PermissionLevelFlag(permissionLevel: value),
-          recurringUserLocal
-        }
-            // add recurringUserLocal
-            );
+        Navigator.pushReplacementNamed(
+          context, LoginScreen.id,
+          arguments: PermissionLevelFlag(permissionLevel: value),
+          // add recurringUserLocal
+        );
       } else if ((Platform.isIOS
           ? (value == 'denied' && loggedInLocal == true)
           : (value == 'denied' &&
                   loggedInLocal == true &&
                   recurringUserLocal == false ||
               recurringUserLocal == null))) {
+        print('In if/else RequestPermission loggedInLocal is $loggedInLocal');
         Navigator.pushReplacementNamed(context, RequestPermission.id);
       } else if (value == 'granted' &&
           loggedInLocal == true &&
@@ -93,6 +98,8 @@ class _SplashScreenState extends State<SplashScreen> {
           MaterialPageRoute(builder: (_) => GridPage()),
         );
       } else {
+        print(
+            'In if/else PhotoAccessNeeded loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
             arguments: PermissionLevelFlag(permissionLevel: value));
       }

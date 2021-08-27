@@ -16,6 +16,7 @@ import 'package:acpic/main.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
+import 'package:acpic/services/local_vars_shared_prefs.dart';
 
 //https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html
@@ -23,11 +24,11 @@ import 'package:acpic/services/checkPermission.dart';
 
 class RequestPermission extends StatelessWidget {
   static const String id = 'permission_screen';
-
-  Future<bool> saveLocalRecurringUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('recurringUser', true);
-  }
+  //
+  // Future<bool> saveLocalRecurringUser() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   prefs.setBool('recurringUser', true);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +85,10 @@ class RequestPermission extends StatelessWidget {
                                 PermissionLevelFlag(permissionLevel: value));
                       });
                     }
-                    Platform.isAndroid ? saveLocalRecurringUser() : null;
+                    Platform.isAndroid
+                        ? SharedPreferencesService.instance
+                            .setBooleanValue('recurringUser', true)
+                        : null;
                   },
                 ),
               ],
