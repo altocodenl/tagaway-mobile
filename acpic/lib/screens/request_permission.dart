@@ -5,8 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/cupertino_elements.dart';
-import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
@@ -78,10 +76,10 @@ class RequestPermission extends StatelessWidget {
                                 PermissionLevelFlag(permissionLevel: value));
                       });
                     }
-                    Platform.isAndroid
-                        ? SharedPreferencesService.instance
-                            .setBooleanValue('recurringUser', true)
-                        : null;
+                    if (Platform.isAndroid == true) {
+                      SharedPreferencesService.instance
+                          .setBooleanValue('recurringUser', true);
+                    }
                   },
                 ),
               ],

@@ -2,7 +2,6 @@ import 'package:acpic/services/checkPermission.dart';
 import 'package:flutter/material.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
-import 'package:acpic/main.dart';
 
 class LifeCycleManager extends StatefulWidget {
   final Widget child;
@@ -52,13 +51,11 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
       print('resumed $resumed');
     } else {
       resumed = false;
-      // print('resumed $resumed');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print('I am in the LifeCycleManager Build and resumed is $resumed');
     return Container(
       child: widget.child,
     );

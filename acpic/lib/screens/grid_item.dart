@@ -84,9 +84,12 @@ class _SelectedAssetState extends State<SelectedAsset>
 
   @override
   void initState() {
-    Provider.of<ProviderController>(context, listen: false).all
-        ? isSelected = true
-        : false;
+    if (Provider.of<ProviderController>(context, listen: false).all == true) {
+      isSelected = true;
+    }
+    // Provider.of<ProviderController>(context, listen: false).all
+    //     ? isSelected = true
+    //     : false;
     super.initState();
   }
 
@@ -102,11 +105,11 @@ class _SelectedAssetState extends State<SelectedAsset>
     super.build(context);
     return GestureDetector(
       onTap: () {
-        Provider.of<ProviderController>(context, listen: false)
-                    .isUploadingInProcess ==
-                false
-            ? selectItem()
-            : null;
+        if (Provider.of<ProviderController>(context, listen: false)
+                .isUploadingInProcess ==
+            false) {
+          selectItem();
+        }
       },
       onLongPress: () {
         Navigator.push(

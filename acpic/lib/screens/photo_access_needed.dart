@@ -1,19 +1,15 @@
 // IMPORT FLUTTER PACKAGES
 import 'dart:ui';
-import 'package:acpic/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/cupertino_elements.dart';
-import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
-import 'package:acpic/main.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/lifecycle_manager.dart';

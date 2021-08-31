@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-//TODO 12: Create recover password screen
+//TODO 2: Create recover password screen
 
 class RecoverPasswordScreen extends StatefulWidget {
   static const String id = 'recover_password';

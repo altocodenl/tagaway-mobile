@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -30,13 +29,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    Platform.isAndroid
-        ? myFuture = SharedPreferencesService.instance
-            .getBooleanValue('recurringUser')
-            .then((value) => setState(() {
-                  recurringUserLocal = value;
-                }))
-        : null;
+    if (Platform.isAndroid == true) {
+      myFuture = SharedPreferencesService.instance
+          .getBooleanValue('recurringUser')
+          .then((value) => setState(() {
+                recurringUserLocal = value;
+              }));
+    }
     super.initState();
   }
 

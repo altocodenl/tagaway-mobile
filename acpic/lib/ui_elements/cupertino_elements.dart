@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:acpic/ui_elements/constants.dart';
 
 class CupertinoInvite extends StatelessWidget {
   @override

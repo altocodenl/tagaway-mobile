@@ -7,16 +7,14 @@ import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
-
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
-import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
-
-//TODO 11: Make this view the default view until user logs out or revokes permission to access photos
-
+//IMPORT SCREENS
 import 'grid_item.dart';
+//IMPORT SERVICES
+import 'package:acpic/services/lifecycle_manager.dart';
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -68,20 +66,22 @@ class _GridPageState extends State<GridPage> {
     ]);
     return ChangeNotifierProvider<ProviderController>(
       create: (_) => ProviderController(),
-      child: Scaffold(
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Grid(
-                selectedListLengthStreamController:
-                    selectedListLengthController,
-              ),
-              TopRow(),
-              BottomRow(
-                selectedListLengthStreamController:
-                    selectedListLengthController,
-              ),
-            ],
+      child: LifeCycleManager(
+        child: Scaffold(
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Grid(
+                  selectedListLengthStreamController:
+                      selectedListLengthController,
+                ),
+                TopRow(),
+                BottomRow(
+                  selectedListLengthStreamController:
+                      selectedListLengthController,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -122,14 +122,14 @@ class _GridState extends State<Grid> {
 
   _fetchAssets() async {
     FilterOptionGroup makeOption() {
-      final option = FilterOption();
+      // final option = FilterOption();
       return FilterOptionGroup()
         ..addOrderOption(
             OrderOption(type: OrderOptionType.createDate, asc: false));
     }
 
     final option = makeOption();
-    // TODO 10: Implement PhotoManager.presentLimited()
+    // TODO 1: Implement PhotoManager.presentLimited()
     // Set onlyAll to true, to fetch only the 'Recent' album
     // which contains all the photos/videos in the storage
     final albums = await PhotoManager.getAssetPathList(
@@ -174,7 +174,7 @@ class _GridState extends State<Grid> {
                 (providerController.redrawObject),
             builder: (context, providerData, child) {
               return GridView.builder(
-                  //TODO 13: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
+                  //TODO 3: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
                   shrinkWrap: true,
                   cacheExtent: 50,

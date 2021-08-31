@@ -45,13 +45,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    Platform.isAndroid
-        ? myFuture = SharedPreferencesService.instance
-            .getBooleanValue('recurringUser')
-            .then((value) => setState(() {
-                  recurringUserLocal = value;
-                }))
-        : null;
+    if (Platform.isAndroid == true) {
+      myFuture = SharedPreferencesService.instance
+          .getBooleanValue('recurringUser')
+          .then((value) => setState(() {
+                recurringUserLocal = value;
+              }));
+    }
+
     // TODO: Delete this function later. This is just to make the interface work as it should
     myFutureLoggedIn = SharedPreferencesService.instance
         .getBooleanValue('loggedIn')
@@ -65,8 +66,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     checkPermission(context).then((value) {
       if (loggedInLocal == false) {
-        print(
-            'In if/else LoginScreen loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.pushReplacementNamed(
           context,
           LoginScreen.id,
@@ -78,18 +77,12 @@ class _SplashScreenState extends State<SplashScreen> {
                   loggedInLocal == true &&
                   recurringUserLocal == false ||
               recurringUserLocal == null))) {
-        print(
-            'In if/else RequestPermission loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.pushReplacementNamed(context, RequestPermission.id);
       } else if (value == 'granted' && loggedInLocal == true) {
-        print(
-            'In if/else GridPage loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => GridPage()),
         );
       } else {
-        print(
-            'In if/else PhotoAccessNeeded loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
             arguments: PermissionLevelFlag(permissionLevel: value));
       }
@@ -98,18 +91,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// States:
-// First time: 'denied' && recurringUserLocal == false || recurringUserLocal == null && loggedIn == false; => goes to LogIn [1]
-// Other times: 'granted' && recurringUserLocal == true && loggedIn == false; => goes to LogIn [1]
-//              'limited' && recurringUserLocal == true && loggedIn == false; => goes to LogIn [1]
-//              'denied' || 'permanent' && recurringUserLocal == true && loggedIn == false; => goes to LogIn [1]
-//              'denied' && recurringUserLocal == false || recurringUserLocal == null && loggedIn == true; => goes to Request Permission [2]
-//              'granted' && recurringUserLocal == true && loggedIn == true; => goes to Grid [3]
-//              'denied' || 'permanent' && recurringUserLocal == true && loggedIn == true; => goes Need Photo Access [4]
-//              'limited' && recurringUserLocal == true && loggedIn == true; => goes to Need Photo Access [4]
-
-//TODO 9: implement Photo access needed conditional navigation and listening permissions in real time so app does not crash on
-// change of permissions https://stackoverflow.com/questions/55442995/flutter-how-do-i-listen-to-permissions-real-time
-// TODO 16: splash page
-// TODO 15: Hero animation
-// TODO 14: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
+// TODO 6: splash page
+// TODO 5: Hero animation
+// TODO 4: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
