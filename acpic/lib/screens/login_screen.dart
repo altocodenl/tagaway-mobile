@@ -25,6 +25,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool recurringUserLocal = false;
+  Future myFuture;
+
+  @override
+  void initState() {
+    Platform.isAndroid
+        ? myFuture = SharedPreferencesService.instance
+            .getBooleanValue('recurringUser')
+            .then((value) => setState(() {
+                  recurringUserLocal = value;
+                }))
+        : null;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
@@ -94,8 +109,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       // TODO: Delete this function later. This is just to make the interface work as it should
                       SharedPreferencesService.instance
                           .setBooleanValue('loggedIn', true);
-                      // TODO: Incorporate the loggedIn bool
-                      if (flag.permissionLevel == 'denied') {
+                      // ---
+                      if (Platform.isIOS
+                          ? flag.permissionLevel == 'denied'
+                          : flag.permissionLevel == 'denied' &&
+                                  recurringUserLocal == false ||
+                              recurringUserLocal == null) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -116,7 +135,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   PermissionLevelFlag(permissionLevel: value));
                         });
                       }
-
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
                     },

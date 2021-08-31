@@ -2,8 +2,6 @@
 import 'package:acpic/screens/request_permission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Platform;
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
@@ -11,13 +9,10 @@ import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
-import 'package:acpic/services/local_vars_shared_prefs.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  bool tester = false;
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -48,14 +43,6 @@ class _SplashScreenState extends State<SplashScreen> {
   Future myFuture;
   Future myFutureLoggedIn;
 
-  Future<bool> getLocalRecurringUserBool() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool recurringUser = (prefs.getBool('recurringUser') ?? false);
-    recurringUser ? recurringUserLocal = true : recurringUserLocal = false;
-    print('recurringUser $recurringUser');
-    return recurringUser;
-  }
-
   @override
   void initState() {
     Platform.isAndroid
@@ -78,10 +65,12 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     checkPermission(context).then((value) {
       if (loggedInLocal == false) {
+        print(
+            'In if/else LoginScreen loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.pushReplacementNamed(
-          context, LoginScreen.id,
+          context,
+          LoginScreen.id,
           arguments: PermissionLevelFlag(permissionLevel: value),
-          // add recurringUserLocal
         );
       } else if ((Platform.isIOS
           ? (value == 'denied' && loggedInLocal == true)
@@ -89,11 +78,12 @@ class _SplashScreenState extends State<SplashScreen> {
                   loggedInLocal == true &&
                   recurringUserLocal == false ||
               recurringUserLocal == null))) {
-        print('In if/else RequestPermission loggedInLocal is $loggedInLocal');
+        print(
+            'In if/else RequestPermission loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.pushReplacementNamed(context, RequestPermission.id);
-      } else if (value == 'granted' &&
-          loggedInLocal == true &&
-          recurringUserLocal == true) {
+      } else if (value == 'granted' && loggedInLocal == true) {
+        print(
+            'In if/else GridPage loggedInLocal is $loggedInLocal and recurringUserLocal is $recurringUserLocal');
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => GridPage()),
         );

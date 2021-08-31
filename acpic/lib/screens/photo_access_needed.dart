@@ -53,21 +53,27 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Text(
-                    'ac;pic needs access to your photos.',
+                    flag.permissionLevel == 'limited'
+                        ? 'ac;pic\'s access is limited'
+                        : 'ac;pic needs access to your photos.',
                     textAlign: TextAlign.center,
                     style: kBigTitle,
                   ),
                 ),
+                flag.permissionLevel == 'limited'
+                    ? Padding(padding: const EdgeInsets.all(0))
+                    : Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          'We need access to your photos in order to upload them to your account.',
+                          textAlign: TextAlign.center,
+                          style: kPlainText,
+                        ),
+                      ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Text(
-                    'We need access to your photos in order to upload them to your account.',
-                    textAlign: TextAlign.center,
-                    style: kPlainText,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: flag.permissionLevel == 'limited'
+                      ? const EdgeInsets.only(bottom: 20)
+                      : const EdgeInsets.only(bottom: 10),
                   child: Platform.isIOS &&
                               flag.permissionLevel == 'permanent' ||
                           Platform.isAndroid && flag.permissionLevel == 'denied'
@@ -109,7 +115,6 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                               TextSpan(
                                   text: Platform.isIOS
                                       ? ' All Photos.'
-                                      //TODO 8: Android is going to need for the permission to be checked again, since when it moves from "deny" to "allowed" is does not kill the app.
                                       : ' Allow access to media only',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
@@ -117,7 +122,6 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                           ),
                         )
                       : RichText(
-                          // TODO: What are we going to do with 'Limited' access?
                           textAlign: TextAlign.center,
                           text: TextSpan(
                             style: kPlainText,
@@ -130,19 +134,76 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
                                 text:
-                                    'If you are OK with that, click on the button below to upload your allowed photos and videos.',
+                                    'If you are OK with that, tap on the button below to upload your allowed photos and videos.',
                               ),
                             ],
                           ),
                         ),
                 ),
-                RoundedButton(
-                  title: 'Change settings',
-                  colour: kAltoBlue,
-                  onPressed: () {
-                    openAppSettings();
-                  },
-                ),
+                flag.permissionLevel == 'limited'
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => GridPage()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: kAltoBlue,
+                            minimumSize: Size(200, 42),
+                            side: BorderSide(width: 1, color: kAltoBlue),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                            textStyle: kSelectAllButton,
+                          ),
+                          child: Text('Upload Limited Pictures'),
+                        ))
+                    : RoundedButton(
+                        title: 'Change settings',
+                        colour: kAltoBlue,
+                        onPressed: () {
+                          openAppSettings();
+                        },
+                      ),
+                flag.permissionLevel == 'limited'
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: kPlainText,
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text:
+                                      'If you would like to have all your photos and videos available for upload, tap on the button below to change ac;pic\'s access from '),
+                              TextSpan(
+                                  text: 'Selected Photos',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                text: ' to',
+                              ),
+                              TextSpan(
+                                  text: ' All Photos.',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Padding(padding: const EdgeInsets.all(0)),
+                flag.permissionLevel == 'limited'
+                    ? RoundedButton(
+                        title: 'Change settings',
+                        colour: kAltoBlue,
+                        onPressed: () {
+                          openAppSettings();
+                        },
+                      )
+                    : Padding(padding: const EdgeInsets.all(0)),
               ],
             ),
           ),
