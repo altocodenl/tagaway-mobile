@@ -1,13 +1,12 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
 // IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/cupertino_elements.dart';
-import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
-
-//TODO 2: Add a 5 second delay until it goes to the next screen https://stackoverflow.com/questions/59484959/how-to-switch-widgets-after-certain-time-in-flutter
+//IMPORT SCREENS
+import 'package:acpic/screens/login_screen.dart';
 
 class RecoverPasswordScreen extends StatefulWidget {
   static const String id = 'recover_password';
@@ -16,6 +15,16 @@ class RecoverPasswordScreen extends StatefulWidget {
 }
 
 class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
+  Timer navigationDelayer;
+
+  delayedNavigation() {
+    navigationDelayer = new Timer(const Duration(seconds: 5), () {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => LoginScreen()),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -72,6 +81,7 @@ class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
                           context, 'Got it! Check your email inbox.', 'green');
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
+                      delayedNavigation();
                     },
                   ),
                 ],

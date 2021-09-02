@@ -7,7 +7,6 @@ import 'dart:io' show Platform;
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
-import 'package:acpic/screens/recover_password.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 

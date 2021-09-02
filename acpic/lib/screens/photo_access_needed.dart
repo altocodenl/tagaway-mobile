@@ -155,7 +155,9 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                             ),
                             textStyle: kSelectAllButton,
                           ),
-                          child: Text('Upload Limited Pictures'),
+                          child: Text(
+                            'Upload Limited Pictures',
+                          ),
                         ))
                     : RoundedButton(
                         title: 'Change settings',
