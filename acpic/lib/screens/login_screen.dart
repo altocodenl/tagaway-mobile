@@ -12,6 +12,7 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'request_permission.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
+import 'package:acpic/screens/recover_password.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
@@ -144,8 +145,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       fit: FlexFit.loose,
                       child: TextButton(
                         onPressed: () {
-                          SnackbarGlobal.buildSnackbar(
-                              context, 'Coming soon, hang tight!', 'green');
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => RecoverPasswordScreen()),
+                          );
+                          // SnackbarGlobal.buildSnackbar(
+                          //     context, 'Coming soon, hang tight!', 'green');
                           // This makes the keyboard disappear
                           FocusManager.instance.primaryFocus?.unfocus();
                         },

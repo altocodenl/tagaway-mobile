@@ -129,7 +129,7 @@ class _GridState extends State<Grid> {
     }
 
     final option = makeOption();
-    // TODO 1: Implement PhotoManager.presentLimited()
+    // TODO: Implement PhotoManager.presentLimited() if necessary for iOS 15. As of today (September 1, 2021) functionality under 'limited' is as desired.
     // Set onlyAll to true, to fetch only the 'Recent' album
     // which contains all the photos/videos in the storage
     final albums = await PhotoManager.getAssetPathList(
@@ -368,7 +368,7 @@ class _BottomRowState extends State<BottomRow> {
                       else if (snapshot.connectionState ==
                           ConnectionState.waiting)
                         return Text(
-                          'Waiting for data',
+                          'Loading your files',
                           style: kGridBottomRowText,
                         );
                       return Text(
@@ -386,7 +386,7 @@ class _BottomRowState extends State<BottomRow> {
                         else if (snapshot.connectionState ==
                             ConnectionState.waiting)
                           return Text(
-                            'Waiting for data',
+                            'Loading your files',
                             style: kGridBottomRowText,
                           );
                         return Text(

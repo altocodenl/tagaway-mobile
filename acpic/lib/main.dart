@@ -7,6 +7,7 @@ import 'dart:io' show Platform;
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
+import 'package:acpic/screens/recover_password.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 
@@ -91,6 +92,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// TODO 6: splash page
+// TODO 6: splash page https://medium.com/codechai/lunching-other-screen-after-delay-in-flutter-c9ebf4d7406e
 // TODO 5: Hero animation
 // TODO 4: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html

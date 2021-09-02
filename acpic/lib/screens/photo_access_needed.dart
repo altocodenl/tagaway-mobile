@@ -174,7 +174,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                             children: <TextSpan>[
                               TextSpan(
                                   text:
-                                      'If you would like to have all your photos and videos available for upload, tap on the button below to change ac;pic\'s access from '),
+                                      'If you would like to change the selection, or to have all your photos and videos available for upload, tap on the button below to change ac;pic\'s access from '),
                               TextSpan(
                                   text: 'Selected Photos',
                                   style:
