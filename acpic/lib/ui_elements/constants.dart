@@ -5,6 +5,13 @@ const kAltoGrey = Color(0xFF8b8b8b);
 const kTextGrey = Color(0xFF484848);
 const kTextDarkGrey = Color(0xFF333333);
 
+const kAcpicSplash = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 50,
+  color: kAltoBlue,
+);
+
 const kAcpicMain = TextStyle(
   fontFamily: 'Montserrat',
   fontWeight: FontWeight.bold,

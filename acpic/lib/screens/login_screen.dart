@@ -60,9 +60,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10.0, top: 20),
-                    child: Text(
-                      'ac;pic',
-                      style: kAcpicMain,
+                    child: Hero(
+                      tag: 'logo',
+                      child: Text(
+                        'ac;pic',
+                        style: kAcpicMain,
+                      ),
                     ),
                   ),
                   Padding(
@@ -149,9 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             MaterialPageRoute(
                                 builder: (_) => RecoverPasswordScreen()),
                           );
-                          // SnackbarGlobal.buildSnackbar(
-                          //     context, 'Coming soon, hang tight!', 'green');
-                          // This makes the keyboard disappear
+
                           FocusManager.instance.primaryFocus?.unfocus();
                         },
                         child: Text(
