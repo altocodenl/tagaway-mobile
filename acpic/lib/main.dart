@@ -2,15 +2,11 @@
 import 'package:acpic/screens/request_permission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'dart:io' show Platform;
-// IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
-import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 
@@ -23,73 +19,82 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: SplashScreen(),
+      home: LoginScreen(),
       routes: {
         LoginScreen.id: (context) => LoginScreen(),
         PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
         GridPage.id: (context) => GridPage(),
         RequestPermission.id: (context) => RequestPermission(),
-        Distributor.id: (context) => Distributor()
       },
     );
   }
 }
 
-class SplashScreen extends StatefulWidget {
-  static const String id = 'splash_screen';
+class Distributor extends StatefulWidget {
+  static const String id = 'distributor';
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _DistributorState createState() => _DistributorState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  double opacityLevel = 1.0;
+class _DistributorState extends State<Distributor> {
+  bool recurringUserLocal = false;
+  bool loggedInLocal = false;
+  Future myFuture;
+  Future myFutureLoggedIn;
 
   @override
   void initState() {
-    delayedSplash();
+    if (Platform.isAndroid == true) {
+      myFuture = SharedPreferencesService.instance
+          .getBooleanValue('recurringUser')
+          .then((value) => setState(() {
+                recurringUserLocal = value;
+              }));
+    }
+
+    // TODO: Delete this function later. This is just to make the interface work as it should
+    myFutureLoggedIn = SharedPreferencesService.instance
+        .getBooleanValue('loggedIn')
+        .then((value) => setState(() {
+              loggedInLocal = value;
+            }));
     super.initState();
-  }
-
-  delayedSplash() async {
-    var duration = new Duration(seconds: 2);
-    return new Timer(duration, route);
-  }
-
-  route() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => Distributor()),
-    );
-  }
-
-  void _changeOpacity() {
-    setState(() {
-      opacityLevel = opacityLevel == 0.0 ? 1.0 : 0.0;
-    });
-    print('Hello world');
   }
 
   @override
   Widget build(BuildContext context) {
-    _changeOpacity();
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: AnimatedOpacity(
-          opacity: opacityLevel,
-          duration: const Duration(seconds: 2),
-          curve: Curves.fastOutSlowIn,
-          child: Text(
-            'ac;pic',
-            textAlign: TextAlign.center,
-            style: kAcpicSplash,
-          ),
-        ),
-      ),
+    checkPermission(context).then((value) {
+      if (loggedInLocal == false) {
+        Navigator.pushReplacementNamed(
+          context,
+          LoginScreen.id,
+          arguments: PermissionLevelFlag(permissionLevel: value),
+        );
+      } else if ((Platform.isIOS
+          ? (value == 'denied' && loggedInLocal == true)
+          : (value == 'denied' &&
+                  loggedInLocal == true &&
+                  recurringUserLocal == false ||
+              recurringUserLocal == null))) {
+        Navigator.pushReplacementNamed(context, RequestPermission.id);
+      } else if (value == 'granted' && loggedInLocal == true) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => GridPage()),
+        );
+      } else {
+        Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
+            arguments: PermissionLevelFlag(permissionLevel: value));
+      }
+    });
+    return Container(
+      color: Colors.white,
     );
   }
 }
 
-// TODO 6: splash page https://medium.com/codechai/lunching-other-screen-after-delay-in-flutter-c9ebf4d7406e
+// TODO 6: splash page https://www.youtube.com/watch?v=JVpFNfnuOZM
 // TODO 5: Hero animation
 // TODO 4: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
+// TODO: Maybe SplashScreen should disappear and load the validation (and forwarding) either at login or Grid.
+//  Decision to be made after implementing splash according to best practices
