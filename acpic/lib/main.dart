@@ -93,8 +93,6 @@ class _DistributorState extends State<Distributor> {
   }
 }
 
-// TODO 6: splash page https://www.youtube.com/watch?v=JVpFNfnuOZM
-// TODO 5: Hero animation
 // TODO 4: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
 // TODO: Maybe SplashScreen should disappear and load the validation (and forwarding) either at login or Grid.
 //  Decision to be made after implementing splash according to best practices
