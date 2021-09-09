@@ -30,6 +30,8 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
     ]);
     final flag =
         ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
+    // print(
+    //     'I am in PhotoAccessNeeded and flag.PermissionLevel is ${flag.permissionLevel}');
     return LifeCycleManager(
       child: Scaffold(
         body: SafeArea(
