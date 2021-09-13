@@ -4,6 +4,9 @@ const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGrey = Color(0xFF8b8b8b);
 const kTextGrey = Color(0xFF484848);
 const kTextDarkGrey = Color(0xFF333333);
+const kAltoGreen = Color(0xFF04E762);
+const kAltoRed = Color(0xFFD33E43);
+const kAltoYellow = Color(0xFFffff00);
 
 const kAcpicSplash = TextStyle(
   fontFamily: 'Montserrat',
@@ -63,6 +66,18 @@ const kSelectAllButton = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
 );
+
+const kGoToWebButton = TextStyle(
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+    color: kAltoBlue);
+
+const kLogOutButton = TextStyle(
+    fontFamily: 'Montserrat',
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+    color: kAltoRed);
 
 const kSnackbarText = TextStyle(
   fontWeight: FontWeight.bold,

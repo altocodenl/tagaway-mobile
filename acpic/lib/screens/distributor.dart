@@ -52,10 +52,10 @@ class _DistributorState extends State<Distributor> {
   @override
   Widget build(BuildContext context) {
     print('loggedInLocal in Distributor Build is $loggedInLocal');
-    // print('recurringUserLocal in Distributor Build is $recurringUserLocal');
     // Conditional Navigation
     checkPermission(context).then((value) {
       if (loggedInLocal == false) {
+        print('loggedInLocal is $loggedInLocal');
         Navigator.pushReplacementNamed(
           context,
           LoginScreen.id,
@@ -70,6 +70,7 @@ class _DistributorState extends State<Distributor> {
         Navigator.pushReplacementNamed(context, RequestPermission.id);
       }
       // else if (value == 'granted' && loggedInLocal == true) {
+      //   print('Hello world');
       //   Navigator.of(context).push(
       //     MaterialPageRoute(builder: (_) => GridPage()),
       //   );
@@ -78,7 +79,6 @@ class _DistributorState extends State<Distributor> {
           value == 'permanent' ||
           value == 'limited' ||
           value == 'restricted') {
-        print('I am in Distributor else and value is $value');
         Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
             arguments: PermissionLevelFlag(permissionLevel: value));
       }

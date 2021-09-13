@@ -1,6 +1,12 @@
+// IMPORT FLUTTER PACKAGES
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+//IMPORT SERVICES
+import 'package:acpic/services/local_vars_shared_prefs.dart';
+//IMPORT SCREENS
+import 'package:acpic/main.dart';
+import 'package:acpic/screens/distributor.dart';
 
 class CupertinoInvite extends StatelessWidget {
   @override
@@ -51,11 +57,19 @@ class CupertinoLogOut extends StatelessWidget {
               actions: [
                 CupertinoActionSheetAction(
                   onPressed: () {
-                    // Here goes the log out /**/
+                    // Here goes the link /**/
+                  },
+                  child: Text('Go to ac;pic web'),
+                ),
+                CupertinoActionSheetAction(
+                  onPressed: () {
+                    SharedPreferencesService.instance.removeValue('loggedIn');
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (_) => Distributor()));
                   },
                   child: Text('Log Out'),
                   isDestructiveAction: true,
-                )
+                ),
               ],
               cancelButton: CupertinoActionSheetAction(
                 child: Text('Cancel'),

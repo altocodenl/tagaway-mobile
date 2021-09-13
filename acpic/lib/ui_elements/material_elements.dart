@@ -17,7 +17,6 @@ class SnackbarGlobal {
             : backgroundColorSnackbar == 'red'
                 ? 0xFFD33E43
                 : 0xFFffff00),
-        // Todo 7: turn the nested ternaries into a Map
         //  var colors = {green: '#04E762', red: '#D33E43', yellow: '#ffff00'};
       ),
     );

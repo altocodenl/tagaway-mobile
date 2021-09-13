@@ -174,7 +174,6 @@ class _GridState extends State<Grid> {
                 (providerController.redrawObject),
             builder: (context, providerData, child) {
               return GridView.builder(
-                  //TODO 3: Fix case for when there are less than 30 images (it should always start from the top in reverse order)
                   reverse: true,
                   shrinkWrap: true,
                   cacheExtent: 50,
@@ -247,6 +246,7 @@ class _TopRowState extends State<TopRow> {
                     color: kAltoBlue,
                   ),
                   child: Platform.isIOS ? CupertinoLogOut() : AndroidLogOut(),
+                  //  TODO: add the "go to ac;pic web" with link
                 ),
               ),
               replacement: ElevatedButton(

@@ -1,14 +1,11 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:acpic/screens/request_permission.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 import 'package:acpic/screens/distributor.dart';
-// IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
@@ -41,7 +38,6 @@ class _MyAppState extends State<MyApp> {
       permissionLevel = value;
       return permissionLevel;
     });
-    // print('loggedInLocal is $loggedInLocal');
     super.initState();
   }
 
@@ -53,12 +49,6 @@ class _MyAppState extends State<MyApp> {
       ),
       home: loggedInLocal == true && permissionLevel == 'granted'
           ? GridPage()
-          // : loggedInLocal == false && permissionLevel == 'granted' ||
-          //         permissionLevel == 'denied' ||
-          //         permissionLevel == 'limited' ||
-          //         permissionLevel == 'permanent' ||
-          //         permissionLevel == 'restricted'
-          //     ? LoginScreen()
           : Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),
@@ -69,34 +59,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-// TODO 4: CupertinoPageTransition https://api.flutter.dev/flutter/cupertino/CupertinoPageTransition-class.html
-// TODO: Maybe SplashScreen should disappear and load the validation (and forwarding) either at login or Grid.
-//  Decision to be made after implementing splash according to best practices
-// From MyApp>MaterialApp>Home will split into 3: LogIn and Grid will load directly, if not, user will be sent to distributor.
-// Distributor will only handle RequestPermission and PhotoAccessNeeded
-
-// Conditional Navigation
-// checkPermission(context).then((value) {
-// if (loggedInLocal == false) {
-// Navigator.pushReplacementNamed(
-// context,
-// LoginScreen.id,
-// arguments: PermissionLevelFlag(permissionLevel: value),
-// );
-// } else if ((Platform.isIOS
-// ? (value == 'denied' && loggedInLocal == true)
-//     : (value == 'denied' &&
-// loggedInLocal == true &&
-// recurringUserLocal == false ||
-// recurringUserLocal == null))) {
-// Navigator.pushReplacementNamed(context, RequestPermission.id);
-// } else if (value == 'granted' && loggedInLocal == true) {
-// Navigator.of(context).push(
-// MaterialPageRoute(builder: (_) => GridPage()),
-// );
-// } else {
-// Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
-// arguments: PermissionLevelFlag(permissionLevel: value));
-// }
-// });
