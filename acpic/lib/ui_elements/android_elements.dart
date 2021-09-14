@@ -1,10 +1,10 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:acpic/ui_elements/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 //IMPORT SCREENS
-import 'package:acpic/main.dart';
 import 'package:acpic/screens/distributor.dart';
 
 enum Option { logOut, web }
@@ -43,6 +43,15 @@ class AndroidLogOut extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  _launchURL() async {
+    const url = 'https://altocode.nl/pic/app/#/login';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton(
@@ -51,6 +60,8 @@ class AndroidLogOut extends StatelessWidget {
           SharedPreferencesService.instance.removeValue('loggedIn');
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (_) => Distributor()));
+        } else if (value == Option.web) {
+          _launchURL();
         }
       },
       icon: Icon(

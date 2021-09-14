@@ -246,7 +246,6 @@ class _TopRowState extends State<TopRow> {
                     color: kAltoBlue,
                   ),
                   child: Platform.isIOS ? CupertinoLogOut() : AndroidLogOut(),
-                  //  TODO: add the "go to ac;pic web" with link
                 ),
               ),
               replacement: ElevatedButton(

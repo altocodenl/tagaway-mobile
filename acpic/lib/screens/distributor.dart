@@ -3,7 +3,6 @@ import 'package:acpic/screens/request_permission.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 //IMPORT SCREENS
-import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 // IMPORT UI ELEMENTS

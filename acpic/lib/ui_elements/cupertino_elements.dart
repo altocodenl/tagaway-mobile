@@ -2,10 +2,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 //IMPORT SCREENS
-import 'package:acpic/main.dart';
 import 'package:acpic/screens/distributor.dart';
 
 class CupertinoInvite extends StatelessWidget {
@@ -44,6 +44,14 @@ class CupertinoLogOut extends StatelessWidget {
   const CupertinoLogOut({
     Key key,
   }) : super(key: key);
+  _launchURL() async {
+    const url = 'https://altocode.nl/pic/app/#/login';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +65,7 @@ class CupertinoLogOut extends StatelessWidget {
               actions: [
                 CupertinoActionSheetAction(
                   onPressed: () {
-                    // Here goes the link /**/
+                    _launchURL();
                   },
                   child: Text('Go to ac;pic web'),
                 ),
