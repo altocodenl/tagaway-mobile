@@ -87,9 +87,7 @@ class _SelectedAssetState extends State<SelectedAsset>
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       isSelected = true;
     }
-    // Provider.of<ProviderController>(context, listen: false).all
-    //     ? isSelected = true
-    //     : false;
+
     super.initState();
   }
 
@@ -125,10 +123,11 @@ class _SelectedAssetState extends State<SelectedAsset>
       },
       child: Stack(
         children: [
-          Expanded(
-            child: Container(
+          Container(
+            decoration: BoxDecoration(
               color:
                   isSelected ? kAltoBlue.withOpacity(.3) : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
           isSelected

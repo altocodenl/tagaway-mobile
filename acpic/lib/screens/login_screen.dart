@@ -148,11 +148,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       fit: FlexFit.loose,
                       child: TextButton(
                         onPressed: () {
+                          FocusManager.instance.primaryFocus?.unfocus();
                           Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (_) => RecoverPasswordScreen()),
                           );
-
                           FocusManager.instance.primaryFocus?.unfocus();
                         },
                         child: Text(
@@ -167,6 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     fit: FlexFit.loose,
                     child: TextButton(
                       onPressed: () {
+                        FocusManager.instance.primaryFocus?.unfocus();
                         showDialog(
                             context: context,
                             builder: (context) {

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:acpic/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 //IMPORT SCREENS
@@ -30,7 +32,11 @@ class AndroidInvite extends StatelessWidget {
             child: Text('Cancel')),
         TextButton(
             onPressed: () {
-              /**/
+              SnackbarGlobal.buildSnackbar(
+                  context,
+                  'We received your request successfully, hang tight!',
+                  'green');
+              Navigator.of(context, rootNavigator: true).pop();
             },
             child: Text('Send')),
       ],

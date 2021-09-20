@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 //IMPORT SCREENS
@@ -32,7 +34,9 @@ class CupertinoInvite extends StatelessWidget {
         CupertinoDialogAction(
           child: Text('Send'),
           onPressed: () {
-            /**/
+            SnackbarGlobal.buildSnackbar(context,
+                'We received your request successfully, hang tight!', 'green');
+            Navigator.of(context, rootNavigator: true).pop();
           },
         ),
       ],
