@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io' show Platform;
+import 'package:device_info_plus/device_info_plus.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
@@ -22,6 +23,25 @@ class PhotoAccessNeeded extends StatefulWidget {
 }
 
 class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
+  String brand;
+  String androidVersion;
+
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+  Future<void> androidPlatformChecker() async {
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    setState(() {
+      brand = androidInfo.brand;
+      androidVersion = androidInfo.version.release;
+    });
+  }
+
+  @override
+  void initState() {
+    androidPlatformChecker();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -30,8 +50,6 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
     ]);
     final flag =
         ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
-    // print(
-    //     'I am in PhotoAccessNeeded and flag.PermissionLevel is ${flag.permissionLevel}');
     return LifeCycleManager(
       child: Scaffold(
         body: SafeArea(
@@ -85,8 +103,9 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                                       ? 'Tap on the button below to change ac;pic\'s access from '
                                       : 'Tap on the button below and go to '),
                               TextSpan(
-                                  text:
-                                      Platform.isAndroid ? 'Permissions.' : '',
+                                  text: Platform.isAndroid
+                                      ? 'Permissions. $brand $androidVersion'
+                                      : '',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(

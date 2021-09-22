@@ -34,6 +34,8 @@ dependencies:
   provider: ^5.0.0
   permission_handler: ^8.1.4+2
   shared_preferences: ^2.0.6
+  device_info_plus: ^2.1.0
+
 
 
 dev_dependencies:
