@@ -42,6 +42,97 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
     super.initState();
   }
 
+  String androidSettingsStep1() {
+    if (Platform.isAndroid) {
+      if (androidVersion == '9' ||
+          androidVersion == '8' ||
+          androidVersion == '7' ||
+          androidVersion == '6') {
+        return ' and then ';
+      } else {
+        return ' Then tap on ';
+      }
+    } else {
+      return '';
+    }
+  }
+
+  String androidSettingsStep2() {
+    if (Platform.isAndroid) {
+      if (androidVersion == '12') {
+        return 'Files and media. \n\n';
+      } else if (androidVersion == '11' && brand != 'samsung') {
+        return 'Files and media. \n\n';
+      } else if (androidVersion == '11' && brand == 'samsung') {
+        return 'Storage. \n\n';
+      } else if (androidVersion == '10') {
+        return 'Storage. \n\n';
+      } else if (androidVersion == '9' ||
+          androidVersion == '8' ||
+          androidVersion == '7' ||
+          androidVersion == '6') {
+        return 'slide right on the Storage slider. \n\n';
+      } else {
+        return 'Files and media. \n\n';
+      }
+    } else {
+      return '';
+    }
+  }
+
+  String androidSettingsPreStep3() {
+    if (Platform.isAndroid) {
+      if (androidVersion == '9' ||
+          androidVersion == '8' ||
+          androidVersion == '7' ||
+          androidVersion == '6') {
+        return '';
+      } else {
+        return ' Change ac;pic\'s access from ';
+      }
+    } else {
+      return '';
+    }
+  }
+
+  String androidSettingsDeny() {
+    if (androidVersion == '10' ||
+        androidVersion == '11' ||
+        androidVersion == '12') {
+      return 'Deny';
+    } else {
+      return '';
+    }
+  }
+
+  String settingsTo() {
+    if (Platform.isAndroid) {
+      if (androidVersion == '10' ||
+          androidVersion == '11' ||
+          androidVersion == '12') {
+        return ' to';
+      } else {
+        return '';
+      }
+    } else {
+      return ' to';
+    }
+  }
+
+  String androidSettingsStep3() {
+    if (Platform.isAndroid) {
+      if (androidVersion == '11' || androidVersion == '12') {
+        return ' Allow access to media only';
+      } else if (androidVersion == '10') {
+        return ' Allow';
+      } else {
+        return '';
+      }
+    } else {
+      return ' All Photos.';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -103,36 +194,42 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                                       ? 'Tap on the button below to change ac;pic\'s access from '
                                       : 'Tap on the button below and go to '),
                               TextSpan(
-                                  text: Platform.isAndroid
-                                      ? 'Permissions. $brand $androidVersion'
-                                      : '',
+                                  text:
+                                      Platform.isAndroid ? 'Permissions.' : '',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
-                                text: Platform.isAndroid ? ' Then tap on ' : '',
+                                // text: Platform.isAndroid ? ' Then tap on ' : '',
+                                text: androidSettingsStep1(),
                               ),
                               TextSpan(
-                                  text: Platform.isAndroid
-                                      ? 'Files and media. \n\n'
-                                      : '',
+                                  // text: Platform.isAndroid
+                                  //     ? 'Files and media. \n\n'
+                                  //     : '',
+                                  text: androidSettingsStep2(),
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
-                                text: Platform.isAndroid
-                                    ? ' Change ac;pic\'s access from '
-                                    : '',
-                              ),
-                              TextSpan(
-                                  text: Platform.isIOS ? 'None' : 'Deny',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                text: ' to',
+                                // text: Platform.isAndroid
+                                //     ? ' Change ac;pic\'s access from '
+                                //     : '',
+                                text: androidSettingsPreStep3(),
                               ),
                               TextSpan(
                                   text: Platform.isIOS
-                                      ? ' All Photos.'
-                                      : ' Allow access to media only',
+                                      ? 'None'
+                                      : androidSettingsDeny(),
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                text: settingsTo(),
+                                // text: ' to',
+                              ),
+                              TextSpan(
+                                  // text: Platform.isIOS
+                                  //     ? ' All Photos.'
+                                  //     : ' Allow access to media only',
+                                  text: androidSettingsStep3(),
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                             ],
