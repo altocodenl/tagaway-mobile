@@ -25,6 +25,13 @@ class PhotoAccessNeeded extends StatefulWidget {
 class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
   String brand;
   String androidVersion;
+  RegExp regExpAndroid6 = new RegExp(r"6.*");
+  RegExp regExpAndroid7 = new RegExp(r"7.*");
+  RegExp regExpAndroid8 = new RegExp(r"8.*");
+  RegExp regExpAndroid9 = new RegExp(r"9.*");
+  RegExp regExpAndroid10 = new RegExp(r"10.*");
+  RegExp regExpAndroid11 = new RegExp(r"11.*");
+  RegExp regExpAndroid12 = new RegExp(r"12.*");
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
@@ -44,11 +51,11 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
 
   String androidSettingsStep1() {
     if (Platform.isAndroid) {
-      if (androidVersion == '9' ||
-          androidVersion == '8' ||
-          androidVersion == '7' ||
-          androidVersion == '6') {
-        return ' and then ';
+      if (regExpAndroid9.hasMatch(androidVersion) ||
+          regExpAndroid8.hasMatch(androidVersion) ||
+          regExpAndroid7.hasMatch(androidVersion) ||
+          regExpAndroid6.hasMatch(androidVersion)) {
+        return ' Then ';
       } else {
         return ' Then tap on ';
       }
@@ -59,18 +66,20 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
 
   String androidSettingsStep2() {
     if (Platform.isAndroid) {
-      if (androidVersion == '12') {
+      if (regExpAndroid12.hasMatch(androidVersion)) {
         return 'Files and media. \n\n';
-      } else if (androidVersion == '11' && brand != 'samsung') {
+      } else if (regExpAndroid11.hasMatch(androidVersion) &&
+          brand != 'samsung') {
         return 'Files and media. \n\n';
-      } else if (androidVersion == '11' && brand == 'samsung') {
+      } else if (regExpAndroid11.hasMatch(androidVersion) &&
+          brand == 'samsung') {
         return 'Storage. \n\n';
-      } else if (androidVersion == '10') {
+      } else if (regExpAndroid10.hasMatch(androidVersion)) {
         return 'Storage. \n\n';
-      } else if (androidVersion == '9' ||
-          androidVersion == '8' ||
-          androidVersion == '7' ||
-          androidVersion == '6') {
+      } else if (regExpAndroid9.hasMatch(androidVersion) ||
+          regExpAndroid8.hasMatch(androidVersion) ||
+          regExpAndroid7.hasMatch(androidVersion) ||
+          regExpAndroid6.hasMatch(androidVersion)) {
         return 'slide right on the Storage slider. \n\n';
       } else {
         return 'Files and media. \n\n';
@@ -82,10 +91,10 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
 
   String androidSettingsPreStep3() {
     if (Platform.isAndroid) {
-      if (androidVersion == '9' ||
-          androidVersion == '8' ||
-          androidVersion == '7' ||
-          androidVersion == '6') {
+      if (regExpAndroid9.hasMatch(androidVersion) ||
+          regExpAndroid8.hasMatch(androidVersion) ||
+          regExpAndroid7.hasMatch(androidVersion) ||
+          regExpAndroid6.hasMatch(androidVersion)) {
         return '';
       } else {
         return ' Change ac;pic\'s access from ';
@@ -96,9 +105,9 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
   }
 
   String androidSettingsDeny() {
-    if (androidVersion == '10' ||
-        androidVersion == '11' ||
-        androidVersion == '12') {
+    if (regExpAndroid12.hasMatch(androidVersion) ||
+        regExpAndroid11.hasMatch(androidVersion) ||
+        regExpAndroid10.hasMatch(androidVersion)) {
       return 'Deny';
     } else {
       return '';
@@ -107,9 +116,9 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
 
   String settingsTo() {
     if (Platform.isAndroid) {
-      if (androidVersion == '10' ||
-          androidVersion == '11' ||
-          androidVersion == '12') {
+      if (regExpAndroid12.hasMatch(androidVersion) ||
+          regExpAndroid11.hasMatch(androidVersion) ||
+          regExpAndroid10.hasMatch(androidVersion)) {
         return ' to';
       } else {
         return '';
@@ -121,10 +130,11 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
 
   String androidSettingsStep3() {
     if (Platform.isAndroid) {
-      if (androidVersion == '11' || androidVersion == '12') {
-        return ' Allow access to media only';
-      } else if (androidVersion == '10') {
-        return ' Allow';
+      if (regExpAndroid11.hasMatch(androidVersion) ||
+          regExpAndroid12.hasMatch(androidVersion)) {
+        return ' Allow access to media only.';
+      } else if (regExpAndroid10.hasMatch(androidVersion)) {
+        return ' Allow.';
       } else {
         return '';
       }
@@ -139,6 +149,7 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    print('androidVersion is $androidVersion');
     final flag =
         ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
     return LifeCycleManager(
@@ -199,20 +210,13 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
-                                // text: Platform.isAndroid ? ' Then tap on ' : '',
                                 text: androidSettingsStep1(),
                               ),
                               TextSpan(
-                                  // text: Platform.isAndroid
-                                  //     ? 'Files and media. \n\n'
-                                  //     : '',
                                   text: androidSettingsStep2(),
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
-                                // text: Platform.isAndroid
-                                //     ? ' Change ac;pic\'s access from '
-                                //     : '',
                                 text: androidSettingsPreStep3(),
                               ),
                               TextSpan(
@@ -223,12 +227,8 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
                                 text: settingsTo(),
-                                // text: ' to',
                               ),
                               TextSpan(
-                                  // text: Platform.isIOS
-                                  //     ? ' All Photos.'
-                                  //     : ' Allow access to media only',
                                   text: androidSettingsStep3(),
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),

@@ -238,6 +238,7 @@ class _VideoBigState extends State<VideoBig> {
                     } else {
                       // If the video is paused, play it.
                       _controller.play();
+                      //  TODO: Make video autoplay
                     }
                   });
                 },
