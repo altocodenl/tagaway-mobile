@@ -45,7 +45,10 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
 
   @override
   void initState() {
-    androidPlatformChecker();
+    if (Platform.isAndroid) {
+      androidPlatformChecker();
+    }
+
     super.initState();
   }
 
@@ -149,7 +152,6 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    print('androidVersion is $androidVersion');
     final flag =
         ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
     return LifeCycleManager(
