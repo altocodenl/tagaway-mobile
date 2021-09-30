@@ -12,31 +12,34 @@ import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/loginCheck.dart';
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/constants.dart';
 
-Future<Album> fetchAlbum() async {
-  final response = await http.get(Uri.parse('https://altocode.nl/picdev/csrf'));
-  if (response.statusCode == 200) {
-    print('response.statusCode is ${response.statusCode}');
-    return Album.fromJson(jsonDecode(response.body));
-  } else {
-    print('Not logged in, response.statusCode is ${response.statusCode}');
-    // throw Exception('Not logged in');
-  }
-}
-
-class Album {
-  final String token;
-
-  Album({
-    @required this.token,
-  });
-
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return Album(
-      token: json['csrf'],
-    );
-  }
-}
+// Future<Album> fetchAlbum() async {
+//   final response = await http.get(Uri.parse('https://altocode.nl/picdev/csrf'));
+//   if (response.statusCode == 200) {
+//     print('response.statusCode is ${response.statusCode}');
+//     return Album.fromJson(jsonDecode(response.body));
+//   } else {
+//     print('Not logged in, response.statusCode is ${response.statusCode}');
+//     throw Exception('Not logged in');
+//   }
+// }
+//
+// class Album {
+//   final String token;
+//
+//   Album({
+//     @required this.token,
+//   });
+//
+//   factory Album.fromJson(Map<String, dynamic> json) {
+//     return Album(
+//       token: json['csrf'],
+//     );
+//   }
+// }
 
 void main() => runApp(MyApp());
 
@@ -50,6 +53,8 @@ class _MyAppState extends State<MyApp> {
   Future myFutureLoggedIn;
   String permissionLevel;
   Future<Album> futureAlbum;
+  String loggedString;
+  bool loggedInOK = false;
 
   @override
   void initState() {
@@ -77,9 +82,23 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: loggedInLocal == true && permissionLevel == 'granted'
-          ? GridPage()
-          : Distributor(),
+      home: FutureBuilder<Album>(
+        future: futureAlbum,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && permissionLevel == 'granted') {
+            return GridPage();
+          }
+          // else if (snapshot.hasError) {
+          //   // return Distributor();
+          //   return LoginScreen();
+          // }
+          return Distributor();
+          // return LoginScreen();
+        },
+      ),
+      // home: loggedInLocal == true && permissionLevel == 'granted'
+      //     ? GridPage()
+      //     : Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),
         LoginScreen.id: (context) => LoginScreen(),
@@ -89,3 +108,4 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+//TODO: Evaluate FutureBuilder here and Distributor, calling the LoginCheck service

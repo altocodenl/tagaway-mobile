@@ -50,6 +50,7 @@ class _DistributorState extends State<Distributor> {
 
   @override
   Widget build(BuildContext context) {
+    // print('Distributor build');
     // Conditional Navigation
     checkPermission(context).then((value) {
       if (loggedInLocal == false) {
