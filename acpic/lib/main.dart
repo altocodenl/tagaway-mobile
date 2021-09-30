@@ -13,8 +13,6 @@ import 'package:acpic/screens/distributor.dart';
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 import 'package:acpic/services/loginCheck.dart';
-// IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/constants.dart';
 
 // Future<Album> fetchAlbum() async {
 //   final response = await http.get(Uri.parse('https://altocode.nl/picdev/csrf'));
@@ -82,23 +80,23 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FutureBuilder<Album>(
-        future: futureAlbum,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && permissionLevel == 'granted') {
-            return GridPage();
-          }
-          // else if (snapshot.hasError) {
-          //   // return Distributor();
-          //   return LoginScreen();
-          // }
-          return Distributor();
-          // return LoginScreen();
-        },
-      ),
-      // home: loggedInLocal == true && permissionLevel == 'granted'
-      //     ? GridPage()
-      //     : Distributor(),
+      // home: FutureBuilder<Album>(
+      //   future: futureAlbum,
+      //   builder: (context, snapshot) {
+      //     if (snapshot.hasData && permissionLevel == 'granted') {
+      //       return GridPage();
+      //     }
+      //     // else if (snapshot.hasError) {
+      //     //   // return Distributor();
+      //     //   return LoginScreen();
+      //     // }
+      //     return Distributor();
+      //     // return LoginScreen();
+      //   },
+      // ),
+      home: loggedInLocal == true && permissionLevel == 'granted'
+          ? GridPage()
+          : Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),
         LoginScreen.id: (context) => LoginScreen(),

@@ -10,6 +10,7 @@ import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/loginCheck.dart';
 
 class Distributor extends StatefulWidget {
   static const String id = 'distributor';
@@ -23,9 +24,11 @@ class _DistributorState extends State<Distributor> {
   bool loggedInLocal = false;
   Future myFuture;
   Future myFutureLoggedIn;
+  Future<Album> futureAlbum;
 
   @override
   void initState() {
+    // futureAlbum = fetchAlbum();
     if (Platform.isAndroid == true) {
       myFuture = SharedPreferencesService.instance
           .getBooleanValue('recurringUser')
@@ -53,6 +56,38 @@ class _DistributorState extends State<Distributor> {
     // print('Distributor build');
     // Conditional Navigation
     checkPermission(context).then((value) {
+      // FutureBuilder<Album>(
+      //   future: futureAlbum,
+      //   builder: (context, snapshot) {
+      //     if (snapshot.hasError) {
+      //       Navigator.pushReplacementNamed(
+      //         context,
+      //         LoginScreen.id,
+      //         arguments: PermissionLevelFlag(permissionLevel: value),
+      //       );
+      //     } else if ((Platform.isIOS
+      //         ? (value == 'denied' && snapshot.hasData)
+      //         : (value == 'denied' &&
+      //                 snapshot.hasData &&
+      //                 recurringUserLocal == false ||
+      //             recurringUserLocal == null))) {
+      //       Navigator.pushReplacementNamed(context, RequestPermission.id);
+      //     } else if (snapshot.hasData && value == 'denied' ||
+      //         value == 'permanent' ||
+      //         value == 'limited' ||
+      //         value == 'restricted') {
+      //       Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
+      //           arguments: PermissionLevelFlag(permissionLevel: value));
+      //     }
+      //     return Container(
+      //       color: Colors.white,
+      //       child: Center(
+      //           child: CircularProgressIndicator(
+      //         valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+      //       )),
+      //     );
+      //   },
+      // );
       if (loggedInLocal == false) {
         print('loggedInLocal is $loggedInLocal');
         Navigator.pushReplacementNamed(

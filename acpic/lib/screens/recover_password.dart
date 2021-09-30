@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
-import 'package:acpic/screens/login_screen.dart';
+import 'package:acpic/screens/distributor.dart';
 
 class RecoverPasswordScreen extends StatefulWidget {
   static const String id = 'recover_password';
@@ -20,7 +20,7 @@ class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
   delayedNavigation() {
     navigationDelayer = new Timer(const Duration(seconds: 5), () {
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => LoginScreen()),
+        MaterialPageRoute(builder: (_) => Distributor()),
       );
     });
   }

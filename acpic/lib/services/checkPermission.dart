@@ -8,19 +8,19 @@ Future<String> checkPermission(BuildContext context) async {
       ? await Permission.photos.status
       : await Permission.storage.status;
   if (serviceStatus == PermissionStatus.granted) {
-    print('granted');
+    // print('granted');
     return 'granted';
   } else if (serviceStatus == PermissionStatus.denied) {
-    print('denied');
+    // print('denied');
     return 'denied';
   } else if (serviceStatus == PermissionStatus.limited) {
-    print('limited');
+    // print('limited');
     return 'limited';
   } else if (serviceStatus == PermissionStatus.restricted) {
-    print('restricted');
+    // print('restricted');
     return 'restricted';
   } else if (serviceStatus == PermissionStatus.permanentlyDenied) {
-    print('permanently denied');
+    // print('permanently denied');
     return 'permanent';
   }
 }
