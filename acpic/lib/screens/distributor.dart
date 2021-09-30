@@ -28,7 +28,7 @@ class _DistributorState extends State<Distributor> {
 
   @override
   void initState() {
-    // futureAlbum = fetchAlbum();
+    futureAlbum = fetchAlbum();
     if (Platform.isAndroid == true) {
       myFuture = SharedPreferencesService.instance
           .getBooleanValue('recurringUser')
@@ -53,69 +53,73 @@ class _DistributorState extends State<Distributor> {
 
   @override
   Widget build(BuildContext context) {
-    // print('Distributor build');
+    print('Distributor build');
     // Conditional Navigation
-    checkPermission(context).then((value) {
-      // FutureBuilder<Album>(
-      //   future: futureAlbum,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasError) {
-      //       Navigator.pushReplacementNamed(
-      //         context,
-      //         LoginScreen.id,
-      //         arguments: PermissionLevelFlag(permissionLevel: value),
-      //       );
-      //     } else if ((Platform.isIOS
-      //         ? (value == 'denied' && snapshot.hasData)
-      //         : (value == 'denied' &&
-      //                 snapshot.hasData &&
-      //                 recurringUserLocal == false ||
-      //             recurringUserLocal == null))) {
-      //       Navigator.pushReplacementNamed(context, RequestPermission.id);
-      //     } else if (snapshot.hasData && value == 'denied' ||
-      //         value == 'permanent' ||
-      //         value == 'limited' ||
-      //         value == 'restricted') {
-      //       Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
-      //           arguments: PermissionLevelFlag(permissionLevel: value));
-      //     }
-      //     return Container(
-      //       color: Colors.white,
-      //       child: Center(
-      //           child: CircularProgressIndicator(
-      //         valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
-      //       )),
-      //     );
-      //   },
-      // );
-      if (loggedInLocal == false) {
-        print('loggedInLocal is $loggedInLocal');
-        Navigator.pushReplacementNamed(
-          context,
-          LoginScreen.id,
-          arguments: PermissionLevelFlag(permissionLevel: value),
+    // checkPermission(context).then((value) {
+    //   if (loggedInLocal == false) {
+    //     print('loggedInLocal is $loggedInLocal');
+    //     Navigator.pushReplacementNamed(
+    //       context,
+    //       LoginScreen.id,
+    //       arguments: PermissionLevelFlag(permissionLevel: value),
+    //     );
+    //   } else if ((Platform.isIOS
+    //       ? (value == 'denied' && loggedInLocal == true)
+    //       : (value == 'denied' &&
+    //               loggedInLocal == true &&
+    //               recurringUserLocal == false ||
+    //           recurringUserLocal == null))) {
+    //     Navigator.pushReplacementNamed(context, RequestPermission.id);
+    //   } else if (loggedInLocal == true && value == 'denied' ||
+    //       value == 'permanent' ||
+    //       value == 'limited' ||
+    //       value == 'restricted') {
+    //     Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
+    //         arguments: PermissionLevelFlag(permissionLevel: value));
+    //   }
+    // });
+    return FutureBuilder<Album>(
+      future: futureAlbum,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          checkPermission(context).then((value) {
+            Navigator.pushReplacementNamed(
+              context,
+              LoginScreen.id,
+              arguments: PermissionLevelFlag(permissionLevel: value),
+            );
+          });
+        } else if (snapshot.hasData) {
+          checkPermission(context).then((value) {
+            if ((Platform.isIOS
+                ? (value == 'denied')
+                : (value == 'denied' && recurringUserLocal == false ||
+                    recurringUserLocal == null))) {
+              Navigator.pushReplacementNamed(context, RequestPermission.id);
+            } else if (value == 'denied' ||
+                value == 'permanent' ||
+                value == 'limited' ||
+                value == 'restricted') {
+              Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
+                  arguments: PermissionLevelFlag(permissionLevel: value));
+            }
+          });
+        }
+        return Container(
+          color: Colors.white,
+          child: Center(
+              child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+          )),
         );
-      } else if ((Platform.isIOS
-          ? (value == 'denied' && loggedInLocal == true)
-          : (value == 'denied' &&
-                  loggedInLocal == true &&
-                  recurringUserLocal == false ||
-              recurringUserLocal == null))) {
-        Navigator.pushReplacementNamed(context, RequestPermission.id);
-      } else if (loggedInLocal == true && value == 'denied' ||
-          value == 'permanent' ||
-          value == 'limited' ||
-          value == 'restricted') {
-        Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
-            arguments: PermissionLevelFlag(permissionLevel: value));
-      }
-    });
-    return Container(
-      color: Colors.white,
-      child: Center(
-          child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
-      )),
+      },
     );
+    //   Container(
+    //   color: Colors.white,
+    //   child: Center(
+    //       child: CircularProgressIndicator(
+    //     valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+    //   )),
+    // );
   }
 }
