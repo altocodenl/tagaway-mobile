@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'dart:async';
+import 'package:http/http.dart' as http;
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -17,6 +20,51 @@ import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 
+//  TODO 1: This will have to navigate to Distributor
+//  TODO 3: Check token persistence between sessions
+
+Future<LoginBody> createAlbum(
+    String username, String password, dynamic timezone) async {
+  final response = await http.post(
+    Uri.parse('https://altocode.nl/picdev/auth/login'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'username': username,
+      'password': password,
+      'timezone': timezone
+    }),
+  );
+  if (response.statusCode == 200) {
+    print('response.statusCode is ${response.statusCode}');
+    print('response.body from Log In is ${response.body}');
+    return LoginBody.fromJson(jsonDecode(response.body));
+  } else {
+    print('response.statusCode is ${response.statusCode}');
+    print('response.body from Log In is ${response.body}');
+    throw Exception('Failed to log in.');
+  }
+}
+
+class LoginBody {
+  final String username;
+  final String password;
+  final dynamic timezone;
+
+  LoginBody(
+      {@required this.username,
+      @required this.password,
+      @required this.timezone});
+
+  factory LoginBody.fromJson(Map<String, dynamic> json) {
+    return LoginBody(
+        username: json['username'],
+        password: json['password'],
+        timezone: json['timezone']);
+  }
+}
+
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
 
@@ -27,6 +75,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool recurringUserLocal = false;
   Future myFuture;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  Future<LoginBody> _futureLoginBody;
 
   @override
   void initState() {
@@ -76,6 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   TextField(
+                    controller: _usernameController,
                     keyboardType: TextInputType.emailAddress,
                     autofocus: true,
                     textAlign: TextAlign.center,
@@ -92,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 20),
                     child: TextField(
+                      controller: _passwordController,
                       autofocus: true,
                       obscureText: true,
                       textAlign: TextAlign.center,
@@ -109,37 +162,45 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
+                      _futureLoginBody = createAlbum(
+                          _usernameController.text,
+                          _passwordController.text,
+                          DateTime.now().timeZoneOffset.inMinutes.toInt());
+                      _usernameController.clear();
+                      _passwordController.clear();
+
                       // TODO: Delete this function later. This is just to make the interface work as it should
                       SharedPreferencesService.instance
                           .setBooleanValue('loggedIn', true);
                       // ---
-                      if (Platform.isIOS
-                          ? flag.permissionLevel == 'denied'
-                          : flag.permissionLevel == 'denied' &&
-                                  recurringUserLocal == false ||
-                              recurringUserLocal == null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return RequestPermission();
-                            },
-                          ),
-                        );
-                      } else if (flag.permissionLevel == 'granted') {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => GridPage()),
-                        );
-                      } else {
-                        checkPermission(context).then((value) {
-                          Navigator.pushReplacementNamed(
-                              context, PhotoAccessNeeded.id,
-                              arguments:
-                                  PermissionLevelFlag(permissionLevel: value));
-                        });
-                      }
+                      // if (Platform.isIOS
+                      //     ? flag.permissionLevel == 'denied'
+                      //     : flag.permissionLevel == 'denied' &&
+                      //             recurringUserLocal == false ||
+                      //         recurringUserLocal == null) {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) {
+                      //         return RequestPermission();
+                      //       },
+                      //     ),
+                      //   );
+                      // } else if (flag.permissionLevel == 'granted') {
+                      //   Navigator.of(context).push(
+                      //     MaterialPageRoute(builder: (_) => GridPage()),
+                      //   );
+                      // } else {
+                      //   checkPermission(context).then((value) {
+                      //     Navigator.pushReplacementNamed(
+                      //         context, PhotoAccessNeeded.id,
+                      //         arguments:
+                      //             PermissionLevelFlag(permissionLevel: value));
+                      //   });
+                      // }
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
+                      //  TODO 2: Add snackbar for incorrect username or password
                     },
                   ),
                   Builder(

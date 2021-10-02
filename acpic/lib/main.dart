@@ -74,4 +74,5 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-//TODO: Evaluate FutureBuilder here and Distributor, calling the LoginCheck service
+
+// TODO 4: online checker. If app is not connected to the internet, go to a screen that asks the user to connect to the internet to use the app

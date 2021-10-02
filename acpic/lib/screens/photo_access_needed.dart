@@ -13,7 +13,7 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/screens/grid.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
-import 'package:acpic/services/lifecycle_manager.dart';
+import 'package:acpic/services/lifecycleManager.dart';
 
 class PhotoAccessNeeded extends StatefulWidget {
   static const String id = 'photo_access_needed';
