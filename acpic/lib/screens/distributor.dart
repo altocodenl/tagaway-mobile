@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 //IMPORT SCREENS
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
+import 'package:acpic/screens/grid.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
@@ -96,6 +97,10 @@ class _DistributorState extends State<Distributor> {
                 : (value == 'denied' && recurringUserLocal == false ||
                     recurringUserLocal == null))) {
               Navigator.pushReplacementNamed(context, RequestPermission.id);
+            } else if (value == 'granted') {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => GridPage()),
+              );
             } else if (value == 'denied' ||
                 value == 'permanent' ||
                 value == 'limited' ||

@@ -70,6 +70,7 @@ class _MyAppState extends State<MyApp> {
         LoginScreen.id: (context) => LoginScreen(),
         PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
         RequestPermission.id: (context) => RequestPermission(),
+        Distributor.id: (context) => Distributor()
       },
     );
   }

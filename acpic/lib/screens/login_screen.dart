@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -16,54 +17,56 @@ import 'request_permission.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/recover_password.dart';
+import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/loginService.dart';
 
 //  TODO 1: This will have to navigate to Distributor
 //  TODO 3: Check token persistence between sessions
 
-Future<LoginBody> createAlbum(
-    String username, String password, dynamic timezone) async {
-  final response = await http.post(
-    Uri.parse('https://altocode.nl/picdev/auth/login'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, dynamic>{
-      'username': username,
-      'password': password,
-      'timezone': timezone
-    }),
-  );
-  if (response.statusCode == 200) {
-    print('response.statusCode is ${response.statusCode}');
-    print('response.body from Log In is ${response.body}');
-    return LoginBody.fromJson(jsonDecode(response.body));
-  } else {
-    print('response.statusCode is ${response.statusCode}');
-    print('response.body from Log In is ${response.body}');
-    throw Exception('Failed to log in.');
-  }
-}
-
-class LoginBody {
-  final String username;
-  final String password;
-  final dynamic timezone;
-
-  LoginBody(
-      {@required this.username,
-      @required this.password,
-      @required this.timezone});
-
-  factory LoginBody.fromJson(Map<String, dynamic> json) {
-    return LoginBody(
-        username: json['username'],
-        password: json['password'],
-        timezone: json['timezone']);
-  }
-}
+// Future<LoginBody> createAlbum(
+//     String username, String password, dynamic timezone) async {
+//   final response = await http.post(
+//     Uri.parse('https://altocode.nl/picdev/auth/login'),
+//     headers: <String, String>{
+//       'Content-Type': 'application/json; charset=UTF-8',
+//     },
+//     body: jsonEncode(<String, dynamic>{
+//       'username': username,
+//       'password': password,
+//       'timezone': timezone
+//     }),
+//   );
+//   if (response.statusCode == 200) {
+//     print('response.statusCode is ${response.statusCode}');
+//     print('response.body from Log In is ${response.body}');
+//     return LoginBody.fromJson(jsonDecode(response.body));
+//   } else {
+//     print('response.statusCode is ${response.statusCode}');
+//     print('response.body from Log In is ${response.body}');
+//     throw Exception('Failed to log in.');
+//   }
+// }
+//
+// class LoginBody {
+//   final String username;
+//   final String password;
+//   final dynamic timezone;
+//
+//   LoginBody(
+//       {@required this.username,
+//       @required this.password,
+//       @required this.timezone});
+//
+//   factory LoginBody.fromJson(Map<String, dynamic> json) {
+//     return LoginBody(
+//         username: json['username'],
+//         password: json['password'],
+//         timezone: json['timezone']);
+//   }
+// }
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -77,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future myFuture;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  Future<LoginBody> _futureLoginBody;
+  Future<LoginBody> futureLoginBody;
 
   @override
   void initState() {
@@ -162,13 +165,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
-                      _futureLoginBody = createAlbum(
+                      futureLoginBody = createAlbum(
                           _usernameController.text,
                           _passwordController.text,
                           DateTime.now().timeZoneOffset.inMinutes.toInt());
                       _usernameController.clear();
                       _passwordController.clear();
 
+                      //TODO: Very probably I should make the call right here, have context available - and even Provider.
+                      // We need context for Navogator and Snackbar
                       // TODO: Delete this function later. This is just to make the interface work as it should
                       SharedPreferencesService.instance
                           .setBooleanValue('loggedIn', true);
