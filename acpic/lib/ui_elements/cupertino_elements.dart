@@ -75,7 +75,8 @@ class CupertinoLogOut extends StatelessWidget {
                 ),
                 CupertinoActionSheetAction(
                   onPressed: () {
-                    SharedPreferencesService.instance.removeValue('loggedIn');
+                    SharedPreferencesService.instance
+                        .removeValue('sessionCookie');
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) => Distributor()));
                   },

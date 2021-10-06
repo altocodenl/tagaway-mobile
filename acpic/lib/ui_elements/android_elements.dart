@@ -63,7 +63,7 @@ class AndroidLogOut extends StatelessWidget {
     return PopupMenuButton(
       onSelected: (value) {
         if (value == Option.logOut) {
-          SharedPreferencesService.instance.removeValue('loggedIn');
+          SharedPreferencesService.instance.removeValue('sessionCookie');
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (_) => Distributor()));
         } else if (value == Option.web) {

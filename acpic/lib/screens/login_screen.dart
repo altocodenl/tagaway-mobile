@@ -13,60 +13,11 @@ import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
-import 'request_permission.dart';
-import 'package:acpic/screens/grid.dart';
-import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
-import 'package:acpic/services/loginService.dart';
-
-//  TODO 1: This will have to navigate to Distributor
-//  TODO 3: Check token persistence between sessions
-
-// Future<LoginBody> createAlbum(
-//     String username, String password, dynamic timezone) async {
-//   final response = await http.post(
-//     Uri.parse('https://altocode.nl/picdev/auth/login'),
-//     headers: <String, String>{
-//       'Content-Type': 'application/json; charset=UTF-8',
-//     },
-//     body: jsonEncode(<String, dynamic>{
-//       'username': username,
-//       'password': password,
-//       'timezone': timezone
-//     }),
-//   );
-//   if (response.statusCode == 200) {
-//     print('response.statusCode is ${response.statusCode}');
-//     print('response.body from Log In is ${response.body}');
-//     return LoginBody.fromJson(jsonDecode(response.body));
-//   } else {
-//     print('response.statusCode is ${response.statusCode}');
-//     print('response.body from Log In is ${response.body}');
-//     throw Exception('Failed to log in.');
-//   }
-// }
-//
-// class LoginBody {
-//   final String username;
-//   final String password;
-//   final dynamic timezone;
-//
-//   LoginBody(
-//       {@required this.username,
-//       @required this.password,
-//       @required this.timezone});
-//
-//   factory LoginBody.fromJson(Map<String, dynamic> json) {
-//     return LoginBody(
-//         username: json['username'],
-//         password: json['password'],
-//         timezone: json['timezone']);
-//   }
-// }
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -78,9 +29,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool recurringUserLocal = false;
   Future myFuture;
+  String sessionCookie;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  Future<LoginBody> futureLoginBody;
 
   @override
   void initState() {
@@ -92,6 +43,40 @@ class _LoginScreenState extends State<LoginScreen> {
               }));
     }
     super.initState();
+  }
+
+  Future<LoginBody> createAlbum(
+      String username, String password, dynamic timezone) async {
+    final response = await http.post(
+      Uri.parse('https://altocode.nl/picdev/auth/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'username': username,
+        'password': password,
+        'timezone': timezone
+      }),
+    );
+    if (response.statusCode == 200) {
+      print('response.statusCode is ${response.statusCode}');
+      print('response.body from Log In is ${response.body}');
+      print('response.headers is ${response.headers}');
+      sessionCookie = response.headers['set-cookie'];
+      print('sessionCookie is $sessionCookie');
+      SharedPreferencesService.instance
+          .setStringValue('sessionCookie', response.headers['set-cookie']);
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => Distributor()),
+      );
+      return LoginBody.fromJson(jsonDecode(response.body));
+    } else {
+      print('response.statusCode is ${response.statusCode}');
+      print('response.body from Log In is ${response.body}');
+      SnackbarGlobal.buildSnackbar(
+          context, 'Incorrect username, email or password.', 'red');
+      throw Exception('Failed to log in.');
+    }
   }
 
   @override
@@ -165,15 +150,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
-                      futureLoginBody = createAlbum(
+                      createAlbum(
                           _usernameController.text,
                           _passwordController.text,
                           DateTime.now().timeZoneOffset.inMinutes.toInt());
                       _usernameController.clear();
                       _passwordController.clear();
 
-                      //TODO: Very probably I should make the call right here, have context available - and even Provider.
-                      // We need context for Navogator and Snackbar
                       // TODO: Delete this function later. This is just to make the interface work as it should
                       SharedPreferencesService.instance
                           .setBooleanValue('loggedIn', true);
@@ -205,7 +188,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       // }
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
-                      //  TODO 2: Add snackbar for incorrect username or password
                     },
                   ),
                   Builder(
@@ -253,6 +235,24 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ))),
     );
+  }
+}
+
+class LoginBody {
+  final String username;
+  final String password;
+  final dynamic timezone;
+
+  LoginBody(
+      {@required this.username,
+      @required this.password,
+      @required this.timezone});
+
+  factory LoginBody.fromJson(Map<String, dynamic> json) {
+    return LoginBody(
+        username: json['username'],
+        password: json['password'],
+        timezone: json['timezone']);
   }
 }
 
