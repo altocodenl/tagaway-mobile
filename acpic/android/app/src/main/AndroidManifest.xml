@@ -45,7 +45,7 @@
         android:name="android.permission.ACCESS_MEDIA_LOCATION"
         tools:node="remove"
         />
-
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Permissions options for `storage` -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>

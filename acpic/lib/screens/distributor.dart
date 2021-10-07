@@ -70,7 +70,6 @@ class _DistributorState extends State<Distributor> {
         Navigator.pushReplacementNamed(
           context,
           LoginScreen.id,
-          arguments: PermissionLevelFlag(permissionLevel: value),
         );
       } else if ((Platform.isIOS
           ? (value == 'denied' && sessionCookie.isNotEmpty == true)

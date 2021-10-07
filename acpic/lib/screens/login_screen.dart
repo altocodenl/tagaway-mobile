@@ -16,7 +16,6 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/checkPermission.dart';
 import 'package:acpic/services/local_vars_shared_prefs.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -83,8 +82,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    final flag =
-        ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
+    // final flag =
+    //     ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -161,31 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SharedPreferencesService.instance
                           .setBooleanValue('loggedIn', true);
                       // ---
-                      // if (Platform.isIOS
-                      //     ? flag.permissionLevel == 'denied'
-                      //     : flag.permissionLevel == 'denied' &&
-                      //             recurringUserLocal == false ||
-                      //         recurringUserLocal == null) {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) {
-                      //         return RequestPermission();
-                      //       },
-                      //     ),
-                      //   );
-                      // } else if (flag.permissionLevel == 'granted') {
-                      //   Navigator.of(context).push(
-                      //     MaterialPageRoute(builder: (_) => GridPage()),
-                      //   );
-                      // } else {
-                      //   checkPermission(context).then((value) {
-                      //     Navigator.pushReplacementNamed(
-                      //         context, PhotoAccessNeeded.id,
-                      //         arguments:
-                      //             PermissionLevelFlag(permissionLevel: value));
-                      //   });
-                      // }
+
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
