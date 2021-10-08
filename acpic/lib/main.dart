@@ -31,7 +31,16 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    // futureAlbum = fetchAlbum();
+    myFutureAsWell = SharedPreferencesService.instance
+        .getStringValue('sessionCookie')
+        .then((value) {
+      setState(() {
+        sessionCookie = value;
+      });
+      return sessionCookie;
+    });
+    // print('I am in main and sessionCookie is $sessionCookie');
+    futureAlbum = fetchAlbum();
     // TODO: Delete this function later. This is just to make the interface work as it should
     // myFutureLoggedIn = SharedPreferencesService.instance
     //     .getBooleanValue('loggedIn')
@@ -41,14 +50,6 @@ class _MyAppState extends State<MyApp> {
     //   });
     //   return loggedInLocal;
     // });
-    myFutureAsWell = SharedPreferencesService.instance
-        .getStringValue('sessionCookie')
-        .then((value) {
-      setState(() {
-        sessionCookie = value;
-      });
-      return sessionCookie;
-    });
     // Permission Level Checker
     checkPermission(context).then((value) {
       permissionLevel = value;
@@ -59,22 +60,23 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    // print('I am in main build and sessionCookie is $sessionCookie');
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: FutureBuilder<Album>(
-      //   future: futureAlbum,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData && permissionLevel == 'granted') {
-      //       return GridPage();
-      //     }
-      //     return Distributor();
-      //   },
-      // ),
-      home: sessionCookie.isNotEmpty == true && permissionLevel == 'granted'
-          ? GridPage()
-          : Distributor(),
+      home: FutureBuilder<Album>(
+        future: futureAlbum,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && permissionLevel == 'granted') {
+            return GridPage();
+          }
+          return Distributor();
+        },
+      ),
+      // home: sessionCookie.isNotEmpty == true && permissionLevel == 'granted'
+      //     ? GridPage()
+      //     : Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),
         LoginScreen.id: (context) => LoginScreen(),
