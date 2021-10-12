@@ -19,7 +19,6 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-
     super.initState();
   }
 

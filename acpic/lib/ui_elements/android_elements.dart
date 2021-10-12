@@ -8,42 +8,44 @@ import 'package:http/http.dart' as http;
 import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/inviteService.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
 
-Future<EmailAlbum> sendInviteEmail(String email) async {
-  final response = await http.post(
-    Uri.parse('https://altocode.nl/picdev/requestInvite'),
-    headers: <String, String>{
-      'Content-Type': 'application/json;charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'email': email,
-    }),
-  );
-  if (response.statusCode == 200) {
-    print('response.statusCode is ${response.statusCode}');
-    return EmailAlbum.fromJson(jsonDecode(response.body));
-  } else {
-    print('response.statusCode is ${response.statusCode}');
-    throw Exception('Invite not sent');
-  }
-}
-
-class EmailAlbum {
-  final String email;
-  EmailAlbum({@required this.email});
-  factory EmailAlbum.fromJson(Map<String, String> json) {
-    return EmailAlbum(email: json['email']);
-  }
-}
+// Future<EmailAlbum> sendInviteEmail(String email) async {
+//   final response = await http.post(
+//     Uri.parse('https://altocode.nl/picdev/requestInvite'),
+//     headers: <String, String>{
+//       'Content-Type': 'application/json;charset=UTF-8',
+//     },
+//     body: jsonEncode(<String, String>{
+//       'email': email,
+//     }),
+//   );
+//   if (response.statusCode == 200) {
+//     print('response.statusCode is ${response.statusCode}');
+//     return EmailAlbum.fromJson(jsonDecode(response.body));
+//   } else {
+//     print('response.statusCode is ${response.statusCode}');
+//     throw Exception('Invite not sent');
+//   }
+// }
+//
+// class EmailAlbum {
+//   final String email;
+//   EmailAlbum({@required this.email});
+//   factory EmailAlbum.fromJson(Map<String, String> json) {
+//     return EmailAlbum(email: json['email']);
+//   }
+// }
 
 enum Option { logOut, web }
 
 class AndroidInvite extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
-  final RegExp emailValidation = new RegExp(
-      r"/^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$/i");
+  final RegExp emailValidation = RegExp(
+      r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
+      caseSensitive: false);
 
   @override
   Widget build(BuildContext context) {
@@ -64,17 +66,36 @@ class AndroidInvite extends StatelessWidget {
               Navigator.of(context).pop();
             },
             child: Text('Cancel')),
-        TextButton(
+        // TextButton(
+        //     onPressed: () {
+        //       if (emailValidation.hasMatch(_emailController.text) == true) {
+        //         sendInviteEmail(_emailController.text);
+        //         Navigator.of(context, rootNavigator: true).pop();
+        //       } else {
+        //         Navigator.of(context, rootNavigator: true).pop();
+        //         SnackbarGlobal.buildSnackbar(
+        //             context, 'Please enter a valid email address', 'red');
+        //       }
+        //       _emailController.clear();
+        //     },
+        //     child: Text('Send')),
+        InviteWidget(
+          child: TextButton(
             onPressed: () {
-              sendInviteEmail(_emailController.text);
+              if (emailValidation.hasMatch(_emailController.text) == true) {
+                // sendInviteEmail(_emailController.text);
+
+                Navigator.of(context, rootNavigator: true).pop();
+              } else {
+                Navigator.of(context, rootNavigator: true).pop();
+                SnackbarGlobal.buildSnackbar(
+                    context, 'Please enter a valid email address', 'red');
+              }
               _emailController.clear();
-              SnackbarGlobal.buildSnackbar(
-                  context,
-                  'We received your request successfully, hang tight!',
-                  'green');
-              Navigator.of(context, rootNavigator: true).pop();
             },
-            child: Text('Send')),
+            child: Text('Send'),
+          ),
+        )
       ],
     );
   }

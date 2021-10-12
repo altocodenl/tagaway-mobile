@@ -9,30 +9,32 @@ import 'package:acpic/services/local_vars_shared_prefs.dart';
 
 String sessionCookie;
 
-Future<Album> fetchAlbum() async {
+startCheck() {
   SharedPreferencesService.instance
       .getStringValue('sessionCookie')
       .then((value) {
     sessionCookie = value;
-    return sessionCookie;
+    print(sessionCookie);
+    fetchAlbum();
   });
+}
+
+Future<Album> fetchAlbum() async {
+  print(sessionCookie);
   final response = await http.get(
     Uri.parse('https://altocode.nl/picdev/csrf'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'sessionCookie': sessionCookie
-    },
+    headers: <String, String>{'cookie': sessionCookie},
   );
-  print('I am floating and this is sessionCookie $sessionCookie');
 
   if (response.statusCode == 200) {
     print(response.statusCode);
     print(response.body);
+    print('Response here was 200');
     return Album.fromJson(jsonDecode(response.body));
   } else {
     print(response.statusCode);
     print(response.body);
-    print('I am in fetchAlbum and sessionCookie is $sessionCookie');
+
     throw Exception('Not logged in');
   }
 }

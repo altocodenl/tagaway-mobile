@@ -65,7 +65,7 @@ class _DistributorState extends State<Distributor> {
 
   @override
   Widget build(BuildContext context) {
-    print('Distributor build');
+    // print('Distributor build');
     checkPermission(context).then((value) {
       if (sessionCookie.isNotEmpty == false) {
         Navigator.pushReplacementNamed(
