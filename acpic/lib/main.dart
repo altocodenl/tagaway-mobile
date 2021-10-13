@@ -47,23 +47,23 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    print('I am in main build and sessionCookie is $sessionCookie');
+    // print('I am in main build and sessionCookie is $sessionCookie');
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: FutureBuilder<Album>(
-      //   future: futureAlbum,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData && permissionLevel == 'granted') {
-      //       return GridPage();
-      //     }
-      //     return Distributor();
-      //   },
-      // ),
-      home: sessionCookie.isNotEmpty == true && permissionLevel == 'granted'
-          ? GridPage()
-          : Distributor(),
+      home: FutureBuilder<Album>(
+        future: futureAlbum,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && permissionLevel == 'granted') {
+            return GridPage();
+          }
+          return Distributor();
+        },
+      ),
+      // home: sessionCookie.isNotEmpty == true && permissionLevel == 'granted'
+      //     ? GridPage()
+      //     : Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),
         LoginScreen.id: (context) => LoginScreen(),

@@ -24,13 +24,15 @@ import 'package:acpic/screens/distributor.dart';
 //   );
 //   if (response.statusCode == 200) {
 //     print('response.statusCode is ${response.statusCode}');
+//     print('This is a print ${EmailAlbum.fromJson(jsonDecode(response.body))}');
+//     print('Hello world');
 //     return EmailAlbum.fromJson(jsonDecode(response.body));
 //   } else {
-//     print('response.statusCode is ${response.statusCode}');
+//     // print('response.statusCode is ${response.statusCode}');
 //     throw Exception('Invite not sent');
 //   }
 // }
-//
+
 // class EmailAlbum {
 //   final String email;
 //   EmailAlbum({@required this.email});
@@ -42,7 +44,7 @@ import 'package:acpic/screens/distributor.dart';
 enum Option { logOut, web }
 
 class AndroidInvite extends StatelessWidget {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final RegExp emailValidation = RegExp(
       r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
       caseSensitive: false);
@@ -52,7 +54,7 @@ class AndroidInvite extends StatelessWidget {
     return AlertDialog(
       title: Text('Get your invite to ac;pic'),
       content: TextField(
-        controller: _emailController,
+        controller: emailController,
         keyboardType: TextInputType.emailAddress,
         textAlign: TextAlign.center,
         autofillHints: <String>[AutofillHints.email],
@@ -68,22 +70,22 @@ class AndroidInvite extends StatelessWidget {
             child: Text('Cancel')),
         // TextButton(
         //     onPressed: () {
-        //       if (emailValidation.hasMatch(_emailController.text) == true) {
-        //         sendInviteEmail(_emailController.text);
+        //       if (emailValidation.hasMatch(emailController.text) == true) {
+        //         sendInviteEmail(emailController.text);
         //         Navigator.of(context, rootNavigator: true).pop();
         //       } else {
         //         Navigator.of(context, rootNavigator: true).pop();
         //         SnackbarGlobal.buildSnackbar(
         //             context, 'Please enter a valid email address', 'red');
         //       }
-        //       _emailController.clear();
+        //       emailController.clear();
         //     },
         //     child: Text('Send')),
         InviteWidget(
           child: TextButton(
             onPressed: () {
-              if (emailValidation.hasMatch(_emailController.text) == true) {
-                // sendInviteEmail(_emailController.text);
+              if (emailValidation.hasMatch(emailController.text) == true) {
+                // sendInviteEmail(emailController.text);
 
                 Navigator.of(context, rootNavigator: true).pop();
               } else {
@@ -91,7 +93,7 @@ class AndroidInvite extends StatelessWidget {
                 SnackbarGlobal.buildSnackbar(
                     context, 'Please enter a valid email address', 'red');
               }
-              _emailController.clear();
+              emailController.clear();
             },
             child: Text('Send'),
           ),
