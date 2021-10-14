@@ -31,22 +31,58 @@ import 'package:acpic/screens/distributor.dart';
 //     throw Exception('Invite not sent');
 //   }
 // }
-//
-// class EmailAlbum {
-//   final String email;
-//   EmailAlbum({@required this.email});
-//   factory EmailAlbum.fromJson(Map<String, String> json) {
-//     return EmailAlbum(email: json['email']);
-//   }
-// }
+
+class EmailAlbum {
+  final String email;
+  EmailAlbum({@required this.email});
+  factory EmailAlbum.fromJson(Map<String, String> json) {
+    return EmailAlbum(email: json['email']);
+  }
+}
 
 enum Option { logOut, web }
 
-class AndroidInvite extends StatelessWidget {
+class AndroidInvite extends StatefulWidget {
+  @override
+  State<AndroidInvite> createState() => _AndroidInviteState();
+}
+
+class _AndroidInviteState extends State<AndroidInvite> {
   final TextEditingController emailController = TextEditingController();
+
   final RegExp emailValidation = RegExp(
       r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
       caseSensitive: false);
+
+  Future<EmailAlbum> sendInviteEmail(String email) async {
+    final response = await http.post(
+      Uri.parse('https://altocode.nl/picdev/requestInvite'),
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+      }),
+    );
+    if (response.statusCode == 200) {
+      print(response.statusCode);
+
+      // SnackBarGlobal.buildSnackBar(context, 'All good', 'green');
+      print('what about this');
+      if (response.body.isNotEmpty) {
+        json.decode(response.body);
+      } else if (response.body.isEmpty) {
+        print('response.body.characters ${response.body.characters}');
+        print('response.body.runtimeType ${response.body.runtimeType}');
+      }
+      return jsonDecode(response.body);
+      // return EmailAlbum.fromJson(jsonDecode(response.body));
+    } else {
+      print('response.statusCode is ${response.statusCode}');
+      SnackBarGlobal.buildSnackBar(context, 'Not good', 'red');
+      throw Exception('Invite not sent');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,31 +106,8 @@ class AndroidInvite extends StatelessWidget {
         TextButton(
             onPressed: () {
               if (emailValidation.hasMatch(emailController.text) == true) {
-                // sendInviteEmail(emailController.text);
+                sendInviteEmail(emailController.text);
                 Navigator.of(context, rootNavigator: true).pop();
-                FutureBuilder(
-                  future: sendInviteEmail(emailController.text),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      print('snapshot.hasData is $snapshot');
-                      SnackBarGlobal.buildSnackBar(
-                          context, 'All good', 'green');
-                    } else if (snapshot.hasError) {
-                      print('snapshot.hasData is $snapshot');
-                      SnackBarGlobal.buildSnackBar(
-                          context, 'There was an error sending this', 'red');
-                    } else if (snapshot = null) {
-                      print('snapshot is null');
-                    }
-                    return Center(
-                      child: Container(
-                        color: Colors.black,
-                        width: 800,
-                        height: 800,
-                      ),
-                    );
-                  },
-                );
               } else {
                 Navigator.of(context, rootNavigator: true).pop();
                 SnackBarGlobal.buildSnackBar(
