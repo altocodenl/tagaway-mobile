@@ -77,7 +77,7 @@ class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
                     title: 'Recover password',
                     colour: kAltoBlue,
                     onPressed: () {
-                      SnackbarGlobal.buildSnackbar(
+                      SnackBarGlobal.buildSnackBar(
                           context, 'Got it! Check your email inbox.', 'green');
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();

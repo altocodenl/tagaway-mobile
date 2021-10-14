@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:acpic/ui_elements/constants.dart';
 
-class SnackbarGlobal {
-  SnackbarGlobal._();
-  static buildSnackbar(
-      BuildContext context, String message, String backgroundColorSnackbar) {
+class SnackBarGlobal {
+  SnackBarGlobal._();
+  static buildSnackBar(
+      BuildContext context, String message, String backgroundColorSnackBar) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -12,9 +12,9 @@ class SnackbarGlobal {
           textAlign: TextAlign.center,
           style: kSnackbarText,
         ),
-        backgroundColor: Color(backgroundColorSnackbar == 'green'
+        backgroundColor: Color(backgroundColorSnackBar == 'green'
             ? 0xFF04E762
-            : backgroundColorSnackbar == 'red'
+            : backgroundColorSnackBar == 'red'
                 ? 0xFFD33E43
                 : 0xFFffff00),
         //  var colors = {green: '#04E762', red: '#D33E43', yellow: '#ffff00'};

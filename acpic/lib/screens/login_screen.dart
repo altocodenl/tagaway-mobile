@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       print('response.statusCode is ${response.statusCode}');
       print('response.body from Log In is ${response.body}');
-      SnackbarGlobal.buildSnackbar(
+      SnackBarGlobal.buildSnackBar(
           context, 'Incorrect username, email or password.', 'red');
       throw Exception('Failed to log in.');
     }

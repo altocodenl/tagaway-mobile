@@ -23,16 +23,15 @@ import 'package:acpic/screens/distributor.dart';
 //     }),
 //   );
 //   if (response.statusCode == 200) {
-//     print('response.statusCode is ${response.statusCode}');
-//     print('This is a print ${EmailAlbum.fromJson(jsonDecode(response.body))}');
-//     print('Hello world');
+//     print(response.statusCode);
+//     print('Hello people');
 //     return EmailAlbum.fromJson(jsonDecode(response.body));
 //   } else {
-//     // print('response.statusCode is ${response.statusCode}');
+//     print('response.statusCode is ${response.statusCode}');
 //     throw Exception('Invite not sent');
 //   }
 // }
-
+//
 // class EmailAlbum {
 //   final String email;
 //   EmailAlbum({@required this.email});
@@ -68,36 +67,42 @@ class AndroidInvite extends StatelessWidget {
               Navigator.of(context).pop();
             },
             child: Text('Cancel')),
-        // TextButton(
-        //     onPressed: () {
-        //       if (emailValidation.hasMatch(emailController.text) == true) {
-        //         sendInviteEmail(emailController.text);
-        //         Navigator.of(context, rootNavigator: true).pop();
-        //       } else {
-        //         Navigator.of(context, rootNavigator: true).pop();
-        //         SnackbarGlobal.buildSnackbar(
-        //             context, 'Please enter a valid email address', 'red');
-        //       }
-        //       emailController.clear();
-        //     },
-        //     child: Text('Send')),
-        InviteWidget(
-          child: TextButton(
+        TextButton(
             onPressed: () {
               if (emailValidation.hasMatch(emailController.text) == true) {
                 // sendInviteEmail(emailController.text);
-
                 Navigator.of(context, rootNavigator: true).pop();
+                FutureBuilder(
+                  future: sendInviteEmail(emailController.text),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      print('snapshot.hasData is $snapshot');
+                      SnackBarGlobal.buildSnackBar(
+                          context, 'All good', 'green');
+                    } else if (snapshot.hasError) {
+                      print('snapshot.hasData is $snapshot');
+                      SnackBarGlobal.buildSnackBar(
+                          context, 'There was an error sending this', 'red');
+                    } else if (snapshot = null) {
+                      print('snapshot is null');
+                    }
+                    return Center(
+                      child: Container(
+                        color: Colors.black,
+                        width: 800,
+                        height: 800,
+                      ),
+                    );
+                  },
+                );
               } else {
                 Navigator.of(context, rootNavigator: true).pop();
-                SnackbarGlobal.buildSnackbar(
+                SnackBarGlobal.buildSnackBar(
                     context, 'Please enter a valid email address', 'red');
               }
               emailController.clear();
             },
-            child: Text('Send'),
-          ),
-        )
+            child: Text('Send')),
       ],
     );
   }
