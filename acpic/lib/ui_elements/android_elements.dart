@@ -24,21 +24,28 @@ import 'package:acpic/screens/distributor.dart';
 //   );
 //   if (response.statusCode == 200) {
 //     print(response.statusCode);
-//     print('Hello people');
+//     print('response.body.characters ${response.body.characters}');
+//     print('response.body.runtimeType ${response.body.runtimeType}');
+//     print('json.decode(response.body) is ${json.decode(response.body)}');
+//     print(
+//         'EmailAlbum.fromJson(jsonDecode(response.body)) is ${EmailAlbum.fromJson(jsonDecode(response.body))}');
+//     // SnackBarGlobal.buildSnackBar(context, 'All good', 'green');
+//
 //     return EmailAlbum.fromJson(jsonDecode(response.body));
 //   } else {
 //     print('response.statusCode is ${response.statusCode}');
+//     // SnackBarGlobal.buildSnackBar(context, 'Not good', 'red');
 //     throw Exception('Invite not sent');
 //   }
 // }
-
-class EmailAlbum {
-  final String email;
-  EmailAlbum({@required this.email});
-  factory EmailAlbum.fromJson(Map<String, String> json) {
-    return EmailAlbum(email: json['email']);
-  }
-}
+//
+// class EmailAlbum {
+//   final String email;
+//   EmailAlbum({@required this.email});
+//   factory EmailAlbum.fromJson(Map<String, dynamic> json) {
+//     return EmailAlbum(email: json['email']);
+//   }
+// }
 
 enum Option { logOut, web }
 
@@ -53,36 +60,6 @@ class _AndroidInviteState extends State<AndroidInvite> {
   final RegExp emailValidation = RegExp(
       r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
       caseSensitive: false);
-
-  Future<EmailAlbum> sendInviteEmail(String email) async {
-    final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/requestInvite'),
-      headers: <String, String>{
-        'Content-Type': 'application/json;charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'email': email,
-      }),
-    );
-    if (response.statusCode == 200) {
-      print(response.statusCode);
-
-      // SnackBarGlobal.buildSnackBar(context, 'All good', 'green');
-      print('what about this');
-      if (response.body.isNotEmpty) {
-        json.decode(response.body);
-      } else if (response.body.isEmpty) {
-        print('response.body.characters ${response.body.characters}');
-        print('response.body.runtimeType ${response.body.runtimeType}');
-      }
-      return jsonDecode(response.body);
-      // return EmailAlbum.fromJson(jsonDecode(response.body));
-    } else {
-      print('response.statusCode is ${response.statusCode}');
-      SnackBarGlobal.buildSnackBar(context, 'Not good', 'red');
-      throw Exception('Invite not sent');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +83,34 @@ class _AndroidInviteState extends State<AndroidInvite> {
         TextButton(
             onPressed: () {
               if (emailValidation.hasMatch(emailController.text) == true) {
-                sendInviteEmail(emailController.text);
+                // sendInviteEmail(emailController.text);
+                // TODO: When this function gets called, the entire widget MUST be rebuilt, otherwise the FutureBuilder will not work.
+                // https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html
+                //https://api.flutter.dev/flutter/widgets/State/didUpdateWidget.html
+
+                FutureBuilder(
+                    future: sendInviteEmail(emailController.text),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        print('hello');
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          SnackBarGlobal.buildSnackBar(
+                              context, 'Got it', 'green');
+                        });
+                      } else if (snapshot.hasError) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          SnackBarGlobal.buildSnackBar(
+                              context, 'Did not get it', 'red');
+                        });
+                      } else if (snapshot.toString() == 'success":true') {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          SnackBarGlobal.buildSnackBar(
+                              context, 'Did get it', 'green');
+                        });
+                      }
+                      return Container();
+                    });
+
                 Navigator.of(context, rootNavigator: true).pop();
               } else {
                 Navigator.of(context, rootNavigator: true).pop();
