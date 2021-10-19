@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:acpic/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
+import 'dart:core';
 import 'package:http/http.dart' as http;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
@@ -12,36 +14,10 @@ import 'package:acpic/services/inviteService.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
 
-// Future<EmailAlbum> sendInviteEmail(String email) async {
-//   final response = await http.post(
-//     Uri.parse('https://altocode.nl/picdev/requestInvite'),
-//     headers: <String, String>{
-//       'Content-Type': 'application/json;charset=UTF-8',
-//     },
-//     body: jsonEncode(<String, String>{
-//       'email': email,
-//     }),
-//   );
-//   if (response.statusCode == 200) {
-//     print(response.statusCode);
-//     print('response.body.characters ${response.body.characters}');
-//     print('response.body.runtimeType ${response.body.runtimeType}');
-//     print('json.decode(response.body) is ${json.decode(response.body)}');
-//     print(
-//         'EmailAlbum.fromJson(jsonDecode(response.body)) is ${EmailAlbum.fromJson(jsonDecode(response.body))}');
-//     // SnackBarGlobal.buildSnackBar(context, 'All good', 'green');
-//
-//     return EmailAlbum.fromJson(jsonDecode(response.body));
-//   } else {
-//     print('response.statusCode is ${response.statusCode}');
-//     // SnackBarGlobal.buildSnackBar(context, 'Not good', 'red');
-//     throw Exception('Invite not sent');
-//   }
-// }
-//
 // class EmailAlbum {
 //   final String email;
 //   EmailAlbum({@required this.email});
+//
 //   factory EmailAlbum.fromJson(Map<String, dynamic> json) {
 //     return EmailAlbum(email: json['email']);
 //   }
@@ -50,6 +26,9 @@ import 'package:acpic/screens/distributor.dart';
 enum Option { logOut, web }
 
 class AndroidInvite extends StatefulWidget {
+  final StreamController<int> inviteResponse;
+  AndroidInvite({@required this.inviteResponse});
+
   @override
   State<AndroidInvite> createState() => _AndroidInviteState();
 }
@@ -60,6 +39,33 @@ class _AndroidInviteState extends State<AndroidInvite> {
   final RegExp emailValidation = RegExp(
       r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
       caseSensitive: false);
+
+  // Future<EmailAlbum> sendInviteEmail(String email) async {
+  //   final response = await http.post(
+  //     Uri.parse('https://altocode.nl/picdev/requestInvite'),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json;charset=UTF-8',
+  //     },
+  //     body: jsonEncode(<String, String>{
+  //       'email': email,
+  //     }),
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     print(response.statusCode);
+  //     print('response.body.characters ${response.body.characters}');
+  //     print('response.body.runtimeType ${response.body.runtimeType}');
+  //     print('jsonDecode(response.body) is ${jsonDecode(response.body)}');
+  //     print(
+  //         'EmailAlbum.fromJson(jsonDecode(response.body)) is ${EmailAlbum.fromJson(jsonDecode(response.body))}');
+  //     widget.inviteResponse.sink.add(response.statusCode);
+  //     return EmailAlbum.fromJson(jsonDecode(response.body));
+  //   } else {
+  //     print('response.statusCode is ${response.statusCode}');
+  //     widget.inviteResponse.sink.add(response.statusCode);
+  //     throw Exception('Invite not sent');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -83,34 +89,8 @@ class _AndroidInviteState extends State<AndroidInvite> {
         TextButton(
             onPressed: () {
               if (emailValidation.hasMatch(emailController.text) == true) {
+                InviteService.instance.sendInviteEmail(emailController.text);
                 // sendInviteEmail(emailController.text);
-                // TODO: When this function gets called, the entire widget MUST be rebuilt, otherwise the FutureBuilder will not work.
-                // https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html
-                //https://api.flutter.dev/flutter/widgets/State/didUpdateWidget.html
-
-                FutureBuilder(
-                    future: sendInviteEmail(emailController.text),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        print('hello');
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          SnackBarGlobal.buildSnackBar(
-                              context, 'Got it', 'green');
-                        });
-                      } else if (snapshot.hasError) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          SnackBarGlobal.buildSnackBar(
-                              context, 'Did not get it', 'red');
-                        });
-                      } else if (snapshot.toString() == 'success":true') {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          SnackBarGlobal.buildSnackBar(
-                              context, 'Did get it', 'green');
-                        });
-                      }
-                      return Container();
-                    });
-
                 Navigator.of(context, rootNavigator: true).pop();
               } else {
                 Navigator.of(context, rootNavigator: true).pop();

@@ -17,6 +17,7 @@ import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/inviteService.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -31,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String sessionCookie;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final inviteResponse = StreamController<int>.broadcast();
 
   @override
   void initState() {
@@ -42,6 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
               }));
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    inviteResponse.close();
+    super.dispose();
   }
 
   Future<LoginBody> createAlbum(
@@ -196,7 +204,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (context) {
                               return Platform.isIOS
                                   ? CupertinoInvite()
-                                  : AndroidInvite();
+                                  : AndroidInvite(
+                                      inviteResponse: inviteResponse,
+                                    );
                             });
                       },
                       child: Text(
@@ -205,6 +215,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  StreamBuilder(
+                      stream: inviteResponse.stream,
+                      builder: (context, snapshot) {
+                        print('snapshot is $snapshot');
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.data == 200) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            SnackBarGlobal.buildSnackBar(context,
+                                'We got your request, hang tight!', 'green');
+                          });
+                        } else if (snapshot.connectionState ==
+                                ConnectionState.done &&
+                            snapshot.data != 200) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            SnackBarGlobal.buildSnackBar(
+                                context,
+                                'There\'s been an error. Please try again later',
+                                'red');
+                          });
+                        }
+                        return Container(
+                          color: Colors.transparent,
+                        );
+                      })
                 ],
               ),
             ),
