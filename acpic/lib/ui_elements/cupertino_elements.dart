@@ -3,14 +3,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/inviteService.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
 
 class CupertinoInvite extends StatelessWidget {
+  final StreamController<int> inviteResponse;
+  CupertinoInvite({@required this.inviteResponse});
+  final TextEditingController emailController = TextEditingController();
+
+  final RegExp emailValidation = RegExp(
+      r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
+      caseSensitive: false);
+
   @override
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
@@ -34,9 +44,22 @@ class CupertinoInvite extends StatelessWidget {
         CupertinoDialogAction(
           child: Text('Send'),
           onPressed: () {
-            SnackBarGlobal.buildSnackBar(context,
-                'We received your request successfully, hang tight!', 'green');
-            Navigator.of(context, rootNavigator: true).pop();
+            if (emailValidation.hasMatch(emailController.text) == true) {
+              InviteService.instance
+                  .sendInviteEmail(emailController.text)
+                  .then((value) {
+                print('value is $value');
+                inviteResponse.sink.add(value);
+              });
+              Navigator.of(context, rootNavigator: true).pop();
+              emailController.clear();
+            } else {
+              // This makes the keyboard disappear
+              FocusManager.instance.primaryFocus?.unfocus();
+              //---
+              SnackBarGlobal.buildSnackBar(
+                  context, 'Please enter a valid email address', 'red');
+            }
           },
         ),
       ],

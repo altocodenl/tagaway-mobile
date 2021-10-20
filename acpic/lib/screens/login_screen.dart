@@ -17,7 +17,6 @@ import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefs.dart';
-import 'package:acpic/services/inviteService.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -52,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  //Log In Function ---
   Future<LoginBody> createAlbum(
       String username, String password, dynamic timezone) async {
     final response = await http.post(
@@ -66,9 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
       }),
     );
     if (response.statusCode == 200) {
-      print('response.statusCode is ${response.statusCode}');
-      print('response.body from Log In is ${response.body}');
-      print('response.headers is ${response.headers}');
       sessionCookie = response.headers['set-cookie'];
       print('sessionCookie is $sessionCookie');
       SharedPreferencesService.instance
@@ -78,13 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return LoginBody.fromJson(jsonDecode(response.body));
     } else {
-      print('response.statusCode is ${response.statusCode}');
-      print('response.body from Log In is ${response.body}');
       SnackBarGlobal.buildSnackBar(
           context, 'Incorrect username, email or password.', 'red');
       throw Exception('Failed to log in.');
     }
   }
+  // ---
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +199,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             context: context,
                             builder: (context) {
                               return Platform.isIOS
-                                  ? CupertinoInvite()
+                                  ? CupertinoInvite(
+                                      inviteResponse: inviteResponse,
+                                    )
                                   : AndroidInvite(
                                       inviteResponse: inviteResponse,
                                     );
@@ -219,14 +217,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       stream: inviteResponse.stream,
                       builder: (context, snapshot) {
                         print('snapshot is $snapshot');
-                        if (snapshot.connectionState == ConnectionState.done &&
+                        if (snapshot.connectionState ==
+                                ConnectionState.active &&
                             snapshot.data == 200) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             SnackBarGlobal.buildSnackBar(context,
                                 'We got your request, hang tight!', 'green');
                           });
                         } else if (snapshot.connectionState ==
-                                ConnectionState.done &&
+                                ConnectionState.active &&
                             snapshot.data != 200) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             SnackBarGlobal.buildSnackBar(
@@ -264,9 +263,3 @@ class LoginBody {
         timezone: json['timezone']);
   }
 }
-
-// States:
-// First time: 'denied' && recurringUserLocal == false || recurringUserLocal == null; => goes to RequestPermission [1]
-// Other times: 'granted' && recurringUserLocal == true; => goes to Grid [2]
-//              'limited' && recurringUserLocal == true; => goes to PhotoAccessNeeded [3]
-//              'denied' || 'permanent' && recurringUserLocal == true; => goes to PhotoAccessNeeded [3]
