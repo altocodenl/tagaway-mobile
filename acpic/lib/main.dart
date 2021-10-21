@@ -8,9 +8,9 @@ import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/checkPermission.dart';
-import 'package:acpic/services/local_vars_shared_prefs.dart';
-import 'package:acpic/services/loginCheck.dart';
+import 'package:acpic/services/permissionCheckService.dart';
+import 'package:acpic/services/local_vars_shared_prefsService.dart';
+import 'package:acpic/services/loginCheckService.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,23 +21,17 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String permissionLevel;
-  Future<Album> futureAlbum;
-  String sessionCookie;
-  Future myFutureAsWell;
+  String cookie;
+  Future myFuture;
 
   @override
   void initState() {
-    myFutureAsWell = SharedPreferencesService.instance
-        .getStringValue('sessionCookie')
-        .then((value) {
+    SharedPreferencesService.instance.getStringValue('cookie').then((value) {
       setState(() {
-        sessionCookie = value;
+        cookie = value;
       });
-      return sessionCookie;
+      return cookie;
     });
-    // startCheck();
-    // futureAlbum = fetchAlbum();
-    // Permission Level Checker
     checkPermission(context).then((value) {
       permissionLevel = value;
       return permissionLevel;
@@ -47,23 +41,14 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // print('I am in main build and sessionCookie is $sessionCookie');
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FutureBuilder<Album>(
-        future: futureAlbum,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && permissionLevel == 'granted') {
-            return GridPage();
-          }
-          return Distributor();
-        },
-      ),
-      // home: sessionCookie.isNotEmpty == true && permissionLevel == 'granted'
+      // home: cookie.isNotEmpty == true && permissionLevel == 'granted'
       //     ? GridPage()
       //     : Distributor(),
+      home: Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),
         LoginScreen.id: (context) => LoginScreen(),

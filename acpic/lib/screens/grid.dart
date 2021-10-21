@@ -14,7 +14,7 @@ import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'grid_item.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/lifecycleManager.dart';
+import 'package:acpic/services/lifecycleManagerService.dart';
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();

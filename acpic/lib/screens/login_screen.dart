@@ -16,7 +16,8 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/local_vars_shared_prefsService.dart';
+import 'package:acpic/services/logInService.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -28,7 +29,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool recurringUserLocal = false;
   Future myFuture;
-  String sessionCookie;
+  String cookie;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final inviteResponse = StreamController<int>.broadcast();
@@ -52,34 +53,34 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   //Log In Function ---
-  Future<LoginBody> createAlbum(
-      String username, String password, dynamic timezone) async {
-    final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/auth/login'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'username': username,
-        'password': password,
-        'timezone': timezone
-      }),
-    );
-    if (response.statusCode == 200) {
-      sessionCookie = response.headers['set-cookie'];
-      print('sessionCookie is $sessionCookie');
-      SharedPreferencesService.instance
-          .setStringValue('sessionCookie', response.headers['set-cookie']);
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => Distributor()),
-      );
-      return LoginBody.fromJson(jsonDecode(response.body));
-    } else {
-      SnackBarGlobal.buildSnackBar(
-          context, 'Incorrect username, email or password.', 'red');
-      throw Exception('Failed to log in.');
-    }
-  }
+  // Future<LoginBody> createAlbum(
+  //     String username, String password, dynamic timezone) async {
+  //   final response = await http.post(
+  //     Uri.parse('https://altocode.nl/picdev/auth/login'),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: jsonEncode(<String, dynamic>{
+  //       'username': username,
+  //       'password': password,
+  //       'timezone': timezone
+  //     }),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     sessionCookie = response.headers['set-cookie'];
+  //     print('sessionCookie is $sessionCookie');
+  //     SharedPreferencesService.instance
+  //         .setStringValue('sessionCookie', response.headers['set-cookie']);
+  //     Navigator.of(context).push(
+  //       MaterialPageRoute(builder: (_) => Distributor()),
+  //     );
+  //     return LoginBody.fromJson(jsonDecode(response.body));
+  //   } else {
+  //     SnackBarGlobal.buildSnackBar(
+  //         context, 'Incorrect username, email or password.', 'red');
+  //     throw Exception('Failed to log in.');
+  //   }
+  // }
   // ---
 
   @override
@@ -153,10 +154,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
-                      createAlbum(
-                          _usernameController.text,
-                          _passwordController.text,
-                          DateTime.now().timeZoneOffset.inMinutes.toInt());
+                      // createAlbum(
+                      //     _usernameController.text,
+                      //     _passwordController.text,
+                      //     DateTime.now().timeZoneOffset.inMinutes.toInt());
+                      LogInService.instance
+                          .createAlbum(
+                              _usernameController.text,
+                              _passwordController.text,
+                              DateTime.now().timeZoneOffset.inMinutes.toInt())
+                          .then((value) {
+                        if (value == 200) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => Distributor()),
+                          );
+                        } else {
+                          SnackBarGlobal.buildSnackBar(context,
+                              'Incorrect username, email or password.', 'red');
+                        }
+                      });
                       _usernameController.clear();
                       _passwordController.clear();
 
@@ -216,7 +232,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   StreamBuilder(
                       stream: inviteResponse.stream,
                       builder: (context, snapshot) {
-                        print('snapshot is $snapshot');
                         if (snapshot.connectionState ==
                                 ConnectionState.active &&
                             snapshot.data == 200) {

@@ -4,9 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 
 class InviteService {
-  StreamController<int> inviteResponse;
   InviteService._privateConstructor();
-  InviteService({this.inviteResponse});
 
   static final InviteService instance = InviteService._privateConstructor();
 

@@ -12,8 +12,8 @@ import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/checkPermission.dart';
-import 'package:acpic/services/lifecycleManager.dart';
+import 'package:acpic/services/permissionCheckService.dart';
+import 'package:acpic/services/lifecycleManagerService.dart';
 
 class PhotoAccessNeeded extends StatefulWidget {
   static const String id = 'photo_access_needed';

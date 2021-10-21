@@ -1,4 +1,4 @@
-import 'package:acpic/services/checkPermission.dart';
+import 'package:acpic/services/permissionCheckService.dart';
 import 'package:flutter/material.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';

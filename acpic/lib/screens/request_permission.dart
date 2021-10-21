@@ -11,8 +11,8 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/checkPermission.dart';
-import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/permissionCheckService.dart';
+import 'package:acpic/services/local_vars_shared_prefsService.dart';
 
 //https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html
 //https://api.flutter.dev/flutter/widgets/Flexible-class.html

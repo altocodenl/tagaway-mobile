@@ -7,7 +7,7 @@ import 'dart:async';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SERVICES
-import 'package:acpic/services/local_vars_shared_prefs.dart';
+import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/inviteService.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
@@ -98,8 +98,7 @@ class CupertinoLogOut extends StatelessWidget {
                 ),
                 CupertinoActionSheetAction(
                   onPressed: () {
-                    SharedPreferencesService.instance
-                        .removeValue('sessionCookie');
+                    SharedPreferencesService.instance.removeValue('cookie');
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) => Distributor()));
                   },
