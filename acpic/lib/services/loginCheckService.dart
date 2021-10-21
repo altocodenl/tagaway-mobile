@@ -16,7 +16,7 @@ class LoginCheckService {
     );
     print('I am in loginCheck() and cookie is $cookie');
     print('I am in loginCheck() response.statusCode is ${response.statusCode}');
-    // print('I am in loginCheck() and response.body is ${response.body}');
+    print('I am in loginCheck() and response.body is ${response.body}');
     return response.statusCode;
   }
 }

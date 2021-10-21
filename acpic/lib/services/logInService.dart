@@ -27,16 +27,11 @@ class LogInService {
           'I am in LogInService and response.statusCode is ${response.statusCode} ');
       String cookie = response.headers['set-cookie'];
       print('cookie is $cookie');
-      SharedPreferencesService.instance.setStringValue('cookie', cookie);
-      print(
-          'The SharedPref is ${SharedPreferencesService.instance.getStringValue('cookie')}');
-      // SharedPreferencesService.instance
-      //     .setStringValue('cookie', response.headers['set-cookie']);
+      await SharedPreferencesService.instance
+          .setStringValue('cookie', response.headers['set-cookie']);
       return response.statusCode;
-      // return LoginBody.fromJson(jsonDecode(response.body));
     } else {
       return response.statusCode;
-      // throw Exception('Failed to log in.');
     }
   }
 }

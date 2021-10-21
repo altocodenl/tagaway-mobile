@@ -1,4 +1,5 @@
 // IMPORT FLUTTER PACKAGES
+import 'package:acpic/screens/request_permission.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,9 +16,13 @@ import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/distributor.dart';
+import 'package:acpic/screens/grid.dart';
+import 'package:acpic/screens/photo_access_needed.dart';
+
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/logInService.dart';
+import 'package:acpic/services/permissionCheckService.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -87,8 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    // final flag =
-    //     ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
+    final flag =
+        ModalRoute.of(context).settings.arguments as PermissionLevelFlag;
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -165,9 +170,30 @@ class _LoginScreenState extends State<LoginScreen> {
                               DateTime.now().timeZoneOffset.inMinutes.toInt())
                           .then((value) {
                         if (value == 200) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => Distributor()),
-                          );
+                          if ((Platform.isIOS
+                              ? (flag.permissionLevel == 'denied')
+                              : (flag.permissionLevel == 'denied' &&
+                                      recurringUserLocal == false ||
+                                  recurringUserLocal == null))) {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        RequestPermission()));
+                          } else if (flag.permissionLevel == 'granted') {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        GridPage()));
+                          } else {
+                            checkPermission(context).then((value) {
+                              Navigator.pushReplacementNamed(
+                                  context, PhotoAccessNeeded.id,
+                                  arguments: PermissionLevelFlag(
+                                      permissionLevel: value));
+                            });
+                          }
                         } else {
                           SnackBarGlobal.buildSnackBar(context,
                               'Incorrect username, email or password.', 'red');
@@ -258,23 +284,5 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ))),
     );
-  }
-}
-
-class LoginBody {
-  final String username;
-  final String password;
-  final dynamic timezone;
-
-  LoginBody(
-      {@required this.username,
-      @required this.password,
-      @required this.timezone});
-
-  factory LoginBody.fromJson(Map<String, dynamic> json) {
-    return LoginBody(
-        username: json['username'],
-        password: json['password'],
-        timezone: json['timezone']);
   }
 }

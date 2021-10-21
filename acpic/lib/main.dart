@@ -7,6 +7,8 @@ import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 import 'package:acpic/screens/distributor.dart';
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/permissionCheckService.dart';
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
@@ -22,41 +24,57 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String permissionLevel;
   String cookie;
-  Future myFuture;
+  bool isCookieLoaded = false;
+  int response;
 
   @override
   void initState() {
-    SharedPreferencesService.instance.getStringValue('cookie').then((value) {
-      setState(() {
-        cookie = value;
-      });
-      return cookie;
-    });
     checkPermission(context).then((value) {
       permissionLevel = value;
       return permissionLevel;
     });
+    returnCookie();
     super.initState();
+  }
+
+  void returnCookie() async {
+    await SharedPreferencesService.instance
+        .getStringValue('cookie')
+        .then((value) {
+      setState(() {
+        cookie = value;
+      });
+      LoginCheckService.instance.loginCheck(cookie).then((value) {
+        setState(() {
+          response = value;
+          isCookieLoaded = true;
+        });
+      });
+      return cookie;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      // home: cookie.isNotEmpty == true && permissionLevel == 'granted'
-      //     ? GridPage()
-      //     : Distributor(),
-      home: Distributor(),
-      routes: {
-        GridPage.id: (context) => GridPage(),
-        LoginScreen.id: (context) => LoginScreen(),
-        PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
-        RequestPermission.id: (context) => RequestPermission(),
-        Distributor.id: (context) => Distributor()
-      },
-    );
+    return !isCookieLoaded
+        ? CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+          )
+        : MaterialApp(
+            theme: ThemeData(
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+            ),
+            home: response == 200 && permissionLevel == 'granted'
+                ? GridPage()
+                : Distributor(),
+            routes: {
+              GridPage.id: (context) => GridPage(),
+              LoginScreen.id: (context) => LoginScreen(),
+              PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
+              RequestPermission.id: (context) => RequestPermission(),
+              Distributor.id: (context) => Distributor()
+            },
+          );
   }
 }
 

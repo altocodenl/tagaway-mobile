@@ -22,7 +22,8 @@ class Distributor extends StatefulWidget {
 
 class _DistributorState extends State<Distributor> {
   bool recurringUserLocal = false;
-  bool loggedInLocal = false;
+  // bool loggedInLocal = false;
+  bool isCookieLoaded = false;
   String cookie;
 
   @override
@@ -36,6 +37,7 @@ class _DistributorState extends State<Distributor> {
         });
       });
     }
+    returnCookie();
     // TODO: Delete this function later. This is just to make the interface work as it should
     // myFutureLoggedIn = SharedPreferencesService.instance
     //     .getBooleanValue('loggedIn')
@@ -46,50 +48,57 @@ class _DistributorState extends State<Distributor> {
     //
     //   return loggedInLocal;
     // });
-    SharedPreferencesService.instance.getStringValue('cookie').then((value) {
-      if (value = null) {
-        setState(() {
-          cookie = 'empty';
-        });
-      } else {
-        setState(() {
-          cookie = value;
-        });
-      }
+    super.initState();
+  }
+
+  void returnCookie() async {
+    await SharedPreferencesService.instance
+        .getStringValue('cookie')
+        .then((value) {
+      setState(() {
+        cookie = value;
+        isCookieLoaded = true;
+      });
       return cookie;
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    LoginCheckService.instance.loginCheck(cookie).then((value) {
-      if (value != 200) {
-        Navigator.pushReplacementNamed(
-          context,
-          LoginScreen.id,
-        );
-      } else if (value == 200) {
-        checkPermission(context).then((value) {
-          if ((Platform.isIOS
-              ? (value == 'denied')
-              : (value == 'denied' && recurringUserLocal == false ||
-                  recurringUserLocal == null))) {
-            Navigator.pushReplacementNamed(context, RequestPermission.id);
-          } else if (value == 'granted') {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => GridPage()),
-            );
-          } else if (value == 'denied' ||
-              value == 'permanent' ||
-              value == 'limited' ||
-              value == 'restricted') {
-            Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
-                arguments: PermissionLevelFlag(permissionLevel: value));
-          }
-        });
-      }
-    });
+    !isCookieLoaded
+        ? CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+          )
+        : LoginCheckService.instance.loginCheck(cookie).then((value) {
+            if (value != 200) {
+              checkPermission(context).then((value) {
+                Navigator.pushReplacementNamed(
+                  context,
+                  LoginScreen.id,
+                  arguments: PermissionLevelFlag(permissionLevel: value),
+                );
+              });
+            } else if (value == 200) {
+              checkPermission(context).then((value) {
+                if ((Platform.isIOS
+                    ? (value == 'denied')
+                    : (value == 'denied' && recurringUserLocal == false ||
+                        recurringUserLocal == null))) {
+                  Navigator.pushReplacementNamed(context, RequestPermission.id);
+                } else if (value == 'granted') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => GridPage()),
+                  );
+                } else if (value == 'denied' ||
+                    value == 'permanent' ||
+                    value == 'limited' ||
+                    value == 'restricted') {
+                  Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
+                      arguments: PermissionLevelFlag(permissionLevel: value));
+                }
+              });
+            }
+          });
     // checkPermission(context).then((value) {
     //   if (cookie.isNotEmpty == false) {
     //     Navigator.pushReplacementNamed(
