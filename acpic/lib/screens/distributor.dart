@@ -22,7 +22,6 @@ class Distributor extends StatefulWidget {
 
 class _DistributorState extends State<Distributor> {
   bool recurringUserLocal = false;
-  // bool loggedInLocal = false;
   bool isCookieLoaded = false;
   String cookie;
 
@@ -38,16 +37,6 @@ class _DistributorState extends State<Distributor> {
       });
     }
     returnCookie();
-    // TODO: Delete this function later. This is just to make the interface work as it should
-    // myFutureLoggedIn = SharedPreferencesService.instance
-    //     .getBooleanValue('loggedIn')
-    //     .then((value) {
-    //   setState(() {
-    //     loggedInLocal = value;
-    //   });
-    //
-    //   return loggedInLocal;
-    // });
     super.initState();
   }
 
@@ -86,9 +75,7 @@ class _DistributorState extends State<Distributor> {
                         recurringUserLocal == null))) {
                   Navigator.pushReplacementNamed(context, RequestPermission.id);
                 } else if (value == 'granted') {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => GridPage()),
-                  );
+                  Navigator.pushReplacementNamed(context, GridPage.id);
                 } else if (value == 'denied' ||
                     value == 'permanent' ||
                     value == 'limited' ||

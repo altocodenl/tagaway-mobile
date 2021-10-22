@@ -79,7 +79,7 @@ const kLogOutButton = TextStyle(
     fontWeight: FontWeight.bold,
     color: kAltoRed);
 
-const kSnackbarText = TextStyle(
+const kSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
   fontFamily: 'Montserrat',
   fontSize: 16,

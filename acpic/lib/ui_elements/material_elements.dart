@@ -10,7 +10,7 @@ class SnackBarGlobal {
         content: Text(
           '$message',
           textAlign: TextAlign.center,
-          style: kSnackbarText,
+          style: kSnackBarText,
         ),
         backgroundColor: Color(backgroundColorSnackBar == 'green'
             ? 0xFF04E762

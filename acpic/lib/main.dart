@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-  void returnCookie() async {
+  returnCookie() async {
     await SharedPreferencesService.instance
         .getStringValue('cookie')
         .then((value) {
@@ -56,25 +56,22 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return !isCookieLoaded
-        ? CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
-          )
-        : MaterialApp(
-            theme: ThemeData(
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-            ),
-            home: response == 200 && permissionLevel == 'granted'
-                ? GridPage()
-                : Distributor(),
-            routes: {
-              GridPage.id: (context) => GridPage(),
-              LoginScreen.id: (context) => LoginScreen(),
-              PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
-              RequestPermission.id: (context) => RequestPermission(),
-              Distributor.id: (context) => Distributor()
-            },
-          );
+    return MaterialApp(
+      theme: ThemeData(
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      // home: response == 200 && permissionLevel == 'granted'
+      //         ? GridPage()
+      //         : Distributor(),
+      home: Distributor(),
+      routes: {
+        GridPage.id: (context) => GridPage(),
+        LoginScreen.id: (context) => LoginScreen(),
+        PhotoAccessNeeded.id: (context) => PhotoAccessNeeded(),
+        RequestPermission.id: (context) => RequestPermission(),
+        Distributor.id: (context) => Distributor()
+      },
+    );
   }
 }
 

@@ -7,6 +7,8 @@ import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
+//IMPORT SERVICES
+import 'package:acpic/services/recoverPasswordService.dart';
 
 class RecoverPasswordScreen extends StatefulWidget {
   static const String id = 'recover_password';
@@ -16,6 +18,7 @@ class RecoverPasswordScreen extends StatefulWidget {
 
 class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
   Timer navigationDelayer;
+  final TextEditingController _usernameController = TextEditingController();
 
   delayedNavigation() {
     navigationDelayer = new Timer(const Duration(seconds: 5), () {
@@ -60,6 +63,7 @@ class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
                     padding: const EdgeInsets.only(top: 8.0, bottom: 20),
                     child: TextField(
                       keyboardType: TextInputType.emailAddress,
+                      controller: _usernameController,
                       autofocus: true,
                       textAlign: TextAlign.center,
                       enableSuggestions: true,
@@ -77,11 +81,27 @@ class _RecoverPasswordScreenState extends State<RecoverPasswordScreen> {
                     title: 'Recover password',
                     colour: kAltoBlue,
                     onPressed: () {
-                      SnackBarGlobal.buildSnackBar(
-                          context, 'Got it! Check your email inbox.', 'green');
+                      RecoverPasswordService.instance
+                          .recoverPassword(_usernameController.text)
+                          .then((value) {
+                        if (value == 200) {
+                          SnackBarGlobal.buildSnackBar(context,
+                              'Got it! Check your email inbox.', 'green');
+                          _usernameController.clear();
+                          delayedNavigation();
+                        } else if (value == 403) {
+                          SnackBarGlobal.buildSnackBar(
+                              context, 'Incorrect username or email.', 'red');
+                        } else {
+                          _usernameController.clear();
+                          SnackBarGlobal.buildSnackBar(
+                              context,
+                              'Something is wrong on our side. Try again later.',
+                              'red');
+                        }
+                      });
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
-                      delayedNavigation();
                     },
                   ),
                 ],

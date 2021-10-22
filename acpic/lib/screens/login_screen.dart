@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
-import 'dart:convert';
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
@@ -15,7 +13,6 @@ import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/recover_password.dart';
-import 'package:acpic/screens/distributor.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 
@@ -56,37 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
     inviteResponse.close();
     super.dispose();
   }
-
-  //Log In Function ---
-  // Future<LoginBody> createAlbum(
-  //     String username, String password, dynamic timezone) async {
-  //   final response = await http.post(
-  //     Uri.parse('https://altocode.nl/picdev/auth/login'),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: jsonEncode(<String, dynamic>{
-  //       'username': username,
-  //       'password': password,
-  //       'timezone': timezone
-  //     }),
-  //   );
-  //   if (response.statusCode == 200) {
-  //     sessionCookie = response.headers['set-cookie'];
-  //     print('sessionCookie is $sessionCookie');
-  //     SharedPreferencesService.instance
-  //         .setStringValue('sessionCookie', response.headers['set-cookie']);
-  //     Navigator.of(context).push(
-  //       MaterialPageRoute(builder: (_) => Distributor()),
-  //     );
-  //     return LoginBody.fromJson(jsonDecode(response.body));
-  //   } else {
-  //     SnackBarGlobal.buildSnackBar(
-  //         context, 'Incorrect username, email or password.', 'red');
-  //     throw Exception('Failed to log in.');
-  //   }
-  // }
-  // ---
 
   @override
   Widget build(BuildContext context) {
@@ -159,10 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
-                      // createAlbum(
-                      //     _usernameController.text,
-                      //     _passwordController.text,
-                      //     DateTime.now().timeZoneOffset.inMinutes.toInt());
                       LogInService.instance
                           .createAlbum(
                               _usernameController.text,
@@ -201,11 +163,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       });
                       _usernameController.clear();
                       _passwordController.clear();
-
-                      // TODO: Delete this function later. This is just to make the interface work as it should
-                      SharedPreferencesService.instance
-                          .setBooleanValue('loggedIn', true);
-                      // ---
 
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
