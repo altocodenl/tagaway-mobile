@@ -19,8 +19,6 @@ class RecoverPasswordService {
       }),
     );
     if (response.statusCode == 200) {
-      print(
-          'I am in LogInService and response.statusCode is ${response.statusCode} ');
       return response.statusCode;
     } else {
       return response.statusCode;

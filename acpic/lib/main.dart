@@ -76,3 +76,4 @@ class _MyAppState extends State<MyApp> {
 }
 
 // TODO 4: online checker. If app is not connected to the internet, go to a screen that asks the user to connect to the internet to use the app
+// https://stackoverflow.com/questions/49648022/check-whether-there-is-an-internet-connection-available-on-flutter-app

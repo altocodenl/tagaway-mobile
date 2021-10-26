@@ -23,10 +23,6 @@ class LogInService {
       }),
     );
     if (response.statusCode == 200) {
-      print(
-          'I am in LogInService and response.statusCode is ${response.statusCode} ');
-      String cookie = response.headers['set-cookie'];
-      print('cookie is $cookie');
       await SharedPreferencesService.instance
           .setStringValue('cookie', response.headers['set-cookie']);
       return response.statusCode;
@@ -35,21 +31,3 @@ class LogInService {
     }
   }
 }
-//
-// class LoginBody {
-//   final String username;
-//   final String password;
-//   final dynamic timezone;
-//
-//   LoginBody(
-//       {@required this.username,
-//         @required this.password,
-//         @required this.timezone});
-//
-//   factory LoginBody.fromJson(Map<String, dynamic> json) {
-//     return LoginBody(
-//         username: json['username'],
-//         password: json['password'],
-//         timezone: json['timezone']);
-//   }
-// }

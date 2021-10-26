@@ -52,6 +52,8 @@ class _DistributorState extends State<Distributor> {
     });
   }
 
+  //TODO: Check what is going on with "Unhandled Exception: Null check operator used on a null value"
+
   @override
   Widget build(BuildContext context) {
     !isCookieLoaded

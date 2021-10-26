@@ -205,8 +205,11 @@ class _VideoBigState extends State<VideoBig> {
       // Play the video again when it ends
       ..setLooping(true)
       // initialize the controller and notify UI when done
-      ..initialize().then((_) => setState(() => initialized = true));
-    _controller.play();
+      ..initialize().then((_) => setState(() {
+            initialized = true;
+            _controller.play();
+          }));
+    // _controller.play();
   }
 
   @override
@@ -238,7 +241,6 @@ class _VideoBigState extends State<VideoBig> {
                     } else {
                       // If the video is paused, play it.
                       _controller.play();
-                      //  TODO: Make video autoplay
                     }
                   });
                 },
