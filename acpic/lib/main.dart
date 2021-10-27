@@ -16,54 +16,20 @@ import 'package:acpic/services/loginCheckService.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  String permissionLevel;
-  String cookie;
-  bool isCookieLoaded = false;
-  int response;
-
-  @override
-  void initState() {
-    checkPermission(context).then((value) {
-      permissionLevel = value;
-      return permissionLevel;
-    });
-    returnCookie();
-    super.initState();
-  }
-
-  returnCookie() async {
-    await SharedPreferencesService.instance
-        .getStringValue('cookie')
-        .then((value) {
-      setState(() {
-        cookie = value;
-      });
-      LoginCheckService.instance.loginCheck(cookie).then((value) {
-        setState(() {
-          response = value;
-          isCookieLoaded = true;
-        });
-      });
-      return cookie;
-    });
-  }
-
+class MyApp extends StatelessWidget {
+//   @override
+//   _MyAppState createState() => _MyAppState();
+// }
+//
+// class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: response == 200 && permissionLevel == 'granted'
-      //         ? GridPage()
-      //         : Distributor(),
       home: Distributor(),
+      // home: GridPage(),
       routes: {
         GridPage.id: (context) => GridPage(),
         LoginScreen.id: (context) => LoginScreen(),

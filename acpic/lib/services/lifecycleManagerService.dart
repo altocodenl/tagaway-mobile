@@ -30,7 +30,7 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('state = $state');
+    // print('state = $state');
     if (state == AppLifecycleState.resumed) {
       setState(() {
         resumed = true;

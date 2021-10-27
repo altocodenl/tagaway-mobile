@@ -77,7 +77,14 @@ class _DistributorState extends State<Distributor> {
                         recurringUserLocal == null))) {
                   Navigator.pushReplacementNamed(context, RequestPermission.id);
                 } else if (value == 'granted') {
-                  Navigator.pushReplacementNamed(context, GridPage.id);
+                  // Navigator.of(context)
+                  //     .push(MaterialPageRoute(builder: (_) => GridPage()));
+                  Navigator.pushReplacement<void, void>(
+                      context,
+                      MaterialPageRoute<void>(
+                          builder: (BuildContext context) => GridPage()));
+
+                  // Navigator.pushReplacementNamed(context, GridPage.id);
                 } else if (value == 'denied' ||
                     value == 'permanent' ||
                     value == 'limited' ||
