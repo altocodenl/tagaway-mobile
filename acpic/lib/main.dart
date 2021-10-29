@@ -6,7 +6,6 @@ import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 import 'package:acpic/screens/distributor.dart';
-import 'package:acpic/screens/offline.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,7 +21,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: Distributor(),
       home: Distributor(),
       routes: {
         GridPage.id: (context) => GridPage(),

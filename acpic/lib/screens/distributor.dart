@@ -25,7 +25,7 @@ class Distributor extends StatefulWidget {
 class _DistributorState extends State<Distributor> {
   bool recurringUserLocal = false;
   bool isCookieLoaded = false;
-  String cookie;
+  String cookie = 'empty';
 
   @override
   void initState() {
@@ -46,10 +46,16 @@ class _DistributorState extends State<Distributor> {
     await SharedPreferencesService.instance
         .getStringValue('cookie')
         .then((value) {
-      setState(() {
-        cookie = value;
-        isCookieLoaded = true;
-      });
+      if (value.isEmpty) {
+        setState(() {
+          isCookieLoaded = true;
+        });
+      } else {
+        setState(() {
+          cookie = value;
+          isCookieLoaded = true;
+        });
+      }
       return cookie;
     });
   }
