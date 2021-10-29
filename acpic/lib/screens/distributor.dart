@@ -2,10 +2,12 @@
 import 'package:acpic/screens/request_permission.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
+import 'dart:io';
 //IMPORT SCREENS
 import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/screens/login_screen.dart';
 import 'package:acpic/screens/grid.dart';
+import 'package:acpic/screens/offline.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
@@ -52,8 +54,7 @@ class _DistributorState extends State<Distributor> {
     });
   }
 
-  //TODO: Check what is going on with "Unhandled Exception: Null check operator used on a null value"
-
+  // TODO: When there's no cookie: Dart Unhandled Exception: Null check operator used on a null value
   @override
   Widget build(BuildContext context) {
     !isCookieLoaded
@@ -61,7 +62,7 @@ class _DistributorState extends State<Distributor> {
             valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
           )
         : LoginCheckService.instance.loginCheck(cookie).then((value) {
-            if (value != 200) {
+            if (value == 403 || 500 <= value) {
               checkPermission(context).then((value) {
                 Navigator.pushReplacementNamed(
                   context,
@@ -77,14 +78,8 @@ class _DistributorState extends State<Distributor> {
                         recurringUserLocal == null))) {
                   Navigator.pushReplacementNamed(context, RequestPermission.id);
                 } else if (value == 'granted') {
-                  // Navigator.of(context)
-                  //     .push(MaterialPageRoute(builder: (_) => GridPage()));
-                  Navigator.pushReplacement<void, void>(
-                      context,
-                      MaterialPageRoute<void>(
-                          builder: (BuildContext context) => GridPage()));
-
-                  // Navigator.pushReplacementNamed(context, GridPage.id);
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => GridPage()));
                 } else if (value == 'denied' ||
                     value == 'permanent' ||
                     value == 'limited' ||
@@ -93,6 +88,9 @@ class _DistributorState extends State<Distributor> {
                       arguments: PermissionLevelFlag(permissionLevel: value));
                 }
               });
+            } else if (value == 0) {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => OfflineScreen()));
             }
           });
     // checkPermission(context).then((value) {

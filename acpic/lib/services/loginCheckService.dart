@@ -7,12 +7,15 @@ class LoginCheckService {
   LoginCheckService._privateConstructor();
   static final LoginCheckService instance =
       LoginCheckService._privateConstructor();
-
   Future<int> loginCheck(String cookie) async {
-    final response = await http.get(
-      Uri.parse('https://altocode.nl/picdev/csrf'),
-      headers: <String, String>{'cookie': cookie},
-    );
-    return response.statusCode;
+    try {
+      final response = await http.get(
+        Uri.parse('https://altocode.nl/picdev/csrf'),
+        headers: <String, String>{'cookie': cookie},
+      );
+      return response.statusCode;
+    } on SocketException catch (_) {
+      return 0;
+    }
   }
 }

@@ -15,7 +15,7 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/screens/recover_password.dart';
 import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/photo_access_needed.dart';
-
+import 'package:acpic/screens/offline.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/logInService.dart';
@@ -156,9 +156,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                       permissionLevel: value));
                             });
                           }
-                        } else {
+                        } else if (value == 403) {
                           SnackBarGlobal.buildSnackBar(context,
                               'Incorrect username, email or password.', 'red');
+                        } else if (value == 0) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => OfflineScreen()));
+                        } else if (500 <= value && value <= 599) {
+                          SnackBarGlobal.buildSnackBar(context,
+                              'Something is wrong on our side. Sorry.', 'red');
                         }
                       });
                       _usernameController.clear();

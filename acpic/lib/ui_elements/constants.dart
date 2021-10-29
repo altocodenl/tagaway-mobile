@@ -22,9 +22,27 @@ const kAcpicMain = TextStyle(
   color: kAltoBlue,
 );
 
+const kBigTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 25,
+  color: kTextGrey,
+);
+
+const kBigTitleOffline = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 25,
+  color: kAltoBlue,
+);
+
 const kSubtitle = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 20,
+  color: kTextGrey,
+);
+
+const kPlainText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 16,
   color: kTextGrey,
 );
 
@@ -33,18 +51,6 @@ const kPlainHypertext = TextStyle(
   fontSize: 14,
   color: kTextGrey,
   decoration: TextDecoration.underline,
-);
-
-const kBigTitle = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 25,
-  color: kTextGrey,
-);
-
-const kPlainText = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 16,
-  color: kTextGrey,
 );
 
 const kButtonText = TextStyle(
