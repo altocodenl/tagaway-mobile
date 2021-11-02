@@ -7,6 +7,8 @@ import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
@@ -15,6 +17,7 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'grid_item.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/lifecycleManagerService.dart';
+import 'package:acpic/services/local_vars_shared_prefsService.dart';
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -289,6 +292,48 @@ class BottomRow extends StatefulWidget {
 
 class _BottomRowState extends State<BottomRow> {
   int selectedListLength = 0;
+  String cookie;
+  String csrf;
+
+  Future<UploadData> upload(
+      String op, String csrf, String tags, int total) async {
+    final response = await http.post(
+      Uri.parse('https://altocode.nl/picdev/upload'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'cookie': cookie
+      },
+      body: jsonEncode(<String, dynamic>{
+        'op': op,
+        'csrf': csrf,
+        'tags': tags,
+        'total': total
+      }),
+    );
+    if (response.statusCode == 200) {
+      print(response.statusCode);
+      return UploadData.fromJson(jsonDecode(response.body));
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to create upload');
+    }
+  }
+
+  @override
+  void initState() {
+    SharedPreferencesService.instance.getStringValue('cookie').then((value) {
+      setState(() {
+        cookie = value;
+      });
+    });
+    SharedPreferencesService.instance.getStringValue('csrf').then((value) {
+      setState(() {
+        csrf = value;
+      });
+      print(csrf);
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -407,6 +452,9 @@ class _BottomRowState extends State<BottomRow> {
                     textStyle: kButtonText,
                   ),
                   onPressed: () {
+                    //TODO: Here's where the entire uploading process goes.
+                    upload('start', csrf, 'mobile app', 20);
+
                     Provider.of<ProviderController>(context, listen: false)
                         .showUploadingProcess();
                   },
@@ -436,6 +484,18 @@ class _BottomRowState extends State<BottomRow> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class UploadData {
+  final int id;
+
+  UploadData({@required this.id});
+
+  factory UploadData.fromJson(Map<String, dynamic> json) {
+    return UploadData(
+      id: json['id'],
     );
   }
 }

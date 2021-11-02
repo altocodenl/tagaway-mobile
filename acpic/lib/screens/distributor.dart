@@ -60,7 +60,6 @@ class _DistributorState extends State<Distributor> {
     });
   }
 
-  // TODO: When there's no cookie: Dart Unhandled Exception: Null check operator used on a null value
   @override
   Widget build(BuildContext context) {
     !isCookieLoaded

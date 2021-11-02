@@ -27,6 +27,9 @@ class LogInService {
       if (response.statusCode == 200) {
         await SharedPreferencesService.instance
             .setStringValue('cookie', response.headers['set-cookie']);
+        await SharedPreferencesService.instance
+            .setStringValue('csrf', jsonDecode(response.body));
+        print('I am in log in and response.body is ${response.body}');
         return response.statusCode;
       } else {
         print(response.statusCode);
