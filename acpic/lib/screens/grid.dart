@@ -18,6 +18,7 @@ import 'grid_item.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/lifecycleManagerService.dart';
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
+import 'package:acpic/services/deviceInfoService.dart';
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -291,14 +292,15 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
-  int selectedListLength = 0;
+  int selectedListLength;
   String cookie;
   String csrf;
+  String model;
 
   Future<UploadData> upload(
-      String op, String csrf, String tags, int total) async {
+      String op, String csrf, List tags, int total) async {
     final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/upload'),
+      Uri.parse('https://altocode.nl/picdev/metaupload'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'cookie': cookie
@@ -312,9 +314,11 @@ class _BottomRowState extends State<BottomRow> {
     );
     if (response.statusCode == 200) {
       print(response.statusCode);
+      print(jsonDecode(response.body));
       return UploadData.fromJson(jsonDecode(response.body));
     } else {
       print(response.statusCode);
+      print(response.body);
       throw Exception('Failed to create upload');
     }
   }
@@ -330,8 +334,18 @@ class _BottomRowState extends State<BottomRow> {
       setState(() {
         csrf = value;
       });
-      print(csrf);
     });
+    Platform.isIOS
+        ? DeviceInfoService.instance.iOSInfo().then((value) {
+            setState(() {
+              model = value;
+            });
+          })
+        : DeviceInfoService.instance.androidInfo().then((value) {
+            setState(() {
+              model = value;
+            });
+          });
     super.initState();
   }
 
@@ -453,7 +467,7 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //TODO: Here's where the entire uploading process goes.
-                    upload('start', csrf, 'mobile app', 20);
+                    // upload('start', csrf, [model], selectedListLength);
 
                     Provider.of<ProviderController>(context, listen: false)
                         .showUploadingProcess();

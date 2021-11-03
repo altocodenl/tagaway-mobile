@@ -13,7 +13,6 @@ class LoginCheckService {
         Uri.parse('https://altocode.nl/picdev/csrf'),
         headers: <String, String>{'cookie': cookie},
       );
-      print(response.body);
       return response.statusCode;
     } on SocketException catch (_) {
       return 0;

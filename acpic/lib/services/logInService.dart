@@ -25,14 +25,15 @@ class LogInService {
         }),
       );
       if (response.statusCode == 200) {
-        await SharedPreferencesService.instance
+        SharedPreferencesService.instance
             .setStringValue('cookie', response.headers['set-cookie']);
-        await SharedPreferencesService.instance
-            .setStringValue('csrf', jsonDecode(response.body));
-        print('I am in log in and response.body is ${response.body}');
+        SharedPreferencesService.instance.setStringValue(
+            'csrf',
+            jsonDecode(response.body).toString().substring(
+                7, jsonDecode(response.body).toString().indexOf('}')));
+
         return response.statusCode;
       } else {
-        print(response.statusCode);
         return response.statusCode;
       }
     } on SocketException catch (_) {
