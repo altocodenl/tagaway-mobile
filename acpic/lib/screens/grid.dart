@@ -157,6 +157,7 @@ class _GridState extends State<Grid> {
   selectAll() {
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       selectedList = List.from(itemList);
+
       widget.selectedListLengthStreamController.sink.add(selectedList.length);
     } else if (Provider.of<ProviderController>(context, listen: false)
             .isSelectionInProcess ==
@@ -296,9 +297,9 @@ class _BottomRowState extends State<BottomRow> {
   String cookie;
   String csrf;
   String model;
+  String id;
 
-  Future<UploadData> upload(
-      String op, String csrf, List tags, int total) async {
+  Future<String> upload(String op, String csrf, List tags, int total) async {
     final response = await http.post(
       Uri.parse('https://altocode.nl/picdev/metaupload'),
       headers: <String, String>{
@@ -315,7 +316,15 @@ class _BottomRowState extends State<BottomRow> {
     if (response.statusCode == 200) {
       print(response.statusCode);
       print(jsonDecode(response.body));
-      return UploadData.fromJson(jsonDecode(response.body));
+      print(jsonDecode(response.body)
+          .toString()
+          .substring(5, jsonDecode(response.body).toString().indexOf('}')));
+      id = response.body.substring(6, response.body.indexOf('}'));
+      return id;
+      // return response.body.substring(6, response.body.indexOf('}'));
+
+      // return UploadData.fromJson(jsonDecode(response.body));
+
     } else {
       print(response.statusCode);
       print(response.body);
@@ -329,11 +338,13 @@ class _BottomRowState extends State<BottomRow> {
       setState(() {
         cookie = value;
       });
+      print('cookie is $cookie');
     });
     SharedPreferencesService.instance.getStringValue('csrf').then((value) {
       setState(() {
         csrf = value;
       });
+      print('csrf is $csrf');
     });
     Platform.isIOS
         ? DeviceInfoService.instance.iOSInfo().then((value) {
@@ -346,6 +357,7 @@ class _BottomRowState extends State<BottomRow> {
               model = value;
             });
           });
+
     super.initState();
   }
 
@@ -429,6 +441,9 @@ class _BottomRowState extends State<BottomRow> {
                           'Loading your files',
                           style: kGridBottomRowText,
                         );
+                      else if (snapshot.hasData) print(snapshot.data);
+                      selectedListLength = (snapshot.data);
+                      print('selectedListLength is $selectedListLength');
                       return Text(
                           snapshot.data < 1
                               ? 'No files selected'
@@ -467,7 +482,13 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //TODO: Here's where the entire uploading process goes.
-                    // upload('start', csrf, [model], selectedListLength);
+                    upload('start', csrf, [model], selectedListLength)
+                        .then((value) {
+                      print(value);
+                      print(id);
+                    });
+                    print(
+                        'I am in upload and selectedListLength is $selectedListLength');
 
                     Provider.of<ProviderController>(context, listen: false)
                         .showUploadingProcess();
