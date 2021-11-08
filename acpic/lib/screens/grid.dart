@@ -299,7 +299,8 @@ class _BottomRowState extends State<BottomRow> {
   String model;
   String id;
 
-  Future<String> upload(String op, String csrf, List tags, int total) async {
+  Future<String> uploadStart(
+      String op, String csrf, List tags, int total) async {
     final response = await http.post(
       Uri.parse('https://altocode.nl/picdev/metaupload'),
       headers: <String, String>{
@@ -321,15 +322,27 @@ class _BottomRowState extends State<BottomRow> {
           .substring(5, jsonDecode(response.body).toString().indexOf('}')));
       id = response.body.substring(6, response.body.indexOf('}'));
       return id;
-      // return response.body.substring(6, response.body.indexOf('}'));
-
-      // return UploadData.fromJson(jsonDecode(response.body));
-
     } else {
       print(response.statusCode);
       print(response.body);
-      throw Exception('Failed to create upload');
+      throw Exception('Failed to create upload id');
     }
+  }
+
+  Future<int> upload(String id, String csrf, int lastModified) async {
+    final response = await http.post(
+      Uri.parse('https://altocode.nl/picdev/metaupload'),
+      headers: <String, String>{
+        'Content-Type': 'multipart/form-data',
+        'cookie': cookie
+      },
+      body: jsonEncode(<String, dynamic>{
+        'id': id,
+        'csrf': csrf,
+        'lastModified': lastModified
+      }),
+    );
+    return response.statusCode;
   }
 
   @override
@@ -443,7 +456,7 @@ class _BottomRowState extends State<BottomRow> {
                         );
                       else if (snapshot.hasData) print(snapshot.data);
                       selectedListLength = (snapshot.data);
-                      print('selectedListLength is $selectedListLength');
+                      // print('selectedListLength is $selectedListLength');
                       return Text(
                           snapshot.data < 1
                               ? 'No files selected'
@@ -482,7 +495,7 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //TODO: Here's where the entire uploading process goes.
-                    upload('start', csrf, [model], selectedListLength)
+                    uploadStart('start', csrf, [model], selectedListLength)
                         .then((value) {
                       print(value);
                       print(id);
@@ -523,14 +536,14 @@ class _BottomRowState extends State<BottomRow> {
   }
 }
 
-class UploadData {
-  final int id;
-
-  UploadData({@required this.id});
-
-  factory UploadData.fromJson(Map<String, dynamic> json) {
-    return UploadData(
-      id: json['id'],
-    );
-  }
-}
+// class UploadData {
+//   final int id;
+//
+//   UploadData({@required this.id});
+//
+//   factory UploadData.fromJson(Map<String, dynamic> json) {
+//     return UploadData(
+//       id: json['id'],
+//     );
+//   }
+// }
