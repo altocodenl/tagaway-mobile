@@ -19,6 +19,7 @@ import 'grid_item.dart';
 import 'package:acpic/services/lifecycleManagerService.dart';
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/deviceInfoService.dart';
+import 'package:acpic/services/uploadSequenceService.dart';
 
 class ProviderController extends ChangeNotifier {
   Object redrawObject = Object();
@@ -297,53 +298,7 @@ class _BottomRowState extends State<BottomRow> {
   String cookie;
   String csrf;
   String model;
-  String id;
-
-  Future<String> uploadStart(
-      String op, String csrf, List tags, int total) async {
-    final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/metaupload'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'cookie': cookie
-      },
-      body: jsonEncode(<String, dynamic>{
-        'op': op,
-        'csrf': csrf,
-        'tags': tags,
-        'total': total
-      }),
-    );
-    if (response.statusCode == 200) {
-      print(response.statusCode);
-      print(jsonDecode(response.body));
-      print(jsonDecode(response.body)
-          .toString()
-          .substring(5, jsonDecode(response.body).toString().indexOf('}')));
-      id = response.body.substring(6, response.body.indexOf('}'));
-      return id;
-    } else {
-      print(response.statusCode);
-      print(response.body);
-      throw Exception('Failed to create upload id');
-    }
-  }
-
-  Future<int> upload(String id, String csrf, int lastModified) async {
-    final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/metaupload'),
-      headers: <String, String>{
-        'Content-Type': 'multipart/form-data',
-        'cookie': cookie
-      },
-      body: jsonEncode(<String, dynamic>{
-        'id': id,
-        'csrf': csrf,
-        'lastModified': lastModified
-      }),
-    );
-    return response.statusCode;
-  }
+  int id;
 
   @override
   void initState() {
@@ -370,7 +325,6 @@ class _BottomRowState extends State<BottomRow> {
               model = value;
             });
           });
-
     super.initState();
   }
 
@@ -495,10 +449,13 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //TODO: Here's where the entire uploading process goes.
-                    uploadStart('start', csrf, [model], selectedListLength)
+                    UploadSequenceService.instance
+                        .uploadStart(
+                            'start', csrf, [model], cookie, selectedListLength)
                         .then((value) {
-                      print(value);
-                      print(id);
+                      // print('value is $value');
+                      id = int.parse(value);
+                      print('id is $id');
                     });
                     print(
                         'I am in upload and selectedListLength is $selectedListLength');
@@ -535,15 +492,3 @@ class _BottomRowState extends State<BottomRow> {
     );
   }
 }
-
-// class UploadData {
-//   final int id;
-//
-//   UploadData({@required this.id});
-//
-//   factory UploadData.fromJson(Map<String, dynamic> json) {
-//     return UploadData(
-//       id: json['id'],
-//     );
-//   }
-// }

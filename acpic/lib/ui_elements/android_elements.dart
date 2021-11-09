@@ -8,7 +8,7 @@ import 'dart:core';
 import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
-import 'package:acpic/services/inviteService.dart';
+import 'package:acpic/services/inviteEmailService.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
 
