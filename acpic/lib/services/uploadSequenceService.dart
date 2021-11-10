@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 import 'package:http_parser/http_parser.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class UploadSequenceService {
   UploadSequenceService._privateConstructor();
@@ -58,15 +59,16 @@ class UploadSequenceService {
     }
   }
 
-  Future<int> upload(
-      int id, String csrf, String cookie, int lastModified) async {
+  Future<int> upload(int id, String csrf, String cookie, int lastModified,
+      List<AssetEntity> list) async {
     var uri = Uri.parse('https://altocode.nl/picdev/upload');
     var request = http.MultipartRequest('POST', uri);
     request.headers['cookie'] = cookie;
     request.fields['id'] = id.toString();
     request.fields['csrf'] = csrf;
     request.fields['lastModified'] = lastModified.toString();
-    // request.files.add(await http.MultipartFile.fromBytes(field, value, contentType: MediaType));
+    // request.files.add(await http.MultipartFile.fromBytes(field, value,
+    //     contentType: MediaType));
     var response = await request.send();
     return response.statusCode;
   }

@@ -22,6 +22,8 @@ import 'package:acpic/services/deviceInfoService.dart';
 import 'package:acpic/services/uploadSequenceService.dart';
 
 class ProviderController extends ChangeNotifier {
+  List<AssetEntity> selectedItems;
+
   Object redrawObject = Object();
   redraw() {
     redrawObject = Object();
@@ -151,20 +153,30 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
+  Future getMeToTheProvider() async {
+    Provider.of<ProviderController>(context, listen: false).selectedItems =
+        List.from(selectedList);
+
+    if (selectedList.length > 0) {
+      print(Provider.of<ProviderController>(context, listen: false)
+          .selectedItems);
+    }
+  }
+
   selectedListLengthSink() {
     widget.selectedListLengthStreamController.sink.add(selectedList.length);
+    getMeToTheProvider();
   }
 
   selectAll() {
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       selectedList = List.from(itemList);
-
-      widget.selectedListLengthStreamController.sink.add(selectedList.length);
+      selectedListLengthSink();
     } else if (Provider.of<ProviderController>(context, listen: false)
             .isSelectionInProcess ==
         false) {
       selectedList.clear();
-      widget.selectedListLengthStreamController.sink.add(selectedList.length);
+      selectedListLengthSink();
     }
   }
 
@@ -210,6 +222,10 @@ class _GridState extends State<Grid> {
                                     listen: false)
                                 .selectionInProcess(false);
                         // print("$index : $value");
+                        // print(itemList[index].toString());
+                        // print(itemList[index].createDateTime);
+                        // print(itemList[index].id);
+                        print('selectedList is $selectedList');
                       },
                       key: Key(itemList[index].toString()),
                     );
@@ -408,8 +424,9 @@ class _BottomRowState extends State<BottomRow> {
                           'Loading your files',
                           style: kGridBottomRowText,
                         );
-                      else if (snapshot.hasData) print(snapshot.data);
-                      selectedListLength = (snapshot.data);
+                      else if (snapshot.hasData)
+                        // print(snapshot.data);
+                        selectedListLength = (snapshot.data);
                       // print('selectedListLength is $selectedListLength');
                       return Text(
                           snapshot.data < 1
@@ -457,8 +474,8 @@ class _BottomRowState extends State<BottomRow> {
                       id = int.parse(value);
                       print('id is $id');
                     });
-                    print(
-                        'I am in upload and selectedListLength is $selectedListLength');
+                    // print(
+                    //     'I am in upload and selectedListLength is $selectedListLength');
 
                     Provider.of<ProviderController>(context, listen: false)
                         .showUploadingProcess();
