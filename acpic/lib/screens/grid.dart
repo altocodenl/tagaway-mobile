@@ -156,10 +156,11 @@ class _GridState extends State<Grid> {
   Future getMeToTheProvider() async {
     Provider.of<ProviderController>(context, listen: false).selectedItems =
         List.from(selectedList);
-
     if (selectedList.length > 0) {
+      // print(Provider.of<ProviderController>(context, listen: false)
+      //     .selectedItems);
       print(Provider.of<ProviderController>(context, listen: false)
-          .selectedItems);
+          .selectedItems[0]);
     }
   }
 
@@ -225,7 +226,7 @@ class _GridState extends State<Grid> {
                         // print(itemList[index].toString());
                         // print(itemList[index].createDateTime);
                         // print(itemList[index].id);
-                        print('selectedList is $selectedList');
+                        // print('selectedList is $selectedList');
                       },
                       key: Key(itemList[index].toString()),
                     );
@@ -466,19 +467,35 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //TODO: Here's where the entire uploading process goes.
-                    UploadSequenceService.instance
-                        .uploadStart(
-                            'start', csrf, [model], cookie, selectedListLength)
-                        .then((value) {
-                      // print('value is $value');
-                      id = int.parse(value);
-                      print('id is $id');
-                    });
-                    // print(
-                    //     'I am in upload and selectedListLength is $selectedListLength');
+                    if (Provider.of<ProviderController>(context, listen: false)
+                            .selectedItems
+                            .length >
+                        0) {
+                      Provider.of<ProviderController>(context, listen: false)
+                          .showUploadingProcess();
+                      UploadSequenceService.instance
+                          .uploadStart('start', csrf, [model], cookie,
+                              selectedListLength)
+                          .then((value) {
+                        // print('value is $value');
+                        id = int.parse(value);
+                        print('id is $id');
+                        UploadSequenceService.instance
+                            .upload(
+                                id,
+                                csrf,
+                                cookie,
+                                Provider.of<ProviderController>(context,
+                                        listen: false)
+                                    .selectedItems)
+                            .then((value) {
+                          print(value);
+                        });
+                      });
+                      // print(
+                      //     'I am in upload and selectedListLength is $selectedListLength');
 
-                    Provider.of<ProviderController>(context, listen: false)
-                        .showUploadingProcess();
+                    }
                   },
                   child: Text(
                     'Upload',

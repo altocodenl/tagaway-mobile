@@ -31,9 +31,6 @@ class LogInService {
             'csrf',
             jsonDecode(response.body).toString().substring(
                 7, jsonDecode(response.body).toString().indexOf('}')));
-        // SharedPreferencesService.instance
-        //     .setStringValue('csrf', jsonDecode(response.body).toString());
-
         return response.statusCode;
       } else {
         return response.statusCode;
