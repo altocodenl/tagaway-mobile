@@ -1,11 +1,13 @@
 // IMPORT FLUTTER PACKAGES
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:path/path.dart';
+import 'dart:typed_data';
 
 class UploadSequenceService {
   UploadSequenceService._privateConstructor();
@@ -62,7 +64,7 @@ class UploadSequenceService {
 
   Future<int> upload(
       int id, String csrf, String cookie, List<AssetEntity> list) async {
-    // var stream = new http.ByteStream(list[0].file.openRead());
+    // var stream = new http.ByteStream(list[0].openRead());
     // stream.cast();
     var uri = Uri.parse('https://altocode.nl/picdev/upload');
     var request = http.MultipartRequest('POST', uri);
@@ -70,7 +72,16 @@ class UploadSequenceService {
     request.fields['id'] = id.toString();
     request.fields['csrf'] = csrf;
     request.fields['lastModified'] = list[0].modifiedDateTime.toString();
-    // request.files.add(http.MultipartFile.);
+    request.fields['filename'] = list[0].id;
+    // var picture = http.MultipartFile.fromBytes(
+    //     'piv',
+    //     (
+    //         // list[0].relativePath.codeUnits
+    //         await rootBundle.load(list[0].id).buffer.asInt8List()));
+
+    var picture =
+        await http.MultipartFile.fromPath('piv', list[0].originFile.toString());
+    request.files.add(picture);
     var response = await request.send();
     final respStr = await response.stream.bytesToString();
     print(respStr);
