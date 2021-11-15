@@ -62,25 +62,21 @@ class UploadSequenceService {
     }
   }
 
-  Future<int> upload(
-      int id, String csrf, String cookie, List<AssetEntity> list) async {
-    // var stream = new http.ByteStream(list[0].openRead());
-    // stream.cast();
+  Future<int> upload(int id, String csrf, String cookie,
+      List<AssetEntity> list) async {
+    File image = await list[0].file;
+    var stream = new http.ByteStream(image.openRead());
+    stream.cast();
+    var length = await image.length();
+    print(length);
     var uri = Uri.parse('https://altocode.nl/picdev/upload');
     var request = http.MultipartRequest('POST', uri);
     request.headers['cookie'] = cookie;
     request.fields['id'] = id.toString();
     request.fields['csrf'] = csrf;
     request.fields['lastModified'] = list[0].modifiedDateTime.toString();
-    request.fields['filename'] = list[0].id;
-    // var picture = http.MultipartFile.fromBytes(
-    //     'piv',
-    //     (
-    //         // list[0].relativePath.codeUnits
-    //         await rootBundle.load(list[0].id).buffer.asInt8List()));
-
-    var picture =
-        await http.MultipartFile.fromPath('piv', list[0].originFile.toString());
+    var picture = http.MultipartFile('piv', stream, length,
+        filename: basename(image.path));
     request.files.add(picture);
     var response = await request.send();
     final respStr = await response.stream.bytesToString();

@@ -157,10 +157,8 @@ class _GridState extends State<Grid> {
     Provider.of<ProviderController>(context, listen: false).selectedItems =
         List.from(selectedList);
     if (selectedList.length > 0) {
-      // print(Provider.of<ProviderController>(context, listen: false)
-      //     .selectedItems);
       print(Provider.of<ProviderController>(context, listen: false)
-          .selectedItems[0]);
+          .selectedItems);
     }
   }
 
@@ -223,10 +221,6 @@ class _GridState extends State<Grid> {
                                     listen: false)
                                 .selectionInProcess(false);
                         // print("$index : $value");
-                        // print(itemList[index].toString());
-                        // print(itemList[index].createDateTime);
-                        // print(itemList[index].id);
-                        // print('selectedList is $selectedList');
                       },
                       key: Key(itemList[index].toString()),
                     );
