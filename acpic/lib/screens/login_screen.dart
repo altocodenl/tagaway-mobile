@@ -169,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       });
                       _usernameController.clear();
                       _passwordController.clear();
+                      //TODO: When username or password is wrong, do not delete username
 
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();

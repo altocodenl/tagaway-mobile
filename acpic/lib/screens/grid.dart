@@ -156,10 +156,6 @@ class _GridState extends State<Grid> {
   Future getMeToTheProvider() async {
     Provider.of<ProviderController>(context, listen: false).selectedItems =
         List.from(selectedList);
-    if (selectedList.length > 0) {
-      print(Provider.of<ProviderController>(context, listen: false)
-          .selectedItems);
-    }
   }
 
   selectedListLengthSink() {
@@ -471,7 +467,6 @@ class _BottomRowState extends State<BottomRow> {
                           .uploadStart('start', csrf, [model], cookie,
                               selectedListLength)
                           .then((value) {
-                        // print('value is $value');
                         id = int.parse(value);
                         print('id is $id');
                         UploadSequenceService.instance
@@ -479,16 +474,16 @@ class _BottomRowState extends State<BottomRow> {
                                 id,
                                 csrf,
                                 cookie,
+                                ['"' + model + '"'],
                                 Provider.of<ProviderController>(context,
                                         listen: false)
                                     .selectedItems)
                             .then((value) {
-                          print(value);
+                          print('I am in Grid and value is $value');
                         });
                       });
                       // print(
                       //     'I am in upload and selectedListLength is $selectedListLength');
-
                     }
                   },
                   child: Text(

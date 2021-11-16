@@ -17,7 +17,7 @@ class UploadSequenceService {
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
     final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/metaupload'),
+      Uri.parse('https://altocode.nl/picdev/upload'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'cookie': cookie
@@ -30,12 +30,6 @@ class UploadSequenceService {
       }),
     );
     if (response.statusCode == 200) {
-      // print(response.statusCode);
-      // print(response.body);
-      // print(jsonDecode(response.body));
-      // print(jsonDecode(response.body)
-      //     .toString()
-      //     .substring(5, jsonDecode(response.body).toString().indexOf('}')));
       return response.body.substring(6, response.body.indexOf('}'));
     } else {
       print(response.statusCode);
@@ -44,9 +38,10 @@ class UploadSequenceService {
     }
   }
 
-  Future<int> uploadEnd(String op, String csrf, int id, String cookie) async {
+  Future<int> uploadEnd(
+      String op, String csrf, int id, String model, String cookie) async {
     final response = await http.post(
-      Uri.parse('https://altocode.nl/picdev/metaupload'),
+      Uri.parse('https://altocode.nl/picdev/upload'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'cookie': cookie
@@ -62,25 +57,49 @@ class UploadSequenceService {
     }
   }
 
-  Future<int> upload(int id, String csrf, String cookie,
+  Future upload(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
-    File image = await list[0].file;
-    var stream = new http.ByteStream(image.openRead());
-    stream.cast();
-    var length = await image.length();
-    print(length);
-    var uri = Uri.parse('https://altocode.nl/picdev/upload');
-    var request = http.MultipartRequest('POST', uri);
-    request.headers['cookie'] = cookie;
-    request.fields['id'] = id.toString();
-    request.fields['csrf'] = csrf;
-    request.fields['lastModified'] = list[0].modifiedDateTime.toString();
-    var picture = http.MultipartFile('piv', stream, length,
-        filename: basename(image.path));
-    request.files.add(picture);
-    var response = await request.send();
-    final respStr = await response.stream.bytesToString();
-    print(respStr);
-    return response.statusCode;
+    for (int i = 0; i < list.length; i++) {
+      File image = await list[i].file;
+      var stream = new http.ByteStream(image.openRead());
+      stream.cast();
+      var length = await image.length();
+      var uri = Uri.parse('https://altocode.nl/picdev/piv');
+      var request = http.MultipartRequest('POST', uri);
+      request.headers['cookie'] = cookie;
+      request.fields['id'] = id.toString();
+      request.fields['csrf'] = csrf;
+      request.fields['tags'] = tags.toString();
+      request.fields['lastModified'] =
+          list[i].modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+      var picture = http.MultipartFile('piv', stream, length,
+          filename: basename(image.path));
+      request.files.add(picture);
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      print(respStr);
+      print(response.statusCode);
+      print(list[i].id);
+      if (i + 1 == list.length) {
+        return response.statusCode;
+      }
+    }
+    // File image = await list[0].file;
+    // var stream = new http.ByteStream(image.openRead());
+    // stream.cast();
+    // var length = await image.length();
+    // var uri = Uri.parse('https://altocode.nl/picdev/upload');
+    // var request = http.MultipartRequest('POST', uri);
+    // request.headers['cookie'] = cookie;
+    // request.fields['id'] = id.toString();
+    // request.fields['csrf'] = csrf;
+    // request.fields['lastModified'] = list[0].modifiedDateTime.toString();
+    // var picture = http.MultipartFile('piv', stream, length,
+    //     filename: basename(image.path));
+    // request.files.add(picture);
+    // var response = await request.send();
+    // final respStr = await response.stream.bytesToString();
+    // print(respStr);
+    // return response.statusCode;
   }
 }
