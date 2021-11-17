@@ -153,7 +153,7 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
-  Future getMeToTheProvider() async {
+  getMeToTheProvider() {
     Provider.of<ProviderController>(context, listen: false).selectedItems =
         List.from(selectedList);
   }
@@ -301,11 +301,11 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
-  int selectedListLength;
   String cookie;
   String csrf;
   String model;
   int id;
+  bool breakUploadProcess = false;
 
   @override
   void initState() {
@@ -415,10 +415,6 @@ class _BottomRowState extends State<BottomRow> {
                           'Loading your files',
                           style: kGridBottomRowText,
                         );
-                      else if (snapshot.hasData)
-                        // print(snapshot.data);
-                        selectedListLength = (snapshot.data);
-                      // print('selectedListLength is $selectedListLength');
                       return Text(
                           snapshot.data < 1
                               ? 'No files selected'
@@ -440,7 +436,7 @@ class _BottomRowState extends State<BottomRow> {
                         return Text(
                             snapshot.data < 1
                                 ? 'No files selected'
-                                : 'X / ${snapshot.data} files uploaded so far...',
+                                : 'X / ${Provider.of<ProviderController>(context, listen: false).selectedItems.length} files uploaded so far...',
                             style: kGridBottomRowText);
                       })),
               Visibility(
@@ -464,8 +460,15 @@ class _BottomRowState extends State<BottomRow> {
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess();
                       UploadSequenceService.instance
-                          .uploadStart('start', csrf, [model], cookie,
-                              selectedListLength)
+                          .uploadStart(
+                              'start',
+                              csrf,
+                              [model],
+                              cookie,
+                              Provider.of<ProviderController>(context,
+                                      listen: false)
+                                  .selectedItems
+                                  .length)
                           .then((value) {
                         id = int.parse(value);
                         print('id is $id');
@@ -480,10 +483,24 @@ class _BottomRowState extends State<BottomRow> {
                                     .selectedItems)
                             .then((value) {
                           print('I am in Grid and value is $value');
+                          UploadSequenceService.instance
+                              .uploadEnd('complete', csrf, id, cookie)
+                              .then((value) {
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .selectAllTapped(false);
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .redraw();
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .selectionInProcess(false);
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .showUploadingProcess();
+                          });
                         });
                       });
-                      // print(
-                      //     'I am in upload and selectedListLength is $selectedListLength');
                     }
                   },
                   child: Text(
@@ -515,3 +532,10 @@ class _BottomRowState extends State<BottomRow> {
     );
   }
 }
+
+//TODO 1: Reflect in BottomRow amount of files being uploaded
+//TODO 3: When uploading is cancelled, switch off showUploadingProcess() and unmark all selected
+//TODO 4: Implement 'cancel' upload
+//TODO 5: Implement hash engine
+//TODO 6: Check that upload works in the background
+//TODO 7: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user

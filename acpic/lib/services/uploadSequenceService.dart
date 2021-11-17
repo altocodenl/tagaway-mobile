@@ -1,13 +1,11 @@
 // IMPORT FLUTTER PACKAGES
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
-import 'package:http_parser/http_parser.dart';
+import 'dart:core';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:path/path.dart';
-import 'dart:typed_data';
 
 class UploadSequenceService {
   UploadSequenceService._privateConstructor();
@@ -38,8 +36,7 @@ class UploadSequenceService {
     }
   }
 
-  Future<int> uploadEnd(
-      String op, String csrf, int id, String model, String cookie) async {
+  Future<int> uploadEnd(String op, String csrf, int id, String cookie) async {
     final response = await http.post(
       Uri.parse('https://altocode.nl/picdev/upload'),
       headers: <String, String>{
@@ -57,7 +54,7 @@ class UploadSequenceService {
     }
   }
 
-  Future upload(int id, String csrf, String cookie, List tags,
+  upload(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
     for (int i = 0; i < list.length; i++) {
       File image = await list[i].file;
@@ -79,27 +76,33 @@ class UploadSequenceService {
       final respStr = await response.stream.bytesToString();
       print(respStr);
       print(response.statusCode);
-      print(list[i].id);
+      print('${i + 1} of ${list.length}');
+      // var progressCounter = StreamController<int>.broadcast();
+      // progressCounter.sink.add(i);
       if (i + 1 == list.length) {
         return response.statusCode;
       }
     }
-    // File image = await list[0].file;
-    // var stream = new http.ByteStream(image.openRead());
-    // stream.cast();
-    // var length = await image.length();
-    // var uri = Uri.parse('https://altocode.nl/picdev/upload');
-    // var request = http.MultipartRequest('POST', uri);
-    // request.headers['cookie'] = cookie;
-    // request.fields['id'] = id.toString();
-    // request.fields['csrf'] = csrf;
-    // request.fields['lastModified'] = list[0].modifiedDateTime.toString();
-    // var picture = http.MultipartFile('piv', stream, length,
-    //     filename: basename(image.path));
-    // request.files.add(picture);
-    // var response = await request.send();
-    // final respStr = await response.stream.bytesToString();
-    // print(respStr);
-    // return response.statusCode;
   }
 }
+
+//https://www.geeksforgeeks.org/dart-loop-control-statements-break-and-continue/#:~:text=Break%20Statement%3A,out%20of%20the%20nearest%20loop.
+// Make a bool to be the break trigger
+
+// File image = await list[0].file;
+// var stream = new http.ByteStream(image.openRead());
+// stream.cast();
+// var length = await image.length();
+// var uri = Uri.parse('https://altocode.nl/picdev/upload');
+// var request = http.MultipartRequest('POST', uri);
+// request.headers['cookie'] = cookie;
+// request.fields['id'] = id.toString();
+// request.fields['csrf'] = csrf;
+// request.fields['lastModified'] = list[0].modifiedDateTime.toString();
+// var picture = http.MultipartFile('piv', stream, length,
+//     filename: basename(image.path));
+// request.files.add(picture);
+// var response = await request.send();
+// final respStr = await response.stream.bytesToString();
+// print(respStr);
+// return response.statusCode;

@@ -137,18 +137,24 @@ class _LoginScreenState extends State<LoginScreen> {
                               : (flag.permissionLevel == 'denied' &&
                                       recurringUserLocal == false ||
                                   recurringUserLocal == null))) {
+                            _usernameController.clear();
+                            _passwordController.clear();
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
                                         RequestPermission()));
                           } else if (flag.permissionLevel == 'granted') {
+                            _usernameController.clear();
+                            _passwordController.clear();
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
                                         GridPage()));
                           } else {
+                            _usernameController.clear();
+                            _passwordController.clear();
                             checkPermission(context).then((value) {
                               Navigator.pushReplacementNamed(
                                   context, PhotoAccessNeeded.id,
@@ -157,20 +163,21 @@ class _LoginScreenState extends State<LoginScreen> {
                             });
                           }
                         } else if (value == 403) {
+                          _passwordController.clear();
                           SnackBarGlobal.buildSnackBar(context,
                               'Incorrect username, email or password.', 'red');
                         } else if (value == 0) {
+                          _usernameController.clear();
+                          _passwordController.clear();
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) => OfflineScreen()));
                         } else if (500 <= value && value <= 599) {
+                          _usernameController.clear();
+                          _passwordController.clear();
                           SnackBarGlobal.buildSnackBar(context,
                               'Something is wrong on our side. Sorry.', 'red');
                         }
                       });
-                      _usernameController.clear();
-                      _passwordController.clear();
-                      //TODO: When username or password is wrong, do not delete username
-
                       // This makes the keyboard disappear
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
