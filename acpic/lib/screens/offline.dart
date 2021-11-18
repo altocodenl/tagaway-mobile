@@ -19,6 +19,7 @@ class _OfflineScreenState extends State<OfflineScreen> {
   @override
   void initState() {
     onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
+      print(timer.tick);
       internetAvailabilityCheck();
     });
     super.initState();

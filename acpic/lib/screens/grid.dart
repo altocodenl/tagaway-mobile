@@ -7,14 +7,14 @@ import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
+import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SCREENS
 import 'grid_item.dart';
+import 'package:acpic/screens/offline.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/lifecycleManagerService.dart';
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
@@ -73,22 +73,20 @@ class _GridPageState extends State<GridPage> {
     ]);
     return ChangeNotifierProvider<ProviderController>(
       create: (_) => ProviderController(),
-      child: LifeCycleManager(
-        child: Scaffold(
-          body: SafeArea(
-            child: Stack(
-              children: [
-                Grid(
-                  selectedListLengthStreamController:
-                      selectedListLengthController,
-                ),
-                TopRow(),
-                BottomRow(
-                  selectedListLengthStreamController:
-                      selectedListLengthController,
-                ),
-              ],
-            ),
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Grid(
+                selectedListLengthStreamController:
+                    selectedListLengthController,
+              ),
+              TopRow(),
+              BottomRow(
+                selectedListLengthStreamController:
+                    selectedListLengthController,
+              ),
+            ],
           ),
         ),
       ),
@@ -305,8 +303,6 @@ class _BottomRowState extends State<BottomRow> {
   String csrf;
   String model;
   int id;
-  bool breakUploadProcess = false;
-
   @override
   void initState() {
     SharedPreferencesService.instance.getStringValue('cookie').then((value) {
@@ -470,36 +466,55 @@ class _BottomRowState extends State<BottomRow> {
                                   .selectedItems
                                   .length)
                           .then((value) {
-                        id = int.parse(value);
-                        print('id is $id');
-                        UploadSequenceService.instance
-                            .upload(
-                                id,
-                                csrf,
-                                cookie,
-                                ['"' + model + '"'],
+                        if (value == 'offline') {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => OfflineScreen()));
+                        } else if (value == 'error') {
+                          SnackBarGlobal.buildSnackBar(context,
+                              'Something is wrong on our side. Sorry.', 'red');
+                        } else {
+                          id = int.parse(value);
+                          print('id is $id');
+                          UploadSequenceService.instance
+                              .upload(
+                                  id,
+                                  csrf,
+                                  cookie,
+                                  ['"' + model + '"'],
+                                  Provider.of<ProviderController>(context,
+                                          listen: false)
+                                      .selectedItems)
+                              .then((value) {
+                            if (value == 0) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => OfflineScreen()));
+                            } else if (500 <= value) {
+                              SnackBarGlobal.buildSnackBar(
+                                  context,
+                                  'Something is wrong on our side. Sorry.',
+                                  'red');
+                            } else {
+                              print('I am in Grid and value is $value');
+                              UploadSequenceService.instance
+                                  .uploadEnd('complete', csrf, id, cookie)
+                                  .then((value) {
+                                print('I am in complete and value is $value');
                                 Provider.of<ProviderController>(context,
                                         listen: false)
-                                    .selectedItems)
-                            .then((value) {
-                          print('I am in Grid and value is $value');
-                          UploadSequenceService.instance
-                              .uploadEnd('complete', csrf, id, cookie)
-                              .then((value) {
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .selectAllTapped(false);
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .redraw();
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .selectionInProcess(false);
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .showUploadingProcess();
+                                    .selectAllTapped(false);
+                                Provider.of<ProviderController>(context,
+                                        listen: false)
+                                    .redraw();
+                                Provider.of<ProviderController>(context,
+                                        listen: false)
+                                    .selectionInProcess(false);
+                                Provider.of<ProviderController>(context,
+                                        listen: false)
+                                    .showUploadingProcess();
+                              });
+                            }
                           });
-                        });
+                        }
                       });
                     }
                   },
@@ -534,7 +549,7 @@ class _BottomRowState extends State<BottomRow> {
 }
 
 //TODO 1: Reflect in BottomRow amount of files being uploaded
-//TODO 3: When uploading is cancelled, switch off showUploadingProcess() and unmark all selected
+//TODO 3: When uploading is finished or cancelled, switch off showUploadingProcess() and unmark all selected
 //TODO 4: Implement 'cancel' upload
 //TODO 5: Implement hash engine
 //TODO 6: Check that upload works in the background

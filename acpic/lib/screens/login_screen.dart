@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           _passwordController.clear();
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (_) => OfflineScreen()));
-                        } else if (500 <= value && value <= 599) {
+                        } else if (500 <= value) {
                           _usernameController.clear();
                           _passwordController.clear();
                           SnackBarGlobal.buildSnackBar(context,
