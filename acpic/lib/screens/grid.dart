@@ -303,6 +303,7 @@ class _BottomRowState extends State<BottomRow> {
   String csrf;
   String model;
   int id;
+
   @override
   void initState() {
     SharedPreferencesService.instance.getStringValue('cookie').then((value) {

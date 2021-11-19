@@ -19,7 +19,6 @@ class _OfflineScreenState extends State<OfflineScreen> {
   @override
   void initState() {
     onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-      print(timer.tick);
       internetAvailabilityCheck();
     });
     super.initState();
@@ -29,7 +28,6 @@ class _OfflineScreenState extends State<OfflineScreen> {
     try {
       final result = await InternetAddress.lookup('altocode.nl');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print(result);
         print('connected');
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => Distributor()),
