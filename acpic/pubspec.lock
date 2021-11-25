@@ -92,6 +92,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   fake_async:
     dependency: transitive
     description:
@@ -123,6 +130,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_uploader:
+    dependency: "direct main"
+    description:
+      name: flutter_uploader
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0-beta.3"
   flutter_web_plugins:
     dependency: transitive
     description: flutter

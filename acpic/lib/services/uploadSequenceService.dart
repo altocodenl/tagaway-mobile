@@ -6,6 +6,8 @@ import 'dart:io';
 import 'dart:core';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:path/path.dart';
+import 'package:flutter_uploader/flutter_uploader.dart';
+import 'package:flutter/material.dart';
 
 class UploadSequenceService {
   UploadSequenceService._privateConstructor();
@@ -95,6 +97,48 @@ class UploadSequenceService {
     } on SocketException catch (_) {
       return 0;
     }
+  }
+
+  void backgroundHandler() {
+    // Needed so that plugin communication works.
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // This uploader instance works within the isolate only.
+    FlutterUploader uploader = FlutterUploader();
+
+    // You have now access to:
+    uploader.progress.listen((progress) {
+      // upload progress
+    });
+    uploader.result.listen((result) {
+      // upload results
+    });
+    FlutterUploader().setBackgroundHandler(backgroundHandler);
+  }
+
+  uploadBackground(int id, String csrf, String cookie, List tags,
+      List<AssetEntity> list) async {
+    File image = await list[0].file;
+    var url = "https://altocode.nl/picdev/piv";
+    final taskId = await FlutterUploader().enqueue(
+      MultipartFormDataUpload(
+        url: url, //required: url to upload to
+        files: [
+          FileItem(path: image.path, field: 'file')
+        ], // required: list of files that you want to upload
+        method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
+        headers: {"cookie": cookie},
+        data: {
+          "id": id.toString(),
+          "csrf": csrf,
+          "lastModified":
+              list[0].modifiedDateTime.millisecondsSinceEpoch.abs().toString(),
+          "tags": tags.toString()
+        }, // any data you want to send in upload request
+        // tag: 'my tag', // custom tag which is returned in result/progress
+      ),
+    );
+    return taskId;
   }
 }
 
