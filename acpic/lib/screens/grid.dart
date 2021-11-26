@@ -496,25 +496,37 @@ class _BottomRowState extends State<BottomRow> {
                             // }
                             // else
                             //   {
-                            print('I am in Grid and value is $value');
-                            UploadSequenceService.instance
-                                .uploadEnd('complete', csrf, id, cookie)
-                                .then((value) {
-                              print('I am in complete and value is $value');
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .selectAllTapped(false);
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .redraw();
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .selectionInProcess(false);
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .showUploadingProcess();
-                            });
+                            // print('I am in Grid and value is $value');
+                            // UploadSequenceService.instance
+                            //     .uploadEnd('complete', csrf, id, cookie)
+                            //     .then((value) {
+                            //   print('I am in complete and value is $value');
+                            //   Provider.of<ProviderController>(context,
+                            //           listen: false)
+                            //       .selectAllTapped(false);
+                            //   Provider.of<ProviderController>(context,
+                            //           listen: false)
+                            //       .redraw();
+                            //   Provider.of<ProviderController>(context,
+                            //           listen: false)
+                            //       .selectionInProcess(false);
+                            //   Provider.of<ProviderController>(context,
+                            //           listen: false)
+                            //       .showUploadingProcess();
+                            // });
                             // }
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .selectAllTapped(false);
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .redraw();
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .selectionInProcess(false);
+                            Provider.of<ProviderController>(context,
+                                    listen: false)
+                                .showUploadingProcess();
                           });
                         }
                       });
