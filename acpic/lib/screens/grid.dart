@@ -309,13 +309,13 @@ class _BottomRowState extends State<BottomRow> {
       setState(() {
         cookie = value;
       });
-      print('cookie is $cookie');
+      // print('cookie is $cookie');
     });
     SharedPreferencesService.instance.getStringValue('csrf').then((value) {
       setState(() {
         csrf = value;
       });
-      print('csrf is $csrf');
+      // print('csrf is $csrf');
     });
     Platform.isIOS
         ? DeviceInfoService.instance.iOSInfo().then((value) {

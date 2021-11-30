@@ -10,13 +10,13 @@ class DeviceInfoService {
 
   Future<String> androidInfo() async {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    print(androidInfo.model);
+    // print(androidInfo.model);
     return androidInfo.model;
   }
 
   Future<String> iOSInfo() async {
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    print(iosInfo.utsname.machine);
+    // print(iosInfo.utsname.machine);
     return iosInfo.utsname.machine;
   }
 }

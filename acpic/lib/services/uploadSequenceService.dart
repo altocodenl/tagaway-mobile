@@ -119,35 +119,29 @@ class UploadSequenceService {
 
   uploadBackground(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
+    FlutterUploader().clearUploads();
     File image = await list[0].file;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
-    if (image != null) {
-      final taskId = await FlutterUploader().enqueue(
-        MultipartFormDataUpload(
-          url: uri.toString(), //required: url to upload to
-          files: [
-            FileItem(path: image.path, field: 'piv')
-          ], // required: list of files that you want to upload
-          method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
-          headers: {"cookie": cookie},
-          allowCellular: true,
-          data: {
-            "id": id.toString(),
-            "csrf": csrf,
-            "lastModified": list[0]
-                .modifiedDateTime
-                .millisecondsSinceEpoch
-                .abs()
-                .toString(),
-            "tags": tags.toString()
-          }, // any data you want to send in upload request
-          tag: 'upload', // custom tag which is returned in result/progress
-        ),
-      );
-      return taskId;
-    } else {
-      print('image is null');
-    }
+    final taskId = await FlutterUploader().enqueue(
+      MultipartFormDataUpload(
+        url: uri.toString(), //required: url to upload to
+        files: [
+          FileItem(path: image.path, field: 'piv'),
+        ], // required: list of files that you want to upload
+        method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
+        headers: {"cookie": cookie},
+        allowCellular: true,
+        data: {
+          "id": id.toString(),
+          "csrf": csrf,
+          "lastModified":
+              list[0].modifiedDateTime.millisecondsSinceEpoch.abs().toString(),
+          "tags": tags.toString()
+        }, // any data you want to send in upload request
+        tag: 'upload', // custom tag which is returned in result/progress
+      ),
+    );
+    return taskId;
   }
 }
 
