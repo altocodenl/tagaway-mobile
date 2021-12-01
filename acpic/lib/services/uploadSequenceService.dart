@@ -53,11 +53,14 @@ class UploadSequenceService {
         body: jsonEncode(<String, dynamic>{'op': op, 'csrf': csrf, 'id': id}),
       );
       if (response.statusCode == 200) {
+        print('complete done');
         return response.statusCode;
       } else {
-        print(response.statusCode);
-        print(response.body);
-        throw Exception('Failed to execute op $op');
+        // print(response.statusCode);
+        // print(response.body);
+        // print(response.headers);
+        return response.statusCode;
+        // throw Exception('Failed to execute op $op');
       }
     } on SocketException catch (_) {
       return 0;
@@ -113,15 +116,14 @@ class UploadSequenceService {
     uploader.result.listen((result) {
       // upload results
     });
-
     FlutterUploader().setBackgroundHandler(backgroundHandler);
   }
 
   uploadBackground(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
-    FlutterUploader().clearUploads();
     File image = await list[0].file;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
+    FlutterUploader().clearUploads();
     final taskId = await FlutterUploader().enqueue(
       MultipartFormDataUpload(
         url: uri.toString(), //required: url to upload to
@@ -138,10 +140,23 @@ class UploadSequenceService {
               list[0].modifiedDateTime.millisecondsSinceEpoch.abs().toString(),
           "tags": tags.toString()
         }, // any data you want to send in upload request
-        tag: 'upload', // custom tag which is returned in result/progress
+        // tag: 'upload', // custom tag which is returned in result/progress
       ),
     );
-    return taskId;
+    final subscription = FlutterUploader().result.listen((result) {
+      print(
+          'the result is ${result.statusCode} and response is ${result.response}');
+      if (result.statusCode == 200) {
+        uploadEnd('complete', csrf, id, cookie);
+      } else if (result.statusCode == 409) {
+        print('That is OK');
+        // Exception('that is OK');
+      }
+    }, onError: (ex, stacktrace) {
+      print('error');
+      // ... code to handle error
+    });
+    subscription.cancel();
   }
 }
 
