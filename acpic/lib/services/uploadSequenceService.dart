@@ -119,46 +119,68 @@ class UploadSequenceService {
     FlutterUploader().setBackgroundHandler(backgroundHandler);
   }
 
-  uploadBackground(int id, String csrf, String cookie, List tags,
-      List<AssetEntity> list) async {
-    File image = await list[0].file;
+  uploadBackground(int id, Future<File> piv, AssetEntity asset, String csrf,
+      String cookie, List tags, List<AssetEntity> list) async {
+    StreamSubscription subscription;
+    File image = await piv;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
     FlutterUploader().clearUploads();
-    final taskId = await FlutterUploader().enqueue(
+    // final taskId =
+    await FlutterUploader().enqueue(
       MultipartFormDataUpload(
-        url: uri.toString(), //required: url to upload to
+        url: uri.toString(),
         files: [
           FileItem(path: image.path, field: 'piv'),
-        ], // required: list of files that you want to upload
-        method: UploadMethod.POST, // HTTP method  (POST or PUT or PATCH)
+        ], //
+        method: UploadMethod.POST,
         headers: {"cookie": cookie},
         allowCellular: true,
         data: {
           "id": id.toString(),
           "csrf": csrf,
           "lastModified":
-              list[0].modifiedDateTime.millisecondsSinceEpoch.abs().toString(),
+              asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString(),
           "tags": tags.toString()
-        }, // any data you want to send in upload request
-        // tag: 'upload', // custom tag which is returned in result/progress
+        },
       ),
     );
-    final subscription = FlutterUploader().result.listen((result) {
+    subscription = FlutterUploader().result.listen((result) {
       print(
           'the result is ${result.statusCode} and response is ${result.response}');
-      if (result.statusCode == 200) {
+      // subscription.cancel();
+      if (result.statusCode == 200 && list.isNotEmpty) {
+        subscription.cancel();
+      } else if (result.statusCode == 200 && list.isEmpty) {
         uploadEnd('complete', csrf, id, cookie);
+        subscription.cancel();
       } else if (result.statusCode == 409) {
-        print('That is OK');
-        // Exception('that is OK');
+        subscription.cancel();
       }
-    }, onError: (ex, stacktrace) {
-      print('error');
-      // ... code to handle error
     });
-    subscription.cancel();
+  }
+
+  uploadMain(
+      int id, String csrf, String cookie, List tags, List<AssetEntity> list) {
+    uploadRecurrence(
+        int id, String csrf, String cookie, List tags, List<AssetEntity> list) {
+      if (list.isEmpty) {
+        print('upload finished');
+        // uploadEnd('complete', csrf, id, cookie);
+        return;
+      }
+      var asset = list[0];
+      var piv = asset.file;
+      list.removeAt(0);
+      uploadBackground(id, piv, asset, csrf, cookie, tags, list);
+      print('uploaded OK $asset');
+      uploadRecurrence(id, csrf, cookie, tags, list);
+    }
+
+    uploadRecurrence(id, csrf, cookie, tags, list);
   }
 }
+
+// if 200 & list[0] == list.last => mandale el complete.
 
 // File image = await list[0].file;
 // var stream = new http.ByteStream(image.openRead());

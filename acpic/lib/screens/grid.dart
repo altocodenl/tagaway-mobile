@@ -475,59 +475,58 @@ class _BottomRowState extends State<BottomRow> {
                         } else {
                           id = int.parse(value);
                           print('id is $id');
-                          UploadSequenceService.instance
-                              .uploadBackground(
-                                  id,
-                                  csrf,
-                                  cookie,
-                                  ['"' + model + '"'],
-                                  Provider.of<ProviderController>(context,
-                                          listen: false)
-                                      .selectedItems)
-                              .then((value) {
-                            // if (value == 0) {
-                            //   Navigator.of(context).push(MaterialPageRoute(
-                            //       builder: (_) => OfflineScreen()));
-                            // } else if (500 <= value) {
-                            //   SnackBarGlobal.buildSnackBar(
-                            //       context,
-                            //       'Something is wrong on our side. Sorry.',
-                            //       'red');
-                            // }
-                            // else
-                            //   {
-                            // print('I am in Grid and value is $value');
-                            // UploadSequenceService.instance
-                            //     .uploadEnd('complete', csrf, id, cookie)
-                            //     .then((value) {
-                            //   print('I am in complete and value is $value');
-                            //   Provider.of<ProviderController>(context,
-                            //           listen: false)
-                            //       .selectAllTapped(false);
-                            //   Provider.of<ProviderController>(context,
-                            //           listen: false)
-                            //       .redraw();
-                            //   Provider.of<ProviderController>(context,
-                            //           listen: false)
-                            //       .selectionInProcess(false);
-                            //   Provider.of<ProviderController>(context,
-                            //           listen: false)
-                            //       .showUploadingProcess();
-                            // });
-                            // }
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .selectAllTapped(false);
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .redraw();
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .selectionInProcess(false);
-                            Provider.of<ProviderController>(context,
-                                    listen: false)
-                                .showUploadingProcess();
-                          });
+                          UploadSequenceService.instance.uploadMain(
+                              id,
+                              csrf,
+                              cookie,
+                              ['"' + model + '"'],
+                              Provider.of<ProviderController>(context,
+                                      listen: false)
+                                  .selectedItems);
+                          // .then((value) {
+                          // if (value == 0) {
+                          //   Navigator.of(context).push(MaterialPageRoute(
+                          //       builder: (_) => OfflineScreen()));
+                          // } else if (500 <= value) {
+                          //   SnackBarGlobal.buildSnackBar(
+                          //       context,
+                          //       'Something is wrong on our side. Sorry.',
+                          //       'red');
+                          // }
+                          // else
+                          //   {
+                          // print('I am in Grid and value is $value');
+                          // UploadSequenceService.instance
+                          //     .uploadEnd('complete', csrf, id, cookie)
+                          //     .then((value) {
+                          //   print('I am in complete and value is $value');
+                          //   Provider.of<ProviderController>(context,
+                          //           listen: false)
+                          //       .selectAllTapped(false);
+                          //   Provider.of<ProviderController>(context,
+                          //           listen: false)
+                          //       .redraw();
+                          //   Provider.of<ProviderController>(context,
+                          //           listen: false)
+                          //       .selectionInProcess(false);
+                          //   Provider.of<ProviderController>(context,
+                          //           listen: false)
+                          //       .showUploadingProcess();
+                          // });
+                          // }
+                          Provider.of<ProviderController>(context,
+                                  listen: false)
+                              .selectAllTapped(false);
+                          Provider.of<ProviderController>(context,
+                                  listen: false)
+                              .redraw();
+                          Provider.of<ProviderController>(context,
+                                  listen: false)
+                              .selectionInProcess(false);
+                          Provider.of<ProviderController>(context,
+                                  listen: false)
+                              .showUploadingProcess();
+                          // });
                         }
                       });
                     }
