@@ -119,8 +119,15 @@ class UploadSequenceService {
     FlutterUploader().setBackgroundHandler(backgroundHandler);
   }
 
-  uploadBackground(int id, Future<File> piv, AssetEntity asset, String csrf,
-      String cookie, List tags, List<AssetEntity> list) async {
+  uploadBackground(
+      int id,
+      Future<File> piv,
+      AssetEntity asset,
+      String csrf,
+      String cookie,
+      List tags,
+      List<AssetEntity> list,
+      uploadRecurrence) async {
     StreamSubscription subscription;
     File image = await piv;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
@@ -144,39 +151,46 @@ class UploadSequenceService {
         },
       ),
     );
-    subscription = FlutterUploader().result.listen((result) {
-      print(
-          'the result is ${result.statusCode} and response is ${result.response}');
-      // subscription.cancel();
-      if (result.statusCode == 200 && list.isNotEmpty) {
-        subscription.cancel();
-      } else if (result.statusCode == 200 && list.isEmpty) {
-        uploadEnd('complete', csrf, id, cookie);
-        subscription.cancel();
-      } else if (result.statusCode == 409) {
-        subscription.cancel();
-      }
-    });
+    streamListener() async {
+      subscription = FlutterUploader().result.listen((result) {
+        if (result.statusCode == null) return;
+        print('result is $result');
+        print(
+            'the result is ${result.statusCode} and response is ${result.response}');
+
+        if (result.statusCode == 200 && list.isNotEmpty) {
+          subscription.cancel();
+          uploadRecurrence();
+          return;
+        } else if (result.statusCode == 200 && list.isEmpty) {
+          uploadEnd('complete', csrf, id, cookie);
+          subscription.cancel();
+          return;
+        } else if (result.statusCode == 409) {
+          subscription.cancel();
+          return;
+        }
+      });
+    }
+
+    await streamListener();
   }
 
   uploadMain(
       int id, String csrf, String cookie, List tags, List<AssetEntity> list) {
-    uploadRecurrence(
-        int id, String csrf, String cookie, List tags, List<AssetEntity> list) {
+    uploadRecurrence() async {
       if (list.isEmpty) {
         print('upload finished');
-        // uploadEnd('complete', csrf, id, cookie);
         return;
       }
       var asset = list[0];
       var piv = asset.file;
       list.removeAt(0);
-      uploadBackground(id, piv, asset, csrf, cookie, tags, list);
-      print('uploaded OK $asset');
-      uploadRecurrence(id, csrf, cookie, tags, list);
+      await uploadBackground(
+          id, piv, asset, csrf, cookie, tags, list, uploadRecurrence);
     }
 
-    uploadRecurrence(id, csrf, cookie, tags, list);
+    uploadRecurrence();
   }
 }
 
