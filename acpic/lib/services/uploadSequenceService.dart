@@ -56,11 +56,10 @@ class UploadSequenceService {
         print('complete done');
         return response.statusCode;
       } else {
-        // print(response.statusCode);
-        // print(response.body);
+        print(response.statusCode);
+        print(response.body);
         // print(response.headers);
         return response.statusCode;
-        // throw Exception('Failed to execute op $op');
       }
     } on SocketException catch (_) {
       return 0;
@@ -91,8 +90,6 @@ class UploadSequenceService {
         print(respStr);
         print(response.statusCode);
         print('${i + 1} of ${list.length}');
-        // var progressCounter = StreamController<int>.broadcast();
-        // progressCounter.sink.add(i);
         if (i + 1 == list.length) {
           return response.statusCode;
         }
@@ -157,13 +154,13 @@ class UploadSequenceService {
         print('result is $result');
         print(
             'the result is ${result.statusCode} and response is ${result.response}');
-
         if (result.statusCode == 200 && list.isNotEmpty) {
           subscription.cancel();
           uploadRecurrence();
           return;
         } else if (result.statusCode == 200 && list.isEmpty) {
           uploadEnd('complete', csrf, id, cookie);
+
           subscription.cancel();
           return;
         } else if (result.statusCode == 409) {

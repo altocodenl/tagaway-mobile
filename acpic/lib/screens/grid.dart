@@ -22,6 +22,7 @@ import 'package:acpic/services/uploadSequenceService.dart';
 
 class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
+  List<AssetEntity> selectedItemsReplenish;
 
   Object redrawObject = Object();
   redraw() {
@@ -45,6 +46,12 @@ class ProviderController extends ChangeNotifier {
     isUploadingInProcess = !isUploadingInProcess;
     notifyListeners();
   }
+
+  bool isUploadCancel = false;
+  void uploadCancel(bool newValue) {
+    isUploadCancel = newValue;
+    notifyListeners();
+  }
 }
 
 class GridPage extends StatefulWidget {
@@ -55,10 +62,13 @@ class GridPage extends StatefulWidget {
 
 class _GridPageState extends State<GridPage> {
   final selectedListLengthController = StreamController<int>.broadcast();
+  final selectedListContentController =
+      StreamController<List<AssetEntity>>.broadcast();
 
   @override
   void dispose() {
     selectedListLengthController.close();
+    selectedListContentController.close();
     super.dispose();
   }
 
@@ -96,6 +106,7 @@ class _GridPageState extends State<GridPage> {
 // Grid
 class Grid extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
+
   Grid({@required this.selectedListLengthStreamController});
 
   @override
@@ -150,25 +161,27 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
-  getMeToTheProvider() {
+  feedSelectedListProvider() {
     Provider.of<ProviderController>(context, listen: false).selectedItems =
         List.from(selectedList);
+    Provider.of<ProviderController>(context, listen: false)
+        .selectedItemsReplenish = List.from(selectedList);
   }
 
-  selectedListLengthSink() {
+  selectedListStreamSink() {
     widget.selectedListLengthStreamController.sink.add(selectedList.length);
-    getMeToTheProvider();
+    feedSelectedListProvider();
   }
 
   selectAll() {
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       selectedList = List.from(itemList);
-      selectedListLengthSink();
+      selectedListStreamSink();
     } else if (Provider.of<ProviderController>(context, listen: false)
             .isSelectionInProcess ==
         false) {
       selectedList.clear();
-      selectedListLengthSink();
+      selectedListStreamSink();
     }
   }
 
@@ -201,10 +214,10 @@ class _GridState extends State<Grid> {
                       isSelected: (bool value) {
                         if (value) {
                           selectedList.add(itemList[index]);
-                          selectedListLengthSink();
+                          selectedListStreamSink();
                         } else {
                           selectedList.remove(itemList[index]);
-                          selectedListLengthSink();
+                          selectedListStreamSink();
                         }
                         selectedList.length > 0
                             ? Provider.of<ProviderController>(context,
@@ -291,6 +304,7 @@ class _TopRowState extends State<TopRow> {
 
 class BottomRow extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
+
   BottomRow({@required this.selectedListLengthStreamController});
 
   @override
@@ -298,6 +312,7 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
+  Timer selectedListProviderReplenish;
   String cookie;
   String csrf;
   String model;
@@ -448,7 +463,9 @@ class _BottomRowState extends State<BottomRow> {
                     textStyle: kButtonText,
                   ),
                   onPressed: () {
-                    //TODO: Here's where the entire uploading process goes.
+                    //TODO: UPLOAD PROCESSES ---------
+                    Provider.of<ProviderController>(context, listen: false)
+                        .uploadCancel(false);
                     if (Provider.of<ProviderController>(context, listen: false)
                             .selectedItems
                             .length >
@@ -483,50 +500,19 @@ class _BottomRowState extends State<BottomRow> {
                               Provider.of<ProviderController>(context,
                                       listen: false)
                                   .selectedItems);
-                          // .then((value) {
-                          // if (value == 0) {
-                          //   Navigator.of(context).push(MaterialPageRoute(
-                          //       builder: (_) => OfflineScreen()));
-                          // } else if (500 <= value) {
-                          //   SnackBarGlobal.buildSnackBar(
-                          //       context,
-                          //       'Something is wrong on our side. Sorry.',
-                          //       'red');
-                          // }
-                          // else
-                          //   {
-                          // print('I am in Grid and value is $value');
-                          // UploadSequenceService.instance
-                          //     .uploadEnd('complete', csrf, id, cookie)
-                          //     .then((value) {
-                          //   print('I am in complete and value is $value');
-                          //   Provider.of<ProviderController>(context,
-                          //           listen: false)
-                          //       .selectAllTapped(false);
-                          //   Provider.of<ProviderController>(context,
-                          //           listen: false)
-                          //       .redraw();
-                          //   Provider.of<ProviderController>(context,
-                          //           listen: false)
-                          //       .selectionInProcess(false);
-                          //   Provider.of<ProviderController>(context,
-                          //           listen: false)
-                          //       .showUploadingProcess();
-                          // });
-                          // }
-                          Provider.of<ProviderController>(context,
-                                  listen: false)
-                              .selectAllTapped(false);
-                          Provider.of<ProviderController>(context,
-                                  listen: false)
-                              .redraw();
-                          Provider.of<ProviderController>(context,
-                                  listen: false)
-                              .selectionInProcess(false);
-                          Provider.of<ProviderController>(context,
-                                  listen: false)
-                              .showUploadingProcess();
-                          // });
+
+                          // Provider.of<ProviderController>(context,
+                          //         listen: false)
+                          //     .selectAllTapped(false);
+                          // Provider.of<ProviderController>(context,
+                          //         listen: false)
+                          //     .redraw();
+                          // Provider.of<ProviderController>(context,
+                          //         listen: false)
+                          //     .selectionInProcess(false);
+                          // Provider.of<ProviderController>(context,
+                          //         listen: false)
+                          //     .showUploadingProcess();
                         }
                       });
                     }
@@ -545,8 +531,22 @@ class _BottomRowState extends State<BottomRow> {
                     textStyle: kButtonText,
                   ),
                   onPressed: () {
+                    //TODO: CANCEL UPLOAD PROCESS -----
                     Provider.of<ProviderController>(context, listen: false)
                         .showUploadingProcess();
+                    Provider.of<ProviderController>(context, listen: false)
+                        .selectedItems
+                        .clear();
+                    Provider.of<ProviderController>(context, listen: false)
+                        .uploadCancel(true);
+                    selectedListProviderReplenish =
+                        new Timer(const Duration(seconds: 1), () {
+                      Provider.of<ProviderController>(context, listen: false)
+                              .selectedItems =
+                          List.from(Provider.of<ProviderController>(context,
+                                  listen: false)
+                              .selectedItemsReplenish);
+                    });
                   },
                   child: Text(
                     'Cancel',
