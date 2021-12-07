@@ -59,7 +59,7 @@ class UploadSequenceService {
       if (response.statusCode == 200) {
         print(response.body);
         print(response.headers);
-        print('complete done');
+        print('uploadEnd done');
         return response.statusCode;
       } else {
         print(response.statusCode);
@@ -160,8 +160,8 @@ class UploadSequenceService {
       subscription = FlutterUploader().result.listen((result) {
         if (result.statusCode == null) return;
         // print('result is $result');
-        print(
-            'I am in result and isUploadCancel is ${Provider.of<ProviderController>(context, listen: false).isUploadCancel}');
+        // print(
+        //     'I am in result and isUploadCancel is ${Provider.of<ProviderController>(context, listen: false).isUploadCancel}');
         print(
             'the result is ${result.statusCode} and response is ${result.response}');
         if (result.statusCode == 200 && list.isNotEmpty) {
@@ -170,30 +170,18 @@ class UploadSequenceService {
           uploadRecurrence();
           return;
         }
-        if (result.statusCode == 200 &&
-            list.isEmpty &&
-            Provider.of<ProviderController>(context, listen: false)
-                    .isUploadCancel ==
-                false) {
+        if (result.statusCode == 200 && list.isEmpty) {
           print('I completed and list is ${list.length}');
           uploadEnd(context, 'complete', csrf, id, cookie);
-          // Provider.of<ProviderController>(context, listen: false)
-          //     .selectAllTapped(false);
-          // Provider.of<ProviderController>(context, listen: false).redraw();
-          // Provider.of<ProviderController>(context, listen: false)
-          //     .selectionInProcess(false);
-          // Provider.of<ProviderController>(context, listen: false)
-          //     .showUploadingProcess(false);
+          Provider.of<ProviderController>(context, listen: false)
+              .selectAllTapped(false);
+          Provider.of<ProviderController>(context, listen: false).redraw();
+          Provider.of<ProviderController>(context, listen: false)
+              .selectionInProcess(false);
+          Provider.of<ProviderController>(context, listen: false)
+              .showUploadingProcess(false);
           subscription.cancel();
           return;
-        }
-        if (result.statusCode == 200 &&
-            list.isEmpty &&
-            Provider.of<ProviderController>(context, listen: false)
-                    .isUploadCancel ==
-                true) {
-          print('I cancelled');
-          uploadEnd(context, 'cancel', csrf, id, cookie);
         } else if (result.statusCode == 409) {
           subscription.cancel();
           return;
@@ -204,13 +192,30 @@ class UploadSequenceService {
     await streamListener();
   }
 
-  uploadMain(BuildContext context, int id, String csrf, String cookie,
-      List tags, bool isUploadCancel, List<AssetEntity> list) {
+  uploadMain(
+      BuildContext context,
+      Stream uploadingLengthController,
+      int id,
+      String csrf,
+      String cookie,
+      List tags,
+      bool isUploadCancel,
+      List<AssetEntity> list) {
+    //TODO 2: We're not using the isUploadCancel bool flag. Do we eliminate it?
     uploadRecurrence() async {
       if (list.isEmpty) {
-        print('upload finished');
         return;
       }
+      if (list.last.width == 00 && list.last.height == 00) {
+        uploadEnd(context, 'cancel', csrf, id, cookie);
+        list.clear();
+        Provider.of<ProviderController>(context, listen: false)
+            .showUploadingProcess(false);
+        Provider.of<ProviderController>(context, listen: false)
+            .selectionInProcess(false);
+        return;
+      }
+
       var asset = list[0];
       var piv = asset.file;
       list.removeAt(0);

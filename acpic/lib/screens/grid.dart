@@ -62,10 +62,12 @@ class GridPage extends StatefulWidget {
 
 class _GridPageState extends State<GridPage> {
   final selectedListLengthController = StreamController<int>.broadcast();
+  final uploadingLengthController = StreamController<int>.broadcast();
 
   @override
   void dispose() {
     selectedListLengthController.close();
+    uploadingLengthController.close();
     super.dispose();
   }
 
@@ -89,9 +91,9 @@ class _GridPageState extends State<GridPage> {
               ),
               TopRow(),
               BottomRow(
-                selectedListLengthStreamController:
-                    selectedListLengthController,
-              ),
+                  selectedListLengthStreamController:
+                      selectedListLengthController,
+                  uploadingLengthController: uploadingLengthController),
             ],
           ),
         ),
@@ -299,15 +301,17 @@ class _TopRowState extends State<TopRow> {
 
 class BottomRow extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
+  final StreamController<int> uploadingLengthController;
 
-  BottomRow({@required this.selectedListLengthStreamController});
+  BottomRow(
+      {@required this.selectedListLengthStreamController,
+      @required this.uploadingLengthController});
 
   @override
   _BottomRowState createState() => _BottomRowState();
 }
 
 class _BottomRowState extends State<BottomRow> {
-  // bool isUploadCancel = false;
   String cookie;
   String csrf;
   String model;
@@ -440,9 +444,7 @@ class _BottomRowState extends State<BottomRow> {
                             style: kGridBottomRowText,
                           );
                         return Text(
-                            snapshot.data < 1
-                                ? 'No files selected'
-                                : 'X / ${Provider.of<ProviderController>(context, listen: false).selectedItems.length} files uploaded so far...',
+                            'X / ${Provider.of<ProviderController>(context, listen: false).selectedItems.length} files uploaded so far...',
                             style: kGridBottomRowText);
                       })),
               Visibility(
@@ -466,8 +468,6 @@ class _BottomRowState extends State<BottomRow> {
                             context,
                             listen: false)
                         .selectedItems);
-                    print(
-                        'Upload list is ${Provider.of<ProviderController>(context, listen: false).uploadList.length}');
                     if (Provider.of<ProviderController>(context, listen: false)
                             .selectedItems
                             .length >
@@ -496,6 +496,7 @@ class _BottomRowState extends State<BottomRow> {
                           print('id is $id');
                           UploadSequenceService.instance.uploadMain(
                               context,
+                              widget.uploadingLengthController.stream,
                               id,
                               csrf,
                               cookie,
@@ -526,14 +527,12 @@ class _BottomRowState extends State<BottomRow> {
                   onPressed: () {
                     //TODO: CANCEL UPLOAD PROCESS -----
                     Provider.of<ProviderController>(context, listen: false)
-                        .showUploadingProcess(false);
-                    Provider.of<ProviderController>(context, listen: false)
-                        .selectionInProcess(false);
-                    Provider.of<ProviderController>(context, listen: false)
-                        .uploadCancel(true);
-                    Provider.of<ProviderController>(context, listen: false)
                         .uploadList
-                        .clear();
+                        .add(AssetEntity(
+                            id: 00.toString(),
+                            typeInt: 01,
+                            width: 00,
+                            height: 00));
                   },
                   child: Text(
                     'Cancel',
@@ -549,8 +548,7 @@ class _BottomRowState extends State<BottomRow> {
 }
 
 //TODO 1: Reflect in BottomRow amount of files being uploaded
-//TODO 3: When uploading is finished or cancelled, switch off showUploadingProcess() and unmark all selected
-//TODO 4: Implement 'cancel' upload
+//TODO 3: Implement 'cancel' upload DONE => CHECK NEEDED.
+//TODO 4: Check that upload works in the background
 //TODO 5: Implement hash engine
-//TODO 6: Check that upload works in the background
-//TODO 7: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
+//TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
