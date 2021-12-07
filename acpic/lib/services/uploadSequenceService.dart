@@ -8,6 +8,9 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:path/path.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+//IMPORT SCREENS
+import 'package:acpic/screens/grid.dart';
 
 class UploadSequenceService {
   UploadSequenceService._privateConstructor();
@@ -42,7 +45,8 @@ class UploadSequenceService {
     }
   }
 
-  Future<int> uploadEnd(String op, String csrf, int id, String cookie) async {
+  Future<int> uploadEnd(BuildContext context, String op, String csrf, int id,
+      String cookie) async {
     try {
       final response = await http.post(
         Uri.parse('https://altocode.nl/picdev/upload'),
@@ -53,12 +57,14 @@ class UploadSequenceService {
         body: jsonEncode(<String, dynamic>{'op': op, 'csrf': csrf, 'id': id}),
       );
       if (response.statusCode == 200) {
+        print(response.body);
+        print(response.headers);
         print('complete done');
         return response.statusCode;
       } else {
         print(response.statusCode);
         print(response.body);
-        // print(response.headers);
+        print(response.headers);
         return response.statusCode;
       }
     } on SocketException catch (_) {
@@ -117,12 +123,14 @@ class UploadSequenceService {
   }
 
   uploadBackground(
+      BuildContext context,
       int id,
       Future<File> piv,
       AssetEntity asset,
       String csrf,
       String cookie,
       List tags,
+      isUploadCancel,
       List<AssetEntity> list,
       uploadRecurrence) async {
     StreamSubscription subscription;
@@ -151,18 +159,41 @@ class UploadSequenceService {
     streamListener() async {
       subscription = FlutterUploader().result.listen((result) {
         if (result.statusCode == null) return;
-        print('result is $result');
+        // print('result is $result');
+        print(
+            'I am in result and isUploadCancel is ${Provider.of<ProviderController>(context, listen: false).isUploadCancel}');
         print(
             'the result is ${result.statusCode} and response is ${result.response}');
         if (result.statusCode == 200 && list.isNotEmpty) {
           subscription.cancel();
+          print('I am still going and list is ${list.length}');
           uploadRecurrence();
           return;
-        } else if (result.statusCode == 200 && list.isEmpty) {
-          uploadEnd('complete', csrf, id, cookie);
-
+        }
+        if (result.statusCode == 200 &&
+            list.isEmpty &&
+            Provider.of<ProviderController>(context, listen: false)
+                    .isUploadCancel ==
+                false) {
+          print('I completed and list is ${list.length}');
+          uploadEnd(context, 'complete', csrf, id, cookie);
+          // Provider.of<ProviderController>(context, listen: false)
+          //     .selectAllTapped(false);
+          // Provider.of<ProviderController>(context, listen: false).redraw();
+          // Provider.of<ProviderController>(context, listen: false)
+          //     .selectionInProcess(false);
+          // Provider.of<ProviderController>(context, listen: false)
+          //     .showUploadingProcess(false);
           subscription.cancel();
           return;
+        }
+        if (result.statusCode == 200 &&
+            list.isEmpty &&
+            Provider.of<ProviderController>(context, listen: false)
+                    .isUploadCancel ==
+                true) {
+          print('I cancelled');
+          uploadEnd(context, 'cancel', csrf, id, cookie);
         } else if (result.statusCode == 409) {
           subscription.cancel();
           return;
@@ -173,8 +204,8 @@ class UploadSequenceService {
     await streamListener();
   }
 
-  uploadMain(
-      int id, String csrf, String cookie, List tags, List<AssetEntity> list) {
+  uploadMain(BuildContext context, int id, String csrf, String cookie,
+      List tags, bool isUploadCancel, List<AssetEntity> list) {
     uploadRecurrence() async {
       if (list.isEmpty) {
         print('upload finished');
@@ -183,15 +214,13 @@ class UploadSequenceService {
       var asset = list[0];
       var piv = asset.file;
       list.removeAt(0);
-      await uploadBackground(
-          id, piv, asset, csrf, cookie, tags, list, uploadRecurrence);
+      await uploadBackground(context, id, piv, asset, csrf, cookie, tags,
+          isUploadCancel, list, uploadRecurrence);
     }
 
     uploadRecurrence();
   }
 }
-
-// if 200 & list[0] == list.last => mandale el complete.
 
 // File image = await list[0].file;
 // var stream = new http.ByteStream(image.openRead());

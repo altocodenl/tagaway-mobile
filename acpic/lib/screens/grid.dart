@@ -22,7 +22,7 @@ import 'package:acpic/services/uploadSequenceService.dart';
 
 class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
-  List<AssetEntity> selectedItemsReplenish;
+  List<AssetEntity> uploadList;
 
   Object redrawObject = Object();
   redraw() {
@@ -42,8 +42,8 @@ class ProviderController extends ChangeNotifier {
   }
 
   bool isUploadingInProcess = false;
-  void showUploadingProcess() {
-    isUploadingInProcess = !isUploadingInProcess;
+  void showUploadingProcess(bool newValue) {
+    isUploadingInProcess = newValue;
     notifyListeners();
   }
 
@@ -62,13 +62,10 @@ class GridPage extends StatefulWidget {
 
 class _GridPageState extends State<GridPage> {
   final selectedListLengthController = StreamController<int>.broadcast();
-  final selectedListContentController =
-      StreamController<List<AssetEntity>>.broadcast();
 
   @override
   void dispose() {
     selectedListLengthController.close();
-    selectedListContentController.close();
     super.dispose();
   }
 
@@ -164,8 +161,6 @@ class _GridState extends State<Grid> {
   feedSelectedListProvider() {
     Provider.of<ProviderController>(context, listen: false).selectedItems =
         List.from(selectedList);
-    Provider.of<ProviderController>(context, listen: false)
-        .selectedItemsReplenish = List.from(selectedList);
   }
 
   selectedListStreamSink() {
@@ -312,7 +307,7 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
-  Timer selectedListProviderReplenish;
+  // bool isUploadCancel = false;
   String cookie;
   String csrf;
   String model;
@@ -466,12 +461,19 @@ class _BottomRowState extends State<BottomRow> {
                     //TODO: UPLOAD PROCESSES ---------
                     Provider.of<ProviderController>(context, listen: false)
                         .uploadCancel(false);
+                    Provider.of<ProviderController>(context, listen: false)
+                        .uploadList = List.from(Provider.of<ProviderController>(
+                            context,
+                            listen: false)
+                        .selectedItems);
+                    print(
+                        'Upload list is ${Provider.of<ProviderController>(context, listen: false).uploadList.length}');
                     if (Provider.of<ProviderController>(context, listen: false)
                             .selectedItems
                             .length >
                         0) {
                       Provider.of<ProviderController>(context, listen: false)
-                          .showUploadingProcess();
+                          .showUploadingProcess(true);
                       UploadSequenceService.instance
                           .uploadStart(
                               'start',
@@ -480,7 +482,7 @@ class _BottomRowState extends State<BottomRow> {
                               cookie,
                               Provider.of<ProviderController>(context,
                                       listen: false)
-                                  .selectedItems
+                                  .uploadList
                                   .length)
                           .then((value) {
                         if (value == 'offline') {
@@ -493,26 +495,17 @@ class _BottomRowState extends State<BottomRow> {
                           id = int.parse(value);
                           print('id is $id');
                           UploadSequenceService.instance.uploadMain(
+                              context,
                               id,
                               csrf,
                               cookie,
                               ['"' + model + '"'],
                               Provider.of<ProviderController>(context,
                                       listen: false)
-                                  .selectedItems);
-
-                          // Provider.of<ProviderController>(context,
-                          //         listen: false)
-                          //     .selectAllTapped(false);
-                          // Provider.of<ProviderController>(context,
-                          //         listen: false)
-                          //     .redraw();
-                          // Provider.of<ProviderController>(context,
-                          //         listen: false)
-                          //     .selectionInProcess(false);
-                          // Provider.of<ProviderController>(context,
-                          //         listen: false)
-                          //     .showUploadingProcess();
+                                  .isUploadCancel,
+                              Provider.of<ProviderController>(context,
+                                      listen: false)
+                                  .uploadList);
                         }
                       });
                     }
@@ -533,20 +526,14 @@ class _BottomRowState extends State<BottomRow> {
                   onPressed: () {
                     //TODO: CANCEL UPLOAD PROCESS -----
                     Provider.of<ProviderController>(context, listen: false)
-                        .showUploadingProcess();
+                        .showUploadingProcess(false);
                     Provider.of<ProviderController>(context, listen: false)
-                        .selectedItems
-                        .clear();
+                        .selectionInProcess(false);
                     Provider.of<ProviderController>(context, listen: false)
                         .uploadCancel(true);
-                    selectedListProviderReplenish =
-                        new Timer(const Duration(seconds: 1), () {
-                      Provider.of<ProviderController>(context, listen: false)
-                              .selectedItems =
-                          List.from(Provider.of<ProviderController>(context,
-                                  listen: false)
-                              .selectedItemsReplenish);
-                    });
+                    Provider.of<ProviderController>(context, listen: false)
+                        .uploadList
+                        .clear();
                   },
                   child: Text(
                     'Cancel',
