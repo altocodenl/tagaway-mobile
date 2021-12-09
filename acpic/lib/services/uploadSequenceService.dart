@@ -130,7 +130,6 @@ class UploadSequenceService {
       String csrf,
       String cookie,
       List tags,
-      isUploadCancel,
       List<AssetEntity> list,
       uploadRecurrence) async {
     StreamSubscription subscription;
@@ -164,14 +163,14 @@ class UploadSequenceService {
         //     'I am in result and isUploadCancel is ${Provider.of<ProviderController>(context, listen: false).isUploadCancel}');
         print(
             'the result is ${result.statusCode} and response is ${result.response}');
+
         if (result.statusCode == 200 && list.isNotEmpty) {
           subscription.cancel();
-          print('I am still going and list is ${list.length}');
+
           uploadRecurrence();
           return;
         }
         if (result.statusCode == 200 && list.isEmpty) {
-          print('I completed and list is ${list.length}');
           uploadEnd(context, 'complete', csrf, id, cookie);
           Provider.of<ProviderController>(context, listen: false)
               .selectAllTapped(false);
@@ -192,18 +191,13 @@ class UploadSequenceService {
     await streamListener();
   }
 
-  uploadMain(
-      BuildContext context,
-      Stream uploadingLengthController,
-      int id,
-      String csrf,
-      String cookie,
-      List tags,
-      bool isUploadCancel,
-      List<AssetEntity> list) {
-    //TODO 2: We're not using the isUploadCancel bool flag. Do we eliminate it?
+  uploadMain(BuildContext context, Stream uploadingLengthController, int id,
+      String csrf, String cookie, List tags, List<AssetEntity> list) {
+    final uploadingLengthController = StreamController<int>();
+
     uploadRecurrence() async {
       if (list.isEmpty) {
+        uploadingLengthController.close();
         return;
       }
       if (list.last.width == 00 && list.last.height == 00) {
@@ -213,14 +207,19 @@ class UploadSequenceService {
             .showUploadingProcess(false);
         Provider.of<ProviderController>(context, listen: false)
             .selectionInProcess(false);
+        uploadingLengthController.close();
         return;
       }
-
+      // uploadingLengthController.sink.add(list.length);
+      // uploadingLengthController.stream.listen((event) {
+      //   print('I am in the stream and event is $event');
+      // });
       var asset = list[0];
       var piv = asset.file;
+
       list.removeAt(0);
-      await uploadBackground(context, id, piv, asset, csrf, cookie, tags,
-          isUploadCancel, list, uploadRecurrence);
+      await uploadBackground(
+          context, id, piv, asset, csrf, cookie, tags, list, uploadRecurrence);
     }
 
     uploadRecurrence();

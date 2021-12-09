@@ -46,12 +46,6 @@ class ProviderController extends ChangeNotifier {
     isUploadingInProcess = newValue;
     notifyListeners();
   }
-
-  bool isUploadCancel = false;
-  void uploadCancel(bool newValue) {
-    isUploadCancel = newValue;
-    notifyListeners();
-  }
 }
 
 class GridPage extends StatefulWidget {
@@ -167,6 +161,7 @@ class _GridState extends State<Grid> {
 
   selectedListStreamSink() {
     widget.selectedListLengthStreamController.sink.add(selectedList.length);
+
     feedSelectedListProvider();
   }
 
@@ -433,18 +428,18 @@ class _BottomRowState extends State<BottomRow> {
                     },
                   ),
                   replacement: StreamBuilder(
-                      stream: widget.selectedListLengthStreamController.stream,
+                      stream: widget.uploadingLengthController.stream,
                       builder: (context, snapshot) {
                         if (snapshot.hasError)
                           return Text('There\'s been an error');
-                        else if (snapshot.connectionState ==
-                            ConnectionState.waiting)
-                          return Text(
-                            'Loading your files',
-                            style: kGridBottomRowText,
-                          );
+                        // else if (snapshot.connectionState ==
+                        //     ConnectionState.waiting)
+                        //   return Text(
+                        //     'Loading your files',
+                        //     style: kGridBottomRowText,
+                        //   );
                         return Text(
-                            'X / ${Provider.of<ProviderController>(context, listen: false).selectedItems.length} files uploaded so far...',
+                            '${snapshot.data} / 94 files uploaded so far...',
                             style: kGridBottomRowText);
                       })),
               Visibility(
@@ -462,8 +457,6 @@ class _BottomRowState extends State<BottomRow> {
                   onPressed: () {
                     //TODO: UPLOAD PROCESSES ---------
                     Provider.of<ProviderController>(context, listen: false)
-                        .uploadCancel(false);
-                    Provider.of<ProviderController>(context, listen: false)
                         .uploadList = List.from(Provider.of<ProviderController>(
                             context,
                             listen: false)
@@ -474,6 +467,7 @@ class _BottomRowState extends State<BottomRow> {
                         0) {
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
+                      widget.uploadingLengthController.sink.add(87);
                       UploadSequenceService.instance
                           .uploadStart(
                               'start',
@@ -501,9 +495,6 @@ class _BottomRowState extends State<BottomRow> {
                               csrf,
                               cookie,
                               ['"' + model + '"'],
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .isUploadCancel,
                               Provider.of<ProviderController>(context,
                                       listen: false)
                                   .uploadList);
