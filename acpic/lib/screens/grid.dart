@@ -24,6 +24,12 @@ class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
   List<AssetEntity> uploadList;
 
+  int uploadProgress;
+  void uploadProgressFunction(int newValue) {
+    uploadProgress = newValue;
+    notifyListeners();
+  }
+
   Object redrawObject = Object();
   redraw() {
     redrawObject = Object();
@@ -56,12 +62,11 @@ class GridPage extends StatefulWidget {
 
 class _GridPageState extends State<GridPage> {
   final selectedListLengthController = StreamController<int>.broadcast();
-  final uploadingLengthController = StreamController<int>.broadcast();
 
   @override
   void dispose() {
     selectedListLengthController.close();
-    uploadingLengthController.close();
+
     super.dispose();
   }
 
@@ -86,8 +91,7 @@ class _GridPageState extends State<GridPage> {
               TopRow(),
               BottomRow(
                   selectedListLengthStreamController:
-                      selectedListLengthController,
-                  uploadingLengthController: uploadingLengthController),
+                      selectedListLengthController),
             ],
           ),
         ),
@@ -296,11 +300,8 @@ class _TopRowState extends State<TopRow> {
 
 class BottomRow extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
-  final StreamController<int> uploadingLengthController;
 
-  BottomRow(
-      {@required this.selectedListLengthStreamController,
-      @required this.uploadingLengthController});
+  BottomRow({@required this.selectedListLengthStreamController});
 
   @override
   _BottomRowState createState() => _BottomRowState();
@@ -428,19 +429,30 @@ class _BottomRowState extends State<BottomRow> {
                     },
                   ),
                   replacement: StreamBuilder(
-                      stream: widget.uploadingLengthController.stream,
+                      stream: widget.selectedListLengthStreamController.stream,
                       builder: (context, snapshot) {
                         if (snapshot.hasError)
                           return Text('There\'s been an error');
-                        // else if (snapshot.connectionState ==
-                        //     ConnectionState.waiting)
-                        //   return Text(
-                        //     'Loading your files',
-                        //     style: kGridBottomRowText,
-                        //   );
-                        return Text(
-                            '${snapshot.data} / 94 files uploaded so far...',
-                            style: kGridBottomRowText);
+                        else if (snapshot.connectionState ==
+                            ConnectionState.waiting)
+                          return Text(
+                            'Loading your files',
+                            style: kGridBottomRowText,
+                          );
+                        return Row(
+                          children: [
+                            Text(
+                                Provider.of<ProviderController>(context,
+                                                listen: false)
+                                            .uploadProgress ==
+                                        null
+                                    ? '0 / '
+                                    : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} / ',
+                                style: kGridBottomRowText),
+                            Text('${snapshot.data} files uploaded so far...',
+                                style: kGridBottomRowText),
+                          ],
+                        );
                       })),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
@@ -467,7 +479,7 @@ class _BottomRowState extends State<BottomRow> {
                         0) {
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
-                      widget.uploadingLengthController.sink.add(87);
+
                       UploadSequenceService.instance
                           .uploadStart(
                               'start',
@@ -490,7 +502,6 @@ class _BottomRowState extends State<BottomRow> {
                           print('id is $id');
                           UploadSequenceService.instance.uploadMain(
                               context,
-                              widget.uploadingLengthController.stream,
                               id,
                               csrf,
                               cookie,
@@ -537,9 +548,7 @@ class _BottomRowState extends State<BottomRow> {
     );
   }
 }
-
-//TODO 1: Reflect in BottomRow amount of files being uploaded
-//TODO 3: Implement 'cancel' upload DONE => CHECK NEEDED.
+//TODO 3: Handle all cases for upload pivs
 //TODO 4: Check that upload works in the background
 //TODO 5: Implement hash engine
 //TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user

@@ -179,6 +179,8 @@ class UploadSequenceService {
               .selectionInProcess(false);
           Provider.of<ProviderController>(context, listen: false)
               .showUploadingProcess(false);
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadProgressFunction(0);
           subscription.cancel();
           return;
         } else if (result.statusCode == 409) {
@@ -191,13 +193,10 @@ class UploadSequenceService {
     await streamListener();
   }
 
-  uploadMain(BuildContext context, Stream uploadingLengthController, int id,
-      String csrf, String cookie, List tags, List<AssetEntity> list) {
-    final uploadingLengthController = StreamController<int>();
-
+  uploadMain(BuildContext context, int id, String csrf, String cookie,
+      List tags, List<AssetEntity> list) {
     uploadRecurrence() async {
       if (list.isEmpty) {
-        uploadingLengthController.close();
         return;
       }
       if (list.last.width == 00 && list.last.height == 00) {
@@ -206,18 +205,22 @@ class UploadSequenceService {
         Provider.of<ProviderController>(context, listen: false)
             .showUploadingProcess(false);
         Provider.of<ProviderController>(context, listen: false)
-            .selectionInProcess(false);
-        uploadingLengthController.close();
+            .selectionInProcess(true);
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadProgressFunction(0);
+
         return;
       }
-      // uploadingLengthController.sink.add(list.length);
-      // uploadingLengthController.stream.listen((event) {
-      //   print('I am in the stream and event is $event');
-      // });
+
       var asset = list[0];
       var piv = asset.file;
-
       list.removeAt(0);
+      Provider.of<ProviderController>(context, listen: false)
+          .uploadProgressFunction(
+              Provider.of<ProviderController>(context, listen: false)
+                      .selectedItems
+                      .length -
+                  list.length);
       await uploadBackground(
           context, id, piv, asset, csrf, cookie, tags, list, uploadRecurrence);
     }
