@@ -165,7 +165,6 @@ class _GridState extends State<Grid> {
 
   selectedListStreamSink() {
     widget.selectedListLengthStreamController.sink.add(selectedList.length);
-
     feedSelectedListProvider();
   }
 
@@ -422,9 +421,11 @@ class _BottomRowState extends State<BottomRow> {
                           style: kGridBottomRowText,
                         );
                       return Text(
-                          snapshot.data < 1
+                          (snapshot.data) < 1
                               ? 'No files selected'
-                              : '${snapshot.data} files selected',
+                              : (snapshot.data) == 1
+                                  ? '${snapshot.data} file selected'
+                                  : '${snapshot.data} files selected',
                           style: kGridBottomRowText);
                     },
                   ),
@@ -446,8 +447,8 @@ class _BottomRowState extends State<BottomRow> {
                                                 listen: false)
                                             .uploadProgress ==
                                         null
-                                    ? '0 / '
-                                    : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} / ',
+                                    ? '0 of '
+                                    : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ',
                                 style: kGridBottomRowText),
                             Text('${snapshot.data} files uploaded so far...',
                                 style: kGridBottomRowText),
@@ -467,7 +468,7 @@ class _BottomRowState extends State<BottomRow> {
                     textStyle: kButtonText,
                   ),
                   onPressed: () {
-                    //TODO: UPLOAD PROCESSES ---------
+                    //--------- UPLOAD PROCESSES ---------
                     Provider.of<ProviderController>(context, listen: false)
                         .uploadList = List.from(Provider.of<ProviderController>(
                             context,
@@ -479,8 +480,7 @@ class _BottomRowState extends State<BottomRow> {
                         0) {
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
-
-                      UploadSequenceService.instance
+                      UploadService.instance
                           .uploadStart(
                               'start',
                               csrf,
@@ -500,7 +500,7 @@ class _BottomRowState extends State<BottomRow> {
                         } else {
                           id = int.parse(value);
                           print('id is $id');
-                          UploadSequenceService.instance.uploadMain(
+                          UploadService.instance.uploadMain(
                               context,
                               id,
                               csrf,
@@ -527,7 +527,7 @@ class _BottomRowState extends State<BottomRow> {
                     textStyle: kButtonText,
                   ),
                   onPressed: () {
-                    //TODO: CANCEL UPLOAD PROCESS -----
+                    //----- CANCEL UPLOAD PROCESS -----
                     Provider.of<ProviderController>(context, listen: false)
                         .uploadList
                         .add(AssetEntity(
