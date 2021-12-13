@@ -18,7 +18,7 @@ import 'package:acpic/screens/offline.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/deviceInfoService.dart';
-import 'package:acpic/services/uploadSequenceService.dart';
+import 'package:acpic/services/uploadService.dart';
 
 class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
@@ -548,7 +548,7 @@ class _BottomRowState extends State<BottomRow> {
     );
   }
 }
-//TODO 3: Handle all cases for upload pivs
-//TODO 4: Check that upload works in the background
-//TODO 5: Implement hash engine
-//TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
+
+//TODO 3: Check that upload works in the background
+//TODO 4: Implement hash engine
+//TODO 5: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user

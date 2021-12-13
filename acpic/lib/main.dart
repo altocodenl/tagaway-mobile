@@ -10,11 +10,6 @@ import 'package:acpic/screens/distributor.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-//   @override
-//   _MyAppState createState() => _MyAppState();
-// }
-//
-// class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,3 +27,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// TODO 6: Add 'uploader' to the splash image.

@@ -14,10 +14,6 @@ import 'package:acpic/screens/photo_access_needed.dart';
 import 'package:acpic/services/permissionCheckService.dart';
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 
-//https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html
-//https://api.flutter.dev/flutter/widgets/Flexible-class.html
-//https://api.flutter.dev/flutter/cupertino/CupertinoDialog-class.html
-
 class RequestPermission extends StatelessWidget {
   static const String id = 'permission_screen';
 

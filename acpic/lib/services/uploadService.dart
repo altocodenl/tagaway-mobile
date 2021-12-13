@@ -47,8 +47,7 @@ class UploadService {
     }
   }
 
-  Future<int> uploadEnd(BuildContext context, String op, String csrf, int id,
-      String cookie) async {
+  Future<int> uploadEnd(String op, String csrf, int id, String cookie) async {
     try {
       final response = await http.post(
         Uri.parse('https://altocode.nl/picdev/upload'),
@@ -74,8 +73,8 @@ class UploadService {
     }
   }
 
-  Future<int> uploadError(BuildContext context, String op, String csrf,
-      Object error, int id, String cookie) async {
+  Future<int> uploadError(
+      String op, String csrf, Object error, int id, String cookie) async {
     try {
       final response = await http.post(
         Uri.parse('https://altocode.nl/picdev/upload'),
@@ -252,12 +251,12 @@ class UploadService {
       List tags, List<AssetEntity> list) {
     recursiveUpload() async {
       if (list.isEmpty) {
-        uploadEnd(context, 'complete', csrf, id, cookie);
+        uploadEnd('complete', csrf, id, cookie);
         uiReset(context);
         return 0;
       }
       if (list.last.width == 00 && list.last.height == 00) {
-        uploadEnd(context, 'cancel', csrf, id, cookie);
+        uploadEnd('cancel', csrf, id, cookie);
         list.clear();
         uiCancelReset(context);
         return 0;
@@ -296,10 +295,10 @@ class UploadService {
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
         if (response.statusCode == 400 && respStr == '{"error":"file"}') {
-          //TODO: MODIFY THE STATUSCODE AND ERROR STRING
+          //TODO 2: MODIFY THE STATUSCODE AND ERROR STRING
           print('hello world');
-          // TODO: Fix the Object error problem
-          uploadError(context, 'error', csrf, respStr, id, cookie);
+          //TODO 1: Fix the Object error problem
+          uploadError('error', csrf, respStr, id, cookie);
           uiReset(context);
           SnackBarGlobal.buildSnackBar(
               context, 'You\'ve run out of space.', 'red');

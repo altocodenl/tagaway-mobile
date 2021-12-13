@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGrey = Color(0xFF8b8b8b);
-const kTextGrey = Color(0xFF484848);
-const kTextDarkGrey = Color(0xFF333333);
 const kAltoGreen = Color(0xFF04E762);
 const kAltoRed = Color(0xFFD33E43);
 const kAltoYellow = Color(0xFFffff00);
+const kTextGrey = Color(0xFF484848);
+const kTextDarkGrey = Color(0xFF333333);
 
 const kAcpicSplash = TextStyle(
   fontFamily: 'Montserrat',
