@@ -66,12 +66,12 @@ class _GridPageState extends State<GridPage> {
   @override
   void dispose() {
     selectedListLengthController.close();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('Built grid');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

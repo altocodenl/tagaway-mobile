@@ -249,19 +249,18 @@ class UploadService {
 
   uploadMain(BuildContext context, int id, String csrf, String cookie,
       List tags, List<AssetEntity> list) {
-    recursiveUpload() async {
+    uploadOne() async {
       if (list.isEmpty) {
         uploadEnd('complete', csrf, id, cookie);
         uiReset(context);
-        return 0;
+        return false;
       }
       if (list.last.width == 00 && list.last.height == 00) {
         uploadEnd('cancel', csrf, id, cookie);
         list.clear();
         uiCancelReset(context);
-        return 0;
+        return false;
       }
-
       var asset = list[0];
       var piv = asset.file;
       list.removeAt(0);
@@ -271,8 +270,7 @@ class UploadService {
                       .selectedItems
                       .length -
                   list.length);
-      // await uploadBackground(
-      //     context, id, piv, asset, csrf, cookie, tags, list, recursiveUpload);
+
       File image = await piv;
       var stream = new http.ByteStream(image.openRead());
       stream.cast();
@@ -294,29 +292,32 @@ class UploadService {
         print(respStr);
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+        print('image is $image');
+        image = null;
+        print('image now is $image');
         if (response.statusCode == 400 && respStr == '{"error":"file"}') {
-          //TODO 2: MODIFY THE STATUSCODE AND ERROR STRING
+// //TODO 2: MODIFY THE STATUSCODE AND ERROR STRING
           print('hello world');
-          //TODO 1: Fix the Object error problem
+// //TODO 1: Fix the Object error problem
           uploadError('error', csrf, respStr, id, cookie);
           uiReset(context);
           SnackBarGlobal.buildSnackBar(
               context, 'You\'ve run out of space.', 'red');
-          return 0;
+          return false;
         } else if (response.statusCode >= 500) {
           uiReset(context);
           SnackBarGlobal.buildSnackBar(
               context, 'Something is wrong on our side. Sorry.', 'red');
-          return 0;
+          return false;
         }
-        recursiveUpload();
       } on SocketException catch (_) {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => OfflineScreen()));
-        return 0;
+        return false;
       }
+      return true;
     }
 
-    recursiveUpload();
+    Future.doWhile(uploadOne);
   }
 }
