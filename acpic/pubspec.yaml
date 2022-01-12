@@ -38,7 +38,7 @@ dependencies:
   device_info_plus: ^2.1.0
   http_parser: ^4.0.0
   path: ^1.8.0
-#  flutter_uploader: ^3.0.0-beta.3
+
 
 
 

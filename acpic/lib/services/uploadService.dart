@@ -1,7 +1,6 @@
 // IMPORT FLUTTER PACKAGES
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dart:async';
 import 'dart:io';
 import 'dart:core';
 import 'package:photo_manager/photo_manager.dart';
@@ -74,7 +73,7 @@ class UploadService {
   }
 
   Future<int> uploadError(
-      String op, String csrf, Object error, int id, String cookie) async {
+      String csrf, Object error, int id, String cookie) async {
     try {
       final response = await http.post(
         Uri.parse('https://altocode.nl/picdev/upload'),
@@ -83,7 +82,7 @@ class UploadService {
           'cookie': cookie
         },
         body: jsonEncode(<String, dynamic>{
-          'op': op,
+          'op': 'error',
           'csrf': csrf,
           'id': id,
           'error': error
@@ -270,8 +269,10 @@ class UploadService {
                       .selectedItems
                       .length -
                   list.length);
-
       File image = await piv;
+      // image.delete();
+      // print(list.length);
+      // return true;
       var stream = new http.ByteStream(image.openRead());
       stream.cast();
       var length = await image.length();
@@ -292,19 +293,19 @@ class UploadService {
         print(respStr);
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-        print('image is $image');
-        image = null;
-        print('image now is $image');
-        if (response.statusCode == 400 && respStr == '{"error":"file"}') {
-// //TODO 2: MODIFY THE STATUSCODE AND ERROR STRING
+        image.delete();
+
+        if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
           print('hello world');
-// //TODO 1: Fix the Object error problem
-          uploadError('error', csrf, respStr, id, cookie);
+          uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
+              cookie);
           uiReset(context);
           SnackBarGlobal.buildSnackBar(
               context, 'You\'ve run out of space.', 'red');
           return false;
         } else if (response.statusCode >= 500) {
+          uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
+              cookie);
           uiReset(context);
           SnackBarGlobal.buildSnackBar(
               context, 'Something is wrong on our side. Sorry.', 'red');

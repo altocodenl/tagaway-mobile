@@ -2,8 +2,6 @@
 import 'package:acpic/screens/request_permission.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'dart:async';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS

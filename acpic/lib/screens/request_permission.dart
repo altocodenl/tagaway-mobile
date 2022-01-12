@@ -1,7 +1,6 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS

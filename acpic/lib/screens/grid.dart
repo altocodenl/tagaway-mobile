@@ -1,7 +1,6 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'dart:core';
 import 'dart:async';
@@ -71,7 +70,6 @@ class _GridPageState extends State<GridPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('Built grid');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

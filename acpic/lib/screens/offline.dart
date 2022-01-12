@@ -1,6 +1,5 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import 'dart:io';
 //IMPORT SCREENS
