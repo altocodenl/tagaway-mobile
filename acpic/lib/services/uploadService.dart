@@ -272,9 +272,8 @@ class UploadService {
                       .length -
                   list.length);
       File image = await piv;
-      var stream = new http.ByteStream(image.openRead());
-      stream.cast();
-      var length = await image.length();
+      // var stream = new http.ByteStream(image.openRead());
+      // var length = await image.length();
       var uri = Uri.parse('https://altocode.nl/picdev/piv');
       var request = http.MultipartRequest('POST', uri);
       try {
@@ -284,12 +283,12 @@ class UploadService {
         request.fields['tags'] = tags.toString();
         request.fields['lastModified'] =
             asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-        var upiv = http.MultipartFile('piv', stream, length,
-            filename: basename(image.path));
-        request.files.add(upiv);
+        // var upiv = http.MultipartFile('piv', stream, length,
+        //     filename: basename(image.path));
+        // request.files.add(upiv);
+        request.files.add(await http.MultipartFile.fromPath('piv', image.path));
         var response = await request.send();
         final respStr = await response.stream.bytesToString();
-
         print(respStr);
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
