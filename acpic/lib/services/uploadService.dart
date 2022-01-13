@@ -252,6 +252,7 @@ class UploadService {
       if (list.isEmpty) {
         uploadEnd('complete', csrf, id, cookie);
         uiReset(context);
+        print('Made it to the end');
         return false;
       }
       if (list.last.width == 00 && list.last.height == 00) {
@@ -261,6 +262,7 @@ class UploadService {
         return false;
       }
       var asset = list[0];
+      print(asset.type);
       var piv = asset.file;
       list.removeAt(0);
       Provider.of<ProviderController>(context, listen: false)
@@ -270,9 +272,6 @@ class UploadService {
                       .length -
                   list.length);
       File image = await piv;
-      // image.delete();
-      // print(list.length);
-      // return true;
       var stream = new http.ByteStream(image.openRead());
       stream.cast();
       var length = await image.length();
@@ -290,11 +289,10 @@ class UploadService {
         request.files.add(upiv);
         var response = await request.send();
         final respStr = await response.stream.bytesToString();
+
         print(respStr);
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-        image.delete();
-
         if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
           print('hello world');
           uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
@@ -315,6 +313,12 @@ class UploadService {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => OfflineScreen()));
         return false;
+      }
+      if (Platform.isIOS) {
+        image.delete();
+        PhotoManager.clearFileCache();
+      } else {
+        PhotoManager.clearFileCache();
       }
       return true;
     }
