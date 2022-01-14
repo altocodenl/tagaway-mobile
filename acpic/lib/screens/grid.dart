@@ -139,7 +139,6 @@ class _GridState extends State<Grid> {
     }
 
     final option = makeOption();
-    // TODO: Implement PhotoManager.presentLimited() if necessary for iOS 15. As of today (September 1, 2021) functionality under 'limited' is as desired.
     // Set onlyAll to true, to fetch only the 'Recent' album
     // which contains all the photos/videos in the storage
     final albums = await PhotoManager.getAssetPathList(
@@ -440,6 +439,7 @@ class _BottomRowState extends State<BottomRow> {
                           );
                         return Row(
                           children: [
+                            Text('Uploading ', style: kGridBottomRowText),
                             Text(
                                 Provider.of<ProviderController>(context,
                                                 listen: false)
@@ -448,7 +448,7 @@ class _BottomRowState extends State<BottomRow> {
                                     ? '0 of '
                                     : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ',
                                 style: kGridBottomRowText),
-                            Text('${snapshot.data} files uploaded so far...',
+                            Text('${snapshot.data} files...',
                                 style: kGridBottomRowText),
                           ],
                         );
@@ -533,6 +533,7 @@ class _BottomRowState extends State<BottomRow> {
                             typeInt: 01,
                             width: 00,
                             height: 00));
+                    UploadService.instance.uiCancelReset(context);
                   },
                   child: Text(
                     'Cancel',

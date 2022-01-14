@@ -258,7 +258,7 @@ class UploadService {
       if (list.last.width == 00 && list.last.height == 00) {
         uploadEnd('cancel', csrf, id, cookie);
         list.clear();
-        uiCancelReset(context);
+        // uiCancelReset(context);
         return false;
       }
       var asset = list[0];
