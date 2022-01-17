@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
-import 'dart:io' show Platform;
+import 'dart:io';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
@@ -13,7 +13,6 @@ import 'package:acpic/ui_elements/constants.dart';
 import 'package:acpic/ui_elements/material_elements.dart';
 //IMPORT SCREENS
 import 'grid_item.dart';
-import 'package:acpic/screens/offline.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/deviceInfoService.dart';
@@ -49,6 +48,12 @@ class ProviderController extends ChangeNotifier {
   bool isUploadingInProcess = false;
   void showUploadingProcess(bool newValue) {
     isUploadingInProcess = newValue;
+    notifyListeners();
+  }
+
+  bool isUploadingPaused = false;
+  void uploadingPausePlay(bool newValue) {
+    isUploadingPaused = newValue;
     notifyListeners();
   }
 }
@@ -304,6 +309,7 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
+  // Timer onlineChecker;
   String cookie;
   String csrf;
   String model;
@@ -336,6 +342,33 @@ class _BottomRowState extends State<BottomRow> {
           });
     super.initState();
   }
+
+  // uploadOnlineChecker() {
+  //   onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
+  //     uploadRetry();
+  //   });
+  // }
+  //
+  // uploadRetry() async {
+  //   try {
+  //     final result = await InternetAddress.lookup('altocode.nl');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       UploadService.instance.uploadMain(
+  //           context,
+  //           id,
+  //           csrf,
+  //           cookie,
+  //           ['"' + model + '"'],
+  //           Provider.of<ProviderController>(context, listen: false).uploadList);
+  //       print('connected');
+  //       onlineChecker.cancel();
+  //       Provider.of<ProviderController>(context, listen: false)
+  //           .uploadingPausePlay(false);
+  //     }
+  //   } on SocketException catch (_) {
+  //     print('not connected');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -437,21 +470,26 @@ class _BottomRowState extends State<BottomRow> {
                             'Loading your files',
                             style: kGridBottomRowText,
                           );
-                        return Row(
-                          children: [
-                            Text('Uploading ', style: kGridBottomRowText),
-                            Text(
-                                Provider.of<ProviderController>(context,
-                                                listen: false)
-                                            .uploadProgress ==
-                                        null
-                                    ? '0 of '
-                                    : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ',
-                                style: kGridBottomRowText),
-                            Text('${snapshot.data} files...',
-                                style: kGridBottomRowText),
-                          ],
-                        );
+                        return Provider.of<ProviderController>(context)
+                                    .isUploadingPaused ==
+                                false
+                            ? Row(
+                                children: [
+                                  Text('Uploading ', style: kGridBottomRowText),
+                                  Text(
+                                      Provider.of<ProviderController>(context,
+                                                      listen: false)
+                                                  .uploadProgress ==
+                                              null
+                                          ? '0 of '
+                                          : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ',
+                                      style: kGridBottomRowText),
+                                  Text('${snapshot.data} files...',
+                                      style: kGridBottomRowText),
+                                ],
+                              )
+                            : Text('Uploading paused. Check connection.',
+                                style: kGridBottomRowText);
                       })),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)
@@ -490,8 +528,8 @@ class _BottomRowState extends State<BottomRow> {
                                   .length)
                           .then((value) {
                         if (value == 'offline') {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => OfflineScreen()));
+                          SnackBarGlobal.buildSnackBar(context,
+                              'You\'re offline. Check your connection.', 'red');
                         } else if (value == 'error') {
                           SnackBarGlobal.buildSnackBar(context,
                               'Something is wrong on our side. Sorry.', 'red');
@@ -510,6 +548,8 @@ class _BottomRowState extends State<BottomRow> {
                         }
                       });
                     }
+                    // SnackBarWithDismiss.buildSnackBar(context,
+                    //     'Your files will keep uploading as long as ac;pic is running in the background.');
                   },
                   child: Text(
                     'Upload',

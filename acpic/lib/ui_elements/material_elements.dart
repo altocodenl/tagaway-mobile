@@ -23,6 +23,29 @@ class SnackBarGlobal {
   }
 }
 
+class SnackBarWithDismiss {
+  SnackBarWithDismiss._();
+  static buildSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$message',
+          textAlign: TextAlign.left,
+          style: kWhiteSnackBarText,
+        ),
+        backgroundColor: Colors.white,
+        duration: const Duration(seconds: 5),
+        margin: const EdgeInsets.only(bottom: 50),
+        padding: const EdgeInsets.all(20),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+      ),
+    );
+  }
+}
+
 class RoundedButton extends StatelessWidget {
   RoundedButton({this.title, this.colour, @required this.onPressed});
 

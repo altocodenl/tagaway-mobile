@@ -3,14 +3,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:core';
+import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:path/path.dart';
-// import 'package:flutter_uploader/flutter_uploader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
-import 'package:acpic/screens/offline.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
 
@@ -101,6 +100,31 @@ class UploadService {
       }
     } on SocketException catch (_) {
       return 0;
+    }
+  }
+
+  Timer onlineChecker;
+
+  uploadOnlineChecker(BuildContext context, int id, String csrf, String cookie,
+      List tags, List<AssetEntity> list) {
+    onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
+      uploadRetry(context, id, csrf, cookie, tags, list);
+    });
+  }
+
+  uploadRetry(BuildContext context, int id, String csrf, String cookie,
+      List tags, List<AssetEntity> list) async {
+    try {
+      final result = await InternetAddress.lookup('altocode.nl');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        uploadMain(context, id, csrf, cookie, tags, list);
+        print('connected');
+        onlineChecker.cancel();
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadingPausePlay(false);
+      }
+    } on SocketException catch (_) {
+      print('not connected');
     }
   }
 
@@ -293,7 +317,6 @@ class UploadService {
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
         if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
-          print('hello world');
           uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
               cookie);
           uiReset(context);
@@ -309,8 +332,18 @@ class UploadService {
           return false;
         }
       } on SocketException catch (_) {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => OfflineScreen()));
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadingPausePlay(true);
+        SnackBarGlobal.buildSnackBar(
+            context, 'You\'re offline. Upload paused.', 'red');
+        uploadOnlineChecker(context, id, csrf, cookie, tags, list);
+        return false;
+      } on Exception {
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadingPausePlay(true);
+        SnackBarGlobal.buildSnackBar(
+            context, 'You\'re offline. Upload paused.', 'red');
+        uploadOnlineChecker(context, id, csrf, cookie, tags, list);
         return false;
       }
       if (Platform.isIOS) {

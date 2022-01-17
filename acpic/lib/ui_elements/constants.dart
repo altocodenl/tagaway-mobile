@@ -91,3 +91,10 @@ const kSnackBarText = TextStyle(
   fontSize: 16,
   color: kTextDarkGrey,
 );
+
+const kWhiteSnackBarText = TextStyle(
+  fontWeight: FontWeight.bold,
+  fontFamily: 'Montserrat',
+  fontSize: 16,
+  color: kAltoBlue,
+);
