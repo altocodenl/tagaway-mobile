@@ -96,5 +96,6 @@ const kWhiteSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
   fontFamily: 'Montserrat',
   fontSize: 16,
+  height: 1.5,
   color: kAltoBlue,
 );

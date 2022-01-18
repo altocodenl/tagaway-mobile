@@ -343,33 +343,6 @@ class _BottomRowState extends State<BottomRow> {
     super.initState();
   }
 
-  // uploadOnlineChecker() {
-  //   onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-  //     uploadRetry();
-  //   });
-  // }
-  //
-  // uploadRetry() async {
-  //   try {
-  //     final result = await InternetAddress.lookup('altocode.nl');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       UploadService.instance.uploadMain(
-  //           context,
-  //           id,
-  //           csrf,
-  //           cookie,
-  //           ['"' + model + '"'],
-  //           Provider.of<ProviderController>(context, listen: false).uploadList);
-  //       print('connected');
-  //       onlineChecker.cancel();
-  //       Provider.of<ProviderController>(context, listen: false)
-  //           .uploadingPausePlay(false);
-  //     }
-  //   } on SocketException catch (_) {
-  //     print('not connected');
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
@@ -514,6 +487,8 @@ class _BottomRowState extends State<BottomRow> {
                             .selectedItems
                             .length >
                         0) {
+                      SnackBarWithDismiss.buildSnackBar(context,
+                          'Your files will keep uploading as long as ac;pic is running in the background.');
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
                       UploadService.instance
@@ -548,8 +523,6 @@ class _BottomRowState extends State<BottomRow> {
                         }
                       });
                     }
-                    // SnackBarWithDismiss.buildSnackBar(context,
-                    //     'Your files will keep uploading as long as ac;pic is running in the background.');
                   },
                   child: Text(
                     'Upload',
