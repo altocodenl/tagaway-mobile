@@ -55,8 +55,8 @@ class UploadService {
         body: jsonEncode(<String, dynamic>{'op': op, 'csrf': csrf, 'id': id}),
       );
       if (response.statusCode == 200) {
-        print(response.body);
-        print(response.headers);
+        // print(response.body);
+        // print(response.headers);
         print('uploadEnd done');
         return response.statusCode;
       } else {
@@ -160,23 +160,28 @@ class UploadService {
       if (list.last.width == 00 && list.last.height == 00) {
         uploadEnd('cancel', csrf, id, cookie);
         list.clear();
-        // uiCancelReset(context);
         return false;
       }
+      print('Step 1');
       var asset = list[0];
       print(asset.type);
       var piv = asset.file;
+      print('Step 2');
       list.removeAt(0);
+      print('Step 3');
       Provider.of<ProviderController>(context, listen: false)
           .uploadProgressFunction(
               Provider.of<ProviderController>(context, listen: false)
                       .selectedItems
                       .length -
                   list.length);
+      print('Step 4');
       File image = await piv;
-
+      print('Step 5');
       var uri = Uri.parse('https://altocode.nl/picdev/piv');
+      print('Step 6');
       var request = http.MultipartRequest('POST', uri);
+      print('Step 7');
       try {
         request.headers['cookie'] = cookie;
         request.fields['id'] = id.toString();
@@ -184,14 +189,16 @@ class UploadService {
         request.fields['tags'] = tags.toString();
         request.fields['lastModified'] =
             asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-
+        print('Step 8');
         request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+        print('Step 9');
         var response = await request.send();
+        print('Step 10');
         final respStr = await response.stream.bytesToString();
+        print('Step 11');
         print(respStr);
         print(
             'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-
         if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
           uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
               cookie);
