@@ -12,12 +12,27 @@ import 'package:acpic/screens/grid.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
 
+// Timer timer = Timer.periodic(new Duration(seconds: 1), (timer) {
+//   print('vivo');
+// });
+
+// var future = new Future.delayed(const Duration(milliseconds: 1000), () {
+//   print('vivo');
+// });
+//
+// void main() {
+//   print('Viviendo');
+// }
+
 class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
+    // Timer timer = Timer.periodic(new Duration(seconds: 1), (timer) {
+    //   print(DateTime.now().toString());
+    // });
     try {
       final response = await http.post(
         Uri.parse('https://altocode.nl/picdev/upload'),
