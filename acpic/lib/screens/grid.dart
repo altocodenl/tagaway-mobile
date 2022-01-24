@@ -6,6 +6,7 @@ import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io';
+// import 'package:flutter/foundation.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
@@ -309,7 +310,6 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
-  // Timer onlineChecker;
   String cookie;
   String csrf;
   String model;
