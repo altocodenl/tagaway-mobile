@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
@@ -298,8 +299,124 @@ class _TopRowState extends State<TopRow> {
   }
 }
 
-theTopLevelFunction(String something) {
-  print('print thing $something');
+class TheTopLevelFunctionArguments {
+  final BuildContext context;
+  final int id;
+  final String csrf;
+  final String cookie;
+  final List tags;
+  final List<AssetEntity> list;
+  final Isolate isolate;
+  final SendPort sendPort;
+
+  TheTopLevelFunctionArguments(this.context, this.id, this.csrf, this.cookie,
+      this.tags, this.list, this.isolate, this.sendPort);
+}
+
+theTopLevelFunction(TheTopLevelFunctionArguments arguments) async {
+  uploadOne() async {
+    if (arguments.list.isEmpty) {
+      UploadService.instance.uploadEnd(
+          'complete', arguments.csrf, arguments.id, arguments.cookie);
+      UploadService.instance.uiReset(arguments.context);
+      arguments.isolate.kill();
+      print('Made it to the end');
+      return false;
+    }
+    if (arguments.list.last.width == 00 && arguments.list.last.height == 00) {
+      UploadService.instance
+          .uploadEnd('cancel', arguments.csrf, arguments.id, arguments.cookie);
+      arguments.list.clear();
+      return false;
+    }
+    var asset = arguments.list[0];
+    print(asset.type);
+    var piv = asset.file;
+    arguments.list.removeAt(0);
+    Provider.of<ProviderController>(arguments.context, listen: false)
+        .uploadProgressFunction(
+            Provider.of<ProviderController>(arguments.context, listen: false)
+                    .selectedItems
+                    .length -
+                arguments.list.length);
+
+    File image = await piv;
+    var uri = Uri.parse('https://altocode.nl/picdev/piv');
+    var request = http.MultipartRequest('POST', uri);
+    try {
+      request.headers['cookie'] = arguments.cookie;
+      request.fields['id'] = arguments.id.toString();
+      request.fields['csrf'] = arguments.csrf;
+      request.fields['tags'] = arguments.tags.toString();
+      request.fields['lastModified'] =
+          asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+      request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      print(respStr);
+      print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+      if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
+        UploadService.instance.uploadError(
+            arguments.csrf,
+            {'code': response.statusCode, 'error': respStr},
+            arguments.id,
+            arguments.cookie);
+        UploadService.instance.uiReset(arguments.context);
+        SnackBarGlobal.buildSnackBar(
+            arguments.context, 'You\'ve run out of space.', 'red');
+        return false;
+      } else if (response.statusCode >= 500) {
+        UploadService.instance.uploadError(
+            arguments.csrf,
+            {'code': response.statusCode, 'error': respStr},
+            arguments.id,
+            arguments.cookie);
+        UploadService.instance.uiReset(arguments.context);
+        SnackBarGlobal.buildSnackBar(
+            arguments.context, 'Something is wrong on our side. Sorry.', 'red');
+        return false;
+      }
+    } on SocketException catch (_) {
+      print('Socket Exception');
+      Provider.of<ProviderController>(arguments.context, listen: false)
+          .uploadingPausePlay(true);
+      SnackBarGlobal.buildSnackBar(
+          arguments.context, 'You\'re offline. Upload paused.', 'red');
+      arguments.list.insert(0, asset);
+      UploadService.instance.uploadOnlineChecker(
+          arguments.context,
+          arguments.id,
+          arguments.csrf,
+          arguments.cookie,
+          arguments.tags,
+          arguments.list);
+      return false;
+    } on Exception {
+      print('Exception');
+      Provider.of<ProviderController>(arguments.context, listen: false)
+          .uploadingPausePlay(true);
+      SnackBarGlobal.buildSnackBar(
+          arguments.context, 'You\'re offline. Upload paused.', 'red');
+      arguments.list.insert(0, asset);
+      UploadService.instance.uploadOnlineChecker(
+          arguments.context,
+          arguments.id,
+          arguments.csrf,
+          arguments.cookie,
+          arguments.tags,
+          arguments.list);
+      return false;
+    }
+    if (Platform.isIOS) {
+      image.delete();
+      PhotoManager.clearFileCache();
+    } else {
+      PhotoManager.clearFileCache();
+    }
+    return true;
+  }
+
+  Future.doWhile(uploadOne);
 }
 
 //Bottom Row
@@ -317,11 +434,22 @@ class _BottomRowState extends State<BottomRow> {
   String csrf;
   String model;
   int id;
-  Isolate _isolate;
+  List tags;
+  List<AssetEntity> list;
+  Isolate isolate;
+  final ReceivePort _receivePort = ReceivePort();
+  StreamSubscription _subscription;
 
-  theFunction() async {
+  theFunction(BuildContext context, int id, String csrf, String cookie,
+      List tags, List<AssetEntity> list) async {
     try {
-      _isolate = await Isolate.spawn<String>(theTopLevelFunction, "sarasa");
+      if (isolate != null) {
+        isolate.kill();
+      }
+      isolate = await Isolate.spawn<TheTopLevelFunctionArguments>(
+          theTopLevelFunction,
+          TheTopLevelFunctionArguments(context, id, csrf, cookie, tags, list,
+              isolate, _receivePort.sendPort));
     } on IsolateSpawnException catch (e) {
       print(e);
     }
@@ -353,11 +481,15 @@ class _BottomRowState extends State<BottomRow> {
             });
           });
     super.initState();
+    _subscription = _receivePort.listen((message) {
+      print('message $message');
+    });
   }
 
   @override
   void dispose() {
-    _isolate.kill();
+    isolate.kill();
+    _subscription.cancel();
     super.dispose();
   }
 
@@ -495,20 +627,29 @@ class _BottomRowState extends State<BottomRow> {
                     textStyle: kButtonText,
                   ),
                   onPressed: () {
-                    //--------- UPLOAD PROCESSES ---------
+                    //--------- UPLOAD PROCESSES STARTS ---------
+                    // --- UPLOAD LIST BECOMES SELECTED ITEMS LIST ---
                     Provider.of<ProviderController>(context, listen: false)
                         .uploadList = List.from(Provider.of<ProviderController>(
                             context,
                             listen: false)
                         .selectedItems);
+                    // --- CHECK THAT SELECTED ITEMS IS NOT EMPTY  ---
                     if (Provider.of<ProviderController>(context, listen: false)
                             .selectedItems
                             .length >
                         0) {
+                      // --- SELECTED ITEMS BECOMES 'LIST' ---
+                      list = Provider.of<ProviderController>(context,
+                              listen: false)
+                          .selectedItems;
+                      // --- SNACK BAR ---
                       SnackBarWithDismiss.buildSnackBar(context,
                           'Your files will keep uploading as long as ac;pic is running in the background.');
+                      // --- SWITCH UI TO UPLOADING VIEW ---
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
+                      // --- UPLOAD START CALL ---
                       UploadService.instance
                           .uploadStart(
                               'start',
@@ -520,28 +661,35 @@ class _BottomRowState extends State<BottomRow> {
                                   .uploadList
                                   .length)
                           .then((value) {
+                        // --- CHECK IS NOT OFFLINE ---
                         if (value == 'offline') {
                           SnackBarGlobal.buildSnackBar(context,
                               'You\'re offline. Check your connection.', 'red');
-                        } else if (value == 'error') {
+                        }
+                        // --- CHECK SERVER ERROR ---
+                        else if (value == 'error') {
                           SnackBarGlobal.buildSnackBar(context,
                               'Something is wrong on our side. Sorry.', 'red');
-                        } else {
+                        }
+                        // --- START UPLOAD ---
+                        else {
                           id = int.parse(value);
                           print('id is $id');
-                          UploadService.instance.uploadMain(
-                              context,
-                              id,
-                              csrf,
-                              cookie,
-                              ['"' + model + '"'],
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .uploadList);
+                          tags = ['"' + model + '"'];
+                          theFunction(context, id, csrf, cookie, tags, list);
+
+                          // UploadService.instance.uploadMain(
+                          //     context,
+                          //     id,
+                          //     csrf,
+                          //     cookie,
+                          //     ['"' + model + '"'],
+                          //     Provider.of<ProviderController>(context,
+                          //             listen: false)
+                          //         .uploadList);
                         }
                       });
                     }
-                    theFunction();
                   },
                   child: Text(
                     'Upload',
@@ -565,6 +713,7 @@ class _BottomRowState extends State<BottomRow> {
                             typeInt: 01,
                             width: 00,
                             height: 00));
+                    isolate.kill();
                     UploadService.instance.uiCancelReset(context);
                   },
                   child: Text(
