@@ -6,7 +6,7 @@ import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io';
-// import 'package:flutter/foundation.dart';
+import 'dart:isolate';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
@@ -298,8 +298,11 @@ class _TopRowState extends State<TopRow> {
   }
 }
 
-//Bottom Row
+theTopLevelFunction(String something) {
+  print('print thing $something');
+}
 
+//Bottom Row
 class BottomRow extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
 
@@ -314,6 +317,15 @@ class _BottomRowState extends State<BottomRow> {
   String csrf;
   String model;
   int id;
+  Isolate _isolate;
+
+  theFunction() async {
+    try {
+      _isolate = await Isolate.spawn<String>(theTopLevelFunction, "sarasa");
+    } on IsolateSpawnException catch (e) {
+      print(e);
+    }
+  }
 
   @override
   void initState() {
@@ -341,6 +353,12 @@ class _BottomRowState extends State<BottomRow> {
             });
           });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _isolate.kill();
+    super.dispose();
   }
 
   @override
@@ -523,6 +541,7 @@ class _BottomRowState extends State<BottomRow> {
                         }
                       });
                     }
+                    theFunction();
                   },
                   child: Text(
                     'Upload',
