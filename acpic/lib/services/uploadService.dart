@@ -16,6 +16,8 @@ import 'package:acpic/ui_elements/material_elements.dart';
 class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
+  List<String> pathList = [];
+  List<String> lastModifiedList = [];
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -234,5 +236,27 @@ class UploadService {
     }
 
     Future.doWhile(uploadOne);
+  }
+
+  Future pathAndDate(List<AssetEntity> list) async {
+    var asset = list[0];
+    var piv = asset.file;
+    File image = await piv;
+    String path = image.path;
+    // print(path);
+    String lastModified =
+        asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+    pathList.insert(0, path);
+    lastModifiedList.insert(0, lastModified);
+    list.removeAt(0);
+    if (Platform.isIOS) {
+      image.delete();
+      PhotoManager.clearFileCache();
+    } else {
+      PhotoManager.clearFileCache();
+    }
+    // print('list is $list');
+    // print('pathList is $pathList');
+    // print('lastModifiedList is $lastModifiedList');
   }
 }

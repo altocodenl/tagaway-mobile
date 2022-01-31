@@ -299,50 +299,82 @@ class _TopRowState extends State<TopRow> {
   }
 }
 
-class IsolatesArguments {
-  // final BuildContext context;
+// class IsolatesArguments {
+//   final int id;
+//   final String csrf;
+//   final String cookie;
+//   final List tags;
+//   final List<AssetEntity> list;
+//   final Isolate isolate;
+//   final SendPort sendPort;
+//
+//   IsolatesArguments(this.id, this.csrf, this.cookie, this.tags, this.list,
+//       this.isolate, this.sendPort);
+// }
+// entryPoint(IsolatesArguments arguments) async {
+//   print(arguments.list);
+//   var asset = arguments.list[0];
+//   print(asset.type);
+//   var piv = asset.file;
+//   arguments.list.removeAt(0);
+//   File image = await piv;
+//   var uri = Uri.parse('https://altocode.nl/picdev/piv');
+//   var request = http.MultipartRequest('POST', uri);
+//   request.headers['cookie'] = arguments.cookie;
+//   request.fields['id'] = arguments.id.toString();
+//   request.fields['csrf'] = arguments.csrf;
+//   request.fields['tags'] = arguments.tags.toString();
+//   request.fields['lastModified'] =
+//       asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+//   request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+//   var response = await request.send();
+//   final respStr = await response.stream.bytesToString();
+//   print(respStr);
+//   print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+//   if (Platform.isIOS) {
+//     image.delete();
+//     PhotoManager.clearFileCache();
+//   } else {
+//     PhotoManager.clearFileCache();
+//   }
+//   return true;
+// }
+
+//Bottom Row
+
+class UploadIsolateArguments {
   final int id;
   final String csrf;
   final String cookie;
   final List tags;
-  final List<AssetEntity> list;
+  final List<String> pathList;
+  final List<String> lastModifiedList;
   final Isolate isolate;
   final SendPort sendPort;
 
-  IsolatesArguments(this.id, this.csrf, this.cookie, this.tags, this.list,
-      this.isolate, this.sendPort);
+  UploadIsolateArguments(this.id, this.csrf, this.cookie, this.tags,
+      this.pathList, this.lastModifiedList, this.isolate, this.sendPort);
 }
 
-entryPoint(IsolatesArguments arguments) async {
-  print(arguments.list);
-  var asset = arguments.list[0];
-  print(asset.type);
-  var piv = asset.file;
-  arguments.list.removeAt(0);
-  File image = await piv;
+void entryPointer(UploadIsolateArguments arguments) async {
+  print('hello');
   var uri = Uri.parse('https://altocode.nl/picdev/piv');
   var request = http.MultipartRequest('POST', uri);
   request.headers['cookie'] = arguments.cookie;
   request.fields['id'] = arguments.id.toString();
   request.fields['csrf'] = arguments.csrf;
   request.fields['tags'] = arguments.tags.toString();
-  request.fields['lastModified'] =
-      asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-  request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+  request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
+  request.files.add(await http.MultipartFile.fromPath(
+      'piv', arguments.pathList[0].toString()));
   var response = await request.send();
   final respStr = await response.stream.bytesToString();
   print(respStr);
   print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-  if (Platform.isIOS) {
-    image.delete();
-    PhotoManager.clearFileCache();
-  } else {
-    PhotoManager.clearFileCache();
-  }
-  return true;
+  arguments.sendPort
+      .send('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
 }
 
-//Bottom Row
 class BottomRow extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
 
@@ -359,21 +391,42 @@ class _BottomRowState extends State<BottomRow> {
   int _id;
   List _tags;
   List<AssetEntity> _list;
+  List<String> _pathList = [];
+  List<String> _lastModifiedList = [];
   Isolate _isolate;
+
   // BuildContext _context;
   final ReceivePort _receivePort = ReceivePort();
   StreamSubscription _subscription;
 
-  theFunction(int id, String csrf, String cookie, List tags,
+  // theFunction(int id, String csrf, String cookie, List tags,
+  //     List<AssetEntity> list) async {
+  //   try {
+  //     if (_isolate != null) {
+  //       _isolate.kill();
+  //     }
+  //     _isolate = await Isolate.spawn<IsolatesArguments>(
+  //         entryPoint,
+  //         IsolatesArguments(_id, _csrf, _cookie, _tags, _list, _isolate,
+  //             _receivePort.sendPort));
+  //   } on IsolateSpawnException catch (e) {
+  //     print(e);
+  //   }
+  // }
+
+  startTheProcess(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
+    await UploadService.instance.pathAndDate(_list);
+    _pathList = List.from(UploadService.instance.pathList);
+    _lastModifiedList = List.from(UploadService.instance.lastModifiedList);
     try {
-      if (_isolate != null) {
-        _isolate.kill();
-      }
-      _isolate = await Isolate.spawn<IsolatesArguments>(
-          entryPoint,
-          IsolatesArguments(_id, _csrf, _cookie, _tags, _list, _isolate,
-              _receivePort.sendPort));
+      // if (_isolate != null) {
+      //   _isolate.kill();
+      // }
+      _isolate = await Isolate.spawn<UploadIsolateArguments>(
+          entryPointer,
+          UploadIsolateArguments(_id, _csrf, _cookie, _tags, _pathList,
+              _lastModifiedList, _isolate, _receivePort.sendPort));
     } on IsolateSpawnException catch (e) {
       print(e);
     }
@@ -601,7 +654,9 @@ class _BottomRowState extends State<BottomRow> {
                           _id = int.parse(value);
                           print('id is $_id');
                           _tags = ['"' + _model + '"'];
-                          theFunction(_id, _csrf, _cookie, _tags, _list);
+                          startTheProcess(_id, _csrf, _cookie, _tags, _list);
+                          // UploadService.instance.pathAndDate(_list);
+                          // theFunction(_id, _csrf, _cookie, _tags, _list);
 
                           // UploadService.instance.uploadMain(
                           //     context,
