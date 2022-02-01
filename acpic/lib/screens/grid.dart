@@ -1,6 +1,10 @@
 // IMPORT FLUTTER PACKAGES
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
@@ -23,6 +27,12 @@ import 'package:acpic/services/uploadService.dart';
 class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
   List<AssetEntity> uploadList;
+
+  bool isDataForIsolateDone = false;
+  void dataForIsolateDoneLoading(bool newValue) {
+    isDataForIsolateDone = newValue;
+    notifyListeners();
+  }
 
   int uploadProgress;
   void uploadProgressFunction(int newValue) {
@@ -299,65 +309,40 @@ class _TopRowState extends State<TopRow> {
   }
 }
 
-// class IsolatesArguments {
-//   final int id;
-//   final String csrf;
-//   final String cookie;
-//   final List tags;
-//   final List<AssetEntity> list;
-//   final Isolate isolate;
-//   final SendPort sendPort;
-//
-//   IsolatesArguments(this.id, this.csrf, this.cookie, this.tags, this.list,
-//       this.isolate, this.sendPort);
-// }
-// entryPoint(IsolatesArguments arguments) async {
-//   print(arguments.list);
-//   var asset = arguments.list[0];
-//   print(asset.type);
-//   var piv = asset.file;
-//   arguments.list.removeAt(0);
-//   File image = await piv;
-//   var uri = Uri.parse('https://altocode.nl/picdev/piv');
-//   var request = http.MultipartRequest('POST', uri);
-//   request.headers['cookie'] = arguments.cookie;
-//   request.fields['id'] = arguments.id.toString();
-//   request.fields['csrf'] = arguments.csrf;
-//   request.fields['tags'] = arguments.tags.toString();
-//   request.fields['lastModified'] =
-//       asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-//   request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-//   var response = await request.send();
-//   final respStr = await response.stream.bytesToString();
-//   print(respStr);
-//   print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-//   if (Platform.isIOS) {
-//     image.delete();
-//     PhotoManager.clearFileCache();
-//   } else {
-//     PhotoManager.clearFileCache();
-//   }
-//   return true;
-// }
-
-//Bottom Row
-
 class UploadIsolateArguments {
   final int id;
   final String csrf;
   final String cookie;
-  final List tags;
+  final List<String> tags;
   final List<String> pathList;
   final List<String> lastModifiedList;
+  final List<int> lengthList;
+  final List<String> bytesToStringList;
   final Isolate isolate;
   final SendPort sendPort;
 
-  UploadIsolateArguments(this.id, this.csrf, this.cookie, this.tags,
-      this.pathList, this.lastModifiedList, this.isolate, this.sendPort);
+  UploadIsolateArguments(
+      this.id,
+      this.csrf,
+      this.cookie,
+      this.tags,
+      this.pathList,
+      this.lastModifiedList,
+      this.lengthList,
+      this.bytesToStringList,
+      this.isolate,
+      this.sendPort);
 }
 
 void entryPointer(UploadIsolateArguments arguments) async {
-  print('hello');
+  // uploadOneIsolate() async {
+  // if (arguments.pathList.isEmpty) {
+  //   return false;
+  // }
+  var length = arguments.lengthList[0];
+  var stringToBytes =
+      Uint8List.fromList(arguments.bytesToStringList[0].codeUnits);
+  var newStream = http.ByteStream.fromBytes(stringToBytes);
   var uri = Uri.parse('https://altocode.nl/picdev/piv');
   var request = http.MultipartRequest('POST', uri);
   request.headers['cookie'] = arguments.cookie;
@@ -365,14 +350,26 @@ void entryPointer(UploadIsolateArguments arguments) async {
   request.fields['csrf'] = arguments.csrf;
   request.fields['tags'] = arguments.tags.toString();
   request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
-  request.files.add(await http.MultipartFile.fromPath(
-      'piv', arguments.pathList[0].toString()));
+
+  var upiv = http.MultipartFile('piv', newStream, length,
+      filename: arguments.pathList[0]);
+  request.files.add(upiv);
+  // request.files.add(await http.MultipartFile.fromPath(
+  //     'piv', arguments.pathList[0].toString()));
+  arguments.pathList.removeAt(0);
+  arguments.lastModifiedList.removeAt(0);
+  arguments.lengthList.removeAt(0);
+  arguments.bytesToStringList.removeAt(0);
   var response = await request.send();
   final respStr = await response.stream.bytesToString();
   print(respStr);
   print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
   arguments.sendPort
       .send('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+  //   return true;
+  // }
+  //
+  // Future.doWhile(uploadOneIsolate);
 }
 
 class BottomRow extends StatefulWidget {
@@ -389,47 +386,47 @@ class _BottomRowState extends State<BottomRow> {
   String _csrf;
   String _model;
   int _id;
-  List _tags;
+  List<String> _tags;
   List<AssetEntity> _list;
   List<String> _pathList = [];
   List<String> _lastModifiedList = [];
+  List<int> _lengthList = [];
+  List<String> _bytesToStringList = [];
   Isolate _isolate;
 
   // BuildContext _context;
   final ReceivePort _receivePort = ReceivePort();
   StreamSubscription _subscription;
 
-  // theFunction(int id, String csrf, String cookie, List tags,
-  //     List<AssetEntity> list) async {
-  //   try {
-  //     if (_isolate != null) {
-  //       _isolate.kill();
-  //     }
-  //     _isolate = await Isolate.spawn<IsolatesArguments>(
-  //         entryPoint,
-  //         IsolatesArguments(_id, _csrf, _cookie, _tags, _list, _isolate,
-  //             _receivePort.sendPort));
-  //   } on IsolateSpawnException catch (e) {
-  //     print(e);
-  //   }
-  // }
-
   startTheProcess(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
-    await UploadService.instance.pathAndDate(_list);
+    await UploadService.instance.uploadDataForIsolate(context, _list);
+
     _pathList = List.from(UploadService.instance.pathList);
     _lastModifiedList = List.from(UploadService.instance.lastModifiedList);
-    try {
-      // if (_isolate != null) {
-      //   _isolate.kill();
-      // }
-      _isolate = await Isolate.spawn<UploadIsolateArguments>(
-          entryPointer,
-          UploadIsolateArguments(_id, _csrf, _cookie, _tags, _pathList,
-              _lastModifiedList, _isolate, _receivePort.sendPort));
-    } on IsolateSpawnException catch (e) {
-      print(e);
-    }
+    _lengthList = List.from(UploadService.instance.lengthList);
+    _bytesToStringList = List.from(UploadService.instance.bytesToStringList);
+
+    // try {
+    //   if (_isolate != null) {
+    //     _isolate.kill();
+    //   }
+    //   _isolate = await Isolate.spawn<UploadIsolateArguments>(
+    //       entryPointer,
+    //       UploadIsolateArguments(
+    //           _id,
+    //           _csrf,
+    //           _cookie,
+    //           _tags,
+    //           _pathList,
+    //           _lastModifiedList,
+    //           _lengthList,
+    //           _bytesToStringList,
+    //           _isolate,
+    //           _receivePort.sendPort));
+    // } on IsolateSpawnException catch (e) {
+    //   print(e);
+    // }
   }
 
   @override
@@ -605,7 +602,6 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //--------- UPLOAD PROCESSES STARTS ---------
-
                     // --- UPLOAD LIST BECOMES SELECTED ITEMS LIST ---
                     Provider.of<ProviderController>(context, listen: false)
                         .uploadList = List.from(Provider.of<ProviderController>(
@@ -655,15 +651,12 @@ class _BottomRowState extends State<BottomRow> {
                           print('id is $_id');
                           _tags = ['"' + _model + '"'];
                           startTheProcess(_id, _csrf, _cookie, _tags, _list);
-                          // UploadService.instance.pathAndDate(_list);
-                          // theFunction(_id, _csrf, _cookie, _tags, _list);
-
                           // UploadService.instance.uploadMain(
                           //     context,
-                          //     id,
-                          //     csrf,
-                          //     cookie,
-                          //     ['"' + model + '"'],
+                          //     _id,
+                          //     _csrf,
+                          //     _cookie,
+                          //     ['"' + _model + '"'],
                           //     Provider.of<ProviderController>(context,
                           //             listen: false)
                           //         .uploadList);

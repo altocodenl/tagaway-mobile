@@ -1,5 +1,6 @@
 // IMPORT FLUTTER PACKAGES
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:core';
@@ -18,6 +19,8 @@ class UploadService {
   static final UploadService instance = UploadService._privateConstructor();
   List<String> pathList = [];
   List<String> lastModifiedList = [];
+  List<int> lengthList = [];
+  List<String> bytesToStringList = [];
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -175,7 +178,6 @@ class UploadService {
                       .selectedItems
                       .length -
                   list.length);
-
       File image = await piv;
       var uri = Uri.parse('https://altocode.nl/picdev/piv');
       var request = http.MultipartRequest('POST', uri);
@@ -238,16 +240,29 @@ class UploadService {
     Future.doWhile(uploadOne);
   }
 
-  Future pathAndDate(List<AssetEntity> list) async {
+  Future uploadDataForIsolate(
+      BuildContext context, List<AssetEntity> list) async {
+    // dataOfOne() async {
+    //   if (list.isEmpty) {
+    //     print('Done going through list');
+    //     Provider.of<ProviderController>(context, listen: false)
+    //         .dataForIsolateDoneLoading(true);
+    //     return false;
+    //   }
     var asset = list[0];
     var piv = asset.file;
     File image = await piv;
     String path = image.path;
-    // print(path);
     String lastModified =
         asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+    int length = await image.length();
+    var stream = new http.ByteStream(image.openRead());
+    var streamToBytes = await stream.toBytes();
+    String imageBytesToString = String.fromCharCodes(streamToBytes);
     pathList.insert(0, path);
     lastModifiedList.insert(0, lastModified);
+    lengthList.insert(0, length);
+    bytesToStringList.insert(0, imageBytesToString);
     list.removeAt(0);
     if (Platform.isIOS) {
       image.delete();
@@ -255,8 +270,9 @@ class UploadService {
     } else {
       PhotoManager.clearFileCache();
     }
-    // print('list is $list');
-    // print('pathList is $pathList');
-    // print('lastModifiedList is $lastModifiedList');
+    //   return true;
+    // }
+    //
+    // Future.doWhile(dataOfOne);
   }
 }
