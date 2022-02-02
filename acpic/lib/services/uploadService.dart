@@ -242,37 +242,46 @@ class UploadService {
 
   Future uploadDataForIsolate(
       BuildContext context, List<AssetEntity> list) async {
-    // dataOfOne() async {
-    //   if (list.isEmpty) {
-    //     print('Done going through list');
-    //     Provider.of<ProviderController>(context, listen: false)
-    //         .dataForIsolateDoneLoading(true);
-    //     return false;
-    //   }
-    var asset = list[0];
-    var piv = asset.file;
-    File image = await piv;
-    String path = image.path;
-    String lastModified =
-        asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-    int length = await image.length();
-    var stream = new http.ByteStream(image.openRead());
-    var streamToBytes = await stream.toBytes();
-    String imageBytesToString = String.fromCharCodes(streamToBytes);
-    pathList.insert(0, path);
-    lastModifiedList.insert(0, lastModified);
-    lengthList.insert(0, length);
-    bytesToStringList.insert(0, imageBytesToString);
-    list.removeAt(0);
-    if (Platform.isIOS) {
-      image.delete();
-      PhotoManager.clearFileCache();
-    } else {
-      PhotoManager.clearFileCache();
+    print('Start data processing at ' + DateTime.now().toString());
+    dataOfOne() async {
+      if (list.isEmpty) {
+        print('Done processing at ' + DateTime.now().toString());
+        return false;
+      }
+      var asset = list[0];
+      var piv = asset.file;
+      File image = await piv;
+      String path = image.path;
+      String lastModified =
+          asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+      // int length = await image.length();
+      // var stream = new http.ByteStream(image.openRead());
+      // var streamToBytes = await stream.toBytes();
+      // String imageBytesToString = String.fromCharCodes(streamToBytes);
+      pathList.insert(0, path);
+      lastModifiedList.insert(0, lastModified);
+      // lengthList.insert(0, length);
+      // bytesToStringList.insert(0, imageBytesToString);
+      list.removeAt(0);
+      Provider.of<ProviderController>(context, listen: false)
+          .uploadProgressFunction(
+              Provider.of<ProviderController>(context, listen: false)
+                      .uploadList
+                      .length -
+                  list.length);
+      if (Platform.isIOS) {
+        image.delete();
+        PhotoManager.clearFileCache();
+      } else {
+        PhotoManager.clearFileCache();
+      }
+      print('processed ' +
+          pathList.length.toString() +
+          ' at ' +
+          DateTime.now().toString());
+      return true;
     }
-    //   return true;
-    // }
-    //
-    // Future.doWhile(dataOfOne);
+
+    Future.doWhile(dataOfOne);
   }
 }

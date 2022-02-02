@@ -28,12 +28,6 @@ class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
   List<AssetEntity> uploadList;
 
-  bool isDataForIsolateDone = false;
-  void dataForIsolateDoneLoading(bool newValue) {
-    isDataForIsolateDone = newValue;
-    notifyListeners();
-  }
-
   int uploadProgress;
   void uploadProgressFunction(int newValue) {
     uploadProgress = newValue;
@@ -335,41 +329,45 @@ class UploadIsolateArguments {
 }
 
 void entryPointer(UploadIsolateArguments arguments) async {
-  // uploadOneIsolate() async {
-  // if (arguments.pathList.isEmpty) {
-  //   return false;
-  // }
-  var length = arguments.lengthList[0];
-  var stringToBytes =
-      Uint8List.fromList(arguments.bytesToStringList[0].codeUnits);
-  var newStream = http.ByteStream.fromBytes(stringToBytes);
-  var uri = Uri.parse('https://altocode.nl/picdev/piv');
-  var request = http.MultipartRequest('POST', uri);
-  request.headers['cookie'] = arguments.cookie;
-  request.fields['id'] = arguments.id.toString();
-  request.fields['csrf'] = arguments.csrf;
-  request.fields['tags'] = arguments.tags.toString();
-  request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
+  print('Start uploading at ' + DateTime.now().toString());
+  uploadOneIsolate() async {
+    if (arguments.pathList.isEmpty) {
+      arguments.sendPort.send('done');
+      return false;
+    }
+    var length = arguments.lengthList[0];
+    var stringToBytes =
+        Uint8List.fromList(arguments.bytesToStringList[0].codeUnits);
+    var newStream = http.ByteStream.fromBytes(stringToBytes);
+    var uri = Uri.parse('https://altocode.nl/picdev/piv');
+    var request = http.MultipartRequest('POST', uri);
+    request.headers['cookie'] = arguments.cookie;
+    request.fields['id'] = arguments.id.toString();
+    request.fields['csrf'] = arguments.csrf;
+    request.fields['tags'] = arguments.tags.toString();
+    request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
+    var upiv = http.MultipartFile('piv', newStream, length,
+        filename: arguments.pathList[0]);
+    request.files.add(upiv);
+    // request.files.add(await http.MultipartFile.fromPath(
+    //     'piv', arguments.pathList[0].toString()));
 
-  var upiv = http.MultipartFile('piv', newStream, length,
-      filename: arguments.pathList[0]);
-  request.files.add(upiv);
-  // request.files.add(await http.MultipartFile.fromPath(
-  //     'piv', arguments.pathList[0].toString()));
-  arguments.pathList.removeAt(0);
-  arguments.lastModifiedList.removeAt(0);
-  arguments.lengthList.removeAt(0);
-  arguments.bytesToStringList.removeAt(0);
-  var response = await request.send();
-  final respStr = await response.stream.bytesToString();
-  print(respStr);
-  print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-  arguments.sendPort
-      .send('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-  //   return true;
-  // }
-  //
-  // Future.doWhile(uploadOneIsolate);
+    arguments.pathList.removeAt(0);
+    arguments.lastModifiedList.removeAt(0);
+    arguments.lengthList.removeAt(0);
+    arguments.bytesToStringList.removeAt(0);
+    var response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    print(respStr);
+    print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    // arguments.sendPort.send(
+    //     'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    print('arguments.pathList.length ${arguments.pathList.length} at ' +
+        DateTime.now().toString());
+    return true;
+  }
+
+  Future.doWhile(uploadOneIsolate);
 }
 
 class BottomRow extends StatefulWidget {
@@ -401,12 +399,17 @@ class _BottomRowState extends State<BottomRow> {
   startTheProcess(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
     await UploadService.instance.uploadDataForIsolate(context, _list);
-
     _pathList = List.from(UploadService.instance.pathList);
     _lastModifiedList = List.from(UploadService.instance.lastModifiedList);
-    _lengthList = List.from(UploadService.instance.lengthList);
-    _bytesToStringList = List.from(UploadService.instance.bytesToStringList);
-
+    // _lengthList = List.from(UploadService.instance.lengthList);
+    // _bytesToStringList = List.from(UploadService.instance.bytesToStringList);
+    // await callTheIsolate();
+    // await for (dynamic message in _receivePort) {
+    //   if (message == 'done') {
+    //     _isolate.kill(priority: Isolate.immediate);
+    //     print('killed');
+    //   }
+    // }
     // try {
     //   if (_isolate != null) {
     //     _isolate.kill();
@@ -427,6 +430,29 @@ class _BottomRowState extends State<BottomRow> {
     // } on IsolateSpawnException catch (e) {
     //   print(e);
     // }
+  }
+
+  Future callTheIsolate() async {
+    try {
+      if (_isolate != null) {
+        _isolate.kill();
+      }
+      _isolate = await Isolate.spawn<UploadIsolateArguments>(
+          entryPointer,
+          UploadIsolateArguments(
+              _id,
+              _csrf,
+              _cookie,
+              _tags,
+              _pathList,
+              _lastModifiedList,
+              _lengthList,
+              _bytesToStringList,
+              _isolate,
+              _receivePort.sendPort));
+    } on IsolateSpawnException catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -455,9 +481,9 @@ class _BottomRowState extends State<BottomRow> {
             });
           });
     super.initState();
-    _subscription = _receivePort.listen((message) {
-      print('message $message');
-    });
+    // _subscription = _receivePort.listen((message) {
+    //   print('message $message');
+    // });
   }
 
   @override
