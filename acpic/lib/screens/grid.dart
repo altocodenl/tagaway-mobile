@@ -1,10 +1,8 @@
 // IMPORT FLUTTER PACKAGES
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
@@ -12,6 +10,7 @@ import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'dart:io';
 import 'dart:isolate';
+import 'package:flutter_isolate/flutter_isolate.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/cupertino_elements.dart';
 import 'package:acpic/ui_elements/android_elements.dart';
@@ -310,9 +309,10 @@ class UploadIsolateArguments {
   final List<String> tags;
   final List<String> pathList;
   final List<String> lastModifiedList;
+  final List<String> idList;
   final List<int> lengthList;
   final List<String> bytesToStringList;
-  final Isolate isolate;
+  // final Isolate isolate;
   final SendPort sendPort;
 
   UploadIsolateArguments(
@@ -322,48 +322,47 @@ class UploadIsolateArguments {
       this.tags,
       this.pathList,
       this.lastModifiedList,
+      this.idList,
       this.lengthList,
       this.bytesToStringList,
-      this.isolate,
+      // this.isolate,
       this.sendPort);
 }
 
 void entryPointer(UploadIsolateArguments arguments) async {
   print('Start uploading at ' + DateTime.now().toString());
   uploadOneIsolate() async {
-    if (arguments.pathList.isEmpty) {
+    if (arguments.idList.isEmpty) {
       arguments.sendPort.send('done');
       return false;
     }
-    var length = arguments.lengthList[0];
-    var stringToBytes =
-        Uint8List.fromList(arguments.bytesToStringList[0].codeUnits);
-    var newStream = http.ByteStream.fromBytes(stringToBytes);
-    var uri = Uri.parse('https://altocode.nl/picdev/piv');
-    var request = http.MultipartRequest('POST', uri);
-    request.headers['cookie'] = arguments.cookie;
-    request.fields['id'] = arguments.id.toString();
-    request.fields['csrf'] = arguments.csrf;
-    request.fields['tags'] = arguments.tags.toString();
-    request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
-    var upiv = http.MultipartFile('piv', newStream, length,
-        filename: arguments.pathList[0]);
-    request.files.add(upiv);
-    // request.files.add(await http.MultipartFile.fromPath(
-    //     'piv', arguments.pathList[0].toString()));
 
-    arguments.pathList.removeAt(0);
-    arguments.lastModifiedList.removeAt(0);
-    arguments.lengthList.removeAt(0);
-    arguments.bytesToStringList.removeAt(0);
-    var response = await request.send();
-    final respStr = await response.stream.bytesToString();
-    print(respStr);
-    print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-    // arguments.sendPort.send(
-    //     'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-    print('arguments.pathList.length ${arguments.pathList.length} at ' +
-        DateTime.now().toString());
+    // var asset = await AssetEntity.fromId(arguments.idList[0]);
+    // print(asset);
+    arguments.idList.remove(0);
+    // var piv = asset.file;
+    //
+    // File image = await piv;
+    // var uri = Uri.parse('https://altocode.nl/picdev/piv');
+    // var request = http.MultipartRequest('POST', uri);
+    // request.headers['cookie'] = arguments.cookie;
+    // request.fields['id'] = arguments.id.toString();
+    // request.fields['csrf'] = arguments.csrf;
+    // request.fields['tags'] = arguments.tags.toString();
+    // request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
+    // // var upiv = http.MultipartFile('piv', newStream, length,
+    // //     filename: arguments.pathList[0]);
+    // // request.files.add(upiv);
+    // request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+    // arguments.idList.remove(0);
+    // arguments.lastModifiedList.removeAt(0);
+    // var response = await request.send();
+    // final respStr = await response.stream.bytesToString();
+    // print(respStr);
+    // print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    // // arguments.sendPort.send(
+    // //     'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+
     return true;
   }
 
@@ -388,6 +387,7 @@ class _BottomRowState extends State<BottomRow> {
   List<AssetEntity> _list;
   List<String> _pathList = [];
   List<String> _lastModifiedList = [];
+  List<String> _idList = [];
   List<int> _lengthList = [];
   List<String> _bytesToStringList = [];
   Isolate _isolate;
@@ -399,59 +399,30 @@ class _BottomRowState extends State<BottomRow> {
   startTheProcess(int id, String csrf, String cookie, List tags,
       List<AssetEntity> list) async {
     await UploadService.instance.uploadDataForIsolate(context, _list);
-    _pathList = List.from(UploadService.instance.pathList);
     _lastModifiedList = List.from(UploadService.instance.lastModifiedList);
-    // _lengthList = List.from(UploadService.instance.lengthList);
-    // _bytesToStringList = List.from(UploadService.instance.bytesToStringList);
-    // await callTheIsolate();
-    // await for (dynamic message in _receivePort) {
-    //   if (message == 'done') {
-    //     _isolate.kill(priority: Isolate.immediate);
-    //     print('killed');
-    //   }
-    // }
-    // try {
-    //   if (_isolate != null) {
-    //     _isolate.kill();
-    //   }
-    //   _isolate = await Isolate.spawn<UploadIsolateArguments>(
-    //       entryPointer,
-    //       UploadIsolateArguments(
-    //           _id,
-    //           _csrf,
-    //           _cookie,
-    //           _tags,
-    //           _pathList,
-    //           _lastModifiedList,
-    //           _lengthList,
-    //           _bytesToStringList,
-    //           _isolate,
-    //           _receivePort.sendPort));
-    // } on IsolateSpawnException catch (e) {
-    //   print(e);
-    // }
-  }
+    _idList = List.from(UploadService.instance.idList);
 
-  Future callTheIsolate() async {
-    try {
-      if (_isolate != null) {
-        _isolate.kill();
+    //FLUTTER ISOLATE DOES NOT ALLOW TO PASS OBJECT, BUT IT ALLOWS TO PASS PRIMITIVE. PROBABLY WITH ONLY ID LIST WOULD BE ENOUGH
+
+    final isolate = await FlutterIsolate.spawn<UploadIsolateArguments>(
+        entryPointer,
+        UploadIsolateArguments(
+            _id,
+            _csrf,
+            _cookie,
+            _tags,
+            _pathList,
+            _lastModifiedList,
+            _idList,
+            _lengthList,
+            _bytesToStringList,
+            // _isolate,
+            _receivePort.sendPort));
+    await for (dynamic message in _receivePort) {
+      if (message == 'done') {
+        isolate.kill();
+        print('killed');
       }
-      _isolate = await Isolate.spawn<UploadIsolateArguments>(
-          entryPointer,
-          UploadIsolateArguments(
-              _id,
-              _csrf,
-              _cookie,
-              _tags,
-              _pathList,
-              _lastModifiedList,
-              _lengthList,
-              _bytesToStringList,
-              _isolate,
-              _receivePort.sendPort));
-    } on IsolateSpawnException catch (e) {
-      print(e);
     }
   }
 

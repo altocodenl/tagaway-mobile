@@ -19,6 +19,7 @@ class UploadService {
   static final UploadService instance = UploadService._privateConstructor();
   List<String> pathList = [];
   List<String> lastModifiedList = [];
+  List<String> idList = [];
   List<int> lengthList = [];
   List<String> bytesToStringList = [];
 
@@ -249,19 +250,11 @@ class UploadService {
         return false;
       }
       var asset = list[0];
-      var piv = asset.file;
-      File image = await piv;
-      String path = image.path;
       String lastModified =
           asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-      // int length = await image.length();
-      // var stream = new http.ByteStream(image.openRead());
-      // var streamToBytes = await stream.toBytes();
-      // String imageBytesToString = String.fromCharCodes(streamToBytes);
-      pathList.insert(0, path);
       lastModifiedList.insert(0, lastModified);
-      // lengthList.insert(0, length);
-      // bytesToStringList.insert(0, imageBytesToString);
+      String id = asset.id;
+      idList.insert(0, id);
       list.removeAt(0);
       Provider.of<ProviderController>(context, listen: false)
           .uploadProgressFunction(
@@ -270,18 +263,18 @@ class UploadService {
                       .length -
                   list.length);
       if (Platform.isIOS) {
-        image.delete();
+        // image.delete();
         PhotoManager.clearFileCache();
       } else {
         PhotoManager.clearFileCache();
       }
       print('processed ' +
-          pathList.length.toString() +
+          lastModifiedList.length.toString() +
           ' at ' +
           DateTime.now().toString());
       return true;
     }
 
-    Future.doWhile(dataOfOne);
+    await Future.doWhile(dataOfOne);
   }
 }
