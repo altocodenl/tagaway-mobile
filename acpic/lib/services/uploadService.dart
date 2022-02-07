@@ -17,11 +17,7 @@ import 'package:acpic/ui_elements/material_elements.dart';
 class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
-  List<String> pathList = [];
-  List<String> lastModifiedList = [];
   List<String> idList = [];
-  List<int> lengthList = [];
-  List<String> bytesToStringList = [];
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -243,35 +239,22 @@ class UploadService {
 
   Future uploadDataForIsolate(
       BuildContext context, List<AssetEntity> list) async {
-    print('Start data processing at ' + DateTime.now().toString());
     dataOfOne() async {
       if (list.isEmpty) {
-        print('Done processing at ' + DateTime.now().toString());
+        print('In uploadDataForIsolate the list is ${idList.length}');
         return false;
       }
       var asset = list[0];
-      String lastModified =
-          asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-      lastModifiedList.insert(0, lastModified);
       String id = asset.id;
-      idList.insert(0, id);
+      idList.add(id);
+      // idList.insert(0, id);
       list.removeAt(0);
-      Provider.of<ProviderController>(context, listen: false)
-          .uploadProgressFunction(
-              Provider.of<ProviderController>(context, listen: false)
-                      .uploadList
-                      .length -
-                  list.length);
-      if (Platform.isIOS) {
-        // image.delete();
-        PhotoManager.clearFileCache();
-      } else {
-        PhotoManager.clearFileCache();
-      }
-      print('processed ' +
-          lastModifiedList.length.toString() +
-          ' at ' +
-          DateTime.now().toString());
+      // Provider.of<ProviderController>(context, listen: false)
+      //     .uploadProgressFunction(
+      //         Provider.of<ProviderController>(context, listen: false)
+      //                 .uploadList
+      //                 .length -
+      //             list.length);
       return true;
     }
 

@@ -302,71 +302,73 @@ class _TopRowState extends State<TopRow> {
   }
 }
 
-class UploadIsolateArguments {
-  final int id;
-  final String csrf;
-  final String cookie;
-  final List<String> tags;
-  final List<String> pathList;
-  final List<String> lastModifiedList;
-  final List<String> idList;
-  final List<int> lengthList;
-  final List<String> bytesToStringList;
-  // final Isolate isolate;
-  final SendPort sendPort;
+// class UploadIsolateArguments {
+//   final int id;
+//   final String csrf;
+//   final String cookie;
+//   final List<String> tags;
+//   final List<String> pathList;
+//   final List<String> lastModifiedList;
+//   final List<String> idList;
+//   final List<int> lengthList;
+//   final List<String> bytesToStringList;
+//   // final Isolate isolate;
+//   final SendPort sendPort;
+//
+//   UploadIsolateArguments(
+//       this.id,
+//       this.csrf,
+//       this.cookie,
+//       this.tags,
+//       this.pathList,
+//       this.lastModifiedList,
+//       this.idList,
+//       this.lengthList,
+//       this.bytesToStringList,
+//       // this.isolate,
+//       this.sendPort);
+// }
 
-  UploadIsolateArguments(
-      this.id,
-      this.csrf,
-      this.cookie,
-      this.tags,
-      this.pathList,
-      this.lastModifiedList,
-      this.idList,
-      this.lengthList,
-      this.bytesToStringList,
-      // this.isolate,
-      this.sendPort);
-}
-
-void entryPointer(UploadIsolateArguments arguments) async {
+void entryPointer(List<Object> arguments) async {
   print('Start uploading at ' + DateTime.now().toString());
   uploadOneIsolate() async {
-    if (arguments.idList.isEmpty) {
-      arguments.sendPort.send('done');
+    List idList = arguments[0];
+    if (idList.isEmpty) {
+      SendPort sendPort = arguments[5];
+      sendPort.send('done');
+      print('done');
       return false;
     }
-
-    // var asset = await AssetEntity.fromId(arguments.idList[0]);
-    // print(asset);
-    arguments.idList.remove(0);
-    // var piv = asset.file;
-    //
-    // File image = await piv;
-    // var uri = Uri.parse('https://altocode.nl/picdev/piv');
-    // var request = http.MultipartRequest('POST', uri);
-    // request.headers['cookie'] = arguments.cookie;
-    // request.fields['id'] = arguments.id.toString();
-    // request.fields['csrf'] = arguments.csrf;
-    // request.fields['tags'] = arguments.tags.toString();
-    // request.fields['lastModified'] = arguments.lastModifiedList[0].toString();
-    // // var upiv = http.MultipartFile('piv', newStream, length,
-    // //     filename: arguments.pathList[0]);
-    // // request.files.add(upiv);
-    // request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-    // arguments.idList.remove(0);
-    // arguments.lastModifiedList.removeAt(0);
-    // var response = await request.send();
-    // final respStr = await response.stream.bytesToString();
-    // print(respStr);
-    // print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-    // // arguments.sendPort.send(
-    // //     'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-
+    PhotoManager.setIgnorePermissionCheck(true);
+    var asset = await AssetEntity.fromId(idList[0]);
+    var piv = asset.file;
+    File image = await piv;
+    var uri = Uri.parse('https://altocode.nl/picdev/piv');
+    var request = http.MultipartRequest('POST', uri);
+    request.headers['cookie'] = arguments[1];
+    request.fields['id'] = arguments[2].toString();
+    request.fields['csrf'] = arguments[3];
+    request.fields['tags'] = arguments[4].toString();
+    request.fields['lastModified'] =
+        asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+    request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+    idList.removeAt(0);
+    var response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    print(respStr);
+    print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    // arguments.sendPort.send(
+    //     'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    if (Platform.isIOS) {
+      image.delete();
+      PhotoManager.clearFileCache();
+    } else {
+      PhotoManager.clearFileCache();
+    }
     return true;
   }
 
-  Future.doWhile(uploadOneIsolate);
+  await Future.doWhile(uploadOneIsolate);
 }
 
 class BottomRow extends StatefulWidget {
@@ -385,45 +387,28 @@ class _BottomRowState extends State<BottomRow> {
   int _id;
   List<String> _tags;
   List<AssetEntity> _list;
-  List<String> _pathList = [];
-  List<String> _lastModifiedList = [];
   List<String> _idList = [];
-  List<int> _lengthList = [];
-  List<String> _bytesToStringList = [];
   Isolate _isolate;
-
-  // BuildContext _context;
-  final ReceivePort _receivePort = ReceivePort();
+  // final ReceivePort _receivePort = ReceivePort();
   StreamSubscription _subscription;
 
-  startTheProcess(int id, String csrf, String cookie, List tags,
-      List<AssetEntity> list) async {
+  startTheProcess(List<AssetEntity> list) async {
     await UploadService.instance.uploadDataForIsolate(context, _list);
-    _lastModifiedList = List.from(UploadService.instance.lastModifiedList);
     _idList = List.from(UploadService.instance.idList);
-
-    //FLUTTER ISOLATE DOES NOT ALLOW TO PASS OBJECT, BUT IT ALLOWS TO PASS PRIMITIVE. PROBABLY WITH ONLY ID LIST WOULD BE ENOUGH
-
-    final isolate = await FlutterIsolate.spawn<UploadIsolateArguments>(
-        entryPointer,
-        UploadIsolateArguments(
-            _id,
-            _csrf,
-            _cookie,
-            _tags,
-            _pathList,
-            _lastModifiedList,
-            _idList,
-            _lengthList,
-            _bytesToStringList,
-            // _isolate,
-            _receivePort.sendPort));
-    await for (dynamic message in _receivePort) {
+    var receivePort = ReceivePort();
+    final isolate = await FlutterIsolate.spawn(entryPointer,
+        [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
+    receivePort.listen((message) {
       if (message == 'done') {
+        receivePort.close();
         isolate.kill();
-        print('killed');
+        UploadService.instance.idList.clear();
+        _idList.clear();
+        print('Isolate killed');
+        UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
+        // UploadService.instance.uiReset(context);
       }
-    }
+    });
   }
 
   @override
@@ -647,7 +632,7 @@ class _BottomRowState extends State<BottomRow> {
                           _id = int.parse(value);
                           print('id is $_id');
                           _tags = ['"' + _model + '"'];
-                          startTheProcess(_id, _csrf, _cookie, _tags, _list);
+                          startTheProcess(_list);
                           // UploadService.instance.uploadMain(
                           //     context,
                           //     _id,
