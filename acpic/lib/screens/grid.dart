@@ -307,38 +307,25 @@ class _TopRowState extends State<TopRow> {
 //   final String csrf;
 //   final String cookie;
 //   final List<String> tags;
-//   final List<String> pathList;
-//   final List<String> lastModifiedList;
 //   final List<String> idList;
-//   final List<int> lengthList;
-//   final List<String> bytesToStringList;
-//   // final Isolate isolate;
+//   final Isolate isolate;
 //   final SendPort sendPort;
 //
-//   UploadIsolateArguments(
-//       this.id,
-//       this.csrf,
-//       this.cookie,
-//       this.tags,
-//       this.pathList,
-//       this.lastModifiedList,
-//       this.idList,
-//       this.lengthList,
-//       this.bytesToStringList,
-//       // this.isolate,
-//       this.sendPort);
+//   UploadIsolateArguments(this.id, this.csrf, this.cookie, this.tags,
+//       this.idList, this.isolate, this.sendPort);
 // }
 
-void entryPointer(List<Object> arguments) async {
+void isolateUpload(List<Object> arguments) async {
   print('Start uploading at ' + DateTime.now().toString());
+  SendPort sendPort = arguments[5];
   uploadOneIsolate() async {
     List idList = arguments[0];
     if (idList.isEmpty) {
-      SendPort sendPort = arguments[5];
       sendPort.send('done');
       print('done');
       return false;
     }
+
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
     var piv = asset.file;
@@ -357,14 +344,14 @@ void entryPointer(List<Object> arguments) async {
     final respStr = await response.stream.bytesToString();
     print(respStr);
     print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-    // arguments.sendPort.send(
-    //     'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+
     if (Platform.isIOS) {
       image.delete();
       PhotoManager.clearFileCache();
     } else {
       PhotoManager.clearFileCache();
     }
+    sendPort.send(idList.length);
     return true;
   }
 
@@ -387,16 +374,14 @@ class _BottomRowState extends State<BottomRow> {
   int _id;
   List<String> _tags;
   List<AssetEntity> _list;
-  List<String> _idList = [];
-  Isolate _isolate;
-  // final ReceivePort _receivePort = ReceivePort();
-  StreamSubscription _subscription;
+  List<String> _idList;
+  FlutterIsolate isolate;
 
-  startTheProcess(List<AssetEntity> list) async {
-    await UploadService.instance.uploadDataForIsolate(context, _list);
+  isolateCall(List<AssetEntity> list) async {
+    await UploadService.instance.uploadIDListing(context, _list);
     _idList = List.from(UploadService.instance.idList);
     var receivePort = ReceivePort();
-    final isolate = await FlutterIsolate.spawn(entryPointer,
+    isolate = await FlutterIsolate.spawn(isolateUpload,
         [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
     receivePort.listen((message) {
       if (message == 'done') {
@@ -406,7 +391,14 @@ class _BottomRowState extends State<BottomRow> {
         _idList.clear();
         print('Isolate killed');
         UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
-        // UploadService.instance.uiReset(context);
+        UploadService.instance.uiReset(context);
+      } else {
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadProgressFunction(
+                Provider.of<ProviderController>(context, listen: false)
+                        .uploadList
+                        .length -
+                    message);
       }
     });
   }
@@ -437,16 +429,6 @@ class _BottomRowState extends State<BottomRow> {
             });
           });
     super.initState();
-    // _subscription = _receivePort.listen((message) {
-    //   print('message $message');
-    // });
-  }
-
-  @override
-  void dispose() {
-    _isolate.kill();
-    _subscription.cancel();
-    super.dispose();
   }
 
   @override
@@ -554,17 +536,17 @@ class _BottomRowState extends State<BottomRow> {
                                 false
                             ? Row(
                                 children: [
-                                  Text('Uploading ', style: kGridBottomRowText),
+                                  // Text('Uploading ', style: kGridBottomRowText),
                                   Text(
                                       Provider.of<ProviderController>(context,
                                                       listen: false)
                                                   .uploadProgress ==
                                               null
-                                          ? '0 of '
-                                          : '${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ',
+                                          ? 'Preparing your files...'
+                                          : 'Uploading ${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ${snapshot.data} files...',
                                       style: kGridBottomRowText),
-                                  Text('${snapshot.data} files...',
-                                      style: kGridBottomRowText),
+                                  // Text('${snapshot.data} files...',
+                                  //     style: kGridBottomRowText),
                                 ],
                               )
                             : Text('Uploading paused. Check connection.',
@@ -632,7 +614,7 @@ class _BottomRowState extends State<BottomRow> {
                           _id = int.parse(value);
                           print('id is $_id');
                           _tags = ['"' + _model + '"'];
-                          startTheProcess(_list);
+                          isolateCall(_list);
                           // UploadService.instance.uploadMain(
                           //     context,
                           //     _id,

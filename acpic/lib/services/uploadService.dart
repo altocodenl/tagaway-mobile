@@ -237,8 +237,7 @@ class UploadService {
     Future.doWhile(uploadOne);
   }
 
-  Future uploadDataForIsolate(
-      BuildContext context, List<AssetEntity> list) async {
+  Future uploadIDListing(BuildContext context, List<AssetEntity> list) async {
     dataOfOne() async {
       if (list.isEmpty) {
         print('In uploadDataForIsolate the list is ${idList.length}');
@@ -246,15 +245,9 @@ class UploadService {
       }
       var asset = list[0];
       String id = asset.id;
-      idList.add(id);
-      // idList.insert(0, id);
+      // idList.add(id);
+      idList.insert(0, id);
       list.removeAt(0);
-      // Provider.of<ProviderController>(context, listen: false)
-      //     .uploadProgressFunction(
-      //         Provider.of<ProviderController>(context, listen: false)
-      //                 .uploadList
-      //                 .length -
-      //             list.length);
       return true;
     }
 
