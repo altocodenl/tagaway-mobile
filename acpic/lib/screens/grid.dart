@@ -325,26 +325,65 @@ void isolateUpload(List<Object> arguments) async {
       print('done');
       return false;
     }
-
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
     var piv = asset.file;
     File image = await piv;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
     var request = http.MultipartRequest('POST', uri);
-    request.headers['cookie'] = arguments[1];
-    request.fields['id'] = arguments[2].toString();
-    request.fields['csrf'] = arguments[3];
-    request.fields['tags'] = arguments[4].toString();
-    request.fields['lastModified'] =
-        asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-    request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-    idList.removeAt(0);
-    var response = await request.send();
-    final respStr = await response.stream.bytesToString();
-    print(respStr);
-    print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    try {
+      request.headers['cookie'] = arguments[1];
+      request.fields['id'] = arguments[2].toString();
+      request.fields['csrf'] = arguments[3];
+      request.fields['tags'] = arguments[4].toString();
+      request.fields['lastModified'] =
+          asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+      request.files.add(await http.MultipartFile.fromPath('piv', image.path));
 
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      print(respStr);
+      print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+    } on SocketException catch (_) {
+      idList.insert(0, idList[0]);
+      Timer onlineChecker;
+      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
+        uploadRetry() async {
+          final result = await InternetAddress.lookup('altocode.nl');
+          try {
+            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+              onlineChecker.cancel();
+              print('connected');
+              uploadOneIsolate();
+            }
+          } on SocketException catch (_) {
+            print('not connected');
+          }
+        }
+
+        uploadRetry();
+      });
+    } on Exception catch (_) {
+      idList.insert(0, idList[0]);
+      Timer onlineChecker;
+      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
+        uploadRetry() async {
+          final result = await InternetAddress.lookup('altocode.nl');
+          try {
+            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+              onlineChecker.cancel();
+              print('connected');
+              uploadOneIsolate();
+            }
+          } on SocketException catch (_) {
+            print('not connected');
+          }
+        }
+
+        uploadRetry();
+      });
+    }
+    idList.removeAt(0);
     if (Platform.isIOS) {
       image.delete();
       PhotoManager.clearFileCache();
