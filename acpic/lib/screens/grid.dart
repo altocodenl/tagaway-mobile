@@ -317,11 +317,13 @@ class _TopRowState extends State<TopRow> {
 
 void isolateUpload(List<Object> arguments) async {
   print('Start uploading at ' + DateTime.now().toString());
+  var client = http.Client();
   SendPort sendPort = arguments[5];
   uploadOneIsolate() async {
     List idList = arguments[0];
     if (idList.isEmpty) {
       sendPort.send('done');
+      client.close();
       print('done');
       return false;
     }
@@ -339,8 +341,7 @@ void isolateUpload(List<Object> arguments) async {
       request.fields['lastModified'] =
           asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-
-      var response = await request.send();
+      var response = await client.send(request);
       final respStr = await response.stream.bytesToString();
       print(respStr);
       print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
