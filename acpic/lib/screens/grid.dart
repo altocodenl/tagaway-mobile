@@ -1,10 +1,7 @@
 // IMPORT FLUTTER PACKAGES
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'dart:core';
 import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
@@ -25,9 +22,8 @@ import 'package:acpic/services/uploadService.dart';
 
 class ProviderController extends ChangeNotifier {
   List<AssetEntity> selectedItems;
-  List<AssetEntity> uploadList;
 
-  int uploadProgress;
+  int uploadProgress = 0;
   void uploadProgressFunction(int newValue) {
     uploadProgress = newValue;
     notifyListeners();
@@ -165,16 +161,6 @@ class _GridState extends State<Grid> {
     setState(() => itemList = recentAssets);
   }
 
-  feedSelectedListProvider() {
-    Provider.of<ProviderController>(context, listen: false).selectedItems =
-        List.from(selectedList);
-  }
-
-  selectedListStreamSink() {
-    widget.selectedListLengthStreamController.sink.add(selectedList.length);
-    feedSelectedListProvider();
-  }
-
   selectAll() {
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       selectedList = List.from(itemList);
@@ -185,6 +171,18 @@ class _GridState extends State<Grid> {
       selectedList.clear();
       selectedListStreamSink();
     }
+  }
+
+  // --- Copy the contents of selectedList to the Provider List selectedList ---
+  feedSelectedListProvider() {
+    Provider.of<ProviderController>(context, listen: false).selectedItems =
+        List.from(selectedList);
+  }
+
+  // --- Add the selectedList length to the Broadcast Stream ---
+  selectedListStreamSink() {
+    widget.selectedListLengthStreamController.sink.add(selectedList.length);
+    feedSelectedListProvider();
   }
 
   @override
@@ -210,6 +208,7 @@ class _GridState extends State<Grid> {
                   itemCount: itemList.length,
                   key: ValueKey<Object>(providerData),
                   itemBuilder: (BuildContext context, index) {
+                    // --- Upon change of the key GridItem gets redrawn. selectAll is called to check if the bool 'all' has been called to fill or clear selectedList ---
                     selectAll();
                     return GridItem(
                       item: itemList[index],
@@ -302,102 +301,6 @@ class _TopRowState extends State<TopRow> {
   }
 }
 
-// class UploadIsolateArguments {
-//   final int id;
-//   final String csrf;
-//   final String cookie;
-//   final List<String> tags;
-//   final List<String> idList;
-//   final Isolate isolate;
-//   final SendPort sendPort;
-//
-//   UploadIsolateArguments(this.id, this.csrf, this.cookie, this.tags,
-//       this.idList, this.isolate, this.sendPort);
-// }
-
-void isolateUpload(List<Object> arguments) async {
-  print('Start uploading at ' + DateTime.now().toString());
-  var client = http.Client();
-  SendPort sendPort = arguments[5];
-  uploadOneIsolate() async {
-    List idList = arguments[0];
-    if (idList.isEmpty) {
-      sendPort.send('done');
-      client.close();
-      print('done');
-      return false;
-    }
-    PhotoManager.setIgnorePermissionCheck(true);
-    var asset = await AssetEntity.fromId(idList[0]);
-    var piv = asset.file;
-    File image = await piv;
-    var uri = Uri.parse('https://altocode.nl/picdev/piv');
-    var request = http.MultipartRequest('POST', uri);
-    try {
-      request.headers['cookie'] = arguments[1];
-      request.fields['id'] = arguments[2].toString();
-      request.fields['csrf'] = arguments[3];
-      request.fields['tags'] = arguments[4].toString();
-      request.fields['lastModified'] =
-          asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-      request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-      var response = await client.send(request);
-      final respStr = await response.stream.bytesToString();
-      print(respStr);
-      print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-    } on SocketException catch (_) {
-      idList.insert(0, idList[0]);
-      Timer onlineChecker;
-      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-        uploadRetry() async {
-          final result = await InternetAddress.lookup('altocode.nl');
-          try {
-            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-              onlineChecker.cancel();
-              print('connected');
-              uploadOneIsolate();
-            }
-          } on SocketException catch (_) {
-            print('not connected');
-          }
-        }
-
-        uploadRetry();
-      });
-    } on Exception catch (_) {
-      idList.insert(0, idList[0]);
-      Timer onlineChecker;
-      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-        uploadRetry() async {
-          final result = await InternetAddress.lookup('altocode.nl');
-          try {
-            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-              onlineChecker.cancel();
-              print('connected');
-              uploadOneIsolate();
-            }
-          } on SocketException catch (_) {
-            print('not connected');
-          }
-        }
-
-        uploadRetry();
-      });
-    }
-    idList.removeAt(0);
-    if (Platform.isIOS) {
-      image.delete();
-      PhotoManager.clearFileCache();
-    } else {
-      PhotoManager.clearFileCache();
-    }
-    sendPort.send(idList.length);
-    return true;
-  }
-
-  await Future.doWhile(uploadOneIsolate);
-}
-
 class BottomRow extends StatefulWidget {
   final StreamController<int> selectedListLengthStreamController;
 
@@ -436,7 +339,7 @@ class _BottomRowState extends State<BottomRow> {
         Provider.of<ProviderController>(context, listen: false)
             .uploadProgressFunction(
                 Provider.of<ProviderController>(context, listen: false)
-                        .uploadList
+                        .selectedItems
                         .length -
                     message);
       }
@@ -574,21 +477,14 @@ class _BottomRowState extends State<BottomRow> {
                         return Provider.of<ProviderController>(context)
                                     .isUploadingPaused ==
                                 false
-                            ? Row(
-                                children: [
-                                  // Text('Uploading ', style: kGridBottomRowText),
-                                  Text(
-                                      Provider.of<ProviderController>(context,
-                                                      listen: false)
-                                                  .uploadProgress ==
-                                              null
-                                          ? 'Preparing your files...'
-                                          : 'Uploading ${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ${snapshot.data} files...',
-                                      style: kGridBottomRowText),
-                                  // Text('${snapshot.data} files...',
-                                  //     style: kGridBottomRowText),
-                                ],
-                              )
+                            ? Text(
+                                Provider.of<ProviderController>(context,
+                                                listen: false)
+                                            .uploadProgress ==
+                                        0
+                                    ? 'Preparing your files...'
+                                    : 'Uploading ${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ${snapshot.data} files...',
+                                style: kGridBottomRowText)
                             : Text('Uploading paused. Check connection.',
                                 style: kGridBottomRowText);
                       })),
@@ -606,38 +502,27 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //--------- UPLOAD PROCESSES STARTS ---------
-                    // --- UPLOAD LIST BECOMES SELECTED ITEMS LIST ---
-                    Provider.of<ProviderController>(context, listen: false)
-                        .uploadList = List.from(Provider.of<ProviderController>(
-                            context,
-                            listen: false)
-                        .selectedItems);
                     // --- CHECK THAT SELECTED ITEMS IS NOT EMPTY  ---
                     if (Provider.of<ProviderController>(context, listen: false)
                             .selectedItems
                             .length >
                         0) {
-                      // --- SELECTED ITEMS BECOMES 'LIST' ---
-                      _list = Provider.of<ProviderController>(context,
+                      // --- SELECTED ITEMS BECOMES '_LIST' ---
+                      _list = List.from(Provider.of<ProviderController>(context,
                               listen: false)
-                          .selectedItems;
-                      // --- SNACK BAR ---
-                      SnackBarWithDismiss.buildSnackBar(context,
-                          'Your files will keep uploading as long as ac;pic is running in the background.');
+                          .selectedItems);
+                      // --- SNACK BAR (Background upload for Android as of now) ---
+                      if (Platform.isAndroid) {
+                        SnackBarWithDismiss.buildSnackBar(context,
+                            'Your files will keep uploading as long as ac;pic is running in the background.');
+                      }
                       // --- SWITCH UI TO UPLOADING VIEW ---
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
                       // --- UPLOAD START CALL ---
                       UploadService.instance
                           .uploadStart(
-                              'start',
-                              _csrf,
-                              [_model],
-                              _cookie,
-                              Provider.of<ProviderController>(context,
-                                      listen: false)
-                                  .uploadList
-                                  .length)
+                              'start', _csrf, [_model], _cookie, _list.length)
                           .then((value) {
                         // --- CHECK IS NOT OFFLINE ---
                         if (value == 'offline') {
@@ -684,7 +569,7 @@ class _BottomRowState extends State<BottomRow> {
                   onPressed: () {
                     //----- CANCEL UPLOAD PROCESS -----
                     Provider.of<ProviderController>(context, listen: false)
-                        .uploadList
+                        .selectedItems
                         .add(AssetEntity(
                             id: 00.toString(),
                             typeInt: 01,

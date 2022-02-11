@@ -27,5 +27,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// TODO 6: Add 'uploader' to the splash image.

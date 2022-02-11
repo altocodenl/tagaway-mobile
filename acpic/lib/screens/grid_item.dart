@@ -84,6 +84,7 @@ class _SelectedAssetState extends State<SelectedAsset>
 
   @override
   void initState() {
+    // --- If 'all' is true, all items are selected ---
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       isSelected = true;
     }
