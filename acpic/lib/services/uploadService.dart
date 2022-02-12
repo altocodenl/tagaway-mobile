@@ -42,6 +42,7 @@ class UploadService {
         return 'error';
       }
     } on SocketException catch (_) {
+      print('uploadStart returns offline');
       return 'offline';
     }
   }
@@ -236,7 +237,8 @@ class UploadService {
     Future.doWhile(uploadOne);
   }
 
-  Future uploadIDListing(BuildContext context, List<AssetEntity> list) async {
+  Future uploadIDListing(List<AssetEntity> list) async {
+    print('In uploadIDListing list length is ${list.length}');
     dataOfOne() async {
       if (list.isEmpty) {
         return false;
@@ -287,16 +289,20 @@ void isolateUpload(List<Object> arguments) async {
       print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
     } on SocketException catch (_) {
       idList.insert(0, idList[0]);
+      sendPort.send('offline');
       onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
         uploadRetry() async {
           final result = await InternetAddress.lookup('altocode.nl');
           try {
             if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
               onlineChecker.cancel();
+              sendPort.send('online');
               print('connected');
               uploadOneIsolate();
             }
           } on SocketException catch (_) {
+            print('not connected');
+          } on Exception catch (_) {
             print('not connected');
           }
         }
@@ -305,16 +311,20 @@ void isolateUpload(List<Object> arguments) async {
       });
     } on Exception catch (_) {
       idList.insert(0, idList[0]);
+      sendPort.send('offline');
       onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
         uploadRetry() async {
           final result = await InternetAddress.lookup('altocode.nl');
           try {
             if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
               onlineChecker.cancel();
+              sendPort.send('online');
               print('connected');
               uploadOneIsolate();
             }
           } on SocketException catch (_) {
+            print('not connected');
+          } on Exception catch (_) {
             print('not connected');
           }
         }

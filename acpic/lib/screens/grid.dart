@@ -321,7 +321,7 @@ class _BottomRowState extends State<BottomRow> {
   FlutterIsolate isolate;
 
   isolateCall(List<AssetEntity> list) async {
-    await UploadService.instance.uploadIDListing(context, _list);
+    await UploadService.instance.uploadIDListing(_list);
     _idList = List.from(UploadService.instance.idList);
     var receivePort = ReceivePort();
     isolate = await FlutterIsolate.spawn(isolateUpload,
@@ -335,6 +335,12 @@ class _BottomRowState extends State<BottomRow> {
         print('Isolate killed');
         UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
         UploadService.instance.uiReset(context);
+      } else if (message == 'offline') {
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadingPausePlay(true);
+      } else if (message == 'online') {
+        Provider.of<ProviderController>(context, listen: false)
+            .uploadingPausePlay(false);
       } else {
         Provider.of<ProviderController>(context, listen: false)
             .uploadProgressFunction(
@@ -511,11 +517,6 @@ class _BottomRowState extends State<BottomRow> {
                       _list = List.from(Provider.of<ProviderController>(context,
                               listen: false)
                           .selectedItems);
-                      // --- SNACK BAR (Background upload for Android as of now) ---
-                      if (Platform.isAndroid) {
-                        SnackBarWithDismiss.buildSnackBar(context,
-                            'Your files will keep uploading as long as ac;pic is running in the background.');
-                      }
                       // --- SWITCH UI TO UPLOADING VIEW ---
                       Provider.of<ProviderController>(context, listen: false)
                           .showUploadingProcess(true);
@@ -528,6 +529,9 @@ class _BottomRowState extends State<BottomRow> {
                         if (value == 'offline') {
                           SnackBarGlobal.buildSnackBar(context,
                               'You\'re offline. Check your connection.', 'red');
+                          UploadService.instance.uiCancelReset(context);
+                          _list.clear();
+                          return;
                         }
                         // --- CHECK SERVER ERROR ---
                         else if (value == 'error') {
@@ -550,6 +554,11 @@ class _BottomRowState extends State<BottomRow> {
                           //             listen: false)
                           //         .uploadList);
                         }
+                        // --- SNACK BAR (Background upload for Android as of now) ---
+                        if (Platform.isAndroid) {
+                          SnackBarWithDismiss.buildSnackBar(context,
+                              'Your files will keep uploading as long as ac;pic is running in the background.');
+                        }
                       });
                     }
                   },
@@ -568,13 +577,13 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //----- CANCEL UPLOAD PROCESS -----
-                    Provider.of<ProviderController>(context, listen: false)
-                        .selectedItems
-                        .add(AssetEntity(
-                            id: 00.toString(),
-                            typeInt: 01,
-                            width: 00,
-                            height: 00));
+                    // Provider.of<ProviderController>(context, listen: false)
+                    //     .selectedItems
+                    //     .add(AssetEntity(
+                    //         id: 00.toString(),
+                    //         typeInt: 01,
+                    //         width: 00,
+                    //         height: 00));
                     // isolate.kill();
                     UploadService.instance.uiCancelReset(context);
                   },
