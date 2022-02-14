@@ -261,6 +261,37 @@ void isolateUpload(List<Object> arguments) async {
   var client = http.Client();
   Timer onlineChecker;
   SendPort sendPort = arguments[5];
+
+  // uploadRetry() async {
+  //   try {
+  //     final result = await InternetAddress.lookup('altocode.nl');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       print('connected');
+  //       sendPort.send('online');
+  //       onlineChecker.cancel();
+  //       uploadOneIsolate();
+  //     }
+  //   } on SocketException catch (_) {
+  //     print('not connected');
+  //   }
+  // }
+
+  // uploadOnlineChecker() {
+  //   onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) async{
+  //     try {
+  //       final result = await InternetAddress.lookup('altocode.nl');
+  //       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //         print('connected');
+  //         sendPort.send('online');
+  //         onlineChecker.cancel();
+  //         uploadOneIsolate();
+  //       }
+  //     } on SocketException catch (_) {
+  //       print('not connected');
+  //     }
+  //   });
+  // }
+
   uploadOneIsolate() async {
     List idList = arguments[0];
     if (idList.isEmpty) {
@@ -283,53 +314,52 @@ void isolateUpload(List<Object> arguments) async {
       request.fields['lastModified'] =
           asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+      // var response = await Future.delayed(
+      //   const Duration(seconds: 4),
+      //   () => client.send(request),
+      // );
       var response = await client.send(request);
       final respStr = await response.stream.bytesToString();
       print(respStr);
       print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
     } on SocketException catch (_) {
-      idList.insert(0, idList[0]);
+      // idList.insert(0, idList[0]);
       sendPort.send('offline');
-      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-        uploadRetry() async {
+      // print('SocketException');
+      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) async {
+        try {
           final result = await InternetAddress.lookup('altocode.nl');
-          try {
-            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-              onlineChecker.cancel();
-              sendPort.send('online');
-              print('connected');
-              uploadOneIsolate();
-            }
-          } on SocketException catch (_) {
-            print('not connected');
-          } on Exception catch (_) {
-            print('not connected');
+          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+            // print('connected');
+            sendPort.send('online');
+            onlineChecker.cancel();
+            uploadOneIsolate();
+          } else {
+            print(result);
           }
+        } on SocketException catch (_) {
+          // print('not connected');
         }
-
-        uploadRetry();
       });
-    } on Exception catch (_) {
-      idList.insert(0, idList[0]);
+    } on Exception catch (e) {
+      // idList.insert(0, idList[0]);
       sendPort.send('offline');
-      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-        uploadRetry() async {
+      // print('Exception');
+      print(e);
+      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) async {
+        try {
           final result = await InternetAddress.lookup('altocode.nl');
-          try {
-            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-              onlineChecker.cancel();
-              sendPort.send('online');
-              print('connected');
-              uploadOneIsolate();
-            }
-          } on SocketException catch (_) {
-            print('not connected');
-          } on Exception catch (_) {
-            print('not connected');
+          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+            // print('connected');
+            sendPort.send('online');
+            onlineChecker.cancel();
+            uploadOneIsolate();
+          } else {
+            print(result);
           }
+        } on SocketException catch (_) {
+          print('SocketException inside Exception');
         }
-
-        uploadRetry();
       });
     }
     idList.removeAt(0);
