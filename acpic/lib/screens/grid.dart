@@ -480,19 +480,21 @@ class _BottomRowState extends State<BottomRow> {
                             'Loading your files',
                             style: kGridBottomRowText,
                           );
-                        return Provider.of<ProviderController>(context)
-                                    .isUploadingPaused ==
-                                false
-                            ? Text(
-                                Provider.of<ProviderController>(context,
-                                                listen: false)
-                                            .uploadProgress ==
-                                        0
-                                    ? 'Preparing your files...'
-                                    : 'Uploading ${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ${snapshot.data} files...',
-                                style: kGridBottomRowText)
-                            : Text('Uploading paused. Check connection.',
-                                style: kGridBottomRowText);
+                        return Visibility(
+                          visible: !(Provider.of<ProviderController>(context)
+                              .isUploadingPaused),
+                          child: Text(
+                              Provider.of<ProviderController>(context,
+                                              listen: false)
+                                          .uploadProgress ==
+                                      0
+                                  ? 'Preparing your files...'
+                                  : 'Uploading ${Provider.of<ProviderController>(context, listen: false).uploadProgress} of ${snapshot.data} files...',
+                              style: kGridBottomRowText),
+                          replacement: Text(
+                              'Uploading paused. You\'re offline.',
+                              style: kGridBottomRowText),
+                        );
                       })),
               Visibility(
                 visible: !(Provider.of<ProviderController>(context)

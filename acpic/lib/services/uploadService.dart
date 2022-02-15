@@ -259,39 +259,7 @@ class UploadService {
 void isolateUpload(List<Object> arguments) async {
   print('Start uploading at ' + DateTime.now().toString());
   var client = http.Client();
-  Timer onlineChecker;
   SendPort sendPort = arguments[5];
-
-  // uploadRetry() async {
-  //   try {
-  //     final result = await InternetAddress.lookup('altocode.nl');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       print('connected');
-  //       sendPort.send('online');
-  //       onlineChecker.cancel();
-  //       uploadOneIsolate();
-  //     }
-  //   } on SocketException catch (_) {
-  //     print('not connected');
-  //   }
-  // }
-
-  // uploadOnlineChecker() {
-  //   onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) async{
-  //     try {
-  //       final result = await InternetAddress.lookup('altocode.nl');
-  //       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //         print('connected');
-  //         sendPort.send('online');
-  //         onlineChecker.cancel();
-  //         uploadOneIsolate();
-  //       }
-  //     } on SocketException catch (_) {
-  //       print('not connected');
-  //     }
-  //   });
-  // }
-
   uploadOneIsolate() async {
     List idList = arguments[0];
     if (idList.isEmpty) {
@@ -314,55 +282,22 @@ void isolateUpload(List<Object> arguments) async {
       request.fields['lastModified'] =
           asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-      // var response = await Future.delayed(
-      //   const Duration(seconds: 4),
-      //   () => client.send(request),
-      // );
       var response = await client.send(request);
       final respStr = await response.stream.bytesToString();
       print(respStr);
       print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+      sendPort.send('online');
+      idList.removeAt(0);
     } on SocketException catch (_) {
-      // idList.insert(0, idList[0]);
       sendPort.send('offline');
-      // print('SocketException');
-      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) async {
-        try {
-          final result = await InternetAddress.lookup('altocode.nl');
-          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-            // print('connected');
-            sendPort.send('online');
-            onlineChecker.cancel();
-            uploadOneIsolate();
-          } else {
-            print(result);
-          }
-        } on SocketException catch (_) {
-          // print('not connected');
-        }
-      });
+      print('SocketException');
+      print(idList.length);
     } on Exception catch (e) {
-      // idList.insert(0, idList[0]);
       sendPort.send('offline');
-      // print('Exception');
+      print('Exception');
       print(e);
-      onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) async {
-        try {
-          final result = await InternetAddress.lookup('altocode.nl');
-          if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-            // print('connected');
-            sendPort.send('online');
-            onlineChecker.cancel();
-            uploadOneIsolate();
-          } else {
-            print(result);
-          }
-        } on SocketException catch (_) {
-          print('SocketException inside Exception');
-        }
-      });
+      print(idList.length);
     }
-    idList.removeAt(0);
     if (Platform.isIOS) {
       image.delete();
       PhotoManager.clearFileCache();
