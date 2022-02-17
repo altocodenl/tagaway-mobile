@@ -330,8 +330,7 @@ class _BottomRowState extends State<BottomRow> {
     receivePort.listen((message) {
       if (message is SendPort) {
         if (uploadCancelled == true) {
-          SendPort sendPort;
-          sendPort.send('cancel');
+          message.send('cancel');
           uploadCancelled = false;
         }
       } else if (message == 'done') {
@@ -342,6 +341,13 @@ class _BottomRowState extends State<BottomRow> {
         print('Isolate killed');
         UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
         UploadService.instance.uiReset(context);
+      } else if (message == 'cancelled') {
+        receivePort.close();
+        isolate.kill();
+        UploadService.instance.idList.clear();
+        _idList.clear();
+        // print('Isolate killed');
+        UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
       } else if (message == 'offline') {
         Provider.of<ProviderController>(context, listen: false)
             .uploadingPausePlay(true);
@@ -585,9 +591,7 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //----- CANCEL UPLOAD PROCESS -----
-                    // isolate.kill();
                     uploadCancelled = true;
-
                     UploadService.instance.uiCancelReset(context);
                   },
                   child: Text(

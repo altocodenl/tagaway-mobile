@@ -261,7 +261,7 @@ void isolateUpload(List<Object> arguments) async {
   var client = http.Client();
   SendPort sendPort = arguments[5];
   uploadOneIsolate() async {
-    List idList = arguments[0];
+    List<String> idList = arguments[0];
     final isolateListener = ReceivePort();
     if (idList.isEmpty) {
       sendPort.send('done');
@@ -269,12 +269,22 @@ void isolateUpload(List<Object> arguments) async {
       print('done');
       return false;
     }
-    sendPort.send(isolateListener.sendPort);
-    isolateListener.listen((message) {
-      if (message is String) {
-        print('message is $message');
-      }
-    });
+    if (idList.last == 'zz00zz') {
+      sendPort.send('cancelled');
+      client.close();
+      idList.clear();
+      print('cancelled');
+      return false;
+    }
+    if (idList.isNotEmpty) {
+      sendPort.send(isolateListener.sendPort);
+      isolateListener.listen((message) {
+        if (message is String) {
+          print('message is $message');
+          idList.add('zz00zz');
+        }
+      });
+    }
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
     var piv = asset.file;
