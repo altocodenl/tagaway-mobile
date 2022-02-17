@@ -262,12 +262,19 @@ void isolateUpload(List<Object> arguments) async {
   SendPort sendPort = arguments[5];
   uploadOneIsolate() async {
     List idList = arguments[0];
+    final isolateListener = ReceivePort();
     if (idList.isEmpty) {
       sendPort.send('done');
       client.close();
       print('done');
       return false;
     }
+    sendPort.send(isolateListener.sendPort);
+    isolateListener.listen((message) {
+      if (message is String) {
+        print('message is $message');
+      }
+    });
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
     var piv = asset.file;
@@ -293,7 +300,6 @@ void isolateUpload(List<Object> arguments) async {
       print('SocketException');
       print(idList.length);
     } on Exception catch (e) {
-      sendPort.send('offline');
       print('Exception');
       print(e);
       print(idList.length);
@@ -305,6 +311,7 @@ void isolateUpload(List<Object> arguments) async {
       PhotoManager.clearFileCache();
     }
     sendPort.send(idList.length);
+
     return true;
   }
 
