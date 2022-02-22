@@ -276,15 +276,13 @@ void isolateUpload(List<Object> arguments) async {
       print('cancelled');
       return false;
     }
-    if (idList.isNotEmpty) {
-      sendPort.send(isolateListener.sendPort);
-      isolateListener.listen((message) {
-        if (message is String) {
-          print('message is $message');
-          idList.add('zz00zz');
-        }
-      });
-    }
+    sendPort.send(isolateListener.sendPort);
+    isolateListener.listen((message) {
+      if (message is String) {
+        print('message is $message');
+        idList.add('zz00zz');
+      }
+    });
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
     var piv = asset.file;
@@ -305,6 +303,42 @@ void isolateUpload(List<Object> arguments) async {
       print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
       sendPort.send('online');
       idList.removeAt(0);
+      if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
+        sendPort.send('capacityError');
+        client.close();
+        idList.clear();
+        return false;
+        //  {"error":"status: uploading|complete|cancelled|stalled|error"}
+      } else if (response.statusCode == 409 &&
+          respStr == '{"error":"status: complete"}') {
+        sendPort.send('completeError');
+        client.close();
+        idList.clear();
+        return false;
+      } else if (response.statusCode == 409 &&
+          respStr == '{"error":"status: cancelled"}') {
+        sendPort.send('cancelledError');
+        client.close();
+        idList.clear();
+        return false;
+      } else if (response.statusCode == 409 &&
+          respStr == '{"error":"status: stalled"}') {
+        sendPort.send('stalledError');
+        client.close();
+        idList.clear();
+        return false;
+      } else if (response.statusCode == 409 &&
+          respStr == '{"error":"status: error"}') {
+        sendPort.send('errorError');
+        client.close();
+        idList.clear();
+        return false;
+      } else if (response.statusCode >= 500) {
+        sendPort.send('serverError');
+        client.close();
+        idList.clear();
+        return false;
+      }
     } on SocketException catch (_) {
       sendPort.send('offline');
       print('SocketException');
@@ -321,6 +355,7 @@ void isolateUpload(List<Object> arguments) async {
       PhotoManager.clearFileCache();
     }
     sendPort.send(idList.length);
+    print('Bottom of the function at ' + DateTime.now().toString());
 
     return true;
   }

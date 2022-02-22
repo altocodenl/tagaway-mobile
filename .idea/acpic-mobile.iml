@@ -59,6 +59,12 @@
       <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/video_player/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/video_player/build" />
       <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/video_player/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/flutter_isolate/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/flutter_isolate/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/flutter_isolate/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/flutter_isolate/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/flutter_isolate/build" />
+      <excludeFolder url="file://$MODULE_DIR$/acpic/ios/.symlinks/plugins/flutter_isolate/.pub" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

@@ -320,6 +320,7 @@ class _BottomRowState extends State<BottomRow> {
   List<String> _idList;
   FlutterIsolate isolate;
   bool uploadCancelled = false;
+  RegExp regExpServerError = new RegExp(r"2*");
 
   isolateCall(List<AssetEntity> list) async {
     await UploadService.instance.uploadIDListing(_list);
@@ -331,23 +332,63 @@ class _BottomRowState extends State<BottomRow> {
       if (message is SendPort) {
         if (uploadCancelled == true) {
           message.send('cancel');
-          uploadCancelled = false;
         }
       } else if (message == 'done') {
         receivePort.close();
         isolate.kill();
-        UploadService.instance.idList.clear();
-        _idList.clear();
         print('Isolate killed');
+        uiResetFunction();
         UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
-        UploadService.instance.uiReset(context);
       } else if (message == 'cancelled') {
         receivePort.close();
         isolate.kill();
+        print('Isolate killed');
         UploadService.instance.idList.clear();
         _idList.clear();
-        // print('Isolate killed');
         UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+        uploadCancelled = false;
+      } else if (message == 'capacityError') {
+        receivePort.close();
+        isolate.kill();
+        print('Isolate killed');
+        uiResetFunction();
+        SnackBarGlobal.buildSnackBar(
+            context, 'You\'ve run out of space.', 'red');
+      } else if (message == 'completeError') {
+        receivePort.close();
+        isolate.kill();
+        print('Isolate killed');
+        uiResetFunction();
+        SnackBarGlobal.buildSnackBar(
+            context, 'Your upload was already completed.', 'red');
+      } else if (message == 'cancelledError') {
+        receivePort.close();
+        isolate.kill();
+        print('Isolate killed');
+        uiResetFunction();
+        SnackBarGlobal.buildSnackBar(
+            context, 'Your upload was cancelled.', 'red');
+      } else if (message == 'stalledError') {
+        receivePort.close();
+        isolate.kill();
+        print('Isolate killed');
+        uiResetFunction();
+        SnackBarGlobal.buildSnackBar(
+            context, 'Your upload is stalled. Please start again.', 'red');
+      } else if (message == 'errorError') {
+        receivePort.close();
+        isolate.kill();
+        print('Isolate killed');
+        uiResetFunction();
+        SnackBarGlobal.buildSnackBar(
+            context, 'There was an error in your upload.', 'red');
+      } else if (message == 'serverError') {
+        receivePort.close();
+        isolate.kill();
+        print('Isolate killed');
+        uiResetFunction();
+        SnackBarGlobal.buildSnackBar(
+            context, 'Something is wrong on our side. Sorry.', 'red');
       } else if (message == 'offline') {
         Provider.of<ProviderController>(context, listen: false)
             .uploadingPausePlay(true);
@@ -363,6 +404,12 @@ class _BottomRowState extends State<BottomRow> {
                     message);
       }
     });
+  }
+
+  uiResetFunction() {
+    UploadService.instance.idList.clear();
+    _idList.clear();
+    UploadService.instance.uiReset(context);
   }
 
   @override
@@ -607,6 +654,8 @@ class _BottomRowState extends State<BottomRow> {
   }
 }
 
-//TODO 3: Check that upload works in the background
-//TODO 4: Implement hash engine
-//TODO 5: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
+//TODO 3: Check that upload works in the background.
+//TODO 4: Implement the 'upload Revive'.
+//TODO 5: Implement hash engine.
+//TODO 6: Implement the 'state keeper' (when app is killed, state is maintained across sessions)
+//TODO 7: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
