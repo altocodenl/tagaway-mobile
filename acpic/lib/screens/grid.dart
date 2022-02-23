@@ -368,13 +368,6 @@ class _BottomRowState extends State<BottomRow> {
         uiResetFunction();
         SnackBarGlobal.buildSnackBar(
             context, 'Your upload was cancelled.', 'red');
-      } else if (message == 'stalledError') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SnackBarGlobal.buildSnackBar(
-            context, 'Your upload is stalled. Please start again.', 'red');
       } else if (message == 'errorError') {
         receivePort.close();
         isolate.kill();
@@ -655,7 +648,7 @@ class _BottomRowState extends State<BottomRow> {
 }
 
 //TODO 3: Check that upload works in the background.
-//TODO 4: Implement the 'upload Revive'.
+//TODO 4: Implement the 'upload Wait'.
 //TODO 5: Implement hash engine.
 //TODO 6: Implement the 'state keeper' (when app is killed, state is maintained across sessions)
 //TODO 7: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user

@@ -323,10 +323,32 @@ void isolateUpload(List<Object> arguments) async {
         return false;
       } else if (response.statusCode == 409 &&
           respStr == '{"error":"status: stalled"}') {
-        sendPort.send('stalledError');
-        client.close();
-        idList.clear();
-        return false;
+        // Send op: 'wait' + id + csrf
+        // If 200 go on, if not error streamline.
+        try {
+          final response = await http.post(
+            Uri.parse('https://altocode.nl/picdev/upload'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'cookie': arguments[1]
+            },
+            body: jsonEncode(<String, dynamic>{
+              'op': 'wait',
+              'csrf': arguments[3],
+              'id': arguments[2].toString()
+            }),
+          );
+          if (response.statusCode == 200) {
+            uploadOneIsolate();
+          } else {
+            sendPort.send('errorError');
+            client.close();
+            idList.clear();
+            return false;
+          }
+        } on SocketException catch (_) {
+          sendPort.send('offline');
+        }
       } else if (response.statusCode == 409 &&
           respStr == '{"error":"status: error"}') {
         sendPort.send('errorError');
