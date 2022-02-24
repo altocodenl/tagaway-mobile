@@ -285,7 +285,7 @@ void isolateUpload(List<Object> arguments) async {
     });
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
-    var piv = asset.file;
+    var piv = asset.originFile;
     File image = await piv;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
     var request = http.MultipartRequest('POST', uri);
