@@ -609,10 +609,10 @@ class _BottomRowState extends State<BottomRow> {
                           //         .uploadList);
                         }
                         // --- SNACK BAR (Background upload for Android as of now) ---
-                        // if (Platform.isAndroid) {
-                        //   SnackBarWithDismiss.buildSnackBar(context,
-                        //       'Your files will keep uploading as long as ac;pic is running in the background.');
-                        // }
+                        if (Platform.isAndroid) {
+                          SnackBarWithDismiss.buildSnackBar(context,
+                              'Your files will keep uploading as long as ac;pic is running in the background.');
+                        }
                       });
                     }
                   },
@@ -648,7 +648,6 @@ class _BottomRowState extends State<BottomRow> {
 }
 
 //TODO 3: Check that upload works in the background.
-//TODO 4: Implement the 'upload Wait'.
-//TODO 5: Implement hash engine.
-//TODO 6: Implement the 'state keeper' (when app is killed, state is maintained across sessions)
-//TODO 7: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
+//TODO 4: Implement hash engine.
+//TODO 5: Implement the 'state keeper' (when app is killed, state is maintained across sessions)
+//TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user

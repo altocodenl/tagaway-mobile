@@ -323,6 +323,7 @@ void isolateUpload(List<Object> arguments) async {
         return false;
       } else if (response.statusCode == 409 &&
           respStr == '{"error":"status: stalled"}') {
+        print('Stalled');
         // Send op: 'wait' + id + csrf
         // If 200 go on, if not error streamline.
         try {
@@ -335,16 +336,15 @@ void isolateUpload(List<Object> arguments) async {
             body: jsonEncode(<String, dynamic>{
               'op': 'wait',
               'csrf': arguments[3],
-              'id': arguments[2].toString()
+              'id': arguments[2]
             }),
           );
           if (response.statusCode == 200) {
             uploadOneIsolate();
           } else {
-            sendPort.send('errorError');
-            client.close();
-            idList.clear();
-            return false;
+            print(response.statusCode);
+            print('I am in stalled Else');
+            sendPort.send('offline');
           }
         } on SocketException catch (_) {
           sendPort.send('offline');
@@ -365,6 +365,8 @@ void isolateUpload(List<Object> arguments) async {
       sendPort.send('offline');
       print('SocketException');
       print(idList.length);
+    } on FileSystemException catch (e) {
+      print('FileSystemException $e');
     } on Exception catch (e) {
       print('Exception');
       print(e);
