@@ -229,7 +229,7 @@ class _GridState extends State<Grid> {
                                 .selectionInProcess(false);
                         // print("$index : $value");
                       },
-                      key: Key(itemList[index].toString()),
+                      // key: Key(itemList[index].toString()),
                     );
                   });
             },
@@ -288,6 +288,8 @@ class _TopRowState extends State<TopRow> {
                       .redraw();
                   Provider.of<ProviderController>(context, listen: false)
                       .selectionInProcess(false);
+                  SharedPreferencesService.instance
+                      .removeValue('selectedListID');
                 },
                 child: Text(
                   'Cancel',
@@ -325,6 +327,10 @@ class _BottomRowState extends State<BottomRow> {
   isolateCall(List<AssetEntity> list) async {
     await UploadService.instance.uploadIDListing(_list);
     _idList = List.from(UploadService.instance.idList);
+    // --- SAVE UPLOAD LIST LOCALLY IN CASE APP IS KILLED ---
+    SharedPreferencesService.instance
+        .setStringListValue('selectedListID', List.from(_idList));
+    // ---
     var receivePort = ReceivePort();
     isolate = await FlutterIsolate.spawn(isolateUpload,
         [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
@@ -338,6 +344,7 @@ class _BottomRowState extends State<BottomRow> {
         isolate.kill();
         print('Isolate killed');
         uiResetFunction();
+        SharedPreferencesService.instance.removeValue('selectedListID');
         UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
       } else if (message == 'cancelled') {
         receivePort.close();
@@ -346,6 +353,7 @@ class _BottomRowState extends State<BottomRow> {
         UploadService.instance.idList.clear();
         _idList.clear();
         UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+        SharedPreferencesService.instance.removeValue('selectedListID');
         uploadCancelled = false;
       } else if (message == 'capacityError') {
         receivePort.close();
@@ -430,6 +438,9 @@ class _BottomRowState extends State<BottomRow> {
               _model = value;
             });
           });
+    SharedPreferencesService.instance
+        .getStringListValue('selectedListID')
+        .then((value) => print('The saved list is $value'));
     super.initState();
   }
 
@@ -649,5 +660,7 @@ class _BottomRowState extends State<BottomRow> {
 
 //TODO 3: Check that upload works in the background.
 //TODO 4: Implement hash engine.
-//TODO 5: Implement the 'state keeper' (when app is killed, state is maintained across sessions)
+//TODO 5: Implement the 'state keeper' (when app is killed, state is maintained across sessions): when 'state keeper' is
+// used and user opens app again, display a a yellow snackbar that says something along the lines of:
+// 'iOS (or Android, depending) killed your upload. Press 'upload' and continue where you left off'
 //TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user

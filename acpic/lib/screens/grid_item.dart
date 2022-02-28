@@ -1,3 +1,4 @@
+import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:io' show File;
@@ -8,12 +9,12 @@ import 'grid.dart';
 import 'package:acpic/ui_elements/constants.dart';
 
 class GridItem extends StatelessWidget {
-  final Key key;
+  // final Key key;
   final AssetEntity item;
   final ValueChanged<bool> isSelected;
 
   GridItem({
-    this.key,
+    // this.key,
     this.item,
     this.isSelected,
   });
@@ -88,7 +89,16 @@ class _SelectedAssetState extends State<SelectedAsset>
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       isSelected = true;
     }
-
+    SharedPreferencesService.instance
+        .getStringListValue('selectedListID')
+        .then((value) {
+      if (value.contains(widget.item.id)) {
+        selectItem();
+      } else if (value.contains(widget.item.id) == null) {
+        return Exception;
+        //   FIX EXCEPTION HERE
+      }
+    });
     super.initState();
   }
 

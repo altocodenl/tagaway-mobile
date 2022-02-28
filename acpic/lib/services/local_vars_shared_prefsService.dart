@@ -36,6 +36,16 @@ class SharedPreferencesService {
     return myPrefs.getBool(key) ?? false;
   }
 
+  setStringListValue(String key, List<String> value) async {
+    SharedPreferences myPrefs = await SharedPreferences.getInstance();
+    myPrefs.setStringList(key, value);
+  }
+
+  Future<List> getStringListValue(String key) async {
+    SharedPreferences myPrefs = await SharedPreferences.getInstance();
+    return myPrefs.getStringList(key);
+  }
+
   Future<bool> containsKey(String key) async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     return myPrefs.containsKey(key);
