@@ -211,6 +211,8 @@ class _GridState extends State<Grid> {
                     // --- Upon change of the key GridItem gets redrawn. selectAll is called to check if the bool 'all' has been called to fill or clear selectedList ---
                     selectAll();
                     return GridItem(
+                      selectedListLengthStreamController:
+                          widget.selectedListLengthStreamController,
                       item: itemList[index],
                       isSelected: (bool value) {
                         if (value) {
@@ -322,9 +324,9 @@ class _BottomRowState extends State<BottomRow> {
   List<String> _idList;
   FlutterIsolate isolate;
   bool uploadCancelled = false;
-  RegExp regExpServerError = new RegExp(r"2*");
 
   isolateCall(List<AssetEntity> list) async {
+    //IF ELSE HERE. IF THE SHARED PREF HAS DATA, USE THAT, IF NOT USE CURRENT FLOW
     await UploadService.instance.uploadIDListing(_list);
     _idList = List.from(UploadService.instance.idList);
     // --- SAVE UPLOAD LIST LOCALLY IN CASE APP IS KILLED ---
@@ -360,6 +362,7 @@ class _BottomRowState extends State<BottomRow> {
         isolate.kill();
         print('Isolate killed');
         uiResetFunction();
+        SharedPreferencesService.instance.removeValue('selectedListID');
         SnackBarGlobal.buildSnackBar(
             context, 'You\'ve run out of space.', 'red');
       } else if (message == 'completeError') {
@@ -388,6 +391,7 @@ class _BottomRowState extends State<BottomRow> {
         isolate.kill();
         print('Isolate killed');
         uiResetFunction();
+        SharedPreferencesService.instance.removeValue('selectedListID');
         SnackBarGlobal.buildSnackBar(
             context, 'Something is wrong on our side. Sorry.', 'red');
       } else if (message == 'offline') {
@@ -440,7 +444,14 @@ class _BottomRowState extends State<BottomRow> {
           });
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
-        .then((value) => print('The saved list is $value'));
+        .then((value) {
+      if (value == null) {
+        return;
+      } else {
+        // widget.selectedListLengthStreamController.add(value.length);
+
+      }
+    });
     super.initState();
   }
 

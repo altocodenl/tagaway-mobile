@@ -2,6 +2,7 @@ import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:io' show File;
+import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
@@ -12,12 +13,14 @@ class GridItem extends StatelessWidget {
   // final Key key;
   final AssetEntity item;
   final ValueChanged<bool> isSelected;
+  final StreamController<int> selectedListLengthStreamController;
 
-  GridItem({
-    // this.key,
-    this.item,
-    this.isSelected,
-  });
+  GridItem(
+      {
+      // this.key,
+      this.item,
+      this.isSelected,
+      this.selectedListLengthStreamController});
 
   String parseVideoDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -59,6 +62,8 @@ class GridItem extends StatelessWidget {
                   )
                 : Container(),
             SelectedAsset(
+              selectedListLengthStreamController:
+                  selectedListLengthStreamController,
               isSelected: isSelected,
               item: item,
             ),
@@ -70,10 +75,12 @@ class GridItem extends StatelessWidget {
 }
 
 class SelectedAsset extends StatefulWidget {
+  final StreamController<int> selectedListLengthStreamController;
   final ValueChanged<bool> isSelected;
   final AssetEntity item;
 
-  SelectedAsset({this.isSelected, this.item});
+  SelectedAsset(
+      {this.isSelected, this.item, this.selectedListLengthStreamController});
 
   @override
   _SelectedAssetState createState() => _SelectedAssetState();
@@ -92,11 +99,11 @@ class _SelectedAssetState extends State<SelectedAsset>
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
         .then((value) {
-      if (value.contains(widget.item.id)) {
+      if (value == null) {
+        return;
+      } else if (value.contains(widget.item.id)) {
         selectItem();
-      } else if (value.contains(widget.item.id) == null) {
-        return Exception;
-        //   FIX EXCEPTION HERE
+        widget.selectedListLengthStreamController.add(value.length);
       }
     });
     super.initState();
