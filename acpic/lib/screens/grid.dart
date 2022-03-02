@@ -327,87 +327,96 @@ class _BottomRowState extends State<BottomRow> {
 
   isolateCall(List<AssetEntity> list) async {
     //IF ELSE HERE. IF THE SHARED PREF HAS DATA, USE THAT, IF NOT USE CURRENT FLOW
-    await UploadService.instance.uploadIDListing(_list);
-    _idList = List.from(UploadService.instance.idList);
-    // --- SAVE UPLOAD LIST LOCALLY IN CASE APP IS KILLED ---
     SharedPreferencesService.instance
-        .setStringListValue('selectedListID', List.from(_idList));
-    // ---
-    var receivePort = ReceivePort();
-    isolate = await FlutterIsolate.spawn(isolateUpload,
-        [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
-    receivePort.listen((message) {
-      if (message is SendPort) {
-        if (uploadCancelled == true) {
-          message.send('cancel');
-        }
-      } else if (message == 'done') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SharedPreferencesService.instance.removeValue('selectedListID');
-        UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
-      } else if (message == 'cancelled') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        UploadService.instance.idList.clear();
-        _idList.clear();
-        UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
-        SharedPreferencesService.instance.removeValue('selectedListID');
-        uploadCancelled = false;
-      } else if (message == 'capacityError') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SharedPreferencesService.instance.removeValue('selectedListID');
-        SnackBarGlobal.buildSnackBar(
-            context, 'You\'ve run out of space.', 'red');
-      } else if (message == 'completeError') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SnackBarGlobal.buildSnackBar(
-            context, 'Your upload was already completed.', 'red');
-      } else if (message == 'cancelledError') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SnackBarGlobal.buildSnackBar(
-            context, 'Your upload was cancelled.', 'red');
-      } else if (message == 'errorError') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SnackBarGlobal.buildSnackBar(
-            context, 'There was an error in your upload.', 'red');
-      } else if (message == 'serverError') {
-        receivePort.close();
-        isolate.kill();
-        print('Isolate killed');
-        uiResetFunction();
-        SharedPreferencesService.instance.removeValue('selectedListID');
-        SnackBarGlobal.buildSnackBar(
-            context, 'Something is wrong on our side. Sorry.', 'red');
-      } else if (message == 'offline') {
-        Provider.of<ProviderController>(context, listen: false)
-            .uploadingPausePlay(true);
-      } else if (message == 'online') {
-        Provider.of<ProviderController>(context, listen: false)
-            .uploadingPausePlay(false);
+        .getStringListValue('selectedListID')
+        .then((value) async {
+      if (value == null) {
+        await UploadService.instance.uploadIDListing(_list);
+        _idList = List.from(UploadService.instance.idList);
+        // --- SAVE UPLOAD LIST LOCALLY IN CASE APP IS KILLED ---
+        SharedPreferencesService.instance
+            .setStringListValue('selectedListID', List.from(_idList));
+        // ---
       } else {
-        Provider.of<ProviderController>(context, listen: false)
-            .uploadProgressFunction(
-                Provider.of<ProviderController>(context, listen: false)
-                        .selectedItems
-                        .length -
-                    message);
+        _idList = List.from(value);
       }
+      print('_idList length is ${_idList.length}');
+      var receivePort = ReceivePort();
+      isolate = await FlutterIsolate.spawn(isolateUpload,
+          [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
+      receivePort.listen((message) {
+        if (message is SendPort) {
+          if (uploadCancelled == true) {
+            message.send('cancel');
+          }
+        } else if (message == 'done') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
+        } else if (message == 'cancelled') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          UploadService.instance.idList.clear();
+          _idList.clear();
+          UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          uploadCancelled = false;
+        } else if (message == 'capacityError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          SnackBarGlobal.buildSnackBar(
+              context, 'You\'ve run out of space.', 'red');
+        } else if (message == 'completeError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(
+              context, 'Your upload was already completed.', 'red');
+        } else if (message == 'cancelledError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(
+              context, 'Your upload was cancelled.', 'red');
+        } else if (message == 'errorError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(
+              context, 'There was an error in your upload.', 'red');
+        } else if (message == 'serverError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          SnackBarGlobal.buildSnackBar(
+              context, 'Something is wrong on our side. Sorry.', 'red');
+        } else if (message == 'offline') {
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadingPausePlay(true);
+        } else if (message == 'online') {
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadingPausePlay(false);
+        } else {
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadProgressFunction(
+                  Provider.of<ProviderController>(context, listen: false)
+                          .selectedItems
+                          .length -
+                      message);
+        }
+      });
     });
   }
 
