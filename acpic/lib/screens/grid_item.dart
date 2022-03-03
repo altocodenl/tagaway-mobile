@@ -102,7 +102,12 @@ class _SelectedAssetState extends State<SelectedAsset>
       if (value == null) {
         return;
       } else if (value.contains(widget.item.id)) {
-        selectItem();
+        // selectItem();
+        setState(() {
+          isSelected = !isSelected;
+        });
+        Provider.of<ProviderController>(context, listen: false)
+            .selectionInProcess(true);
         widget.selectedListLengthStreamController.add(value.length);
       }
     });

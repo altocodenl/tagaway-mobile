@@ -17,6 +17,7 @@ class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
   List<String> idList = [];
+  List<AssetEntity> assetEntityList = [];
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -253,6 +254,22 @@ class UploadService {
 
     await Future.doWhile(dataOfOne);
   }
+
+  assetEntityCreator(BuildContext context, List idList) async {
+    createOneAssetEntity() async {
+      if (idList.isEmpty) {
+        Provider.of<ProviderController>(context, listen: false).selectedItems =
+            List.from(assetEntityList);
+        return false;
+      }
+      var item = await AssetEntity.fromId(idList[0]);
+      assetEntityList.add(item);
+      idList.removeAt(0);
+      return true;
+    }
+
+    await Future.doWhile(createOneAssetEntity);
+  }
 }
 
 //--------- Isolate upload is here because it needs to be a top level function ---------
@@ -285,6 +302,7 @@ void isolateUpload(List<Object> arguments) async {
     });
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
+    print(asset.type);
     var piv = asset.originFile;
     File image = await piv;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
@@ -365,18 +383,27 @@ void isolateUpload(List<Object> arguments) async {
       sendPort.send('offline');
       print('SocketException');
       print(idList.length);
-    } on FileSystemException catch (e) {
-      print('FileSystemException $e');
     } on Exception catch (e) {
       print('Exception');
       print(e);
       print(idList.length);
     }
-    if (Platform.isIOS) {
-      image.delete();
-      PhotoManager.clearFileCache();
-    } else {
-      PhotoManager.clearFileCache();
+    if (await image.exists() == true) {
+      print('image.path is ${image.path}');
+      try {
+        if (Platform.isIOS) {
+          image.delete();
+          PhotoManager.clearFileCache();
+        } else {
+          PhotoManager.clearFileCache();
+        }
+      } on FileSystemException catch (e) {
+        print('FileSystemException $e');
+      } on Exception catch (e) {
+        print('Exception on delete $e');
+      } on FileSystemDeleteEvent catch (e) {
+        print(e);
+      }
     }
     sendPort.send(idList.length);
     print('Bottom of the function at ' + DateTime.now().toString());

@@ -292,6 +292,7 @@ class _TopRowState extends State<TopRow> {
                       .selectionInProcess(false);
                   SharedPreferencesService.instance
                       .removeValue('selectedListID');
+                  UploadService.instance.assetEntityList.clear();
                 },
                 child: Text(
                   'Cancel',
@@ -361,6 +362,7 @@ class _BottomRowState extends State<BottomRow> {
           isolate.kill();
           print('Isolate killed');
           UploadService.instance.idList.clear();
+          UploadService.instance.assetEntityList.clear();
           _idList.clear();
           UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
           SharedPreferencesService.instance.removeValue('selectedListID');
@@ -422,6 +424,7 @@ class _BottomRowState extends State<BottomRow> {
 
   uiResetFunction() {
     UploadService.instance.idList.clear();
+    UploadService.instance.assetEntityList.clear();
     _idList.clear();
     UploadService.instance.uiReset(context);
   }
@@ -453,12 +456,11 @@ class _BottomRowState extends State<BottomRow> {
           });
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
-        .then((value) {
+        .then((value) async {
       if (value == null) {
         return;
       } else {
-        // widget.selectedListLengthStreamController.add(value.length);
-
+        await UploadService.instance.assetEntityCreator(context, value);
       }
     });
     super.initState();
@@ -683,4 +685,9 @@ class _BottomRowState extends State<BottomRow> {
 //TODO 5: Implement the 'state keeper' (when app is killed, state is maintained across sessions): when 'state keeper' is
 // used and user opens app again, display a a yellow snackbar that says something along the lines of:
 // 'iOS (or Android, depending) killed your upload. Press 'upload' and continue where you left off'
+// TODO: [VERBOSE-2:ui_dart_state.cc(209)] Unhandled Exception: FileSystemException: Cannot delete file, path = '/private/var/mobile/Containers/Data/Application/BE707DD1-61AB-49A4-B41F-4437B49A98AA/tmp/.image/IMG_1692.JPG' (OS Error: No such file or directory, errno = 2)
+// #0      _File._delete.<anonymous closure> (dart:io/file_impl.dart:283)
+// #1      _rootRunUnary (dart:async/zone.dart:1436)
+// #2      _CustomZone.runUnary (dart:async/zone.dart:1335)
+// <asynchronous suspension>
 //TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
