@@ -461,6 +461,47 @@ class _BottomRowState extends State<BottomRow> {
         return;
       } else {
         await UploadService.instance.assetEntityCreator(context, value);
+
+        // --- AUTOMATIC UPLOAD ---
+
+        // --- SWITCH UI TO UPLOADING VIEW ---
+        Provider.of<ProviderController>(context, listen: false)
+            .showUploadingProcess(true);
+        // --- UPLOAD START CALL ---
+        UploadService.instance
+            .uploadStart('start', _csrf, [_model], _cookie, value.length)
+            .then((response) {
+          // --- CHECK IS NOT OFFLINE ---
+          if (response == 'offline') {
+            SnackBarGlobal.buildSnackBar(
+                context, 'You\'re offline. Check your connection.', 'red');
+            UploadService.instance.uiCancelReset(context);
+            value.clear();
+            UploadService.instance.assetEntityList.clear();
+            SharedPreferencesService.instance.removeValue('selectedListID');
+            return;
+          }
+          // --- CHECK SERVER ERROR ---
+          else if (response == 'error') {
+            SnackBarGlobal.buildSnackBar(
+                context, 'Something is wrong on our side. Sorry.', 'red');
+            return;
+          }
+          // --- START UPLOAD ---
+          else {
+            _id = int.parse(response);
+            print('id is $_id');
+            _tags = ['"' + _model + '"'];
+            isolateCall(_list);
+          }
+          // --- SNACK BAR (Background upload for Android as of now) ---
+          if (Platform.isAndroid) {
+            SnackBarWithDismiss.buildSnackBar(context,
+                'Your files will keep uploading as long as ac;pic is running in the background.');
+          }
+        });
+        // --- AUTOMATIC UPLOAD END ---
+
       }
     });
     super.initState();
@@ -624,6 +665,7 @@ class _BottomRowState extends State<BottomRow> {
                         else if (value == 'error') {
                           SnackBarGlobal.buildSnackBar(context,
                               'Something is wrong on our side. Sorry.', 'red');
+                          return;
                         }
                         // --- START UPLOAD ---
                         else {
