@@ -239,7 +239,7 @@ class UploadService {
   }
 
   Future uploadIDListing(List<AssetEntity> list) async {
-    print('In uploadIDListing list length is ${list.length}');
+    // print('In uploadIDListing list length is ${list.length}');
     dataOfOne() async {
       if (list.isEmpty) {
         return false;
@@ -256,6 +256,7 @@ class UploadService {
   }
 
   assetEntityCreator(BuildContext context, List idList) async {
+    print('assetEntityCreator was called');
     createOneAssetEntity() async {
       if (idList.isEmpty) {
         Provider.of<ProviderController>(context, listen: false).selectedItems =
@@ -302,7 +303,6 @@ void isolateUpload(List<Object> arguments) async {
     });
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
-    print(asset.type);
     var piv = asset.originFile;
     File image = await piv;
     var uri = Uri.parse('https://altocode.nl/picdev/piv');
@@ -389,24 +389,25 @@ void isolateUpload(List<Object> arguments) async {
       print(idList.length);
     }
     if (await image.exists() == true) {
-      print('image.path is ${image.path}');
+      // print('image.path is ${image.path}');
       try {
         if (Platform.isIOS) {
           image.delete();
-          PhotoManager.clearFileCache();
-        } else {
-          PhotoManager.clearFileCache();
         }
-      } on FileSystemException catch (e) {
-        print('FileSystemException $e');
-      } on Exception catch (e) {
-        print('Exception on delete $e');
-      } on FileSystemDeleteEvent catch (e) {
+        PhotoManager.clearFileCache();
+      } catch (e) {
         print(e);
       }
+      // on FileSystemException catch (e) {
+      //   print('FileSystemException $e');
+      // } on Exception catch (e) {
+      //   print('Exception on delete $e');
+      // } on FileSystemDeleteEvent catch (e) {
+      //   print(e);
+      // }
     }
     sendPort.send(idList.length);
-    print('Bottom of the function at ' + DateTime.now().toString());
+    // print('Bottom of the function at ' + DateTime.now().toString());
 
     return true;
   }
