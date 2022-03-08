@@ -784,6 +784,8 @@ class _BottomRowState extends State<BottomRow> {
                     //----- CANCEL UPLOAD PROCESS -----
                     uploadCancelled = true;
                     UploadService.instance.uiCancelReset(context);
+                    SnackBarGlobal.buildSnackBar(
+                        context, 'Cancelling your upload.', 'yellow');
                   },
                   child: Text(
                     'Cancel',
