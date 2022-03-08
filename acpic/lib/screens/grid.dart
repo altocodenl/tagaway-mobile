@@ -482,9 +482,7 @@ class _BottomRowState extends State<BottomRow> {
             SnackBarGlobal.buildSnackBar(
                 context, 'You\'re offline. Check your connection.', 'red');
             UploadService.instance.uiCancelReset(context);
-            value.clear();
             UploadService.instance.assetEntityList.clear();
-            SharedPreferencesService.instance.removeValue('selectedListID');
             return;
           }
           // --- CHECK SERVER ERROR ---
