@@ -722,7 +722,7 @@ class _BottomRowState extends State<BottomRow> {
   }
 }
 
-//TODO 3: Check that upload works in the background.
+//TODO 3: Background upload iOS.
 //TODO 4: Implement hash engine.
 //TODO 5: After app crash, implement upload from where it left off
 //TODO 6: (Mono) when the upload is finished or cancelled (but pivs where uploaded) send email to user
