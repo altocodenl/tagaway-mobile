@@ -255,12 +255,10 @@ class UploadService {
     await Future.doWhile(dataOfOne);
   }
 
-  assetEntityCreator(BuildContext context, List idList) async {
+  assetEntityCreator(List idList) async {
     print('assetEntityCreator was called');
     createOneAssetEntity() async {
       if (idList.isEmpty) {
-        Provider.of<ProviderController>(context, listen: false).selectedItems =
-            List.from(assetEntityList);
         return false;
       }
       var item = await AssetEntity.fromId(idList[0]);

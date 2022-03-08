@@ -96,21 +96,21 @@ class _SelectedAssetState extends State<SelectedAsset>
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       isSelected = true;
     }
-    // SharedPreferencesService.instance
-    //     .getStringListValue('selectedListID')
-    //     .then((value) {
-    //   if (value == null) {
-    //     return;
-    //   } else if (value.contains(widget.item.id)) {
-    //     // selectItem();
-    //     setState(() {
-    //       isSelected = !isSelected;
-    //     });
-    //     Provider.of<ProviderController>(context, listen: false)
-    //         .selectionInProcess(true);
-    //     widget.selectedListLengthStreamController.add(value.length);
-    //   }
-    // });
+    SharedPreferencesService.instance
+        .getStringListValue('selectedListID')
+        .then((value) {
+      if (value == null) {
+        return;
+      } else if (value.contains(widget.item.id)) {
+        // selectItem();
+        setState(() {
+          isSelected = !isSelected;
+        });
+        Provider.of<ProviderController>(context, listen: false)
+            .selectionInProcess(true);
+        widget.selectedListLengthStreamController.add(value.length);
+      }
+    });
     super.initState();
   }
 
