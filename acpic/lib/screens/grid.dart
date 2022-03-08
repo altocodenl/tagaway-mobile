@@ -327,90 +327,6 @@ class _BottomRowState extends State<BottomRow> {
   bool uploadCancelled = false;
 
   isolateCall(List<AssetEntity> list) async {
-    // await UploadService.instance.uploadIDListing(_list);
-    // _idList = List.from(UploadService.instance.idList);
-    // var receivePort = ReceivePort();
-    // isolate = await FlutterIsolate.spawn(isolateUpload,
-    //     [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
-    // receivePort.listen((message) {
-    //   if (message is SendPort) {
-    //     if (uploadCancelled == true) {
-    //       message.send('cancel');
-    //     }
-    //   } else if (message == 'done') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     uiResetFunction();
-    //     // SharedPreferencesService.instance.removeValue('selectedListID');
-    //     UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
-    //   } else if (message == 'cancelled') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     UploadService.instance.idList.clear();
-    //     _idList.clear();
-    //     UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
-    //     Provider.of<ProviderController>(context, listen: false).uploadProgress =
-    //         0;
-    //     uploadCancelled = false;
-    //     // SharedPreferencesService.instance.removeValue('selectedListID');
-    //     // UploadService.instance.assetEntityList.clear();
-    //
-    //   } else if (message == 'capacityError') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     uiResetFunction();
-    //     SharedPreferencesService.instance.removeValue('selectedListID');
-    //     SnackBarGlobal.buildSnackBar(
-    //         context, 'You\'ve run out of space.', 'red');
-    //   } else if (message == 'completeError') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     uiResetFunction();
-    //     SnackBarGlobal.buildSnackBar(
-    //         context, 'Your upload was already completed.', 'red');
-    //   } else if (message == 'cancelledError') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     uiResetFunction();
-    //     SnackBarGlobal.buildSnackBar(
-    //         context, 'Your upload was cancelled.', 'red');
-    //   } else if (message == 'errorError') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     uiResetFunction();
-    //     SnackBarGlobal.buildSnackBar(
-    //         context, 'There was an error in your upload.', 'red');
-    //   } else if (message == 'serverError') {
-    //     receivePort.close();
-    //     isolate.kill();
-    //     print('Isolate killed');
-    //     uiResetFunction();
-    //     SharedPreferencesService.instance.removeValue('selectedListID');
-    //     SnackBarGlobal.buildSnackBar(
-    //         context, 'Something is wrong on our side. Sorry.', 'red');
-    //   } else if (message == 'offline') {
-    //     Provider.of<ProviderController>(context, listen: false)
-    //         .uploadingPausePlay(true);
-    //   } else if (message == 'online') {
-    //     Provider.of<ProviderController>(context, listen: false)
-    //         .uploadingPausePlay(false);
-    //   } else {
-    //     Provider.of<ProviderController>(context, listen: false)
-    //         .uploadProgressFunction(
-    //             Provider.of<ProviderController>(context, listen: false)
-    //                     .selectedItems
-    //                     .length -
-    //                 message);
-    //   }
-    // });
-
-    //IF ELSE HERE. IF THE SHARED PREF HAS DATA, USE THAT, IF NOT USE CURRENT FLOW
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
         .then((value) async {
@@ -551,7 +467,8 @@ class _BottomRowState extends State<BottomRow> {
             'yellow');
         // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
         await UploadService.instance.assetEntityCreator(value);
-        // --- AUTOMATIC UPLOAD ---
+
+        // --- AUTOMATIC UPLOAD PROCESSES ---
 
         // --- SWITCH UI TO UPLOADING VIEW ---
         Provider.of<ProviderController>(context, listen: false)
@@ -576,7 +493,7 @@ class _BottomRowState extends State<BottomRow> {
                 context, 'Something is wrong on our side. Sorry.', 'red');
             return;
           }
-          // --- START UPLOAD ---
+          // --- CALL UPLOAD ISOLATE ---
           else {
             _id = int.parse(response);
             print('id is $_id');
@@ -725,8 +642,9 @@ class _BottomRowState extends State<BottomRow> {
                   ),
                   onPressed: () {
                     //--------- UPLOAD PROCESSES STARTS ---------
+
+                    // --- PREVENTS UPLOAD CANCELLED REMAINED TRUE FROM A PREVIOUS CANCEL  ---
                     uploadCancelled = false;
-                    print('uploadCancelled is $uploadCancelled');
                     // --- CHECK THAT SELECTED ITEMS IS NOT EMPTY  ---
                     if (Provider.of<ProviderController>(context, listen: false)
                             .selectedItems
@@ -758,7 +676,7 @@ class _BottomRowState extends State<BottomRow> {
                               'Something is wrong on our side. Sorry.', 'red');
                           return;
                         }
-                        // --- START UPLOAD ---
+                        // --- CALL UPLOAD ISOLATE ---
                         else {
                           _id = int.parse(value);
                           // print('id is $_id');

@@ -102,7 +102,6 @@ class _SelectedAssetState extends State<SelectedAsset>
       if (value == null) {
         return;
       } else if (value.contains(widget.item.id)) {
-        // selectItem();
         setState(() {
           isSelected = !isSelected;
         });
