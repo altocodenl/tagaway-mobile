@@ -31,7 +31,7 @@ class GridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List>(
-      future: item.thumbData,
+      future: item.thumbnailData,
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null)
