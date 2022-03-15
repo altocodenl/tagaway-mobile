@@ -385,6 +385,7 @@ class _BottomRowState extends State<BottomRow> {
             UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
             SharedPreferencesService.instance.removeValue('selectedListID');
             uploadCancelled = false;
+            SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
           } else if (message == 'capacityError') {
             receivePort.close();
             isolate.kill();
@@ -479,9 +480,9 @@ class _BottomRowState extends State<BottomRow> {
       if (value == null) {
         return;
       } else {
-        SnackBarGlobal.buildSnackBar(
+        SixSecondSnackBar.buildSnackBar(
             context,
-            '${Platform.isIOS ? 'iOS' : 'Android'} cancelled your upload. It will automatically restart.',
+            '${Platform.isIOS ? 'iOS' : 'Android'} cancelled your upload. It will automatically restart...',
             'yellow');
         // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
         await UploadService.instance.assetEntityCreator(value);
@@ -518,7 +519,7 @@ class _BottomRowState extends State<BottomRow> {
           }
           // --- SNACK BAR (Background upload for Android as of now) ---
           if (Platform.isAndroid) {
-            SnackBarWithDismiss.buildSnackBar(context,
+            WhiteSnackBar.buildSnackBar(context,
                 'Your files will keep uploading as long as ac;pic is running in the background.');
           }
         });
@@ -701,7 +702,7 @@ class _BottomRowState extends State<BottomRow> {
                         }
                         // --- SNACK BAR (Background upload for Android as of now) ---
                         if (Platform.isAndroid) {
-                          SnackBarWithDismiss.buildSnackBar(context,
+                          WhiteSnackBar.buildSnackBar(context,
                               'Your files will keep uploading as long as ac;pic is running in the background.');
                         }
                       });
@@ -725,7 +726,7 @@ class _BottomRowState extends State<BottomRow> {
                     uploadCancelled = true;
                     UploadService.instance.uiCancelReset(context);
                     SnackBarGlobal.buildSnackBar(
-                        context, 'Cancelling your upload.', 'yellow');
+                        context, 'Cancelling your upload...', 'yellow');
                   },
                   child: Text(
                     'Cancel',

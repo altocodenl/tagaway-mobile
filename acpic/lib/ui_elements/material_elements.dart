@@ -23,8 +23,31 @@ class SnackBarGlobal {
   }
 }
 
-class SnackBarWithDismiss {
-  SnackBarWithDismiss._();
+class SixSecondSnackBar {
+  SixSecondSnackBar._();
+  static buildSnackBar(
+      BuildContext context, String message, String backgroundColorSnackBar) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(seconds: 6),
+        content: Text(
+          '$message',
+          textAlign: TextAlign.center,
+          style: kSnackBarText,
+        ),
+        backgroundColor: Color(backgroundColorSnackBar == 'green'
+            ? 0xFF04E762
+            : backgroundColorSnackBar == 'red'
+                ? 0xFFD33E43
+                : 0xFFffff00),
+        //  var colors = {green: '#04E762', red: '#D33E43', yellow: '#ffff00'};
+      ),
+    );
+  }
+}
+
+class WhiteSnackBar {
+  WhiteSnackBar._();
   static buildSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
