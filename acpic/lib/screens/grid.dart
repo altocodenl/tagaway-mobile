@@ -351,7 +351,8 @@ class _BottomRowState extends State<BottomRow> {
         String value;
         try {
           SharedPreferencesService.instance.removeValue('selectedListID');
-          value = await platform.invokeMethod('hello', _idList);
+          value = await platform.invokeMethod(
+              'hello', [_idList, _cookie, _id, _csrf, _tags.toString()]);
           //  todo: When passing data to swift as an array, Swift must get into the array and separate the items
         } catch (e) {
           print(e);

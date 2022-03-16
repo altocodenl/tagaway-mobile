@@ -1,5 +1,8 @@
 import UIKit
 import Flutter
+import Photos
+
+
 
 
 @UIApplicationMain
@@ -15,20 +18,34 @@ import Flutter
       
       methodChannel.setMethodCallHandler({(call: FlutterMethodCall, result: FlutterResult)-> Void in
           if call.method == "hello"{
-              let ids: [String] = call.arguments as! [String]
-              for item in ids{
-                  print("id \(item)")
+              let arguments: [Any] = call.arguments as! [Any]
+              let idList: [String] = arguments[0] as! [String]
+              print(idList[0])
+              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: nil)
+              print("piv is \(phAssetPivFetchedAsset)")
+              phAssetPivFetchedAsset.enumerateObjects {(object,_,_) in
+                  print(object)
+                  
               }
-//              let cookie: String = call.arguments as! String
-//              print("cookie is \(cookie)")
-//              let id: String = call.arguments as! String
-//              print("id is \(id)")
-//              let csrf: String = call.arguments as! String
-//              print("csrf is \(csrf)")
-//              let tags: [String] = call.arguments as! [String]
-//              for item in tags{
-//                  print("tag \(item)")
+//              let phAssets = piv.objects(at: IndexSet(0..<piv.count))
+//              print("phAssets is \(phAssets)")
+             
+              
+              
+              
+              
+//              for item in idList{
+//                  print("id \(item)")
 //              }
+//              let cookie: String = arguments[1] as! String
+//              print("cookie is \(cookie)")
+//              let id: Int = arguments[2] as! Int
+//              print("id is \(id)")
+//              let csrf: String = arguments[3] as! String
+//              print("csrf is \(csrf)")
+//              let tag: String = arguments[4] as! String
+//              print("tag is \(tag)")
+
               
               
 //              result(call.arguments)
