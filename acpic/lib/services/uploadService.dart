@@ -12,6 +12,7 @@ import 'dart:isolate';
 import 'package:acpic/screens/grid.dart';
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
+import 'package:acpic/ui_elements/constants.dart';
 
 class UploadService {
   UploadService._privateConstructor();
@@ -23,7 +24,7 @@ class UploadService {
       String op, String csrf, List tags, String cookie, int total) async {
     try {
       final response = await http.post(
-        Uri.parse('https://altocode.nl/picdev/upload'),
+        Uri.parse(kAltoDevPicApp + '/upload'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'cookie': cookie
@@ -51,7 +52,7 @@ class UploadService {
   Future<int> uploadEnd(String op, String csrf, int id, String cookie) async {
     try {
       final response = await http.post(
-        Uri.parse('https://altocode.nl/picdev/upload'),
+        Uri.parse(kAltoDevPicApp + '/upload'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'cookie': cookie
@@ -78,7 +79,7 @@ class UploadService {
       String csrf, Object error, int id, String cookie) async {
     try {
       final response = await http.post(
-        Uri.parse('https://altocode.nl/picdev/upload'),
+        Uri.parse(kAltoDevPicApp + '/upload'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'cookie': cookie
@@ -177,7 +178,7 @@ class UploadService {
                       .length -
                   list.length);
       File image = await piv;
-      var uri = Uri.parse('https://altocode.nl/picdev/piv');
+      var uri = Uri.parse(kAltoDevPicApp + '/piv');
       var request = http.MultipartRequest('POST', uri);
       try {
         request.headers['cookie'] = cookie;
@@ -303,7 +304,7 @@ void isolateUpload(List<Object> arguments) async {
     var asset = await AssetEntity.fromId(idList[0]);
     var piv = asset.originFile;
     File image = await piv;
-    var uri = Uri.parse('https://altocode.nl/picdev/piv');
+    var uri = Uri.parse(kAltoDevPicApp + '/piv');
     var request = http.MultipartRequest('POST', uri);
     try {
       request.headers['cookie'] = arguments[1];
@@ -344,7 +345,7 @@ void isolateUpload(List<Object> arguments) async {
         // If 200 go on, if not error streamline.
         try {
           final response = await http.post(
-            Uri.parse('https://altocode.nl/picdev/upload'),
+            Uri.parse('https://altocode.nl/dev/pic/app/upload'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'cookie': arguments[1]

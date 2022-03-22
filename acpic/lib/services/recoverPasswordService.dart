@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/constants.dart';
 
 class RecoverPasswordService {
   RecoverPasswordService._privateConstructor();
@@ -12,7 +14,7 @@ class RecoverPasswordService {
   Future<int> recoverPassword(String username) async {
     try {
       final response = await http.post(
-        Uri.parse('https://altocode.nl/picdev/auth/recover'),
+        Uri.parse(kAltoDevPicApp + '/auth/recover'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -1,8 +1,7 @@
 import UIKit
 import Flutter
 import Photos
-
-
+import Alamofire
 
 
 @UIApplicationMain
@@ -24,16 +23,13 @@ import Photos
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: nil)
               print("piv is \(phAssetPivFetchedAsset)")
               phAssetPivFetchedAsset.enumerateObjects {(object,_,_) in
-                  print(object)
-                  
+                  print("object is \(object)")
+
               }
-//              let phAssets = piv.objects(at: IndexSet(0..<piv.count))
-//              print("phAssets is \(phAssets)")
-             
+              result("\(phAssetPivFetchedAsset)")
               
-              
-              
-              
+            
+ 
 //              for item in idList{
 //                  print("id \(item)")
 //              }

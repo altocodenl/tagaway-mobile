@@ -2,6 +2,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/constants.dart';
 
 class LoginCheckService {
   LoginCheckService._privateConstructor();
@@ -10,7 +12,7 @@ class LoginCheckService {
   Future<int> loginCheck(String cookie) async {
     try {
       final response = await http.get(
-        Uri.parse('https://altocode.nl/picdev/csrf'),
+        Uri.parse(kAltoDevPicApp + '/csrf'),
         headers: <String, String>{'cookie': cookie},
       );
       return response.statusCode;

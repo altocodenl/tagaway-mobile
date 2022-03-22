@@ -357,6 +357,14 @@ class _BottomRowState extends State<BottomRow> {
         } catch (e) {
           print(e);
         }
+        UploadService.instance.uiCancelReset(context);
+        UploadService.instance.idList.clear();
+        UploadService.instance.assetEntityList.clear();
+        _idList.clear();
+        UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+        SharedPreferencesService.instance.removeValue('selectedListID');
+        uploadCancelled = false;
+        SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
         print('$value');
       } else {
         var receivePort = ReceivePort();

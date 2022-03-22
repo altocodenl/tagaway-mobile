@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
+// IMPORT UI ELEMENTS
+import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 
@@ -14,7 +16,7 @@ class LogInService {
       String username, String password, dynamic timezone) async {
     try {
       final response = await http.post(
-        Uri.parse('https://altocode.nl/picdev/auth/login'),
+        Uri.parse(kAltoDevPicApp + '/auth/login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
