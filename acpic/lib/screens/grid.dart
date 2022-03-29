@@ -361,7 +361,7 @@ class _BottomRowState extends State<BottomRow> {
         UploadService.instance.idList.clear();
         UploadService.instance.assetEntityList.clear();
         _idList.clear();
-        UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+        // UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
         SharedPreferencesService.instance.removeValue('selectedListID');
         uploadCancelled = false;
         SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
