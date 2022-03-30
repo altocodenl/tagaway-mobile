@@ -240,9 +240,12 @@ class UploadService {
   }
 
   Future uploadIDListing(List<AssetEntity> list) async {
+    print('Start uploadIDListing at ' + DateTime.now().toString());
+
     // print('In uploadIDListing list length is ${list.length}');
     dataOfOne() async {
       if (list.isEmpty) {
+        print('finished uploadIDListing at ' + DateTime.now().toString());
         return false;
       }
       var asset = list[0];
@@ -312,7 +315,7 @@ void isolateUpload(List<Object> arguments) async {
       request.fields['csrf'] = arguments[3];
       request.fields['tags'] = arguments[4].toString();
       request.fields['lastModified'] =
-          asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+          asset.createDateTime.millisecondsSinceEpoch.abs().toString();
       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
       var response = await client.send(request);
       final respStr = await response.stream.bytesToString();

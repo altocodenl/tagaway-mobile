@@ -349,13 +349,13 @@ class _BottomRowState extends State<BottomRow> {
       }
       if (Platform.isIOS) {
         String value;
+        SharedPreferencesService.instance.removeValue('selectedListID');
         try {
           SharedPreferencesService.instance.removeValue('selectedListID');
           value = await platform.invokeMethod(
               'iosUpload', [_idList, _cookie, _id, _csrf, _tags.toString()]);
-          //  todo: When passing data to swift as an array, Swift must get into the array and separate the items
         } catch (e) {
-          print(e);
+          print('Error is $e');
         }
         UploadService.instance.uiCancelReset(context);
         UploadService.instance.idList.clear();

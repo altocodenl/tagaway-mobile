@@ -16,7 +16,7 @@ import SystemConfiguration
       var sURL: String!
       var imageFinal: UIImage?
       sURL = "https://altocode.nl/dev/pic/app/piv"
-      var multipartDataFormResponse: String!
+      var multipartDataFormResponse: String! = "A string"
       
       func getArrayOfBytesFromImage(imageFinal:NSData) -> Array<UInt8>
       {
@@ -52,9 +52,12 @@ import SystemConfiguration
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
+//              let mimeTypeList: [String] = arguments[5] as! [String]
+//              var mimeType: String = mimeTypeList[0]
+//              print(mimeType)
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
               let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
-//              print(pivPHAsset as PHAsset)
+              print(pivPHAsset as PHAsset)
               let manager = PHImageManager.default()
               let requestOptions = PHImageRequestOptions()
               requestOptions.isSynchronous = true
@@ -67,7 +70,6 @@ import SystemConfiguration
                       if let image = UIImage(data: data){
                           imageFinal = image
                       }
-                      
                  } } else {
                      return
                  }
@@ -83,22 +85,24 @@ import SystemConfiguration
                 "id": String(id),
                 "csrf": csrf,
                 "tags": tag,
-                "lastModified": String(Int(pivPHAsset.creationDate?.timeIntervalSince1970 ?? 0))
+                "lastModified": String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
               ]
               
                AF.upload(multipartFormData: {MultipartFormData in
                   for (key, value) in parameters {
                       MultipartFormData.append(Data(value.utf8), withName: key)
-                      MultipartFormData.append((imageFinal?.jpegData(compressionQuality: 1))!, withName: "piv", fileName: "piv", mimeType: "image/jpeg")
                   }
+                   MultipartFormData.append((imageFinal?.pngData())!, withName: "piv", fileName: "piv", mimeType: "image/png")
               }, to: sURL, method: .post, headers: headers)
                   .response {response in
                       print(response.debugDescription)
                        multipartDataFormResponse = response.debugDescription
+                      
 //                      print(response.response?.statusCode)
                   }
 //              result(call.arguments)
-              result(multipartDataFormResponse)
+
+            result("a string")
               
           }else{
               result(FlutterMethodNotImplemented)
