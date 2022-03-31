@@ -52,9 +52,6 @@ import SystemConfiguration
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
-//              let mimeTypeList: [String] = arguments[5] as! [String]
-//              var mimeType: String = mimeTypeList[0]
-//              print(mimeType)
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
               let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
               print(pivPHAsset as PHAsset)
@@ -64,15 +61,12 @@ import SystemConfiguration
               requestOptions.isNetworkAccessAllowed = false
               requestOptions.resizeMode = .none
               if #available(iOS 13, *) {
-                  if imageFinal == nil
-                 { manager.requestImageDataAndOrientation(for: pivPHAsset, options: requestOptions){(data,_,_,_) in
-                      guard let data = data else{return}
-                      if let image = UIImage(data: data){
-                          imageFinal = image
-                      }
-                 } } else {
-                     return
-                 }
+                  manager.requestImageDataAndOrientation(for: pivPHAsset, options: requestOptions){(data,_,_,_) in
+                       guard let data = data else{return}
+                       if let image = UIImage(data: data){
+                           imageFinal = image
+                       }
+                  }
               } else {
                   // Fallback on earlier versions
 //                  manager.requestImage(for: <#T##PHAsset#>, targetSize: <#T##CGSize#>, contentMode: <#T##PHImageContentMode#>, options: <#T##PHImageRequestOptions?#>, resultHandler: <#T##(UIImage?, [AnyHashable : Any]?) -> Void#>)
@@ -97,8 +91,6 @@ import SystemConfiguration
                   .response {response in
                       print(response.debugDescription)
                        multipartDataFormResponse = response.debugDescription
-                      
-//                      print(response.response?.statusCode)
                   }
 //              result(call.arguments)
 

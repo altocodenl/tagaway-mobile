@@ -240,12 +240,9 @@ class UploadService {
   }
 
   Future uploadIDListing(List<AssetEntity> list) async {
-    print('Start uploadIDListing at ' + DateTime.now().toString());
-
     // print('In uploadIDListing list length is ${list.length}');
     dataOfOne() async {
       if (list.isEmpty) {
-        print('finished uploadIDListing at ' + DateTime.now().toString());
         return false;
       }
       var asset = list[0];
@@ -328,7 +325,6 @@ void isolateUpload(List<Object> arguments) async {
         client.close();
         idList.clear();
         return false;
-        //  {"error":"status: uploading|complete|cancelled|stalled|error"}
       } else if (response.statusCode == 409 &&
           respStr == '{"error":"status: complete"}') {
         sendPort.send('completeError');
@@ -400,13 +396,6 @@ void isolateUpload(List<Object> arguments) async {
       } catch (e) {
         print(e);
       }
-      // on FileSystemException catch (e) {
-      //   print('FileSystemException $e');
-      // } on Exception catch (e) {
-      //   print('Exception on delete $e');
-      // } on FileSystemDeleteEvent catch (e) {
-      //   print(e);
-      // }
     }
     sendPort.send(idList.length);
     // print('Bottom of the function at ' + DateTime.now().toString());
