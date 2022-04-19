@@ -14,31 +14,9 @@ import SystemConfiguration
 //Custom code here ---
       let photosOptions = PHFetchOptions()
       var sURL: String!
-      var imageFinal: UIImage?
       sURL = "https://altocode.nl/dev/pic/app/piv"
       var multipartDataFormResponse: String! = "A string"
-//      var fileURL: URL?
-//      var data: NSData?
-//      var urlMedia: NSURL?
       
-      
-      func getArrayOfBytesFromImage(imageFinal:NSData) -> Array<UInt8>
-      {
-        // the number of elements:
-        let count = imageFinal.length / MemoryLayout<Int8>.size
-        // create array of appropriate length:
-        var bytes = [UInt8](repeating: 0, count: count)
-        // copy bytes into array
-          imageFinal.getBytes(&bytes, length:count * MemoryLayout<Int8>.size)
-        var byteArray:Array = Array<UInt8>()
-        for i in 0 ..< count {
-          byteArray.append(bytes[i])
-        }
-        return byteArray
-      }
-      
-      
-
       let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
       let methodChannel = FlutterMethodChannel(name: "nl.altocode.acpic/iosupload", binaryMessenger: controller.binaryMessenger)
       
@@ -54,33 +32,9 @@ import SystemConfiguration
               let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
 //              print(pivPHAsset as PHAsset)
 //              print(PHAssetResource.assetResources(for: pivPHAsset).first?.uniformTypeIdentifier)
-              
-             
-              if #available(iOS 13, *) {
-                  let manager = PHImageManager.default()
-                  let requestOptions = PHImageRequestOptions()
-                  requestOptions.isSynchronous = true
-                  requestOptions.isNetworkAccessAllowed = false
-                  requestOptions.resizeMode = .none
-                  
-                  manager.requestImageDataAndOrientation(for: pivPHAsset, options: requestOptions){(data,_,_,_) in
-                       guard let data = data else{return}
-                       if let image = UIImage(data: data){
-                           imageFinal = image
-//                           print("imageFinal?.pngData() is \(String(describing: imageFinal?.pngData()))")
-                       }
-                  }
-                  
-                  
-              } else {
-                  // Fallback on earlier versions
-//                  manager.requestImage(for: <#T##PHAsset#>, targetSize: <#T##CGSize#>, contentMode: <#T##PHImageContentMode#>, options: <#T##PHImageRequestOptions?#>, resultHandler: <#T##(UIImage?, [AnyHashable : Any]?) -> Void#>)
-              }
-              
+                   
                pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
                    let fileURL = input!.fullSizeImageURL
-                   let urlMedia: NSURL = NSURL(string: fileURL!.absoluteString)!
-                   let data: NSData = NSData.init(contentsOf: fileURL!)!
                    let dataImage: NSData = NSData(contentsOfFile: fileURL!.path)!
                    
                    let headers: HTTPHeaders = [
@@ -98,10 +52,7 @@ import SystemConfiguration
                        for (key, value) in parameters {
                            MultipartFormData.append(Data(value.utf8), withName: key)
                        }
-                        print("fileURL is \(String(describing: fileURL))")
-                        MultipartFormData.append(data as Data, withName: "piv", fileName: "piv", mimeType: "image/png")
-//                        MultipartFormData.append(
-//                         (imageFinal?.pngData())!, withName: "piv", fileName: "piv", mimeType: "image/png")
+                        MultipartFormData.append(dataImage as Data, withName: "piv", fileName: "piv", mimeType: "image/png")
                    }, to: sURL, method: .post, headers: headers)
                        .response {response in
                            print(response.debugDescription)
@@ -109,32 +60,6 @@ import SystemConfiguration
                        }
                 
               }
-              
-              
-              
-//              let headers: HTTPHeaders = [
-//                "content-type": "multipart/form-data",
-//                "cookie": cookie
-//              ]
-//              let parameters: [String: String] = [
-//                "id": String(id),
-//                "csrf": csrf,
-//                "tags": tag,
-//                "lastModified": String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
-//              ]
-//
-//               AF.upload(multipartFormData: {MultipartFormData in
-//                  for (key, value) in parameters {
-//                      MultipartFormData.append(Data(value.utf8), withName: key)
-//                  }
-//                   print("fileURL is \(String(describing: fileURL))")
-//                   MultipartFormData.append(
-//                    (imageFinal?.pngData())!, withName: "piv", fileName: "piv", mimeType: "image/png")
-//              }, to: sURL, method: .post, headers: headers)
-//                  .response {response in
-//                      print(response.debugDescription)
-//                       multipartDataFormResponse = response.debugDescription
-//                  }
               
 //              result(call.arguments)
 
