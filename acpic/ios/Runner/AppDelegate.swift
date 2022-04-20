@@ -12,13 +12,31 @@ import SystemConfiguration
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 //Custom code here ---
+      let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+      let methodChannel = FlutterMethodChannel(name: "nl.altocode.acpic/iosupload", binaryMessenger: controller.binaryMessenger)
+      
       let photosOptions = PHFetchOptions()
       var sURL: String!
       sURL = "https://altocode.nl/dev/pic/app/piv"
       var multipartDataFormResponse: String! = "A string"
+      var pHAssetArray: [PHAsset] = []
       
-      let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-      let methodChannel = FlutterMethodChannel(name: "nl.altocode.acpic/iosupload", binaryMessenger: controller.binaryMessenger)
+//      func idToPhAsset(idList: [String]){
+//      var copyOfidList: [String] = idList
+//          func populatePhAssetArray(){
+//              if(copyOfidList.isEmpty){
+//                  print(pHAssetArray)
+//              }
+//              else{
+//              var phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [copyOfidList[0]], options: photosOptions)
+//              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
+//              pHAssetArray.append(pivPHAsset)
+//              copyOfidList.remove(at: 0)}
+//          }
+//          populatePhAssetArray()
+//      }
+
+      
       
       methodChannel.setMethodCallHandler({(call: FlutterMethodCall, result: FlutterResult)-> Void in
           if call.method == "iosUpload"{
@@ -28,15 +46,20 @@ import SystemConfiguration
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
+//              idToPhAsset(idList: idList)
+              
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
               let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
+              
 //              print(pivPHAsset as PHAsset)
 //              print(PHAssetResource.assetResources(for: pivPHAsset).first?.uniformTypeIdentifier)
+              
+              
                    
                pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
                    let fileURL = input!.fullSizeImageURL
-                   let dataImage: NSData = NSData(contentsOfFile: fileURL!.path)!
-                   
+//                   let dataImage: NSData = NSData(contentsOfFile: fileURL!.path)!
+
                    let headers: HTTPHeaders = [
                      "content-type": "multipart/form-data",
                      "cookie": cookie
@@ -47,18 +70,24 @@ import SystemConfiguration
                      "tags": tag,
                      "lastModified": String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
                    ]
-                   
+
                     AF.upload(multipartFormData: {MultipartFormData in
                        for (key, value) in parameters {
                            MultipartFormData.append(Data(value.utf8), withName: key)
                        }
-                        MultipartFormData.append(dataImage as Data, withName: "piv", fileName: "piv", mimeType: "image/png")
+//                        --- URL INSTANCE UPLOAD ---
+                        MultipartFormData.append(fileURL!, withName: "piv", fileName: "piv", mimeType: "image/png")
+//                        --- DATA INSTANCE UPLOAD ---
+//                        MultipartFormData.append(dataImage as Data, withName: "piv", fileName: "piv", mimeType: "image/png")
+
+
                    }, to: sURL, method: .post, headers: headers)
                        .response {response in
                            print(response.debugDescription)
                             multipartDataFormResponse = response.debugDescription
+                           print(multipartDataFormResponse)
                        }
-                
+
               }
               
 //              result(call.arguments)
