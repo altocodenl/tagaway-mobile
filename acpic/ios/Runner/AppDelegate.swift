@@ -16,42 +16,55 @@ import SystemConfiguration
       let methodChannel = FlutterMethodChannel(name: "nl.altocode.acpic/iosupload", binaryMessenger: controller.binaryMessenger)
       
       let photosOptions = PHFetchOptions()
-      var sURL: String!
-      sURL = "https://altocode.nl/dev/pic/app/piv"
-      var multipartDataFormResponse: String! = "A string"
-      var imageFinal: UIImage?
+//      var sURL: String!
+//      sURL = "https://altocode.nl/dev/pic/app/piv"
+//      var multipartDataFormResponse: String! = "A string"
+//      var imageFinal: UIImage?
       var phAssetArray: [PHAsset] = []
       var lastModifiedArray: [String] = []
+      var array: [URL] = []
       
-      func idToPhAsset(idList: [String]){
-      var copyOfidList: [String] = idList
-          func populatePhAssetArray()-> Void{
-              if(copyOfidList.isEmpty){
-                  print("I am at the end and phAssetArray is \(phAssetArray.count)")
-                  print("I am at the end and lastModifiedArray is \(lastModifiedArray.count)")
-                  print("Done uploading")
-                  return
+      func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler: @escaping ((_ responseURL : URL?) ->
+                                                                               Void)){
+          let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
+          options.canHandleAdjustmentData = {(adjustmeta : PHAdjustmentData) -> Bool in return true}
+          print("hello")
+      mPhasset.requestContentEditingInput(with: options, completionHandler: {(PHContentEditingInput, info) in
+          completionHandler(PHContentEditingInput!.fullSizeImageURL)
+          print("Goodbye")
+      })}
+      
+      func getUrlsFromPHAssets(assets: [PHAsset], completion: @escaping ((_ array:[URL]) -> ())){
+          let group = DispatchGroup()
+          for asset in assets {
+              group.enter()
+              getURL(ofPhotoWith: asset) { (url) in
+                  if let url = url {
+                      array.append(url)
+                      print(url)
+                  }
+                  group.leave()
               }
-              else{
-//                  var phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [copyOfidList[0]], options: photosOptions)
-                 
-//                  ID -> Fetched Asset -> PHAsset -> File / Last Modified
-                  
-//                  Array de PHAsset
-//                  Array de Last Modified
-                  
-                  
-//                  let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
-//                  phAssetArray.append(pivPHAsset)
-//                  let lastModified = String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
-//                  lastModifiedArray.append(lastModified)
-                  
-              copyOfidList.remove(at: 0)}
-              print(copyOfidList.count)
-              populatePhAssetArray()
+              group.notify(queue: .main){
+                  completion(array)
+              }
+          }}
+      
+      
+      func idToPhAssetAndLastModified(idList: [String]){
+          for id in idList{
+              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: photosOptions)
+              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
+              phAssetArray.append(pivPHAsset)
+              let lastModified: String = String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
+              lastModifiedArray.append(lastModified)
           }
-          populatePhAssetArray()
-      }
+          print("phAssetArray.count is \(phAssetArray.count)" )
+          getUrlsFromPHAssets(assets: phAssetArray, completion: { array in print("array.count is \(array.count)")
+  })
+
+       }
+      
 
       
       
@@ -59,12 +72,12 @@ import SystemConfiguration
           if call.method == "iosUpload"{
               let arguments: [Any] = call.arguments as! [Any]
               let idList: [String] = arguments[0] as! [String]
-              print(idList.count)
+//              print(idList.count)
               let cookie: String = arguments[1] as! String
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
-              idToPhAsset(idList: idList)
+              idToPhAssetAndLastModified(idList: idList)
               
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
