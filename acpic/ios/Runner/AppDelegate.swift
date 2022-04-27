@@ -19,7 +19,7 @@ import SystemConfiguration
 //      var sURL: String!
 //      sURL = "https://altocode.nl/dev/pic/app/piv"
 //      var multipartDataFormResponse: String! = "A string"
-//      var imageFinal: UIImage?
+      var imageFinal: UIImage?
       var phAssetArray: [PHAsset] = []
       var lastModifiedArray: [String] = []
       var array: [URL] = []
@@ -28,11 +28,12 @@ import SystemConfiguration
                                                                                Void)){
           let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
           options.canHandleAdjustmentData = {(adjustmeta : PHAdjustmentData) -> Bool in return true}
-          print("hello")
-      mPhasset.requestContentEditingInput(with: options, completionHandler: {(PHContentEditingInput, info) in
-          completionHandler(PHContentEditingInput!.fullSizeImageURL)
-          print("Goodbye")
-      })}
+//      mPhasset.requestContentEditingInput(with: options, completionHandler: {(PHContentEditingInput, info) in
+//          completionHandler(PHContentEditingInput!.fullSizeImageURL)
+          completionHandler(URL(string: "sarasa"))
+          print("getting sarasa")
+      }
+//      )
       
       func getUrlsFromPHAssets(assets: [PHAsset], completion: @escaping ((_ array:[URL]) -> ())){
           let group = DispatchGroup()
@@ -60,9 +61,9 @@ import SystemConfiguration
               lastModifiedArray.append(lastModified)
           }
           print("phAssetArray.count is \(phAssetArray.count)" )
+        
           getUrlsFromPHAssets(assets: phAssetArray, completion: { array in print("array.count is \(array.count)")
-  })
-
+              })
        }
       
 
@@ -72,7 +73,6 @@ import SystemConfiguration
           if call.method == "iosUpload"{
               let arguments: [Any] = call.arguments as! [Any]
               let idList: [String] = arguments[0] as! [String]
-//              print(idList.count)
               let cookie: String = arguments[1] as! String
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
@@ -81,13 +81,29 @@ import SystemConfiguration
               
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
+//
+//              if #available(iOS 13, *) {
+//                                let manager = PHImageManager.default()
+//                                let requestOptions = PHImageRequestOptions()
+//                                requestOptions.isSynchronous = true
+//                                requestOptions.isNetworkAccessAllowed = false
+//                                requestOptions.resizeMode = .none
+//
+//                                manager.requestImageDataAndOrientation(for: pivPHAsset, options: requestOptions){(data,_,_,_) in
+//                                     guard let data = data else{return}
+//                                     if let image = UIImage(data: data){
+//                                         imageFinal = image
+//                                        print(imageFinal)
+//                                     }
+//                                }}
+              
               
 //              print(pivPHAsset as PHAsset)
 //              print(PHAssetResource.assetResources(for: pivPHAsset).first?.uniformTypeIdentifier)
               
+              
 //               pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
 //                   let fileURL = input!.fullSizeImageURL
-////                   let dataImage: NSData = NSData(contentsOfFile: fileURL!.path)!
 //                   print(fileURL)
 //
 //                   let headers: HTTPHeaders = [
@@ -109,8 +125,8 @@ import SystemConfiguration
 //                        MultipartFormData.append(fileURL!, withName: "piv", fileName: "piv", mimeType: "image/png")
 ////                        --- DATA INSTANCE UPLOAD ---
 ////                        MultipartFormData.append(dataImage as Data, withName: "piv", fileName: "piv", mimeType: "image/png")
-//
-//
+
+
 //                   }, to: sURL, method: .post, headers: headers)
 //                       .response {response in
 //                           print(response.debugDescription)
@@ -119,7 +135,7 @@ import SystemConfiguration
 //                       }
 //
 //              }
-              
+//
 //              result(call.arguments)
 
           
