@@ -5,6 +5,7 @@ import Alamofire
 import SystemConfiguration
 
 
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     override func application(
@@ -19,7 +20,7 @@ import SystemConfiguration
 //      var sURL: String!
 //      sURL = "https://altocode.nl/dev/pic/app/piv"
 //      var multipartDataFormResponse: String! = "A string"
-      var imageFinal: UIImage?
+//      var imageFinal: UIImage?
       var phAssetArray: [PHAsset] = []
       var lastModifiedArray: [String] = []
       var array: [URL] = []
@@ -28,14 +29,12 @@ import SystemConfiguration
                                                                                Void)){
           let options: PHContentEditingInputRequestOptions = PHContentEditingInputRequestOptions()
           options.canHandleAdjustmentData = {(adjustmeta : PHAdjustmentData) -> Bool in return true}
-//      mPhasset.requestContentEditingInput(with: options, completionHandler: {(PHContentEditingInput, info) in
-//          completionHandler(PHContentEditingInput!.fullSizeImageURL)
-          completionHandler(URL(string: "sarasa"))
-          print("getting sarasa")
+          mPhasset.requestContentEditingInput(with: options, completionHandler: {(PHContentEditingInput, info) in
+              completionHandler(PHContentEditingInput!.fullSizeImageURL)
       }
-//      )
+      )}
       
-      func getUrlsFromPHAssets(assets: [PHAsset], completion: @escaping ((_ array:[URL]) -> ())){
+      func getUrlsFromPHAssets(assets: [PHAsset], completion: @escaping ((_ urls:[URL]) -> ())){
           let group = DispatchGroup()
           for asset in assets {
               group.enter()
@@ -51,19 +50,33 @@ import SystemConfiguration
               }
           }}
       
+      func phassetToUrl(phasset: PHAsset){
+          phasset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
+             var fileURL = input!.fullSizeImageURL
+             print(fileURL)
+              fileURL = nil
+         }
+      }
       
-      func idToPhAssetAndLastModified(idList: [String]){
+      
+      func idToPhAssetAndLastModified(idList: [String]) {
           for id in idList{
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: photosOptions)
-              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
+              var pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
               phAssetArray.append(pivPHAsset)
-              let lastModified: String = String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
-              lastModifiedArray.append(lastModified)
+              
+//              let lastModified: String = String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
+//              lastModifiedArray.append(lastModified)
+               
           }
           print("phAssetArray.count is \(phAssetArray.count)" )
-        
-          getUrlsFromPHAssets(assets: phAssetArray, completion: { array in print("array.count is \(array.count)")
-              })
+          for phasset in phAssetArray{
+              phassetToUrl(phasset: phasset)
+
+          }
+          
+//          getUrlsFromPHAssets(assets: phAssetArray, completion: { array in print("array.count is \(array.count)")
+//              })
        }
       
 
@@ -77,33 +90,18 @@ import SystemConfiguration
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
-              idToPhAssetAndLastModified(idList: idList)
+            idToPhAssetAndLastModified(idList: idList)
               
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
 //
-//              if #available(iOS 13, *) {
-//                                let manager = PHImageManager.default()
-//                                let requestOptions = PHImageRequestOptions()
-//                                requestOptions.isSynchronous = true
-//                                requestOptions.isNetworkAccessAllowed = false
-//                                requestOptions.resizeMode = .none
-//
-//                                manager.requestImageDataAndOrientation(for: pivPHAsset, options: requestOptions){(data,_,_,_) in
-//                                     guard let data = data else{return}
-//                                     if let image = UIImage(data: data){
-//                                         imageFinal = image
-//                                        print(imageFinal)
-//                                     }
-//                                }}
-              
-              
 //              print(pivPHAsset as PHAsset)
 //              print(PHAssetResource.assetResources(for: pivPHAsset).first?.uniformTypeIdentifier)
               
               
 //               pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
-//                   let fileURL = input!.fullSizeImageURL
+////                   let fileURL = input!.fullSizeImageURL
+//                   let fileURL = URL(string: "file:///private/var/mobile/Containers/Data/Application/C08BA46E-09B7-4A19-A705-9A58BB7DB749/tmp/.video/1649480451.641622_IMG_6206.MOV")
 //                   print(fileURL)
 //
 //                   let headers: HTTPHeaders = [
@@ -137,8 +135,8 @@ import SystemConfiguration
 //              }
 //
 //              result(call.arguments)
-
-          
+//
+//
           }else{
               result(FlutterMethodNotImplemented)
           }

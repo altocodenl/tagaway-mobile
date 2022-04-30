@@ -18,6 +18,7 @@ class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
   List<String> idList = [];
+  List<String> mediaUrlList = [];
   List<AssetEntity> assetEntityList = [];
 
   Future<String> uploadStart(
@@ -247,8 +248,8 @@ class UploadService {
       }
       var asset = list[0];
       String id = asset.id;
-      // idList.add(id);
       idList.insert(0, id);
+      // idList.add(id);
       list.removeAt(0);
       return true;
     }

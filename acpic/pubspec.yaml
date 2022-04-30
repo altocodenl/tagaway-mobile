@@ -30,7 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.3
   http: ^0.13.3
   url_launcher: ^6.0.10
-  photo_manager: ^2.0.1
+  photo_manager: ^2.0.8
   video_player: ^2.1.12
   provider: ^5.0.0
   permission_handler: ^8.1.4+2

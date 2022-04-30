@@ -365,7 +365,7 @@ class _BottomRowState extends State<BottomRow> {
         SharedPreferencesService.instance.removeValue('selectedListID');
         uploadCancelled = false;
         SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
-        print('$value');
+        // print('$value');
       } else {
         var receivePort = ReceivePort();
         //--- CALL THE ISOLATE ---
