@@ -17,12 +17,11 @@ import SystemConfiguration
       let methodChannel = FlutterMethodChannel(name: "nl.altocode.acpic/iosupload", binaryMessenger: controller.binaryMessenger)
       
       let photosOptions = PHFetchOptions()
-//      var sURL: String!
-//      sURL = "https://altocode.nl/dev/pic/app/piv"
-//      var multipartDataFormResponse: String! = "A string"
+      var sURL: String!
+      sURL = "https://altocode.nl/dev/pic/app/piv"
+      var multipartDataFormResponse: String! = "A string"
 //      var imageFinal: UIImage?
       var phAssetArray: [PHAsset] = []
-      var lastModifiedArray: [String] = []
       var array: [URL] = []
       
       func getURL(ofPhotoWith mPhasset: PHAsset, completionHandler: @escaping ((_ responseURL : URL?) ->
@@ -50,32 +49,58 @@ import SystemConfiguration
               }
           }}
       
-      func phassetToUrl(phasset: PHAsset){
-          phasset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
+      func phassetToUrl(phasset: PHAsset, cookie: String, id: Int, csrf: String, tag: String){
+     phasset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
              var fileURL = input!.fullSizeImageURL
              print(fileURL)
-              fileURL = nil
+         
+         let headers: HTTPHeaders = [
+          "content-type": "multipart/form-data",
+          "cookie": cookie
+        ]
+        let parameters: [String: String] = [
+          "id": String(id),
+          "csrf": csrf,
+          "tags": tag,
+          "lastModified": String(Int(phasset.creationDate!.timeIntervalSince1970*1000))
+        ]
+
+         AF.upload(multipartFormData: {MultipartFormData in
+            for (key, value) in parameters {
+                MultipartFormData.append(Data(value.utf8), withName: key)
+            }
+//                        --- URL INSTANCE UPLOAD ---
+             MultipartFormData.append(fileURL!, withName: "piv", fileName: "piv", mimeType: "image/png")
+
+
+
+        }, to: sURL, method: .post, headers: headers)
+            .response {response in
+                print(response.debugDescription)
+                 multipartDataFormResponse = response.debugDescription
+                print(multipartDataFormResponse)
+            }
+         
+                       
+              
          }
+          
       }
       
       
-      func idToPhAssetAndLastModified(idList: [String]) {
+      func idToPhAsset(idList: [String], lastModifiedList: [String], cookie: String, id: Int, csrf: String, tag: String) {
           for id in idList{
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: photosOptions)
               var pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
               phAssetArray.append(pivPHAsset)
-              
-//              let lastModified: String = String(Int(pivPHAsset.creationDate!.timeIntervalSince1970*1000))
-//              lastModifiedArray.append(lastModified)
-               
           }
           print("phAssetArray.count is \(phAssetArray.count)" )
-          for phasset in phAssetArray{
-              phassetToUrl(phasset: phasset)
-
+          for phasset in phAssetArray {
+              phassetToUrl(phasset: phasset, cookie: cookie, id: id, csrf: csrf, tag: tag)
           }
-          
-//          getUrlsFromPHAssets(assets: phAssetArray, completion: { array in print("array.count is \(array.count)")
+
+
+//          getUrlsFromPHAssets(assets: Array(phAssetArray[0...3]), completion: { array in print("array.count is \(array.count)")
 //              })
        }
       
@@ -86,11 +111,12 @@ import SystemConfiguration
           if call.method == "iosUpload"{
               let arguments: [Any] = call.arguments as! [Any]
               let idList: [String] = arguments[0] as! [String]
-              let cookie: String = arguments[1] as! String
-              let id: Int = arguments[2] as! Int
-              let csrf: String = arguments[3] as! String
-              let tag: String = arguments[4] as! String
-            idToPhAssetAndLastModified(idList: idList)
+              let lastModifiedList: [String] = arguments[1] as! [String]
+              let cookie: String = arguments[2] as! String
+              let id: Int = arguments[3] as! Int
+              let csrf: String = arguments[4] as! String
+              let tag: String = arguments[5] as! String
+            idToPhAsset(idList: idList, lastModifiedList: lastModifiedList, cookie: cookie, id: id, csrf: csrf, tag: tag)
               
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
@@ -100,8 +126,7 @@ import SystemConfiguration
               
               
 //               pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
-////                   let fileURL = input!.fullSizeImageURL
-//                   let fileURL = URL(string: "file:///private/var/mobile/Containers/Data/Application/C08BA46E-09B7-4A19-A705-9A58BB7DB749/tmp/.video/1649480451.641622_IMG_6206.MOV")
+//                   let fileURL = input!.fullSizeImageURL
 //                   print(fileURL)
 //
 //                   let headers: HTTPHeaders = [
@@ -123,8 +148,8 @@ import SystemConfiguration
 //                        MultipartFormData.append(fileURL!, withName: "piv", fileName: "piv", mimeType: "image/png")
 ////                        --- DATA INSTANCE UPLOAD ---
 ////                        MultipartFormData.append(dataImage as Data, withName: "piv", fileName: "piv", mimeType: "image/png")
-
-
+//
+//
 //                   }, to: sURL, method: .post, headers: headers)
 //                       .response {response in
 //                           print(response.debugDescription)
@@ -135,8 +160,8 @@ import SystemConfiguration
 //              }
 //
 //              result(call.arguments)
-//
-//
+
+
           }else{
               result(FlutterMethodNotImplemented)
           }

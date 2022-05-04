@@ -324,6 +324,7 @@ class _BottomRowState extends State<BottomRow> {
   List<String> _tags;
   List<AssetEntity> _list;
   List<String> _idList;
+  List<String> _lastModifiedList;
   FlutterIsolate isolate;
   bool uploadCancelled = false;
 
@@ -336,6 +337,7 @@ class _BottomRowState extends State<BottomRow> {
         //--- NO SAVED LIST ---
         await UploadService.instance.uploadIDListing(_list);
         _idList = List.from(UploadService.instance.idList);
+        _lastModifiedList = List.from(UploadService.instance.lastModifiedList);
         // --- SAVE UPLOAD LIST LOCALLY IN CASE APP IS KILLED ---
         SharedPreferencesService.instance
             .setStringListValue('selectedListID', List.from(_idList));
@@ -352,8 +354,14 @@ class _BottomRowState extends State<BottomRow> {
         SharedPreferencesService.instance.removeValue('selectedListID');
         try {
           SharedPreferencesService.instance.removeValue('selectedListID');
-          value = await platform.invokeMethod(
-              'iosUpload', [_idList, _cookie, _id, _csrf, _tags.toString()]);
+          value = await platform.invokeMethod('iosUpload', [
+            _idList,
+            _lastModifiedList,
+            _cookie,
+            _id,
+            _csrf,
+            _tags.toString()
+          ]);
         } catch (e) {
           print('Error is $e');
         }

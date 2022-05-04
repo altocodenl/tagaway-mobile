@@ -18,7 +18,7 @@ class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
   List<String> idList = [];
-  List<String> mediaUrlList = [];
+  List<String> lastModifiedList = [];
   List<AssetEntity> assetEntityList = [];
 
   Future<String> uploadStart(
@@ -250,6 +250,11 @@ class UploadService {
       String id = asset.id;
       idList.insert(0, id);
       // idList.add(id);
+      if (Platform.isIOS) {
+        String lastModified =
+            asset.createDateTime.millisecondsSinceEpoch.abs().toString();
+        lastModifiedList.insert(0, lastModified);
+      }
       list.removeAt(0);
       return true;
     }
