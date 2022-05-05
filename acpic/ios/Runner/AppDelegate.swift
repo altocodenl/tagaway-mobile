@@ -49,11 +49,13 @@ import SystemConfiguration
               }
           }}
       
-      func phassetToUrl(phasset: PHAsset, cookie: String, id: Int, csrf: String, tag: String){
+      func phassetToUrl(phasset: PHAsset, cookie: String, id: Int, csrf: String, tag: String) {
      phasset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
              var fileURL = input!.fullSizeImageURL
              print(fileURL)
-         
+         if(fileURL != nil)
+         {
+             print("Starting \(fileURL)")
          let headers: HTTPHeaders = [
           "content-type": "multipart/form-data",
           "cookie": cookie
@@ -72,15 +74,14 @@ import SystemConfiguration
 //                        --- URL INSTANCE UPLOAD ---
              MultipartFormData.append(fileURL!, withName: "piv", fileName: "piv", mimeType: "image/png")
 
-
-
         }, to: sURL, method: .post, headers: headers)
             .response {response in
                 print(response.debugDescription)
-                 multipartDataFormResponse = response.debugDescription
-                print(multipartDataFormResponse)
+                print("Finishing \(fileURL)")
+//                 multipartDataFormResponse = response.debugDescription
+//                print(multipartDataFormResponse)
             }
-         
+         }
                        
               
          }
@@ -96,7 +97,7 @@ import SystemConfiguration
           }
           print("phAssetArray.count is \(phAssetArray.count)" )
           for phasset in phAssetArray {
-              phassetToUrl(phasset: phasset, cookie: cookie, id: id, csrf: csrf, tag: tag)
+            phassetToUrl(phasset: phasset, cookie: cookie, id: id, csrf: csrf, tag: tag)
           }
 
 

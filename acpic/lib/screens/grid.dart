@@ -163,7 +163,8 @@ class _GridState extends State<Grid> {
 
   selectAll() {
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
-      selectedList = List.from(itemList);
+      // selectedList = List.from(itemList);
+      // selectedList = List.from(itemList.getRange(0, 2));
       selectedListStreamSink();
     } else if (Provider.of<ProviderController>(context, listen: false)
             .isSelectionInProcess ==
@@ -209,7 +210,9 @@ class _GridState extends State<Grid> {
                   key: ValueKey<Object>(providerData),
                   itemBuilder: (BuildContext context, index) {
                     // --- Upon change of the key GridItem gets redrawn. selectAll is called to check if the bool 'all' has been called to fill or clear selectedList ---
-                    selectAll();
+                    // selectAll();
+                    // print("I am getting called $index");
+                    print(selectedList.length);
                     return GridItem(
                       selectedListLengthStreamController:
                           widget.selectedListLengthStreamController,
@@ -350,7 +353,7 @@ class _BottomRowState extends State<BottomRow> {
             List.from(UploadService.instance.assetEntityList);
       }
       if (Platform.isIOS) {
-        String value;
+        // String value;
         SharedPreferencesService.instance.removeValue('selectedListID');
         try {
           SharedPreferencesService.instance.removeValue('selectedListID');
@@ -757,7 +760,7 @@ class _BottomRowState extends State<BottomRow> {
     );
   }
 }
-
+//TODO 2: Bug: when 'select all' is pressed and then a thumbnail is deselected, on scrolling - new thumbnails load on screen - selection goes back to 'select all' amount.
 //TODO 3: Background upload iOS.
 //TODO 4: Implement hash engine.
 //TODO 5: After app crash, implement upload from where it left off
