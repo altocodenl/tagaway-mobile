@@ -163,8 +163,7 @@ class _GridState extends State<Grid> {
 
   selectAll() {
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
-      // selectedList = List.from(itemList);
-      // selectedList = List.from(itemList.getRange(0, 2));
+      selectedList = List.from(itemList);
       selectedListStreamSink();
     } else if (Provider.of<ProviderController>(context, listen: false)
             .isSelectionInProcess ==
@@ -197,6 +196,8 @@ class _GridState extends State<Grid> {
             selector: (context, providerController) =>
                 (providerController.redrawObject),
             builder: (context, providerData, child) {
+              // print("hello rebuild");
+              selectAll();
               return GridView.builder(
                   reverse: true,
                   shrinkWrap: true,
@@ -212,7 +213,6 @@ class _GridState extends State<Grid> {
                     // --- Upon change of the key GridItem gets redrawn. selectAll is called to check if the bool 'all' has been called to fill or clear selectedList ---
                     // selectAll();
                     // print("I am getting called $index");
-                    print(selectedList.length);
                     return GridItem(
                       selectedListLengthStreamController:
                           widget.selectedListLengthStreamController,

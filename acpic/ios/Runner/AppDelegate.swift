@@ -19,8 +19,7 @@ import SystemConfiguration
       let photosOptions = PHFetchOptions()
       var sURL: String!
       sURL = "https://altocode.nl/dev/pic/app/piv"
-      var multipartDataFormResponse: String! = "A string"
-//      var imageFinal: UIImage?
+//      var multipartDataFormResponse: String! = "A string"
       var phAssetArray: [PHAsset] = []
       var array: [URL] = []
       
@@ -55,7 +54,6 @@ import SystemConfiguration
              print(fileURL)
          if(fileURL != nil)
          {
-             print("Starting \(fileURL)")
          let headers: HTTPHeaders = [
           "content-type": "multipart/form-data",
           "cookie": cookie
@@ -77,7 +75,6 @@ import SystemConfiguration
         }, to: sURL, method: .post, headers: headers)
             .response {response in
                 print(response.debugDescription)
-                print("Finishing \(fileURL)")
 //                 multipartDataFormResponse = response.debugDescription
 //                print(multipartDataFormResponse)
             }
@@ -118,13 +115,13 @@ import SystemConfiguration
               let csrf: String = arguments[4] as! String
               let tag: String = arguments[5] as! String
             idToPhAsset(idList: idList, lastModifiedList: lastModifiedList, cookie: cookie, id: id, csrf: csrf, tag: tag)
+             
+              
+              
+              
               
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
-//
-//              print(pivPHAsset as PHAsset)
-//              print(PHAssetResource.assetResources(for: pivPHAsset).first?.uniformTypeIdentifier)
-              
               
 //               pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
 //                   let fileURL = input!.fullSizeImageURL
