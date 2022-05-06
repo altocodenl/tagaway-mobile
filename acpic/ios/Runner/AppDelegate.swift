@@ -22,18 +22,52 @@ import Foundation
       sURL = "https://altocode.nl/dev/pic/app/piv"
 //      var multipartDataFormResponse: String! = "A string"
       var phAssetArray: [PHAsset] = []
-      var urlArray: [URL] = []
+      var pathArray: [URL] = []
       
       
-      
-      func idToPhAsset(idList: [String], cookie: String, id: Int, csrf: String, tag: String) {
+      func idsToPaths(idList: [String]) {
           for id in idList{
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: photosOptions)
               let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
               phAssetArray.append(pivPHAsset)
           }
           print("phAssetArray.count is \(phAssetArray.count)" )
+          var operationsGoingOn = 0
+          let limit = 100
+          func areWeDone () {
+              if (pathArray.count == phAssetArray.count) {
+                 print(pathArray.count)
+                 print(pathArray.last)
+//                  CALL TO BACKGROUND MULTIPARTFORM/DATA
+             }
           }
+          func PathLookup (asset: PHAsset) {
+             if (operationsGoingOn >= limit) {
+                 DispatchQueue.main.asyncAfter(deadline: .now () + 0.5) {
+                     PathLookup(asset: asset)
+                 }
+             }
+             else {
+                operationsGoingOn+=1;
+                asset.requestContentEditingInput (with: PHContentEditingInputRequestOptions()) {(input, _) in
+                    var path = input?.fullSizeImageURL
+                    if (path == nil){
+//                        VIDEO PATH METHOD
+                        path = URL(string: "sarasa")
+                    }
+                    pathArray.append(path!)
+                   operationsGoingOn-=1;
+                    areWeDone()
+                }
+             }
+          }
+          for asset in phAssetArray{
+              PathLookup(asset: asset)
+          }
+      }
+      
+      
+      
       
       methodChannel.setMethodCallHandler({(call: FlutterMethodCall, result: FlutterResult)-> Void in
           if call.method == "iosUpload"{
@@ -43,7 +77,7 @@ import Foundation
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
-            idToPhAsset(idList: idList, cookie: cookie, id: id, csrf: csrf, tag: tag)
+            idsToPaths(idList: idList)
              
               
               
