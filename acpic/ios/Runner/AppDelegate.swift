@@ -33,11 +33,12 @@ import Foundation
           }
           print("phAssetArray.count is \(phAssetArray.count)" )
           var operationsGoingOn = 0
-          let limit = 100
+          let limit = 200
           func areWeDone () {
               if (pathArray.count == phAssetArray.count) {
-                 print(pathArray.count)
-                 print(pathArray.last)
+                 print("pathArray.count is \(pathArray.count)")
+                  print(pathArray.first)
+                  print(pathArray.last)
 //                  CALL TO BACKGROUND MULTIPARTFORM/DATA
              }
           }
@@ -50,13 +51,19 @@ import Foundation
              else {
                 operationsGoingOn+=1;
                 asset.requestContentEditingInput (with: PHContentEditingInputRequestOptions()) {(input, _) in
-                    var path = input?.fullSizeImageURL
-                    if (path == nil){
-//                        VIDEO PATH METHOD
-                        path = URL(string: "sarasa")
+                    if(asset.mediaType == .image){
+                        let path = input?.fullSizeImageURL
+                        pathArray.append(path!)
+                    } else if(asset.mediaType == .video){
+                        let path: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
+                        pathArray.append(path.url)
+                    } else if (asset.mediaType != .image || asset.mediaType != .video){
+                        let path = URL(string: "sarasa")
+                        print("WE A STRANGE ASSET \(asset)")
+                        pathArray.append(path!)
                     }
-                    pathArray.append(path!)
                    operationsGoingOn-=1;
+                    print(operationsGoingOn)
                     areWeDone()
                 }
              }
@@ -80,13 +87,14 @@ import Foundation
             idsToPaths(idList: idList)
              
               
-              
+//
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
-              
 //               pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
-//                   let fileURL = input!.fullSizeImageURL
-//                   print(fileURL)
+////                   let fileURL = input!.fullSizeImageURL
+//                   let fileURL: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
+//                   print(fileURL.url)
+               
 //
 //                   let headers: HTTPHeaders = [
 //                     "content-type": "multipart/form-data",
