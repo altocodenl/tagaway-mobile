@@ -508,7 +508,7 @@ class _BottomRowState extends State<BottomRow> {
         UploadService.instance
             .uploadStart('start', _csrf, [_model], _cookie, value.length)
             .then((response) {
-          // --- CHECK IS NOT OFFLINE ---
+          // --- CHECK DEVICE IS NOT OFFLINE ---
           if (response == 'offline') {
             SnackBarGlobal.buildSnackBar(
                 context, 'You\'re offline. Check your connection.', 'red');
@@ -516,7 +516,7 @@ class _BottomRowState extends State<BottomRow> {
             UploadService.instance.assetEntityList.clear();
             return;
           }
-          // --- CHECK SERVER ERROR ---
+          // --- CHECK FOR SERVER ERROR ---
           else if (response == 'error') {
             SnackBarGlobal.buildSnackBar(
                 context, 'Something is wrong on our side. Sorry.', 'red');
@@ -672,7 +672,7 @@ class _BottomRowState extends State<BottomRow> {
                   onPressed: () {
                     //--------- UPLOAD PROCESSES STARTS ---------
 
-                    // --- PREVENTS UPLOAD CANCELLED REMAINED TRUE FROM A PREVIOUS CANCEL  ---
+                    // --- PREVENTS UPLOAD CANCELLED FLAG REMAINED TRUE FROM A PREVIOUS CANCEL  ---
                     uploadCancelled = false;
                     // --- CHECK THAT SELECTED ITEMS IS NOT EMPTY  ---
                     if (Provider.of<ProviderController>(context, listen: false)
@@ -691,7 +691,7 @@ class _BottomRowState extends State<BottomRow> {
                           .uploadStart(
                               'start', _csrf, [_model], _cookie, _list.length)
                           .then((value) {
-                        // --- CHECK IS NOT OFFLINE ---
+                        // --- CHECK DEVICE IS NOT OFFLINE ---
                         if (value == 'offline') {
                           SnackBarGlobal.buildSnackBar(context,
                               'You\'re offline. Check your connection.', 'red');
@@ -699,7 +699,7 @@ class _BottomRowState extends State<BottomRow> {
                           _list.clear();
                           return;
                         }
-                        // --- CHECK SERVER ERROR ---
+                        // --- CHECK FOR SERVER ERROR ---
                         else if (value == 'error') {
                           SnackBarGlobal.buildSnackBar(context,
                               'Something is wrong on our side. Sorry.', 'red');

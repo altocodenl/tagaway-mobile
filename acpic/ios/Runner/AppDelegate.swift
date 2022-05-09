@@ -34,11 +34,11 @@ import Foundation
           print("phAssetArray.count is \(phAssetArray.count)" )
           var operationsGoingOn = 0
           let limit = 200
+          var done = 0
           func areWeDone () {
-              if (pathArray.count == phAssetArray.count) {
+              if (done == phAssetArray.count) {
                  print("pathArray.count is \(pathArray.count)")
-                  print(pathArray.first)
-                  print(pathArray.last)
+                  
 //                  CALL TO BACKGROUND MULTIPARTFORM/DATA
              }
           }
@@ -58,11 +58,10 @@ import Foundation
                         let path: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
                         pathArray.append(path.url)
                     } else if (asset.mediaType != .image || asset.mediaType != .video){
-                        let path = URL(string: "sarasa")
                         print("WE A STRANGE ASSET \(asset)")
-                        pathArray.append(path!)
                     }
                    operationsGoingOn-=1;
+                    done += 1
                     print(operationsGoingOn)
                     areWeDone()
                 }
