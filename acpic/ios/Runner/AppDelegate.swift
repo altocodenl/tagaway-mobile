@@ -23,9 +23,38 @@ import Foundation
 //      var multipartDataFormResponse: String! = "A string"
       var phAssetArray: [PHAsset] = []
       var pathArray: [URL] = []
+      var creationDateTimeArray: [Date] = []
       
       
-      func idsToPaths(idList: [String]) {
+      func multipartFormDataUpload(cookie: String, id: Int, csrf: String, tag: String){
+          for (date, path) in zip(creationDateTimeArray, pathArray){
+              let headers: HTTPHeaders = [
+               "content-type": "multipart/form-data",
+               "cookie": cookie
+             ]
+             let parameters: [String: String] = [
+               "id": String(id),
+               "csrf": csrf,
+               "tags": tag,
+               "lastModified": String(Int(date.timeIntervalSince1970*1000))
+             ]
+              AF.upload(multipartFormData: {MultipartFormData in
+                 for (key, value) in parameters {
+                     MultipartFormData.append(Data(value.utf8), withName: key)
+                 }
+//                  --- URL INSTANCE UPLOAD ---
+                 MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
+              }, to: sURL, method: .post, headers: headers)
+                 .response {response in
+                     print(response.debugDescription)
+                 }
+          }
+      }
+      
+      
+      
+      
+      func idsToPaths(idList: [String], cookie: String, id: Int, csrf: String, tag: String) {
           for id in idList{
               let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: photosOptions)
               let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
@@ -38,7 +67,8 @@ import Foundation
           func areWeDone () {
               if (done == phAssetArray.count) {
                  print("pathArray.count is \(pathArray.count)")
-                  
+                  multipartFormDataUpload(cookie: cookie, id: id, csrf: csrf, tag: tag)
+                
 //                  CALL TO BACKGROUND MULTIPARTFORM/DATA
              }
           }
@@ -54,21 +84,25 @@ import Foundation
                     if(asset.mediaType == .image){
                         let path = input?.fullSizeImageURL
                         pathArray.append(path!)
+                        let creationDateTime = input?.creationDate
+                        creationDateTimeArray.append(creationDateTime!)
                     } else if(asset.mediaType == .video){
                         let path: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
                         pathArray.append(path.url)
+                        let creationDateTime = input?.creationDate
+                        creationDateTimeArray.append(creationDateTime!)
                     } else if (asset.mediaType != .image || asset.mediaType != .video){
                         print("WE A STRANGE ASSET \(asset)")
                     }
                    operationsGoingOn-=1;
                     done += 1
-                    print(operationsGoingOn)
                     areWeDone()
                 }
              }
           }
           for asset in phAssetArray{
               PathLookup(asset: asset)
+              
           }
       }
       
@@ -83,7 +117,7 @@ import Foundation
               let id: Int = arguments[2] as! Int
               let csrf: String = arguments[3] as! String
               let tag: String = arguments[4] as! String
-            idsToPaths(idList: idList)
+              idsToPaths(idList: idList, cookie: cookie, id: id, csrf: csrf, tag: tag)
              
               
 //
