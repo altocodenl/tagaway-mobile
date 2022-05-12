@@ -27,31 +27,52 @@ import Foundation
       
       
       func multipartFormDataUpload(cookie: String, id: Int, csrf: String, tag: String){
+          var operationsGoingOn = 0
+          let limit = 20
+          var done = 0
+          func areWeDone () {
+              if (done == pathArray.count) {
+                  print("done is \(done)")
+                 print("Done uploading")
+             }
+          }
+          func upload(date: Date, path: URL) {
+              print("operationsGoingOn in multipart is \(operationsGoingOn)")
+              if (operationsGoingOn >= limit) {
+                  DispatchQueue.main.asyncAfter(deadline: .now () + 1) {
+                      upload(date: date, path: path)
+                  }
+              }
+              else{
+                  operationsGoingOn+=1;
+                  let headers: HTTPHeaders = [
+                   "content-type": "multipart/form-data",
+                   "cookie": cookie
+                 ]
+                 let parameters: [String: String] = [
+                   "id": String(id),
+                   "csrf": csrf,
+                   "tags": tag,
+                   "lastModified": String(Int(date.timeIntervalSince1970*1000))
+                 ]
+                  AF.upload(multipartFormData: {MultipartFormData in
+                     for (key, value) in parameters {
+                         MultipartFormData.append(Data(value.utf8), withName: key)
+                     }
+                     MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
+                  }, to: sURL, method: .post, headers: headers)
+                     .response {response in
+//                         print(response.debugDescription)
+                         operationsGoingOn-=1;
+                          done += 1
+                          areWeDone()
+                     }
+              }
+          }
           for (date, path) in zip(creationDateTimeArray, pathArray){
-              let headers: HTTPHeaders = [
-               "content-type": "multipart/form-data",
-               "cookie": cookie
-             ]
-             let parameters: [String: String] = [
-               "id": String(id),
-               "csrf": csrf,
-               "tags": tag,
-               "lastModified": String(Int(date.timeIntervalSince1970*1000))
-             ]
-              AF.upload(multipartFormData: {MultipartFormData in
-                 for (key, value) in parameters {
-                     MultipartFormData.append(Data(value.utf8), withName: key)
-                 }
-//                  --- URL INSTANCE UPLOAD ---
-                 MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
-              }, to: sURL, method: .post, headers: headers)
-                 .response {response in
-                     print(response.debugDescription)
-                 }
+              upload(date: date, path: path)
           }
       }
-      
-      
       
       
       func idsToPaths(idList: [String], cookie: String, id: Int, csrf: String, tag: String) {
@@ -68,11 +89,10 @@ import Foundation
               if (done == phAssetArray.count) {
                  print("pathArray.count is \(pathArray.count)")
                   multipartFormDataUpload(cookie: cookie, id: id, csrf: csrf, tag: tag)
-                
-//                  CALL TO BACKGROUND MULTIPARTFORM/DATA
              }
           }
           func PathLookup (asset: PHAsset) {
+              print("operationsGoingOn in PathLookup is \(operationsGoingOn)")
              if (operationsGoingOn >= limit) {
                  DispatchQueue.main.asyncAfter(deadline: .now () + 0.5) {
                      PathLookup(asset: asset)
@@ -92,7 +112,7 @@ import Foundation
                         let creationDateTime = input?.creationDate
                         creationDateTimeArray.append(creationDateTime!)
                     } else if (asset.mediaType != .image || asset.mediaType != .video){
-                        print("WE A STRANGE ASSET \(asset)")
+                        print("WE HAVE A STRANGE ASSET \(asset)")
                     }
                    operationsGoingOn-=1;
                     done += 1
