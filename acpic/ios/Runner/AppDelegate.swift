@@ -28,8 +28,10 @@ import Foundation
       
       func multipartFormDataUpload(cookie: String, id: Int, csrf: String, tag: String){
           var operationsGoingOn = 0
-          let limit = 20
+          let limit = 3
           var done = 0
+          let fileManager = FileManager.default
+          var isDir: ObjCBool = false
           func areWeDone () {
               if (done == pathArray.count) {
                   print("done is \(done)")
@@ -37,36 +39,50 @@ import Foundation
              }
           }
           func upload(date: Date, path: URL) {
-              print("operationsGoingOn in multipart is \(operationsGoingOn)")
+//              print("operationsGoingOn in multipart is \(operationsGoingOn)")
               if (operationsGoingOn >= limit) {
                   DispatchQueue.main.asyncAfter(deadline: .now () + 1) {
                       upload(date: date, path: path)
                   }
               }
               else{
-                  operationsGoingOn+=1;
-                  let headers: HTTPHeaders = [
-                   "content-type": "multipart/form-data",
-                   "cookie": cookie
-                 ]
-                 let parameters: [String: String] = [
-                   "id": String(id),
-                   "csrf": csrf,
-                   "tags": tag,
-                   "lastModified": String(Int(date.timeIntervalSince1970*1000))
-                 ]
-                  AF.upload(multipartFormData: {MultipartFormData in
-                     for (key, value) in parameters {
-                         MultipartFormData.append(Data(value.utf8), withName: key)
-                     }
-                     MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
-                  }, to: sURL, method: .post, headers: headers)
-                     .response {response in
-//                         print(response.debugDescription)
-                         operationsGoingOn-=1;
-                          done += 1
-                          areWeDone()
-                     }
+                  let atPath = "\(path)"
+                  if fileManager.fileExists(atPath: atPath, isDirectory: &isDir){
+                      if isDir.boolValue{
+                          print("path is a directory")
+                      }
+                      else{
+                          operationsGoingOn+=1;
+                          let headers: HTTPHeaders = [
+                           "content-type": "multipart/form-data",
+                           "cookie": cookie
+                         ]
+                         let parameters: [String: String] = [
+                           "id": String(id),
+                           "csrf": csrf,
+                           "tags": tag,
+                           "lastModified": String(Int(date.timeIntervalSince1970*1000))
+                         ]
+                          AF.upload(multipartFormData: {MultipartFormData in
+                             for (key, value) in parameters {
+                                 MultipartFormData.append(Data(value.utf8), withName: key)
+                             }
+                             MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
+                          }, to: sURL, method: .post, headers: headers)
+                             .response {response in
+                                 let error = response.error
+                                 if(error != nil){
+                                     print("error is \(String(describing: error))")
+                                 }
+        //                      print(response.debugDescription)
+                                 operationsGoingOn-=1;
+                                  done += 1
+                                  areWeDone()
+                             }
+                      }
+                  } else{
+                      print("\(path) File does not exist")
+                  }
               }
           }
           for (date, path) in zip(creationDateTimeArray, pathArray){
@@ -92,7 +108,7 @@ import Foundation
              }
           }
           func PathLookup (asset: PHAsset) {
-              print("operationsGoingOn in PathLookup is \(operationsGoingOn)")
+//              print("operationsGoingOn in PathLookup is \(operationsGoingOn)")
              if (operationsGoingOn >= limit) {
                  DispatchQueue.main.asyncAfter(deadline: .now () + 0.5) {
                      PathLookup(asset: asset)
@@ -104,11 +120,13 @@ import Foundation
                     if(asset.mediaType == .image){
                         let path = input?.fullSizeImageURL
                         pathArray.append(path!)
+//                        print(path)
                         let creationDateTime = input?.creationDate
                         creationDateTimeArray.append(creationDateTime!)
                     } else if(asset.mediaType == .video){
                         let path: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
                         pathArray.append(path.url)
+//                        print(path.url)
                         let creationDateTime = input?.creationDate
                         creationDateTimeArray.append(creationDateTime!)
                     } else if (asset.mediaType != .image || asset.mediaType != .video){
@@ -140,14 +158,16 @@ import Foundation
               idsToPaths(idList: idList, cookie: cookie, id: id, csrf: csrf, tag: tag)
              
               
-//
+
 //              let phAssetPivFetchedAsset = PHAsset.fetchAssets(withLocalIdentifiers: [idList[0]], options: photosOptions)
 //              let pivPHAsset = phAssetPivFetchedAsset.firstObject! as PHAsset
+//              print(pivPHAsset)
 //               pivPHAsset.requestContentEditingInput(with: PHContentEditingInputRequestOptions()) { (input, _) in
 ////                   let fileURL = input!.fullSizeImageURL
-//                   let fileURL: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
-//                   print(fileURL.url)
-               
+//                   let fileURL = URL(string: "file:///var/mobile/Media/DCIM/116APPLE/IMG_6040.HEIC")
+////                   let fileURL: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
+////                   print(fileURL.url)
+//
 //
 //                   let headers: HTTPHeaders = [
 //                     "content-type": "multipart/form-data",
@@ -173,8 +193,9 @@ import Foundation
 //                   }, to: sURL, method: .post, headers: headers)
 //                       .response {response in
 //                           print(response.debugDescription)
-//                            multipartDataFormResponse = response.debugDescription
-//                           print(multipartDataFormResponse)
+//
+////                            multipartDataFormResponse = response.debugDescription
+////                           print(multipartDataFormResponse)
 //                       }
 //
 //              }
