@@ -20,9 +20,8 @@ import Foundation
       let photosOptions = PHFetchOptions()
       var sURL: String!
       sURL = "https://altocode.nl/dev/pic/app/piv"
-//      var multipartDataFormResponse: String! = "A string"
       var phAssetArray: [PHAsset] = []
-      var pathArray: [URL] = []
+      var pathArray: [(index: Int, path: URL?)] = []
       var creationDateTimeArray: [Date] = []
       
       
@@ -30,63 +29,67 @@ import Foundation
           var operationsGoingOn = 0
           let limit = 3
           var done = 0
-          let fileManager = FileManager.default
-          var isDir: ObjCBool = false
           func areWeDone () {
               if (done == pathArray.count) {
                   print("done is \(done)")
                  print("Done uploading")
              }
           }
-          func upload(date: Date, path: URL) {
-//              print("operationsGoingOn in multipart is \(operationsGoingOn)")
+          func upload(date: Date, path: URL, PHAsset: PHAsset) {
               if (operationsGoingOn >= limit) {
                   DispatchQueue.main.asyncAfter(deadline: .now () + 1) {
-                      upload(date: date, path: path)
+                      upload(date: date, path: path, PHAsset: PHAsset)
                   }
               }
               else{
-                  let atPath = "\(path)"
-                  if fileManager.fileExists(atPath: atPath, isDirectory: &isDir){
-                      if isDir.boolValue{
-                          print("path is a directory")
-                      }
-                      else{
-                          operationsGoingOn+=1;
-                          let headers: HTTPHeaders = [
-                           "content-type": "multipart/form-data",
-                           "cookie": cookie
-                         ]
-                         let parameters: [String: String] = [
-                           "id": String(id),
-                           "csrf": csrf,
-                           "tags": tag,
-                           "lastModified": String(Int(date.timeIntervalSince1970*1000))
-                         ]
-                          AF.upload(multipartFormData: {MultipartFormData in
-                             for (key, value) in parameters {
-                                 MultipartFormData.append(Data(value.utf8), withName: key)
-                             }
-                             MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
-                          }, to: sURL, method: .post, headers: headers)
-                             .response {response in
-                                 let error = response.error
-                                 if(error != nil){
-                                     print("error is \(String(describing: error))")
+                  operationsGoingOn+=1;
+                  let headers: HTTPHeaders = [
+                   "content-type": "multipart/form-data",
+                   "cookie": cookie
+                 ]
+                 let parameters: [String: String] = [
+                   "id": String(id),
+                   "csrf": csrf,
+                   "tags": tag,
+                   "lastModified": String(Int(date.timeIntervalSince1970*1000))
+                 ]
+                  AF.upload(multipartFormData: {MultipartFormData in
+                     for (key, value) in parameters {
+                         MultipartFormData.append(Data(value.utf8), withName: key)
+                     }
+                     MultipartFormData.append(path, withName: "piv", fileName: "piv", mimeType: "image/png")
+                  }, to: sURL, method: .post, headers: headers)
+                     .response {response in
+                         let error = response.error
+                         if(error != nil){
+                             print("error is \(String(describing: error))")
+                             operationsGoingOn-=1
+                             PHAsset.requestContentEditingInput (with: PHContentEditingInputRequestOptions()) {(input, _) in
+                                 if(PHAsset.mediaType == .image){
+                                     let path = input?.fullSizeImageURL
+                                     DispatchQueue.main.asyncAfter(deadline: .now () + 1) {
+                                         upload(date: date, path: path!, PHAsset: PHAsset)
+                                     }
+                                 } else if(PHAsset.mediaType == .video){
+                                     let path: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
+                                     DispatchQueue.main.asyncAfter(deadline: .now () + 1) {
+                                         upload(date: date, path: path.url, PHAsset: PHAsset)
+                                     }
                                  }
-        //                      print(response.debugDescription)
-                                 operationsGoingOn-=1;
-                                  done += 1
-                                  areWeDone()
                              }
-                      }
-                  } else{
-                      print("\(path) File does not exist")
-                  }
+                             return
+                         }
+//                      print(response.debugDescription)
+                         operationsGoingOn-=1;
+                          done += 1
+                         print("uploaded \(path)")
+                          areWeDone()
+                     }
               }
           }
-          for (date, path) in zip(creationDateTimeArray, pathArray){
-              upload(date: date, path: path)
+          
+          for path in pathArray {
+              upload(date: creationDateTimeArray[path.index], path: path.path!, PHAsset: phAssetArray[path.index])
           }
       }
       
@@ -107,11 +110,11 @@ import Foundation
                   multipartFormDataUpload(cookie: cookie, id: id, csrf: csrf, tag: tag)
              }
           }
-          func PathLookup (asset: PHAsset) {
+          func PathLookup (asset: PHAsset, index: Int) {
 //              print("operationsGoingOn in PathLookup is \(operationsGoingOn)")
              if (operationsGoingOn >= limit) {
                  DispatchQueue.main.asyncAfter(deadline: .now () + 0.5) {
-                     PathLookup(asset: asset)
+                     PathLookup(asset: asset, index: index)
                  }
              }
              else {
@@ -119,13 +122,13 @@ import Foundation
                 asset.requestContentEditingInput (with: PHContentEditingInputRequestOptions()) {(input, _) in
                     if(asset.mediaType == .image){
                         let path = input?.fullSizeImageURL
-                        pathArray.append(path!)
+                        pathArray += [(index: index, path: path)]
 //                        print(path)
                         let creationDateTime = input?.creationDate
                         creationDateTimeArray.append(creationDateTime!)
                     } else if(asset.mediaType == .video){
                         let path: AVURLAsset = input!.audiovisualAsset! as! AVURLAsset
-                        pathArray.append(path.url)
+                        pathArray += [(index: index, path: path.url)]
 //                        print(path.url)
                         let creationDateTime = input?.creationDate
                         creationDateTimeArray.append(creationDateTime!)
@@ -138,8 +141,8 @@ import Foundation
                 }
              }
           }
-          for asset in phAssetArray{
-              PathLookup(asset: asset)
+          for (index, asset) in phAssetArray.enumerated(){
+              PathLookup(asset: asset, index: index)
               
           }
       }
