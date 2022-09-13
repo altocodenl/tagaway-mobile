@@ -319,7 +319,7 @@ class BottomRow extends StatefulWidget {
 }
 
 class _BottomRowState extends State<BottomRow> {
-  static const platform = MethodChannel('nl.altocode.acpic/iosupload');
+  // static const platform = MethodChannel('nl.altocode.acpic/iosupload');
   String _cookie;
   String _csrf;
   String _model;
@@ -350,107 +350,107 @@ class _BottomRowState extends State<BottomRow> {
         Provider.of<ProviderController>(context, listen: false).selectedItems =
             List.from(UploadService.instance.assetEntityList);
       }
-      if (Platform.isIOS) {
-        // String value;
-        SharedPreferencesService.instance.removeValue('selectedListID');
-        try {
-          SharedPreferencesService.instance.removeValue('selectedListID');
-          value = await platform.invokeMethod(
-              'iosUpload', [_idList, _cookie, _id, _csrf, _tags.toString()]);
-        } catch (e) {
-          print('Error is $e');
-        }
-        UploadService.instance.uiCancelReset(context);
-        UploadService.instance.idList.clear();
-        UploadService.instance.assetEntityList.clear();
-        _idList.clear();
-        // UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
-        SharedPreferencesService.instance.removeValue('selectedListID');
-        uploadCancelled = false;
-        SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
-        // print('$value');
-      } else {
-        var receivePort = ReceivePort();
-        //--- CALL THE ISOLATE ---
-        isolate = await FlutterIsolate.spawn(isolateUpload,
-            [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
-        //--- LISTEN TO THE ISOLATE ---
-        receivePort.listen((message) {
-          if (message is SendPort) {
-            if (uploadCancelled == true) {
-              message.send('cancel');
-            }
-          } else if (message == 'done') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            uiResetFunction();
-            SharedPreferencesService.instance.removeValue('selectedListID');
-            UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
-          } else if (message == 'cancelled') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            UploadService.instance.idList.clear();
-            UploadService.instance.assetEntityList.clear();
-            _idList.clear();
-            UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
-            SharedPreferencesService.instance.removeValue('selectedListID');
-            uploadCancelled = false;
-            SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
-          } else if (message == 'capacityError') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            uiResetFunction();
-            SharedPreferencesService.instance.removeValue('selectedListID');
-            SnackBarGlobal.buildSnackBar(
-                context, 'You\'ve run out of space.', 'red');
-          } else if (message == 'completeError') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            uiResetFunction();
-            SnackBarGlobal.buildSnackBar(
-                context, 'Your upload was already completed.', 'red');
-          } else if (message == 'cancelledError') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            uiResetFunction();
-            SnackBarGlobal.buildSnackBar(
-                context, 'Your upload was cancelled.', 'red');
-          } else if (message == 'errorError') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            uiResetFunction();
-            SnackBarGlobal.buildSnackBar(
-                context, 'There was an error in your upload.', 'red');
-          } else if (message == 'serverError') {
-            receivePort.close();
-            isolate.kill();
-            print('Isolate killed');
-            uiResetFunction();
-            SharedPreferencesService.instance.removeValue('selectedListID');
-            SnackBarGlobal.buildSnackBar(
-                context, 'Something is wrong on our side. Sorry.', 'red');
-          } else if (message == 'offline') {
-            Provider.of<ProviderController>(context, listen: false)
-                .uploadingPausePlay(true);
-          } else if (message == 'online') {
-            Provider.of<ProviderController>(context, listen: false)
-                .uploadingPausePlay(false);
-          } else {
-            Provider.of<ProviderController>(context, listen: false)
-                .uploadProgressFunction(
-                    Provider.of<ProviderController>(context, listen: false)
-                            .selectedItems
-                            .length -
-                        message);
+      // if (Platform.isIOS) {
+      //   // String value;
+      //   SharedPreferencesService.instance.removeValue('selectedListID');
+      //   try {
+      //     SharedPreferencesService.instance.removeValue('selectedListID');
+      //     value = await platform.invokeMethod(
+      //         'iosUpload', [_idList, _cookie, _id, _csrf, _tags.toString()]);
+      //   } catch (e) {
+      //     print('Error is $e');
+      //   }
+      //   UploadService.instance.uiCancelReset(context);
+      //   UploadService.instance.idList.clear();
+      //   UploadService.instance.assetEntityList.clear();
+      //   _idList.clear();
+      //   // UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+      //   SharedPreferencesService.instance.removeValue('selectedListID');
+      //   uploadCancelled = false;
+      //   SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
+      //   // print('$value');
+      // } else {
+      var receivePort = ReceivePort();
+      //--- CALL THE ISOLATE ---
+      isolate = await FlutterIsolate.spawn(isolateUpload,
+          [_idList, _cookie, _id, _csrf, _tags, receivePort.sendPort]);
+      //--- LISTEN TO THE ISOLATE ---
+      receivePort.listen((message) {
+        if (message is SendPort) {
+          if (uploadCancelled == true) {
+            message.send('cancel');
           }
-        });
-      }
+        } else if (message == 'done') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
+        } else if (message == 'cancelled') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          UploadService.instance.idList.clear();
+          UploadService.instance.assetEntityList.clear();
+          _idList.clear();
+          UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          uploadCancelled = false;
+          SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
+        } else if (message == 'capacityError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          SnackBarGlobal.buildSnackBar(
+              context, 'You\'ve run out of space.', 'red');
+        } else if (message == 'completeError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(
+              context, 'Your upload was already completed.', 'red');
+        } else if (message == 'cancelledError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(
+              context, 'Your upload was cancelled.', 'red');
+        } else if (message == 'errorError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(
+              context, 'There was an error in your upload.', 'red');
+        } else if (message == 'serverError') {
+          receivePort.close();
+          isolate.kill();
+          print('Isolate killed');
+          uiResetFunction();
+          SharedPreferencesService.instance.removeValue('selectedListID');
+          SnackBarGlobal.buildSnackBar(
+              context, 'Something is wrong on our side. Sorry.', 'red');
+        } else if (message == 'offline') {
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadingPausePlay(true);
+        } else if (message == 'online') {
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadingPausePlay(false);
+        } else {
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadProgressFunction(
+                  Provider.of<ProviderController>(context, listen: false)
+                          .selectedItems
+                          .length -
+                      message);
+        }
+      });
+      // }
     });
   }
 
@@ -467,13 +467,11 @@ class _BottomRowState extends State<BottomRow> {
       setState(() {
         _cookie = value;
       });
-      // print('cookie is $cookie');
     });
     SharedPreferencesService.instance.getStringValue('csrf').then((value) {
       setState(() {
         _csrf = value;
       });
-      // print('csrf is $csrf');
     });
     Platform.isIOS
         ? DeviceInfoService.instance.iOSInfo().then((value) {

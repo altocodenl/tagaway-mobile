@@ -33,6 +33,7 @@ class LogInService {
             'csrf',
             jsonDecode(response.body).toString().substring(
                 7, jsonDecode(response.body).toString().indexOf('}')));
+        print(response.statusCode);
         return response.statusCode;
       } else {
         return response.statusCode;

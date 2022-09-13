@@ -12,9 +12,10 @@ class LoginCheckService {
   Future<int> loginCheck(String cookie) async {
     try {
       final response = await http.get(
-        Uri.parse(kAltoDevPicApp + '/csrf'),
+        Uri.parse(kAltoDevPicApp + '/auth/csrf'),
         headers: <String, String>{'cookie': cookie},
       );
+      print(response.statusCode);
       return response.statusCode;
     } on SocketException catch (_) {
       return 0;
