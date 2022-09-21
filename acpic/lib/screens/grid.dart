@@ -397,6 +397,10 @@ class _BottomRowState extends State<BottomRow> {
           UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
           SharedPreferencesService.instance.removeValue('selectedListID');
           uploadCancelled = false;
+          //Make uploading list back to '0' to avoid recounting when uploading again
+          Provider.of<ProviderController>(context, listen: false)
+              .uploadProgressFunction(0);
+          //
           SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
         } else if (message == 'capacityError') {
           receivePort.close();
@@ -531,6 +535,9 @@ class _BottomRowState extends State<BottomRow> {
           if (Platform.isAndroid) {
             WhiteSnackBar.buildSnackBar(context,
                 'Your files will keep uploading as long as ac;pic is running in the background.');
+          } else {
+            WhiteSnackBar.buildSnackBar(context,
+                'Please don\'t send ac;pic to background, your upload will stop. We\'re working on background upload for iOS.');
           }
         });
         // --- AUTOMATIC UPLOAD END ---
@@ -714,6 +721,9 @@ class _BottomRowState extends State<BottomRow> {
                         if (Platform.isAndroid) {
                           WhiteSnackBar.buildSnackBar(context,
                               'Your files will keep uploading as long as ac;pic is running in the background.');
+                        } else {
+                          WhiteSnackBar.buildSnackBar(context,
+                              'Please don\'t send ac;pic to background, your upload will stop. We\'re working on iOS background upload.');
                         }
                       });
                     }

@@ -15,7 +15,6 @@ class LoginCheckService {
         Uri.parse(kAltoDevPicApp + '/auth/csrf'),
         headers: <String, String>{'cookie': cookie},
       );
-      print(response.statusCode);
       return response.statusCode;
     } on SocketException catch (_) {
       return 0;
