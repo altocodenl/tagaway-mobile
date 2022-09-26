@@ -397,10 +397,8 @@ class _BottomRowState extends State<BottomRow> {
           UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
           SharedPreferencesService.instance.removeValue('selectedListID');
           uploadCancelled = false;
-          //Make uploading list back to '0' to avoid recounting when uploading again
-          Provider.of<ProviderController>(context, listen: false)
-              .uploadProgressFunction(0);
-          //
+          // UI RESET FUNCTION
+          uiResetFunction();
           SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
         } else if (message == 'capacityError') {
           receivePort.close();
@@ -491,7 +489,7 @@ class _BottomRowState extends State<BottomRow> {
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
         .then((value) async {
-      if (value == null) {
+      if (value == null || value.length < 1) {
         return;
       } else {
         SixSecondSnackBar.buildSnackBar(
@@ -499,16 +497,18 @@ class _BottomRowState extends State<BottomRow> {
             '${Platform.isIOS ? 'iOS' : 'Android'} cancelled your upload. It will automatically restart...',
             'yellow');
         // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
+
+        int total = value.length;
         await UploadService.instance.assetEntityCreator(value);
 
         // --- AUTOMATIC UPLOAD PROCESSES ---
-
+        print('I am in automatic upload and the total being sent is $total');
         // --- SWITCH UI TO UPLOADING VIEW ---
         Provider.of<ProviderController>(context, listen: false)
             .showUploadingProcess(true);
         // --- UPLOAD START CALL ---
         UploadService.instance
-            .uploadStart('start', _csrf, [_model], _cookie, value.length)
+            .uploadStart('start', _csrf, [_model], _cookie, total)
             .then((response) {
           // --- CHECK DEVICE IS NOT OFFLINE ---
           if (response == 'offline') {

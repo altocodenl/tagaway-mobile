@@ -316,8 +316,8 @@ void isolateUpload(List<Object> arguments) async {
       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
       var response = await client.send(request);
       final respStr = await response.stream.bytesToString();
-      print(respStr);
-      print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+      // print(respStr);
+      // print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
       sendPort.send('online');
       idList.removeAt(0);
       if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
