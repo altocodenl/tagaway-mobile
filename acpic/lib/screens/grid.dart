@@ -346,6 +346,7 @@ class _BottomRowState extends State<BottomRow> {
       } else {
         //--- THERE'S A SAVED LIST ---
         _idList = List.from(value);
+
         // --- POPULATE SELECTED ITEMS LIST WITH ASSET ENTITY FROM THE SAVED ID LIST IN ORDER TO KEEP COUNT---
         Provider.of<ProviderController>(context, listen: false).selectedItems =
             List.from(UploadService.instance.assetEntityList);
@@ -385,7 +386,6 @@ class _BottomRowState extends State<BottomRow> {
           isolate.kill();
           print('Isolate killed');
           uiResetFunction();
-          SharedPreferencesService.instance.removeValue('selectedListID');
           UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
         } else if (message == 'cancelled') {
           receivePort.close();
@@ -395,9 +395,7 @@ class _BottomRowState extends State<BottomRow> {
           UploadService.instance.assetEntityList.clear();
           _idList.clear();
           UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
-          SharedPreferencesService.instance.removeValue('selectedListID');
           uploadCancelled = false;
-          // UI RESET FUNCTION
           uiResetFunction();
           SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
         } else if (message == 'capacityError') {
@@ -405,7 +403,6 @@ class _BottomRowState extends State<BottomRow> {
           isolate.kill();
           print('Isolate killed');
           uiResetFunction();
-          SharedPreferencesService.instance.removeValue('selectedListID');
           SnackBarGlobal.buildSnackBar(
               context, 'You\'ve run out of space.', 'red');
         } else if (message == 'completeError') {
@@ -434,7 +431,6 @@ class _BottomRowState extends State<BottomRow> {
           isolate.kill();
           print('Isolate killed');
           uiResetFunction();
-          SharedPreferencesService.instance.removeValue('selectedListID');
           SnackBarGlobal.buildSnackBar(
               context, 'Something is wrong on our side. Sorry.', 'red');
         } else if (message == 'offline') {
@@ -457,6 +453,8 @@ class _BottomRowState extends State<BottomRow> {
   }
 
   uiResetFunction() {
+    SharedPreferencesService.instance.removeValue('selectedListID');
+    SharedPreferencesService.instance.removeValue('uploadID');
     UploadService.instance.idList.clear();
     UploadService.instance.assetEntityList.clear();
     _idList.clear();
@@ -489,61 +487,98 @@ class _BottomRowState extends State<BottomRow> {
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
         .then((value) async {
+      //    NO AUTOMATIC UPLOAD
       if (value == null || value.length < 1) {
         return;
+        //  AUTOMATIC UPLOAD STARTS
       } else {
         SixSecondSnackBar.buildSnackBar(
             context,
             '${Platform.isIOS ? 'iOS' : 'Android'} cancelled your upload. It will automatically restart...',
             'yellow');
         // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
-
-        int total = value.length;
+        //This call modifies value.length, so we create another reference to it.
+        // int total = value.length;
         await UploadService.instance.assetEntityCreator(value);
-
-        // --- AUTOMATIC UPLOAD PROCESSES ---
-        print('I am in automatic upload and the total being sent is $total');
         // --- SWITCH UI TO UPLOADING VIEW ---
         Provider.of<ProviderController>(context, listen: false)
             .showUploadingProcess(true);
-        // --- UPLOAD START CALL ---
-        UploadService.instance
-            .uploadStart('start', _csrf, [_model], _cookie, total)
-            .then((response) {
-          // --- CHECK DEVICE IS NOT OFFLINE ---
-          if (response == 'offline') {
-            SnackBarGlobal.buildSnackBar(
-                context, 'You\'re offline. Check your connection.', 'red');
-            UploadService.instance.uiCancelReset(context);
-            UploadService.instance.assetEntityList.clear();
-            return;
-          }
-          // --- CHECK FOR SERVER ERROR ---
-          else if (response == 'error') {
-            SnackBarGlobal.buildSnackBar(
-                context, 'Something is wrong on our side. Sorry.', 'red');
-            return;
-          }
-          // --- CALL UPLOAD ISOLATE ---
-          else {
-            _id = int.parse(response);
-            print('id is $_id');
-            _tags = ['"' + _model + '"'];
-            uploadHandler(_list);
-          }
-          // --- SNACK BAR (Background upload for Android as of now) ---
-          if (Platform.isAndroid) {
-            WhiteSnackBar.buildSnackBar(context,
-                'Your files will keep uploading as long as ac;pic is running in the background.');
-          } else {
-            WhiteSnackBar.buildSnackBar(context,
-                'Please don\'t send ac;pic to background, your upload will stop. We\'re working on background upload for iOS.');
-          }
+        // SEND WAIT TO RESTART THE UPLOAD PROCESS WITH THE SAVED UPLOAD ID
+        SharedPreferencesService.instance
+            .getIntegerValue('uploadID')
+            .then((value) async {
+          UploadService.instance
+              .uploadEnd('wait', _csrf, value, _cookie)
+              .then((response) {
+            // --- CHECK DEVICE IS NOT OFFLINE ---
+            if (response == 0) {
+              SnackBarGlobal.buildSnackBar(
+                  context, 'You\'re offline. Check your connection.', 'red');
+              UploadService.instance.uiCancelReset(context);
+              UploadService.instance.assetEntityList.clear();
+              return;
+            }
+            // --- CALL UPLOAD ISOLATE ---
+            else if (response == 200) {
+              _id = value;
+              print('id is $_id');
+              _tags = ['"' + _model + '"'];
+              uploadHandler(_list);
+              // --- SNACK BAR (Background upload for Android as of now) ---
+              if (Platform.isAndroid) {
+                WhiteSnackBar.buildSnackBar(context,
+                    'Your files will keep uploading as long as ac;pic is running in the background.');
+              } else {
+                WhiteSnackBar.buildSnackBar(context,
+                    'Please don\'t send ac;pic to background, your upload will stop. We\'re working on background upload for iOS.');
+              }
+            }
+            // --- CHECK FOR SERVER ERROR ---
+            else {
+              SnackBarGlobal.buildSnackBar(
+                  context, 'Something is wrong on our side. Sorry.', 'red');
+              return;
+            }
+          });
         });
-        // --- AUTOMATIC UPLOAD END ---
 
+        // // --- UPLOAD START CALL ---
+        // UploadService.instance
+        //     .uploadStart('start', _csrf, [_model], _cookie, total)
+        //     .then((response) {
+        //   // --- CHECK DEVICE IS NOT OFFLINE ---
+        //   if (response == 'offline') {
+        //     SnackBarGlobal.buildSnackBar(
+        //         context, 'You\'re offline. Check your connection.', 'red');
+        //     UploadService.instance.uiCancelReset(context);
+        //     UploadService.instance.assetEntityList.clear();
+        //     return;
+        //   }
+        //   // --- CHECK FOR SERVER ERROR ---
+        //   else if (response == 'error') {
+        //     SnackBarGlobal.buildSnackBar(
+        //         context, 'Something is wrong on our side. Sorry.', 'red');
+        //     return;
+        //   }
+        //   // --- CALL UPLOAD ISOLATE ---
+        //   else {
+        //     _id = int.parse(response);
+        //     print('id is $_id');
+        //     _tags = ['"' + _model + '"'];
+        //     uploadHandler(_list);
+        //   }
+        //   // --- SNACK BAR (Background upload for Android as of now) ---
+        //   if (Platform.isAndroid) {
+        //     WhiteSnackBar.buildSnackBar(context,
+        //         'Your files will keep uploading as long as ac;pic is running in the background.');
+        //   } else {
+        //     WhiteSnackBar.buildSnackBar(context,
+        //         'Please don\'t send ac;pic to background, your upload will stop. We\'re working on background upload for iOS.');
+        //   }
+        // });
       }
     });
+    // --- AUTOMATIC UPLOAD END ---
     super.initState();
   }
 
@@ -714,6 +749,9 @@ class _BottomRowState extends State<BottomRow> {
                         else {
                           _id = int.parse(value);
                           // print('id is $_id');
+                          // LOCALLY SAVE ID IN CASE UPLOAD IS KILLED
+                          SharedPreferencesService.instance
+                              .setIntegerValue('uploadID', int.parse(value));
                           _tags = ['"' + _model + '"'];
                           uploadHandler(_list);
                         }

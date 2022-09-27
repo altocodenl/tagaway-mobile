@@ -153,6 +153,7 @@ class UploadService {
         .uploadProgressFunction(0);
   }
 
+  //WE'RE NOT USING THIS FUNCTION.
   uploadMain(BuildContext context, int id, String csrf, String cookie,
       List tags, List<AssetEntity> list) {
     uploadOne() async {
@@ -238,6 +239,7 @@ class UploadService {
 
     Future.doWhile(uploadOne);
   }
+  //
 
   Future uploadIDListing(List<AssetEntity> list) async {
     // print('In uploadIDListing list length is ${list.length}');
@@ -344,7 +346,7 @@ void isolateUpload(List<Object> arguments) async {
         // If 200 go on, if not error streamline.
         try {
           final response = await http.post(
-            Uri.parse('https://altocode.nl/dev/pic/app/upload'),
+            Uri.parse(kAltoDevPicApp + '/upload'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'cookie': arguments[1]
@@ -398,6 +400,7 @@ void isolateUpload(List<Object> arguments) async {
       }
     }
     sendPort.send(idList.length);
+    // SHOULD SEND UPDATED LIST HERE
     // print('Bottom of the function at ' + DateTime.now().toString());
 
     return true;
