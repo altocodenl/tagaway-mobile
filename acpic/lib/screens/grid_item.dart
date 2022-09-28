@@ -96,9 +96,10 @@ class _SelectedAssetState extends State<SelectedAsset>
     if (Provider.of<ProviderController>(context, listen: false).all == true) {
       isSelected = true;
     }
+    // IF UPLOAD WAS CANCELLED RESTATE THE SELECTED THUMBNAILS
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
-        .then((value) {
+        .then((value) async {
       if (value == null) {
         return;
       } else if (value.contains(widget.item.id)) {
@@ -107,7 +108,8 @@ class _SelectedAssetState extends State<SelectedAsset>
         });
         Provider.of<ProviderController>(context, listen: false)
             .selectionInProcess(true);
-        widget.selectedListLengthStreamController.add(value.length);
+        // NOW DENOMINATOR IS PROVIDED AT UPLOADHANDLER()
+        // widget.selectedListLengthStreamController.add(value.length);
       }
     });
     super.initState();

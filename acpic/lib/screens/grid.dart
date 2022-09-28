@@ -324,6 +324,7 @@ class _BottomRowState extends State<BottomRow> {
   String _csrf;
   String _model;
   int _id;
+  int selectedListLength;
   List<String> _tags;
   List<AssetEntity> _list;
   List<String> _idList;
@@ -343,6 +344,14 @@ class _BottomRowState extends State<BottomRow> {
         SharedPreferencesService.instance
             .setStringListValue('selectedListID', List.from(_idList));
         // ---
+        // --- GET THE DENOMINATOR VALUE FOR THE UPLOAD COUNTER
+        selectedListLength =
+            Provider.of<ProviderController>(context, listen: false)
+                .selectedItems
+                .length;
+        // --- SAVE DENOMINATOR VALUE FOR THE UPLOAD COUNTER IN CASE APP IS KILLED
+        SharedPreferencesService.instance
+            .setIntegerValue('selectedListLengthLocal', selectedListLength);
       } else {
         //--- THERE'S A SAVED LIST ---
         _idList = List.from(value);
@@ -440,12 +449,29 @@ class _BottomRowState extends State<BottomRow> {
           Provider.of<ProviderController>(context, listen: false)
               .uploadingPausePlay(false);
         } else {
-          Provider.of<ProviderController>(context, listen: false)
-              .uploadProgressFunction(
-                  Provider.of<ProviderController>(context, listen: false)
-                          .selectedItems
-                          .length -
-                      message);
+          // DELETE UPLOADED ITEM FROM _IDLIST
+          _idList.removeWhere((element) => element == message);
+
+          // UPDATE LOCALLY SAVED _IDLIST IN CASE UPLOAD CRASHES
+          SharedPreferencesService.instance
+              .setStringListValue('selectedListID', List.from(_idList));
+
+          // CHECK IF THERE'S A SAVED SELECTEDLISTLENGTH
+          SharedPreferencesService.instance
+              .getIntegerValue('selectedListLengthLocal')
+              .then((value) async {
+            if (value == null) {
+              // UPLOAD NUMERATOR CALCULATION
+              Provider.of<ProviderController>(context, listen: false)
+                  .uploadProgressFunction(selectedListLength - _idList.length);
+            } else {
+              // ESTABLISH DENOMINATOR FOR UPLOAD
+              widget.selectedListLengthStreamController.add(value);
+              // UPLOAD NUMERATOR CALCULATION
+              Provider.of<ProviderController>(context, listen: false)
+                  .uploadProgressFunction(value - _idList.length);
+            }
+          });
         }
       });
       // }
@@ -455,6 +481,7 @@ class _BottomRowState extends State<BottomRow> {
   uiResetFunction() {
     SharedPreferencesService.instance.removeValue('selectedListID');
     SharedPreferencesService.instance.removeValue('uploadID');
+    SharedPreferencesService.instance.removeValue('selectedListLengthLocal');
     UploadService.instance.idList.clear();
     UploadService.instance.assetEntityList.clear();
     _idList.clear();
@@ -484,6 +511,7 @@ class _BottomRowState extends State<BottomRow> {
               _model = value;
             });
           });
+    // AUTOMATIC UPLOAD LOGIC
     SharedPreferencesService.instance
         .getStringListValue('selectedListID')
         .then((value) async {
@@ -498,7 +526,6 @@ class _BottomRowState extends State<BottomRow> {
             'yellow');
         // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
         //This call modifies value.length, so we create another reference to it.
-        // int total = value.length;
         await UploadService.instance.assetEntityCreator(value);
         // --- SWITCH UI TO UPLOADING VIEW ---
         Provider.of<ProviderController>(context, listen: false)
@@ -541,41 +568,6 @@ class _BottomRowState extends State<BottomRow> {
             }
           });
         });
-
-        // // --- UPLOAD START CALL ---
-        // UploadService.instance
-        //     .uploadStart('start', _csrf, [_model], _cookie, total)
-        //     .then((response) {
-        //   // --- CHECK DEVICE IS NOT OFFLINE ---
-        //   if (response == 'offline') {
-        //     SnackBarGlobal.buildSnackBar(
-        //         context, 'You\'re offline. Check your connection.', 'red');
-        //     UploadService.instance.uiCancelReset(context);
-        //     UploadService.instance.assetEntityList.clear();
-        //     return;
-        //   }
-        //   // --- CHECK FOR SERVER ERROR ---
-        //   else if (response == 'error') {
-        //     SnackBarGlobal.buildSnackBar(
-        //         context, 'Something is wrong on our side. Sorry.', 'red');
-        //     return;
-        //   }
-        //   // --- CALL UPLOAD ISOLATE ---
-        //   else {
-        //     _id = int.parse(response);
-        //     print('id is $_id');
-        //     _tags = ['"' + _model + '"'];
-        //     uploadHandler(_list);
-        //   }
-        //   // --- SNACK BAR (Background upload for Android as of now) ---
-        //   if (Platform.isAndroid) {
-        //     WhiteSnackBar.buildSnackBar(context,
-        //         'Your files will keep uploading as long as ac;pic is running in the background.');
-        //   } else {
-        //     WhiteSnackBar.buildSnackBar(context,
-        //         'Please don\'t send ac;pic to background, your upload will stop. We\'re working on background upload for iOS.');
-        //   }
-        // });
       }
     });
     // --- AUTOMATIC UPLOAD END ---

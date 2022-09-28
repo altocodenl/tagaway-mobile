@@ -321,6 +321,9 @@ void isolateUpload(List<Object> arguments) async {
       // print(respStr);
       // print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
       sendPort.send('online');
+      // print(idList[0]);
+      sendPort.send(idList[0]);
+      // sendPort.send(idList.length);
       idList.removeAt(0);
       if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
         sendPort.send('capacityError');
@@ -399,8 +402,7 @@ void isolateUpload(List<Object> arguments) async {
         print(e);
       }
     }
-    sendPort.send(idList.length);
-    // SHOULD SEND UPDATED LIST HERE
+    // sendPort.send(idList.length);
     // print('Bottom of the function at ' + DateTime.now().toString());
 
     return true;
