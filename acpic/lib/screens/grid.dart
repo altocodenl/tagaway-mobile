@@ -391,12 +391,14 @@ class _BottomRowState extends State<BottomRow> {
             message.send('cancel');
           }
         } else if (message == 'done') {
+          uiResetFunction();
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
-          uiResetFunction();
           UploadService.instance.uploadEnd('complete', _csrf, _id, _cookie);
         } else if (message == 'cancelled') {
+          uiResetFunction();
+          SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
@@ -405,41 +407,39 @@ class _BottomRowState extends State<BottomRow> {
           _idList.clear();
           UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
           uploadCancelled = false;
-          uiResetFunction();
-          SnackBarGlobal.buildSnackBar(context, 'Upload cancelled.', 'green');
         } else if (message == 'capacityError') {
+          uiResetFunction();
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
-          uiResetFunction();
           SnackBarGlobal.buildSnackBar(
               context, 'You\'ve run out of space.', 'red');
         } else if (message == 'completeError') {
+          uiResetFunction();
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
-          uiResetFunction();
           SnackBarGlobal.buildSnackBar(
               context, 'Your upload was already completed.', 'red');
         } else if (message == 'cancelledError') {
+          uiResetFunction();
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
-          uiResetFunction();
           SnackBarGlobal.buildSnackBar(
               context, 'Your upload was cancelled.', 'red');
         } else if (message == 'errorError') {
+          uiResetFunction();
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
-          uiResetFunction();
           SnackBarGlobal.buildSnackBar(
               context, 'There was an error in your upload.', 'red');
         } else if (message == 'serverError') {
+          uiResetFunction();
           receivePort.close();
           isolate.kill();
           print('Isolate killed');
-          uiResetFunction();
           SnackBarGlobal.buildSnackBar(
               context, 'Something is wrong on our side. Sorry.', 'red');
         } else if (message == 'offline') {
@@ -524,12 +524,12 @@ class _BottomRowState extends State<BottomRow> {
             context,
             '${Platform.isIOS ? 'iOS' : 'Android'} cancelled your upload. It will automatically restart...',
             'yellow');
-        // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
-        //This call modifies value.length, so we create another reference to it.
-        await UploadService.instance.assetEntityCreator(value);
         // --- SWITCH UI TO UPLOADING VIEW ---
         Provider.of<ProviderController>(context, listen: false)
             .showUploadingProcess(true);
+        // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
+        //This call modifies value.length, so we create another reference to it.
+        await UploadService.instance.assetEntityCreator(value);
         // SEND WAIT TO RESTART THE UPLOAD PROCESS WITH THE SAVED UPLOAD ID
         SharedPreferencesService.instance
             .getIntegerValue('uploadID')
