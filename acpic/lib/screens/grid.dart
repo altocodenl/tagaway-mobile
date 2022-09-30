@@ -295,7 +295,7 @@ class _TopRowState extends State<TopRow> {
                       .selectionInProcess(false);
                   SharedPreferencesService.instance
                       .removeValue('selectedListID');
-                  UploadService.instance.assetEntityList.clear();
+                  // UploadService.instance.assetEntityList.clear();
                 },
                 child: Text(
                   'Cancel',
@@ -355,10 +355,6 @@ class _BottomRowState extends State<BottomRow> {
       } else {
         //--- THERE'S A SAVED LIST ---
         _idList = List.from(value);
-
-        // --- POPULATE SELECTED ITEMS LIST WITH ASSET ENTITY FROM THE SAVED ID LIST IN ORDER TO KEEP COUNT---
-        Provider.of<ProviderController>(context, listen: false).selectedItems =
-            List.from(UploadService.instance.assetEntityList);
       }
       // if (Platform.isIOS) {
       //   // String value;
@@ -403,7 +399,7 @@ class _BottomRowState extends State<BottomRow> {
           isolate.kill();
           print('Isolate killed');
           UploadService.instance.idList.clear();
-          UploadService.instance.assetEntityList.clear();
+          // UploadService.instance.assetEntityList.clear();
           _idList.clear();
           UploadService.instance.uploadEnd('cancel', _csrf, _id, _cookie);
           uploadCancelled = false;
@@ -483,7 +479,7 @@ class _BottomRowState extends State<BottomRow> {
     SharedPreferencesService.instance.removeValue('uploadID');
     SharedPreferencesService.instance.removeValue('selectedListLengthLocal');
     UploadService.instance.idList.clear();
-    UploadService.instance.assetEntityList.clear();
+    // UploadService.instance.assetEntityList.clear();
     _idList.clear();
     UploadService.instance.uiReset(context);
   }
@@ -527,9 +523,6 @@ class _BottomRowState extends State<BottomRow> {
         // --- SWITCH UI TO UPLOADING VIEW ---
         Provider.of<ProviderController>(context, listen: false)
             .showUploadingProcess(true);
-        // --- GENERATE ASSET ENTITY LIST FROM ID LIST  ---
-        //This call modifies value.length, so we create another reference to it.
-        await UploadService.instance.assetEntityCreator(value);
         // SEND WAIT TO RESTART THE UPLOAD PROCESS WITH THE SAVED UPLOAD ID
         SharedPreferencesService.instance
             .getIntegerValue('uploadID')
@@ -542,7 +535,7 @@ class _BottomRowState extends State<BottomRow> {
               SnackBarGlobal.buildSnackBar(
                   context, 'You\'re offline. Check your connection.', 'red');
               UploadService.instance.uiCancelReset(context);
-              UploadService.instance.assetEntityList.clear();
+              // UploadService.instance.assetEntityList.clear();
               return;
             }
             // --- CALL UPLOAD ISOLATE ---

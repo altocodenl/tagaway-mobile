@@ -11,14 +11,14 @@ import 'dart:isolate';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
 // IMPORT UI ELEMENTS
-import 'package:acpic/ui_elements/material_elements.dart';
+// import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 
 class UploadService {
   UploadService._privateConstructor();
   static final UploadService instance = UploadService._privateConstructor();
   List<String> idList = [];
-  List<AssetEntity> assetEntityList = [];
+  // List<AssetEntity> assetEntityList = [];
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -109,28 +109,28 @@ class UploadService {
 
   Timer onlineChecker;
 
-  uploadOnlineChecker(BuildContext context, int id, String csrf, String cookie,
-      List tags, List<AssetEntity> list) {
-    onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
-      uploadRetry(context, id, csrf, cookie, tags, list);
-    });
-  }
+  // uploadOnlineChecker(BuildContext context, int id, String csrf, String cookie,
+  //     List tags, List<AssetEntity> list) {
+  //   onlineChecker = Timer.periodic(Duration(seconds: 3), (timer) {
+  //     uploadRetry(context, id, csrf, cookie, tags, list);
+  //   });
+  // }
 
-  uploadRetry(BuildContext context, int id, String csrf, String cookie,
-      List tags, List<AssetEntity> list) async {
-    try {
-      final result = await InternetAddress.lookup('altocode.nl');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        uploadMain(context, id, csrf, cookie, tags, list);
-        print('connected');
-        onlineChecker.cancel();
-        Provider.of<ProviderController>(context, listen: false)
-            .uploadingPausePlay(false);
-      }
-    } on SocketException catch (_) {
-      print('not connected');
-    }
-  }
+  // uploadRetry(BuildContext context, int id, String csrf, String cookie,
+  //     List tags, List<AssetEntity> list) async {
+  //   try {
+  //     final result = await InternetAddress.lookup('altocode.nl');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       uploadMain(context, id, csrf, cookie, tags, list);
+  //       print('connected');
+  //       onlineChecker.cancel();
+  //       Provider.of<ProviderController>(context, listen: false)
+  //           .uploadingPausePlay(false);
+  //     }
+  //   } on SocketException catch (_) {
+  //     print('not connected');
+  //   }
+  // }
 
   uiReset(BuildContext context) {
     Provider.of<ProviderController>(context, listen: false)
@@ -154,91 +154,91 @@ class UploadService {
   }
 
   //WE'RE NOT USING THIS FUNCTION.
-  uploadMain(BuildContext context, int id, String csrf, String cookie,
-      List tags, List<AssetEntity> list) {
-    uploadOne() async {
-      if (list.isEmpty) {
-        uploadEnd('complete', csrf, id, cookie);
-        uiReset(context);
-        print('Made it to the end');
-        return false;
-      }
-      if (list.last.width == 00 && list.last.height == 00) {
-        uploadEnd('cancel', csrf, id, cookie);
-        list.clear();
-        return false;
-      }
-      var asset = list[0];
-      print(asset.type);
-      var piv = asset.file;
-      list.removeAt(0);
-      Provider.of<ProviderController>(context, listen: false)
-          .uploadProgressFunction(
-              Provider.of<ProviderController>(context, listen: false)
-                      .selectedItems
-                      .length -
-                  list.length);
-      File image = await piv;
-      var uri = Uri.parse(kAltoDevPicApp + '/piv');
-      var request = http.MultipartRequest('POST', uri);
-      try {
-        request.headers['cookie'] = cookie;
-        request.fields['id'] = id.toString();
-        request.fields['csrf'] = csrf;
-        request.fields['tags'] = tags.toString();
-        request.fields['lastModified'] =
-            asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
-        request.files.add(await http.MultipartFile.fromPath('piv', image.path));
-        var response = await request.send();
-        final respStr = await response.stream.bytesToString();
-        print(respStr);
-        print(
-            'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
-        if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
-          uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
-              cookie);
-          uiReset(context);
-          SnackBarGlobal.buildSnackBar(
-              context, 'You\'ve run out of space.', 'red');
-          return false;
-        } else if (response.statusCode >= 500) {
-          uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
-              cookie);
-          uiReset(context);
-          SnackBarGlobal.buildSnackBar(
-              context, 'Something is wrong on our side. Sorry.', 'red');
-          return false;
-        }
-      } on SocketException catch (_) {
-        print('Socket Exception');
-        Provider.of<ProviderController>(context, listen: false)
-            .uploadingPausePlay(true);
-        SnackBarGlobal.buildSnackBar(
-            context, 'You\'re offline. Upload paused.', 'red');
-        list.insert(0, asset);
-        uploadOnlineChecker(context, id, csrf, cookie, tags, list);
-        return false;
-      } on Exception {
-        print('Exception');
-        Provider.of<ProviderController>(context, listen: false)
-            .uploadingPausePlay(true);
-        SnackBarGlobal.buildSnackBar(
-            context, 'You\'re offline. Upload paused.', 'red');
-        list.insert(0, asset);
-        uploadOnlineChecker(context, id, csrf, cookie, tags, list);
-        return false;
-      }
-      if (Platform.isIOS) {
-        image.delete();
-        PhotoManager.clearFileCache();
-      } else {
-        PhotoManager.clearFileCache();
-      }
-      return true;
-    }
-
-    Future.doWhile(uploadOne);
-  }
+  // uploadMain(BuildContext context, int id, String csrf, String cookie,
+  //     List tags, List<AssetEntity> list) {
+  //   uploadOne() async {
+  //     if (list.isEmpty) {
+  //       uploadEnd('complete', csrf, id, cookie);
+  //       uiReset(context);
+  //       print('Made it to the end');
+  //       return false;
+  //     }
+  //     if (list.last.width == 00 && list.last.height == 00) {
+  //       uploadEnd('cancel', csrf, id, cookie);
+  //       list.clear();
+  //       return false;
+  //     }
+  //     var asset = list[0];
+  //     print(asset.type);
+  //     var piv = asset.file;
+  //     list.removeAt(0);
+  //     Provider.of<ProviderController>(context, listen: false)
+  //         .uploadProgressFunction(
+  //             Provider.of<ProviderController>(context, listen: false)
+  //                     .selectedItems
+  //                     .length -
+  //                 list.length);
+  //     File image = await piv;
+  //     var uri = Uri.parse(kAltoDevPicApp + '/piv');
+  //     var request = http.MultipartRequest('POST', uri);
+  //     try {
+  //       request.headers['cookie'] = cookie;
+  //       request.fields['id'] = id.toString();
+  //       request.fields['csrf'] = csrf;
+  //       request.fields['tags'] = tags.toString();
+  //       request.fields['lastModified'] =
+  //           asset.modifiedDateTime.millisecondsSinceEpoch.abs().toString();
+  //       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+  //       var response = await request.send();
+  //       final respStr = await response.stream.bytesToString();
+  //       print(respStr);
+  //       print(
+  //           'DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+  //       if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
+  //         uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
+  //             cookie);
+  //         uiReset(context);
+  //         SnackBarGlobal.buildSnackBar(
+  //             context, 'You\'ve run out of space.', 'red');
+  //         return false;
+  //       } else if (response.statusCode >= 500) {
+  //         uploadError(csrf, {'code': response.statusCode, 'error': respStr}, id,
+  //             cookie);
+  //         uiReset(context);
+  //         SnackBarGlobal.buildSnackBar(
+  //             context, 'Something is wrong on our side. Sorry.', 'red');
+  //         return false;
+  //       }
+  //     } on SocketException catch (_) {
+  //       print('Socket Exception');
+  //       Provider.of<ProviderController>(context, listen: false)
+  //           .uploadingPausePlay(true);
+  //       SnackBarGlobal.buildSnackBar(
+  //           context, 'You\'re offline. Upload paused.', 'red');
+  //       list.insert(0, asset);
+  //       uploadOnlineChecker(context, id, csrf, cookie, tags, list);
+  //       return false;
+  //     } on Exception {
+  //       print('Exception');
+  //       Provider.of<ProviderController>(context, listen: false)
+  //           .uploadingPausePlay(true);
+  //       SnackBarGlobal.buildSnackBar(
+  //           context, 'You\'re offline. Upload paused.', 'red');
+  //       list.insert(0, asset);
+  //       uploadOnlineChecker(context, id, csrf, cookie, tags, list);
+  //       return false;
+  //     }
+  //     if (Platform.isIOS) {
+  //       image.delete();
+  //       PhotoManager.clearFileCache();
+  //     } else {
+  //       PhotoManager.clearFileCache();
+  //     }
+  //     return true;
+  //   }
+  //
+  //   Future.doWhile(uploadOne);
+  // }
   //
 
   Future uploadIDListing(List<AssetEntity> list) async {
@@ -258,25 +258,25 @@ class UploadService {
     await Future.doWhile(dataOfOne);
   }
 
-  assetEntityCreator(List idList) async {
-    print('assetEntityCreator was called');
-    createOneAssetEntity() async {
-      if (idList.isEmpty) {
-        return false;
-      }
-      var item = await AssetEntity.fromId(idList[0]);
-      assetEntityList.add(item);
-      idList.removeAt(0);
-      return true;
-    }
-
-    await Future.doWhile(createOneAssetEntity);
-  }
+  // assetEntityCreator(List idList) async {
+  //   print('assetEntityCreator was called');
+  //   createOneAssetEntity() async {
+  //     if (idList.isEmpty) {
+  //       return false;
+  //     }
+  //     var item = await AssetEntity.fromId(idList[0]);
+  //     assetEntityList.add(item);
+  //     idList.removeAt(0);
+  //     return true;
+  //   }
+  //
+  //   await Future.doWhile(createOneAssetEntity);
+  // }
 }
 
 //--------- Isolate upload is here because it needs to be a top level function ---------
 void isolateUpload(List<Object> arguments) async {
-  print('Start uploading at ' + DateTime.now().toString());
+  // print('Start uploading at ' + DateTime.now().toString());
   var client = http.Client();
   SendPort sendPort = arguments[5];
   uploadOneIsolate() async {
@@ -304,6 +304,10 @@ void isolateUpload(List<Object> arguments) async {
     });
     PhotoManager.setIgnorePermissionCheck(true);
     var asset = await AssetEntity.fromId(idList[0]);
+    if (asset == null) {
+      idList.removeAt(0);
+      return true;
+    }
     var piv = asset.originFile;
     File image = await piv;
     var uri = Uri.parse(kAltoDevPicApp + '/piv');
@@ -318,8 +322,8 @@ void isolateUpload(List<Object> arguments) async {
       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
       var response = await client.send(request);
       final respStr = await response.stream.bytesToString();
-      // print(respStr);
-      // print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+      print(respStr);
+      print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
       sendPort.send('online');
       // print(idList[0]);
       sendPort.send(idList[0]);
