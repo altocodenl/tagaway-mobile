@@ -12,7 +12,7 @@ class InviteService {
 
   Future<int> sendInviteEmail(String email) async {
     final response = await http.post(
-      Uri.parse(kAltoDevPicApp + '/requestInvite'),
+      Uri.parse(kAltoPicApp + '/requestInvite'),
       headers: <String, String>{
         'Content-Type': 'application/json;charset=UTF-8',
       },

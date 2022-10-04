@@ -43,6 +43,7 @@ class CupertinoInvite extends StatelessWidget {
         CupertinoDialogAction(
           child: Text('Send'),
           onPressed: () {
+            print(emailController.text.toString());
             if (emailValidation.hasMatch(emailController.text) == true) {
               InviteService.instance
                   .sendInviteEmail(emailController.text)
