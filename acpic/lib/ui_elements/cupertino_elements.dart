@@ -28,6 +28,7 @@ class CupertinoInvite extends StatelessWidget {
         child: Text('Get your invite to ac;pic'),
       ),
       content: CupertinoTextField(
+        controller: emailController,
         keyboardType: TextInputType.emailAddress,
         textAlign: TextAlign.center,
         autofillHints: <String>[AutofillHints.email],
@@ -43,7 +44,6 @@ class CupertinoInvite extends StatelessWidget {
         CupertinoDialogAction(
           child: Text('Send'),
           onPressed: () {
-            print(emailController.text.toString());
             if (emailValidation.hasMatch(emailController.text) == true) {
               InviteService.instance
                   .sendInviteEmail(emailController.text)
