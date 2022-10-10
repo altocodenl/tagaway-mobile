@@ -69,6 +69,8 @@ class _DistributorState extends State<Distributor> {
         : LoginCheckService.instance.loginCheck(cookie).then((value) {
             if (value == 403 || 500 <= value) {
               checkPermission(context).then((value) {
+                print(
+                    'I am in distributor and this is "if (value == 403 || 500 <= value)"');
                 Navigator.pushReplacementNamed(
                   context,
                   LoginScreen.id,
@@ -82,12 +84,11 @@ class _DistributorState extends State<Distributor> {
                     : (value == 'denied' && recurringUserLocal == false ||
                         recurringUserLocal == null))) {
                   Navigator.pushReplacementNamed(context, RequestPermission.id);
-                } else if (value == 'granted') {
+                } else if (value == 'granted' || value == 'limited') {
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => GridPage()));
                 } else if (value == 'denied' ||
                     value == 'permanent' ||
-                    value == 'limited' ||
                     value == 'restricted') {
                   Navigator.pushReplacementNamed(context, PhotoAccessNeeded.id,
                       arguments: PermissionLevelFlag(permissionLevel: value));

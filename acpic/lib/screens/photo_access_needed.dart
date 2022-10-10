@@ -46,7 +46,6 @@ class _PhotoAccessNeededState extends State<PhotoAccessNeeded> {
     if (Platform.isAndroid) {
       androidPlatformChecker();
     }
-
     super.initState();
   }
 

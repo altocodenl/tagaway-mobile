@@ -1,4 +1,5 @@
 // IMPORT FLUTTER PACKAGES
+import 'package:acpic/screens/distributor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -65,8 +66,7 @@ class RequestPermission extends StatelessWidget {
                       );
                     } else {
                       checkPermission(context).then((value) {
-                        Navigator.pushReplacementNamed(
-                            context, PhotoAccessNeeded.id,
+                        Navigator.pushReplacementNamed(context, Distributor.id,
                             arguments:
                                 PermissionLevelFlag(permissionLevel: value));
                       });

@@ -135,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               : (flag.permissionLevel == 'denied' &&
                                       recurringUserLocal == false ||
                                   recurringUserLocal == null))) {
+                            print('I am in Log in, this is the first option');
                             _usernameController.clear();
                             _passwordController.clear();
                             Navigator.pushReplacement(
@@ -142,7 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 MaterialPageRoute(
                                     builder: (BuildContext context) =>
                                         RequestPermission()));
-                          } else if (flag.permissionLevel == 'granted') {
+                          } else if (flag.permissionLevel == 'granted' ||
+                              flag.permissionLevel == 'limited') {
                             _usernameController.clear();
                             _passwordController.clear();
                             Navigator.pushReplacement(
