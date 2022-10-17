@@ -9,7 +9,6 @@ import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/grid.dart';
-import 'package:acpic/screens/photo_access_needed.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/permissionCheckService.dart';
 import 'package:acpic/services/local_vars_shared_prefsService.dart';

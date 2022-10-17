@@ -1,18 +1,14 @@
 // IMPORT FLUTTER PACKAGES
-import 'package:acpic/services/deleteAccountService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:io' show Platform;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/material_elements.dart';
 import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SCREENS
-import 'package:acpic/screens/grid.dart';
 import 'package:acpic/screens/distributor.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
-// import 'package:acpic/services/deleteAccount.dart';
-import 'package:acpic/services/loginCheckService.dart';
+import 'package:acpic/services/deleteAccountService.dart';
 
 class DeleteAccount extends StatefulWidget {
   static const String id = 'delete_account';

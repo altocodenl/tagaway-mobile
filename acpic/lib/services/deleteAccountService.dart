@@ -1,12 +1,10 @@
 // IMPORT FLUTTER PACKAGES
-import 'dart:async';
 import 'dart:io';
 import 'dart:core';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 // IMPORT UI ELEMENTS
 import 'package:acpic/ui_elements/constants.dart';
-import 'package:acpic/ui_elements/cupertino_elements.dart';
 
 class DeleteAccountService {
   DeleteAccountService._privateConstructor();
