@@ -24,7 +24,7 @@ class UploadService {
       String op, String csrf, List tags, String cookie, int total) async {
     try {
       final response = await http.post(
-        Uri.parse(kAltoPicApp + '/upload'),
+        Uri.parse(kAltoPicAppURL + '/upload'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'cookie': cookie
@@ -52,7 +52,7 @@ class UploadService {
   Future<int> uploadEnd(String op, String csrf, int id, String cookie) async {
     try {
       final response = await http.post(
-        Uri.parse(kAltoPicApp + '/upload'),
+        Uri.parse(kAltoPicAppURL + '/upload'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'cookie': cookie
@@ -79,7 +79,7 @@ class UploadService {
       String csrf, Object error, int id, String cookie) async {
     try {
       final response = await http.post(
-        Uri.parse(kAltoPicApp + '/upload'),
+        Uri.parse(kAltoPicAppURL + '/upload'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'cookie': cookie
@@ -310,7 +310,7 @@ void isolateUpload(List<Object> arguments) async {
     }
     var piv = asset.originFile;
     File image = await piv;
-    var uri = Uri.parse(kAltoPicApp + '/piv');
+    var uri = Uri.parse(kAltoPicAppURL + '/piv');
     var request = http.MultipartRequest('POST', uri);
     try {
       request.headers['cookie'] = arguments[1];
@@ -353,7 +353,7 @@ void isolateUpload(List<Object> arguments) async {
         // If 200 go on, if not error streamline.
         try {
           final response = await http.post(
-            Uri.parse(kAltoPicApp + '/upload'),
+            Uri.parse(kAltoPicAppURL + '/upload'),
             headers: <String, String>{
               'Content-Type': 'application/json; charset=UTF-8',
               'cookie': arguments[1]

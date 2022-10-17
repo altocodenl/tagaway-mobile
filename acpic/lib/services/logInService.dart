@@ -16,7 +16,7 @@ class LogInService {
       String username, String password, dynamic timezone) async {
     try {
       final response = await http.post(
-        Uri.parse(kAltoPicApp + '/auth/login'),
+        Uri.parse(kAltoPicAppURL + '/auth/login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

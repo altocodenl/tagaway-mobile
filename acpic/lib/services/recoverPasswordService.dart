@@ -14,7 +14,7 @@ class RecoverPasswordService {
   Future<int> recoverPassword(String username) async {
     try {
       final response = await http.post(
-        Uri.parse(kAltoPicApp + '/auth/recover'),
+        Uri.parse(kAltoPicAppURL + '/auth/recover'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

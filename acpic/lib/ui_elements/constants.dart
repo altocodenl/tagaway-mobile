@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-const kAltoDevPicApp = 'https://altocode.nl/dev/pic/app';
-const kAltoPicApp = 'https://altocode.nl/pic/app';
+const kAltoPicAppURL = 'https://altocode.nl/pic/app';
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGrey = Color(0xFF8b8b8b);
 const kAltoGreen = Color(0xFF04E762);

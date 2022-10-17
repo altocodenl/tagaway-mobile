@@ -69,8 +69,6 @@ class _DistributorState extends State<Distributor> {
         : LoginCheckService.instance.loginCheck(cookie).then((value) {
             if (value == 403 || 500 <= value) {
               checkPermission(context).then((value) {
-                print(
-                    'I am in distributor and this is "if (value == 403 || 500 <= value)"');
                 Navigator.pushReplacementNamed(
                   context,
                   LoginScreen.id,
