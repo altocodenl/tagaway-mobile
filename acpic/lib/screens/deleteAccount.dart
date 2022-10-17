@@ -1,5 +1,5 @@
 // IMPORT FLUTTER PACKAGES
-import 'package:acpic/services/deleteAccount.dart';
+import 'package:acpic/services/deleteAccountService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io' show Platform;

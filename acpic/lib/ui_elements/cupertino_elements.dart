@@ -9,8 +9,6 @@ import 'package:acpic/ui_elements/constants.dart';
 //IMPORT SERVICES
 import 'package:acpic/services/local_vars_shared_prefsService.dart';
 import 'package:acpic/services/inviteEmailService.dart';
-// import 'package:acpic/services/deleteAccount.dart';
-import 'package:acpic/services/loginCheckService.dart';
 //IMPORT SCREENS
 import 'package:acpic/screens/distributor.dart';
 import 'package:acpic/screens/deleteAccount.dart';
@@ -102,14 +100,8 @@ class CupertinoLogOut extends StatelessWidget {
                 ),
                 CupertinoActionSheetAction(
                   onPressed: () {
-                    Navigator.of(context).pop();
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) => DeleteAccount()));
-                    // showDialog(
-                    //     context: context,
-                    //     builder: (context) {
-                    //       return IOSDeleteAccount();
-                    //     });
                   },
                   child: Text('Delete Account'),
                   isDestructiveAction: true,
@@ -133,84 +125,5 @@ class CupertinoLogOut extends StatelessWidget {
             ),
           );
         });
-  }
-}
-
-class IOSDeleteAccount extends StatefulWidget {
-  @override
-  State<IOSDeleteAccount> createState() => _IOSDeleteAccountState();
-}
-
-class _IOSDeleteAccountState extends State<IOSDeleteAccount> {
-  String cookie;
-  String csrf;
-
-  @override
-  void initState() {
-    SharedPreferencesService.instance.getStringValue('cookie').then((value) {
-      setState(() {
-        cookie = value;
-      });
-    });
-    SharedPreferencesService.instance.getStringValue('csrf').then((value) {
-      setState(() {
-        csrf = value;
-      });
-    });
-    super.initState();
-  }
-
-  getOut() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => Distributor()));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      title: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text('Are you sure you want to delete your ac;pic account?'),
-      ),
-      content: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          'If you delete your account all your data will be erased from our servers, including your photos, videos, log in credentials and all other information you\'ve stored.',
-          style: TextStyle(fontSize: 16),
-        ),
-      ),
-      actions: [
-        CupertinoDialogAction(
-          child: Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        CupertinoDialogAction(
-          child: Text(
-            'Delete Account',
-            style: TextStyle(color: Colors.red),
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-
-            // DeleteAccountService.instance
-            //     .deleteAccountService(cookie, csrf)
-            //     .then((value) {
-            //   if (value == 200) {
-            //     SharedPreferencesService.instance.removeAll();
-            //     SnackBarGlobal.buildSnackBar(
-            //         context, 'Your account has been deleted.', 'green');
-            //   } else {
-            //     // SnackBarGlobal.buildSnackBar(
-            //     //     context,
-            //     //     'There was an unexpected error. Your account was not deleted.',
-            //     //     'red');
-            //   }
-            // });
-          },
-        )
-      ],
-    );
   }
 }

@@ -135,7 +135,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               : (flag.permissionLevel == 'denied' &&
                                       recurringUserLocal == false ||
                                   recurringUserLocal == null))) {
-                            print('I am in Log in, this is the first option');
                             _usernameController.clear();
                             _passwordController.clear();
                             Navigator.pushReplacement(
