@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/acpic-mobile.iml" filepath="$PROJECT_DIR$/.idea/acpic-mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tagaway.iml" filepath="$PROJECT_DIR$/tagaway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/tagaway_android.iml" filepath="$PROJECT_DIR$/android/tagaway_android.iml" />
     </modules>
   </component>
 </project>
