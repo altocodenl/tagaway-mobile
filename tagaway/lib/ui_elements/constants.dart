@@ -38,7 +38,7 @@ const kAcpicMain = TextStyle(
 const kBigTitle = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 25,
-  color: kTextGreyDarker,
+  color: kGreyDarker,
 );
 
 const kBigTitleOffline = TextStyle(
@@ -50,19 +50,19 @@ const kBigTitleOffline = TextStyle(
 const kSubtitle = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 20,
-  color: kTextGreyDarker,
+  color: kGreyDarker,
 );
 
 const kPlainText = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 16,
-  color: kTextGreyDarker,
+  color: kGreyDarker,
 );
 
 const kPlainHypertext = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 14,
-  color: kTextGreyDarker,
+  color: kGreyDarker,
   decoration: TextDecoration.underline,
 );
 
@@ -77,7 +77,7 @@ const kGridBottomRowText = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 12,
   fontWeight: FontWeight.bold,
-  color: kTextGreyBlack,
+  color: kGreyDarkest,
 );
 
 const kSelectAllButton = TextStyle(
@@ -102,7 +102,7 @@ const kSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
   fontFamily: 'Montserrat',
   fontSize: 16,
-  color: kTextGreyBlack,
+  color: kGreyDarkest,
 );
 
 const kWhiteSnackBarText = TextStyle(

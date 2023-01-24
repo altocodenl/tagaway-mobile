@@ -1,7 +1,7 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-//IMPORT SCREENS
-import 'package:tagaway/views/distributor.dart';
+import 'package:tagaway/views/deleteAccount.dart';
+import 'package:tagaway/views/login_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,6 +9,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,7 +17,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const Distributor(),
+      home: const LoginScreen(),
+      routes: {
+        // LoginScreen.id: (context) => const LoginScreen(),
+        DeleteAccount.id: (context) => const DeleteAccount(),
+      },
     );
   }
 }
