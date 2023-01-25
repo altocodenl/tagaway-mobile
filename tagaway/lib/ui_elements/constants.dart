@@ -80,6 +80,12 @@ const kGridBottomRowText = TextStyle(
   color: kGreyDarkest,
 );
 
+const kBottomNavigationText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 12,
+  fontWeight: FontWeight.bold,
+);
+
 const kSelectAllButton = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 14,

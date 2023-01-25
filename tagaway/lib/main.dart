@@ -1,7 +1,8 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
+//IMPORT VIEWS
 import 'package:tagaway/views/deleteAccount.dart';
-import 'package:tagaway/views/login_view.dart';
+import 'package:tagaway/views/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const LoginScreen(),
+      home: const Home(),
       routes: {
         // LoginScreen.id: (context) => const LoginScreen(),
         DeleteAccount.id: (context) => const DeleteAccount(),
