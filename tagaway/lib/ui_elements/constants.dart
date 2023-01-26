@@ -118,3 +118,16 @@ const kWhiteSnackBarText = TextStyle(
   height: 1.5,
   color: kAltoBlue,
 );
+
+const kHomeEmptyText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 22,
+  color: kGreyDarker,
+);
+
+const kHomeTagBoxText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 25,
+  color: kGreyDarkest,
+);

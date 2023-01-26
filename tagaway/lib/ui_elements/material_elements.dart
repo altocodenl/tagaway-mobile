@@ -82,7 +82,7 @@ class RoundedButton extends StatelessWidget {
 
   final Color colour;
   final String title;
-  final VoidCallback onPressed;
+  final Function onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -92,12 +92,45 @@ class RoundedButton extends StatelessWidget {
         color: colour,
         borderRadius: BorderRadius.circular(30.0),
         child: MaterialButton(
-          onPressed: onPressed,
+          onPressed: onPressed(),
           minWidth: 200.0,
           height: 42.0,
           child: Text(
             title,
             style: kButtonText,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomeCard extends StatelessWidget {
+  const HomeCard({
+    Key? key,
+    required this.color,
+    required this.title,
+  }) : super(key: key);
+
+  final Color color;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
+      child: Container(
+        height: 140,
+        width: 1000,
+        padding: const EdgeInsets.only(top: 12),
+        decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.all(Radius.circular(20))),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 80, left: 20),
+          child: Text(
+            title,
+            style: kHomeTagBoxText,
           ),
         ),
       ),

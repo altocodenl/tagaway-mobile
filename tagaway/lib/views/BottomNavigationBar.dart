@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/views/home.dart';
+import 'package:tagaway/views/local.dart';
+import 'package:tagaway/views/uploaded.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key? key}) : super(key: key);
@@ -12,15 +15,14 @@ class BottomNavigation extends StatefulWidget {
 
 class _BottomNavigationState extends State<BottomNavigation> {
   int currentIndex = 0;
-  final screens = [
-    const Center(child: Text('Home', style: kBigTitle)),
-    const Center(child: Text('Local', style: kBigTitle)),
-    const Center(child: Text('Uploaded', style: kBigTitle)),
-  ];
+  final screens = [const Home(), const LocalView(), const UploadedView()];
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: screens[currentIndex],
+        body: IndexedStack(
+          index: currentIndex,
+          children: screens,
+        ),
         bottomNavigationBar: BottomNavigationBar(
           selectedItemColor: kAltoBlue,
           unselectedItemColor: kGreyDarker,
