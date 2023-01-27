@@ -125,9 +125,23 @@ const kHomeEmptyText = TextStyle(
   color: kGreyDarker,
 );
 
+const kSubPageAppBarTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 25,
+  color: kGreyDarker,
+);
+
 const kHomeTagBoxText = TextStyle(
   fontFamily: 'Montserrat',
   fontWeight: FontWeight.bold,
   fontSize: 25,
   color: kGreyDarkest,
+);
+
+const kTagListElementText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
 );

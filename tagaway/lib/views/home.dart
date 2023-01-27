@@ -108,7 +108,8 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
           child: SingleChildScrollView(
             child: ListView(
-              // scrollDirection: Axis.vertical,
+              addAutomaticKeepAlives: false,
+              scrollDirection: Axis.vertical,
               shrinkWrap: true,
               children: const [
                 HomeCard(
@@ -147,6 +148,11 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: kAltoBlue,
+        child: const Icon(Icons.create_rounded),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class SnackBarGlobal {
@@ -131,6 +132,54 @@ class HomeCard extends StatelessWidget {
           child: Text(
             title,
             style: kHomeTagBoxText,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TagListElement extends StatelessWidget {
+  const TagListElement({
+    Key? key,
+    required this.tagColor,
+    required this.tagName,
+    required this.onTap,
+  }) : super(key: key);
+
+  final Color tagColor;
+  final String tagName;
+  final Function onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap(),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 5),
+        child: Container(
+          height: 70,
+          width: 1000,
+          decoration: const BoxDecoration(
+              color: kGreyLighter,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: FaIcon(
+                    FontAwesomeIcons.tag,
+                    color: tagColor,
+                  ),
+                ),
+                Text(
+                  tagName,
+                  style: kTagListElementText,
+                ),
+              ],
+            ),
           ),
         ),
       ),
