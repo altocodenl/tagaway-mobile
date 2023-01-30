@@ -22,13 +22,7 @@ class _YourHomeTagsViewState extends State<YourHomeTagsView> {
           padding: const EdgeInsets.only(top: 18, left: 12),
           child: GestureDetector(
             onTap: () {},
-            child: const Text('Edit',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: kAltoBlue,
-                )),
+            child: const Text('Edit', style: kDoneEditText),
           ),
         ),
         title: const Text('Your home tags', style: kSubPageAppBarTitle),
@@ -75,10 +69,11 @@ class _YourHomeTagsViewState extends State<YourHomeTagsView> {
           ],
         ),
       )),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
         backgroundColor: kAltoBlue,
-        child: const Icon(Icons.done),
+        label: const Text('Done', style: kSelectAllButton),
+        icon: const Icon(Icons.done),
       ),
     );
   }

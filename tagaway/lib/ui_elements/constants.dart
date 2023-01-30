@@ -145,3 +145,10 @@ const kTagListElementText = TextStyle(
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
+
+const kDoneEditText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 20,
+  color: kAltoBlue,
+);
