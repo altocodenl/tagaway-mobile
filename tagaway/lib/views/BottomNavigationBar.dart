@@ -15,7 +15,7 @@ class BottomNavigationView extends StatefulWidget {
 }
 
 class _BottomNavigationViewState extends State<BottomNavigationView> {
-  int currentIndex = 0;
+  int currentIndex = 1;
   final screens = [const Home(), const LocalView(), const UploadedView()];
 
   @override
