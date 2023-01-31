@@ -59,6 +59,13 @@ const kPlainText = TextStyle(
   color: kGreyDarker,
 );
 
+const kPlainTextBold = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 16,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
+);
+
 const kPlainHypertext = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 14,

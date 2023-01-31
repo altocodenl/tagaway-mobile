@@ -1,6 +1,6 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-import 'package:tagaway/views/add_home_tags.dart';
+import 'package:tagaway/views/change_password.dart';
 import 'package:tagaway/views/deleteAccount.dart';
 import 'package:tagaway/views/login_view.dart';
 
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const AddHomeTagsView(),
+      home: const ChangePasswordView(),
       routes: {
         LoginScreen.id: (context) => const LoginScreen(),
         DeleteAccount.id: (context) => const DeleteAccount(),

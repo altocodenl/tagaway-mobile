@@ -1,19 +1,20 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/home.dart';
 import 'package:tagaway/views/local.dart';
 import 'package:tagaway/views/uploaded.dart';
 
-class BottomNavigation extends StatefulWidget {
-  const BottomNavigation({Key? key}) : super(key: key);
+class BottomNavigationView extends StatefulWidget {
+  const BottomNavigationView({Key? key}) : super(key: key);
 
   @override
-  State<BottomNavigation> createState() => _BottomNavigationState();
+  State<BottomNavigationView> createState() => _BottomNavigationViewState();
 }
 
-class _BottomNavigationState extends State<BottomNavigation> {
+class _BottomNavigationViewState extends State<BottomNavigationView> {
   int currentIndex = 0;
   final screens = [const Home(), const LocalView(), const UploadedView()];
 
@@ -26,17 +27,19 @@ class _BottomNavigationState extends State<BottomNavigation> {
         bottomNavigationBar: BottomNavigationBar(
           selectedItemColor: kAltoBlue,
           unselectedItemColor: kGreyDarker,
-          iconSize: 38,
+          iconSize: 30,
           currentIndex: currentIndex,
           unselectedLabelStyle: kBottomNavigationText,
           selectedLabelStyle: kBottomNavigationText,
           onTap: (index) => setState(() => currentIndex = index),
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.smartphone), label: 'Local'),
+                icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.cloud_upload_outlined), label: 'Uploaded'),
+                icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
+                label: 'Local'),
+            BottomNavigationBarItem(
+                icon: FaIcon(FontAwesomeIcons.cloudArrowUp), label: 'Uploaded'),
           ],
         ),
       );

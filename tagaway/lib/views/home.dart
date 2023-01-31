@@ -24,41 +24,42 @@ class _HomeState extends State<Home> {
           'images/tag blue with white - 400x400.png',
           scale: 8,
         ),
-        title: const Text('hometag', style: kAcpicMain),
+        title: Row(
+          children: const [
+            Expanded(flex: 2, child: Text('hometag', style: kAcpicMain)),
+            Padding(
+              padding: EdgeInsets.only(top: 1.0),
+              child: Text(
+                'username',
+                style: kPlainText,
+              ),
+            ),
+          ],
+        ),
         centerTitle: false,
         titleSpacing: 0.0,
       ),
       endDrawer: Drawer(
           child: ListView(
-        padding: const EdgeInsets.all(8),
+        // padding: const EdgeInsets.all(8),
         children: <Widget>[
-          const DrawerHeader(child: Text('Username', style: kSubtitle)),
-          Container(
-            height: 50,
-            color: Colors.transparent,
-            child:
-                const Center(child: Text('Your usage: 4GB of your free 5GB')),
+          const SizedBox(
+            height: 64,
+            child: DrawerHeader(
+              child: Text('Username', style: kSubPageAppBarTitle),
+            ),
           ),
-          Container(
-            height: 50,
-            color: kGreyLighter,
-            child: const Center(child: Text('Change password')),
+          const UserMenuElementTransparent(
+              textOnElement: 'Your usage: 4GB of your free 5GB'),
+          UserMenuElementLightGrey(
+            onTap: () {},
+            textOnElement: 'Change password',
           ),
-          Container(
-            height: 50,
-            color: kGreyLighter,
-            child: const Center(child: Text('Go to tagaway web')),
-          ),
-          Container(
-            height: 50,
-            color: kGreyLighter,
-            child: const Center(child: Text('Delete My Account')),
-          ),
-          Container(
-            height: 50,
-            color: kGreyDarker,
-            child: const Center(child: Text('Log out')),
-          ),
+          UserMenuElementLightGrey(
+              onTap: () {}, textOnElement: 'Go to hometag web'),
+          UserMenuElementLightGrey(
+              onTap: () {}, textOnElement: 'Delete My Account'),
+          UserMenuElementDarkGrey(onTap: () {}, textOnElement: 'Log out'),
         ],
       )),
       body: SafeArea(
@@ -106,46 +107,44 @@ class _HomeState extends State<Home> {
         // ),
         child: Padding(
           padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
-          child: SingleChildScrollView(
-            child: ListView(
-              addAutomaticKeepAlives: false,
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              children: const [
-                HomeCard(
-                  color: kTagColor1,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor2,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor3,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor4,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor5,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor6,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor1,
-                  title: 'Vacations',
-                ),
-                HomeCard(
-                  color: kTagColor2,
-                  title: 'Vacations',
-                ),
-              ],
-            ),
+          child: ListView(
+            addAutomaticKeepAlives: false,
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            children: const [
+              HomeCard(
+                color: kTagColor1,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor2,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor3,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor4,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor5,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor6,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor1,
+                title: 'Vacations',
+              ),
+              HomeCard(
+                color: kTagColor2,
+                title: 'Vacations',
+              ),
+            ],
           ),
         ),
       ),

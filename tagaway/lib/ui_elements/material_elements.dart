@@ -262,3 +262,99 @@ class EditTagListElement extends StatelessWidget {
     );
   }
 }
+
+class UserMenuElementTransparent extends StatelessWidget {
+  const UserMenuElementTransparent({
+    Key? key,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: Container(
+        height: 50,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        child: Center(
+            child: Text(
+          textOnElement,
+          style: kPlainTextBold,
+        )),
+      ),
+    );
+  }
+}
+
+class UserMenuElementLightGrey extends StatelessWidget {
+  const UserMenuElementLightGrey({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final Function onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap(),
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kGreyLight,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Center(
+              child: Text(
+            textOnElement,
+            style: kPlainText,
+          )),
+        ),
+      ),
+    );
+  }
+}
+
+class UserMenuElementDarkGrey extends StatelessWidget {
+  const UserMenuElementDarkGrey({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final Function onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap(),
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kGreyDarker,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Center(
+              child: Text(textOnElement,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 16,
+                    color: Colors.white,
+                  ))),
+        ),
+      ),
+    );
+  }
+}

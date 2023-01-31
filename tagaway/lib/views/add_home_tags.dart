@@ -16,19 +16,51 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: false,
         backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: CustomSearchDelegate(),
-              );
-            },
-            icon: const Icon(Icons.search),
-            color: kAltoBlue,
+        title: GestureDetector(
+          onTap: () {
+            showSearch(
+              context: context,
+              delegate: CustomSearchDelegate(),
+            );
+          },
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+                color: kGreyLighter,
+                border: Border.all(color: kGreyDarker),
+                borderRadius: BorderRadius.circular(25)),
+            child: Row(
+              children: const [
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      'Or search for a tag',
+                      style: kPlainText,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Icon(
+                    Icons.search,
+                    color: kAltoGrey,
+                  ),
+                )
+              ],
+            ),
           ),
-          const Text('Cancel', style: kPlainText)
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(top: 18, right: 12),
+            child: GestureDetector(
+                onTap: () {}, child: const Text('Cancel', style: kPlainText)),
+          )
         ],
       ),
       body: SafeArea(
