@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 const kAltoPicAppURL = 'https://altocode.nl/pic/app';
 const kAltoBlue = Color(0xFF5b6eff);
-const kAltoGrey = Color(0xFF8b8b8b);
 const kAltoGreen = Color(0xFF04E762);
 const kAltoOrganized = Color(0xFF00992b);
 const kAltoRed = Color(0xFFD33E43);
@@ -11,7 +10,7 @@ const kAltoRemove = Color(0xFFFC201F);
 const kGreyLightest = Color(0xFFfbfbfb);
 const kGreyLighter = Color(0xFFf2f2f2);
 const kGreyLight = Color(0xFFdedede);
-const kTextGrey = Color(0xFF8b8b8b);
+const kGrey = Color(0xFF8b8b8b);
 const kGreyDarker = Color(0xFF484848);
 const kGreyDarkest = Color(0xFF333333);
 const kTagColor1 = Color(0xFFec5bff);
@@ -34,6 +33,12 @@ const kAcpicMain = TextStyle(
   fontSize: 30,
   color: kAltoBlue,
 );
+
+const kLocalYear = TextStyle(
+    fontFamily: 'Montserrat',
+    fontWeight: FontWeight.bold,
+    fontSize: 30,
+    color: kGrey);
 
 const kBigTitle = TextStyle(
   fontFamily: 'Montserrat',

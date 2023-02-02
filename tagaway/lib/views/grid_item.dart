@@ -1,7 +1,8 @@
 import 'dart:typed_data';
-import 'package:tagaway/ui_elements/constants.dart';
+
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tagaway/ui_elements/constants.dart';
 
 class GridItem extends StatelessWidget {
   final AssetEntity item;
@@ -16,11 +17,10 @@ class GridItem extends StatelessWidget {
     return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
   }
 
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List?>(
-      future: item.thumbnailData,
+      future: item.thumbnailDataWithSize(const ThumbnailSize.square(1000)),
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null) {
@@ -32,7 +32,6 @@ class GridItem extends StatelessWidget {
           children: [
             Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
                   fit: BoxFit.cover,
                   image: MemoryImage(bytes),
@@ -41,15 +40,16 @@ class GridItem extends StatelessWidget {
             ),
             item.type == AssetType.video
                 ? Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 5.0, bottom: 5),
-                child: Text(
-                  parseVideoDuration(Duration(seconds: item.duration)),
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
-              ),
-            )
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 5.0, bottom: 5),
+                      child: Text(
+                        parseVideoDuration(Duration(seconds: item.duration)),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ),
+                  )
                 : Container(),
             // SelectedAsset(
             //   selectedListLengthStreamController:

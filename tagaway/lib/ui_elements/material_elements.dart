@@ -245,7 +245,7 @@ class EditTagListElement extends StatelessWidget {
                         padding: EdgeInsets.only(left: 12, right: 12.0),
                         child: FaIcon(
                           FontAwesomeIcons.bars,
-                          color: kAltoGrey,
+                          color: kGrey,
                         ),
                       ),
                     ],

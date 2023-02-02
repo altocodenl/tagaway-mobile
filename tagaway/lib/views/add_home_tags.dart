@@ -48,7 +48,7 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
                   padding: EdgeInsets.only(right: 8),
                   child: Icon(
                     Icons.search,
-                    color: kAltoGrey,
+                    color: kGrey,
                   ),
                 )
               ],
