@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/grid_item.dart';
 
 class LocalView extends StatefulWidget {
@@ -152,25 +153,11 @@ class _TopRowState extends State<TopRow> {
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40.0),
-                          child: Column(
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons.solidCircleCheck,
-                                color: kAltoOrganized,
-                                size: 16,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Text('Jul', style: kHorizontalMonth),
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.minus,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
+                        const GridMonthElement(
+                          roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                          roundedIconColor: kAltoOrganized,
+                          month: 'Jul',
+                          whiteOrAltoBlueDashIcon: Colors.white,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 40.0),

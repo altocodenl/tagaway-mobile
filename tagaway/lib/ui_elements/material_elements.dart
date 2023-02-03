@@ -355,3 +355,46 @@ class UserMenuElementDarkGrey extends StatelessWidget {
     );
   }
 }
+
+class GridMonthElement extends StatelessWidget {
+  const GridMonthElement({
+    Key? key,
+    required this.roundedIcon,
+    required this.roundedIconColor,
+    required this.month,
+    required this.whiteOrAltoBlueDashIcon,
+  }) : super(key: key);
+
+  final IconData roundedIcon;
+  final Color roundedIconColor;
+  final String month;
+  final Color whiteOrAltoBlueDashIcon;
+
+  // FontAwesomeIcons.solidCircleCheck
+  // FontAwesomeIcons.solidCircle
+  // FontAwesomeIcons.circle
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 40.0),
+      child: Column(
+        children: [
+          FaIcon(
+            roundedIcon,
+            color: roundedIconColor,
+            size: 16,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(month, style: kHorizontalMonth),
+          ),
+          FaIcon(
+            FontAwesomeIcons.minus,
+            color: whiteOrAltoBlueDashIcon,
+          ),
+        ],
+      ),
+    );
+  }
+}
