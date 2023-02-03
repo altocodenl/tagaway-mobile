@@ -158,9 +158,37 @@ const kTagListElementText = TextStyle(
   color: kGreyDarker,
 );
 
+const kGridTagListElement = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
+);
+
 const kDoneEditText = TextStyle(
   fontFamily: 'Montserrat',
   fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kAltoBlue,
+);
+
+const kHorizontalMonth = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 16,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
+);
+
+const kLookingAtText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 14,
+  color: kGreyDarker,
+);
+
+const kOrganizedAmountOfPivs = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoOrganized,
 );

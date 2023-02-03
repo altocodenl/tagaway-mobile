@@ -22,7 +22,19 @@ class _LocalViewState extends State<LocalView> {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      children: const [Grid(), TopRow()],
+      children: [
+        const Grid(),
+        const TopRow(),
+        Align(
+          alignment: const Alignment(0.8, .9),
+          child: FloatingActionButton.extended(
+            onPressed: () {},
+            backgroundColor: kAltoBlue,
+            label: const Text('Done', style: kSelectAllButton),
+            icon: const Icon(Icons.done),
+          ),
+        )
+      ],
     );
   }
 }
@@ -134,86 +146,146 @@ class _TopRowState extends State<TopRow> {
                   style: kLocalYear,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                  padding: const EdgeInsets.only(left: 20, top: 20.0),
                   child: SizedBox(
                     height: 80,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
-                        Column(
-                          children: const [
-                            FaIcon(
-                              FontAwesomeIcons.solidCircleCheck,
-                              color: kAltoOrganized,
-                              size: 18,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                'Oct',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: kGreyDarker,
-                                ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 40.0),
+                          child: Column(
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.solidCircleCheck,
+                                color: kAltoOrganized,
+                                size: 16,
                               ),
-                            ),
-                            FaIcon(
-                              FontAwesomeIcons.minus,
-                              color: Colors.white,
-                            ),
-                          ],
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Text('Jul', style: kHorizontalMonth),
+                              ),
+                              FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: const [
-                            FaIcon(
-                              FontAwesomeIcons.circle,
-                              color: kGreyDarker,
-                              size: 18,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                'Nov',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: kGreyDarker,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 40.0),
+                          child: Column(
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.solidCircle,
+                                color: kGreyDarker,
+                                size: 16,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Aug',
+                                  style: kHorizontalMonth,
                                 ),
                               ),
-                            ),
-                            FaIcon(
-                              FontAwesomeIcons.minus,
-                              color: Colors.white,
-                            ),
-                          ],
+                              FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: const [
-                            FaIcon(
-                              FontAwesomeIcons.solidCircle,
-                              color: kGreyDarker,
-                              size: 18,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 8.0),
-                              child: Text(
-                                'Dec',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: kAltoBlue,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 40.0),
+                          child: Column(
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.solidCircleCheck,
+                                color: kAltoOrganized,
+                                size: 16,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Sep',
+                                  style: kHorizontalMonth,
                                 ),
                               ),
-                            ),
-                            FaIcon(
-                              FontAwesomeIcons.minus,
-                              color: kAltoBlue,
-                            ),
-                          ],
+                              FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 40.0),
+                          child: Column(
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.solidCircleCheck,
+                                color: kAltoOrganized,
+                                size: 16,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Oct',
+                                  style: kHorizontalMonth,
+                                ),
+                              ),
+                              FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 40.0),
+                          child: Column(
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.circle,
+                                color: kGreyDarker,
+                                size: 16,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Nov',
+                                  style: kHorizontalMonth,
+                                ),
+                              ),
+                              FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 0.0),
+                          child: Column(
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.solidCircle,
+                                color: kGreyDarker,
+                                size: 16,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  'Dec',
+                                  style: kHorizontalMonth,
+                                ),
+                              ),
+                              FaIcon(
+                                FontAwesomeIcons.minus,
+                                color: kAltoBlue,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -223,14 +295,58 @@ class _TopRowState extends State<TopRow> {
             ),
           ),
         ),
-        // Container(
-        //   height: 60,
-        //   width: double.infinity,
-        //   decoration: BoxDecoration(
-        //       border: Border.all(color: kAltoBlue, width: 1),
-        //       color: Colors.white),
-        //   child: const Text('Here is where the tag goes'),
-        // )
+        Container(
+          height: 60,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 12, right: 12),
+            child: Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    'Now tagging with',
+                    style: kLookingAtText,
+                  ),
+                ),
+                Container(
+                  height: 40,
+                  width: 180,
+                  decoration: const BoxDecoration(
+                      color: kGreyLighter,
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Row(
+                      children: const <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(right: 12.0),
+                          child: FaIcon(
+                            FontAwesomeIcons.tag,
+                            color: kTagColor1,
+                            size: 20,
+                          ),
+                        ),
+                        Text('Vacations', style: kGridTagListElement),
+                      ],
+                    ),
+                  ),
+                ),
+                const Expanded(
+                  child: Text(
+                    '4,444',
+                    textAlign: TextAlign.right,
+                    style: kOrganizedAmountOfPivs,
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
       ],
     );
   }
