@@ -35,51 +35,109 @@ class _LocalViewState extends State<LocalView> {
         //     icon: const Icon(Icons.done),
         //   ),
         // )
+
         Align(
           alignment: Alignment.bottomCenter,
           child: SizedBox.expand(
             child: DraggableScrollableSheet(
-                initialChildSize: .10,
-                minChildSize: .1,
-                maxChildSize: .78,
+                snap: true,
+                initialChildSize: .08,
+                minChildSize: .08,
+                maxChildSize: .77,
                 builder:
                     (BuildContext context, ScrollController scrollController) {
-                  return Container(
-                    color: kAltoBlue,
-                    child: ListView(
-                      controller: scrollController,
-                      children: [
-                        TagListElement(
-                          tagColor: kTagColor1,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor2,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor3,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor4,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor5,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor6,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                      ],
+                  return ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                    child: Container(
+                      color: Colors.white,
+                      child: ListView(
+                        padding: const EdgeInsets.only(left: 12, right: 12),
+                        controller: scrollController,
+                        children: [
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0),
+                              child: FaIcon(
+                                FontAwesomeIcons.anglesUp,
+                                color: kGrey,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                              child: Text(
+                                'Swipe to start tagging',
+                                style: kPlainTextBold,
+                              ),
+                            ),
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor1,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor2,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor3,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor4,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor5,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor6,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor1,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor2,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor3,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor4,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor5,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor6,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
