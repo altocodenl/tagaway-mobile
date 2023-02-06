@@ -26,13 +26,63 @@ class _LocalViewState extends State<LocalView> {
       children: [
         const Grid(),
         const TopRow(),
+        // Align(
+        //   alignment: const Alignment(0.8, .9),
+        //   child: FloatingActionButton.extended(
+        //     onPressed: () {},
+        //     backgroundColor: kAltoBlue,
+        //     label: const Text('Done', style: kSelectAllButton),
+        //     icon: const Icon(Icons.done),
+        //   ),
+        // )
         Align(
-          alignment: const Alignment(0.8, .9),
-          child: FloatingActionButton.extended(
-            onPressed: () {},
-            backgroundColor: kAltoBlue,
-            label: const Text('Done', style: kSelectAllButton),
-            icon: const Icon(Icons.done),
+          alignment: Alignment.bottomCenter,
+          child: SizedBox.expand(
+            child: DraggableScrollableSheet(
+                initialChildSize: .10,
+                minChildSize: .1,
+                maxChildSize: .78,
+                builder:
+                    (BuildContext context, ScrollController scrollController) {
+                  return Container(
+                    color: kAltoBlue,
+                    child: ListView(
+                      controller: scrollController,
+                      children: [
+                        TagListElement(
+                          tagColor: kTagColor1,
+                          tagName: 'Vacations',
+                          onTap: () {},
+                        ),
+                        TagListElement(
+                          tagColor: kTagColor2,
+                          tagName: 'Vacations',
+                          onTap: () {},
+                        ),
+                        TagListElement(
+                          tagColor: kTagColor3,
+                          tagName: 'Vacations',
+                          onTap: () {},
+                        ),
+                        TagListElement(
+                          tagColor: kTagColor4,
+                          tagName: 'Vacations',
+                          onTap: () {},
+                        ),
+                        TagListElement(
+                          tagColor: kTagColor5,
+                          tagName: 'Vacations',
+                          onTap: () {},
+                        ),
+                        TagListElement(
+                          tagColor: kTagColor6,
+                          tagName: 'Vacations',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  );
+                }),
           ),
         )
       ],
@@ -282,58 +332,58 @@ class _TopRowState extends State<TopRow> {
             ),
           ),
         ),
-        Container(
-          height: 60,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12),
-            child: Row(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    'Now tagging with',
-                    style: kLookingAtText,
-                  ),
-                ),
-                Container(
-                  height: 40,
-                  width: 180,
-                  decoration: const BoxDecoration(
-                      color: kGreyLighter,
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Row(
-                      children: const <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(right: 12.0),
-                          child: FaIcon(
-                            FontAwesomeIcons.tag,
-                            color: kTagColor1,
-                            size: 20,
-                          ),
-                        ),
-                        Text('Vacations', style: kGridTagListElement),
-                      ],
-                    ),
-                  ),
-                ),
-                const Expanded(
-                  child: Text(
-                    '4,444',
-                    textAlign: TextAlign.right,
-                    style: kOrganizedAmountOfPivs,
-                  ),
-                )
-              ],
-            ),
-          ),
-        )
+        // Container(
+        //   height: 60,
+        //   width: double.infinity,
+        //   decoration: const BoxDecoration(
+        //     border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
+        //     color: Colors.white,
+        //   ),
+        //   child: Padding(
+        //     padding: const EdgeInsets.only(left: 12, right: 12),
+        //     child: Row(
+        //       children: [
+        //         const Padding(
+        //           padding: EdgeInsets.only(right: 8.0),
+        //           child: Text(
+        //             'Now tagging with',
+        //             style: kLookingAtText,
+        //           ),
+        //         ),
+        //         Container(
+        //           height: 40,
+        //           width: 180,
+        //           decoration: const BoxDecoration(
+        //               color: kGreyLighter,
+        //               borderRadius: BorderRadius.all(Radius.circular(10))),
+        //           child: Padding(
+        //             padding: const EdgeInsets.only(left: 12),
+        //             child: Row(
+        //               children: const <Widget>[
+        //                 Padding(
+        //                   padding: EdgeInsets.only(right: 12.0),
+        //                   child: FaIcon(
+        //                     FontAwesomeIcons.tag,
+        //                     color: kTagColor1,
+        //                     size: 20,
+        //                   ),
+        //                 ),
+        //                 Text('Vacations', style: kGridTagListElement),
+        //               ],
+        //             ),
+        //           ),
+        //         ),
+        //         const Expanded(
+        //           child: Text(
+        //             '4,444',
+        //             textAlign: TextAlign.right,
+        //             style: kOrganizedAmountOfPivs,
+        //           ),
+        //         )
+        //       ],
+        //     ),
+        //   ),
+        // )
       ],
     );
   }

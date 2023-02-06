@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
         ),
         title: Row(
           children: const [
-            Expanded(flex: 2, child: Text('hometag', style: kAcpicMain)),
+            Expanded(flex: 2, child: Text('tagaway', style: kAcpicMain)),
             Padding(
               padding: EdgeInsets.only(top: 1.0),
               child: Text(
@@ -63,90 +63,90 @@ class _HomeState extends State<Home> {
         ],
       )),
       body: SafeArea(
-        // child: Padding(
-        //   padding: const EdgeInsets.only(left: 12, right: 12),
-        //   child: Center(
-        //     child: Column(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         Padding(
-        //           padding: const EdgeInsets.all(8.0),
-        //           child: Center(
-        //             child: Padding(
-        //               padding: const EdgeInsets.only(bottom: 10),
-        //               child: Image.asset(
-        //                 'images/tag blue with white - 400x400.png',
-        //                 scale: 2,
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //         const Padding(
-        //           padding: EdgeInsets.only(bottom: 10),
-        //           child: Text(
-        //             'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
-        //             style: kHomeEmptyText,
-        //             textAlign: TextAlign.center,
-        //           ),
-        //         ),
-        //         Padding(
-        //             padding: const EdgeInsets.only(bottom: 10),
-        //             child: RoundedButton(
-        //               title: 'Get started',
-        //               colour: kAltoBlue,
-        //               onPressed: () {
-        //                 // Navigator.of(context).push(
-        //                 //   MaterialPageRoute(
-        //                 //       builder: (_) => const LoginScreen()),
-        //                 // );
-        //               },
-        //             ))
-        //       ],
-        //     ),
-        //   ),
-        // ),
         child: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
-          child: ListView(
-            addAutomaticKeepAlives: false,
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            children: const [
-              HomeCard(
-                color: kTagColor1,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor2,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor3,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor4,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor5,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor6,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor1,
-                title: 'Vacations',
-              ),
-              HomeCard(
-                color: kTagColor2,
-                title: 'Vacations',
-              ),
-            ],
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Image.asset(
+                        'images/tag blue with white - 400x400.png',
+                        scale: 2,
+                      ),
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
+                    style: kHomeEmptyText,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: RoundedButton(
+                      title: 'Get started',
+                      colour: kAltoBlue,
+                      onPressed: () {
+                        // Navigator.of(context).push(
+                        //   MaterialPageRoute(
+                        //       builder: (_) => const LoginScreen()),
+                        // );
+                      },
+                    ))
+              ],
+            ),
           ),
         ),
+        // child: Padding(
+        //   padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
+        //   child: ListView(
+        //     addAutomaticKeepAlives: false,
+        //     scrollDirection: Axis.vertical,
+        //     shrinkWrap: true,
+        //     children: const [
+        //       HomeCard(
+        //         color: kTagColor1,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor2,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor3,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor4,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor5,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor6,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor1,
+        //         title: 'Vacations',
+        //       ),
+        //       HomeCard(
+        //         color: kTagColor2,
+        //         title: 'Vacations',
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
