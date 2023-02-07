@@ -14,6 +14,8 @@ class LocalView extends StatefulWidget {
 }
 
 class _LocalViewState extends State<LocalView> {
+  final TextEditingController newTagName = TextEditingController();
+
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
@@ -35,14 +37,13 @@ class _LocalViewState extends State<LocalView> {
         //     icon: const Icon(Icons.done),
         //   ),
         // )
-
         Align(
           alignment: Alignment.bottomCenter,
           child: SizedBox.expand(
             child: DraggableScrollableSheet(
                 snap: true,
-                initialChildSize: .08,
-                minChildSize: .08,
+                initialChildSize: .07,
+                minChildSize: .07,
                 maxChildSize: .77,
                 builder:
                     (BuildContext context, ScrollController scrollController) {
@@ -76,6 +77,39 @@ class _LocalViewState extends State<LocalView> {
                               ),
                             ),
                           ),
+                          // const Center(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(top: 8.0),
+                          //     child: FaIcon(
+                          //       FontAwesomeIcons.anglesDown,
+                          //       color: kGrey,
+                          //       size: 16,
+                          //     ),
+                          //   ),
+                          // ),
+                          // const Center(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                          //     child: Text(
+                          //       'Tag your pics and videos',
+                          //       style: TextStyle(
+                          //           fontFamily: 'Montserrat',
+                          //           fontWeight: FontWeight.bold,
+                          //           fontSize: 20,
+                          //           color: kAltoBlue),
+                          //     ),
+                          //   ),
+                          // ),
+                          // const Center(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                          //     child: Text(
+                          //       'Choose a tag and select the pics & videos you want!',
+                          //       textAlign: TextAlign.center,
+                          //       style: kPlainTextBold,
+                          //     ),
+                          //   ),
+                          // ),
                           TagListElement(
                             tagColor: kTagColor1,
                             tagName: 'Vacations',
@@ -142,7 +176,91 @@ class _LocalViewState extends State<LocalView> {
                   );
                 }),
           ),
-        )
+        ),
+        // Align(
+        //   alignment: const Alignment(0, .9),
+        //   child: FloatingActionButton.extended(
+        //     onPressed: () {},
+        //     backgroundColor: kAltoBlue,
+        //     label: const Text('Create tag', style: kSelectAllButton),
+        //   ),
+        // ),
+        // Container(
+        //   height: double.infinity,
+        //   width: double.infinity,
+        //   color: kAltoBlue.withOpacity(.8),
+        // ),
+        // Center(
+        //     child: Padding(
+        //   padding: const EdgeInsets.only(left: 12, right: 12),
+        //   child: Container(
+        //     height: 200,
+        //     width: double.infinity,
+        //     decoration: const BoxDecoration(
+        //       color: Colors.white,
+        //       borderRadius: BorderRadius.all(Radius.circular(20)),
+        //     ),
+        //     child: Column(
+        //       children: [
+        //         const Padding(
+        //           padding: EdgeInsets.only(top: 20.0),
+        //           child: Text(
+        //             'Create a new tag',
+        //             style: TextStyle(
+        //                 fontFamily: 'Montserrat',
+        //                 fontWeight: FontWeight.bold,
+        //                 fontSize: 20,
+        //                 color: kAltoBlue),
+        //           ),
+        //         ),
+        //         Padding(
+        //           padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
+        //           child: TextField(
+        //             controller: newTagName,
+        //             autofocus: true,
+        //             textAlign: TextAlign.center,
+        //             enableSuggestions: true,
+        //             decoration: const InputDecoration(
+        //               hintText: 'Insert the name of your new tag here…',
+        //               contentPadding: EdgeInsets.symmetric(
+        //                   vertical: 10.0, horizontal: 10.0),
+        //               border: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.all(Radius.circular(25)),
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //         Padding(
+        //           padding: const EdgeInsets.only(top: 30.0, right: 20),
+        //           child: Row(
+        //             mainAxisAlignment: MainAxisAlignment.end,
+        //             children: const [
+        //               Padding(
+        //                 padding: EdgeInsets.only(right: 30.0),
+        //                 child: Text(
+        //                   'Cancel',
+        //                   style: TextStyle(
+        //                       fontFamily: 'Montserrat',
+        //                       fontWeight: FontWeight.bold,
+        //                       fontSize: 16,
+        //                       color: kAltoBlue),
+        //                 ),
+        //               ),
+        //               Text(
+        //                 'Create',
+        //                 style: TextStyle(
+        //                     fontFamily: 'Montserrat',
+        //                     fontWeight: FontWeight.bold,
+        //                     fontSize: 16,
+        //                     color: kAltoBlue),
+        //               ),
+        //             ],
+        //           ),
+        //         )
+        //       ],
+        //     ),
+        //   ),
+        // ))
       ],
     );
   }
