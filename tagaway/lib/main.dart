@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/deleteAccount.dart';
-import 'package:tagaway/views/login_view.dart';
+import 'package:tagaway/views/loginView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const BottomNavigationView(),
+      home: const LoginScreen(),
       routes: {
         LoginScreen.id: (context) => const LoginScreen(),
         DeleteAccount.id: (context) => const DeleteAccount(),
