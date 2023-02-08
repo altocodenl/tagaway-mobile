@@ -14,6 +14,8 @@ class LocalView extends StatefulWidget {
 }
 
 class _LocalViewState extends State<LocalView> {
+  final TextEditingController newTagName = TextEditingController();
+
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
@@ -39,52 +41,142 @@ class _LocalViewState extends State<LocalView> {
           alignment: Alignment.bottomCenter,
           child: SizedBox.expand(
             child: DraggableScrollableSheet(
-                initialChildSize: .10,
-                minChildSize: .1,
-                maxChildSize: .78,
+                snap: true,
+                initialChildSize: .07,
+                minChildSize: .07,
+                maxChildSize: .77,
                 builder:
                     (BuildContext context, ScrollController scrollController) {
-                  return Container(
-                    color: kAltoBlue,
-                    child: ListView(
-                      controller: scrollController,
-                      children: [
-                        TagListElement(
-                          tagColor: kTagColor1,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor2,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor3,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor4,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor5,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                        TagListElement(
-                          tagColor: kTagColor6,
-                          tagName: 'Vacations',
-                          onTap: () {},
-                        ),
-                      ],
+                  return ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                    child: Container(
+                      color: Colors.white,
+                      child: ListView(
+                        padding: const EdgeInsets.only(left: 12, right: 12),
+                        controller: scrollController,
+                        children: [
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0),
+                              child: FaIcon(
+                                FontAwesomeIcons.anglesUp,
+                                color: kGrey,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                              child: Text(
+                                'Swipe to start tagging',
+                                style: kPlainTextBold,
+                              ),
+                            ),
+                          ),
+                          // const Center(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(top: 8.0),
+                          //     child: FaIcon(
+                          //       FontAwesomeIcons.anglesDown,
+                          //       color: kGrey,
+                          //       size: 16,
+                          //     ),
+                          //   ),
+                          // ),
+                          // const Center(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                          //     child: Text(
+                          //       'Tag your pics and videos',
+                          //       style: TextStyle(
+                          //           fontFamily: 'Montserrat',
+                          //           fontWeight: FontWeight.bold,
+                          //           fontSize: 20,
+                          //           color: kAltoBlue),
+                          //     ),
+                          //   ),
+                          // ),
+                          // const Center(
+                          //   child: Padding(
+                          //     padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                          //     child: Text(
+                          //       'Choose a tag and select the pics & videos you want!',
+                          //       textAlign: TextAlign.center,
+                          //       style: kPlainTextBold,
+                          //     ),
+                          //   ),
+                          // ),
+                          TagListElement(
+                            tagColor: kTagColor1,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor2,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor3,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor4,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor5,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor6,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor1,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor2,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor3,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor4,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor5,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                          TagListElement(
+                            tagColor: kTagColor6,
+                            tagName: 'Vacations',
+                            onTap: () {},
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
           ),
-        )
+        ),
       ],
     );
   }
