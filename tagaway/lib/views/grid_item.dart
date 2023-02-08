@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
@@ -51,6 +52,22 @@ class GridItem extends StatelessWidget {
                     ),
                   )
                 : Container(),
+            Align(
+                alignment: const Alignment(0.9, -.9),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: const FaIcon(
+                    // FontAwesomeIcons.solidCircle,
+                    // color: kGreyDarker,
+                    FontAwesomeIcons.solidCircleCheck,
+                    color: kAltoOrganized,
+                    size: 25,
+                  ),
+                ))
+
             // SelectedAsset(
             //   selectedListLengthStreamController:
             //   selectedListLengthStreamController,
