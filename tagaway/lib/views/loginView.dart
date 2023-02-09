@@ -16,13 +16,13 @@ import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/local_vars_shared_prefsService.dart';
 import 'package:tagaway/services/permissionCheckService.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginView extends StatefulWidget {
    static const String id = 'login_screen';
 
-   const LoginScreen({Key? key}) : super(key: key);
+   const LoginView({Key? key}) : super(key: key);
 
    @override
-   _LoginScreenState createState() => _LoginScreenState();
+   _LoginViewState createState() => _LoginViewState();
 }
 
 // TODO: remove this once we restore the proper permission level check code
@@ -30,10 +30,9 @@ class FakeFlag {
    String permissionLevel = 'granted';
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginViewState extends State<LoginView> {
    bool recurringUserLocal = false;
    late Future myFuture;
-   late String cookie;
    final TextEditingController _usernameController = TextEditingController();
    final TextEditingController _passwordController = TextEditingController();
    final inviteResponse = StreamController<int>.broadcast();

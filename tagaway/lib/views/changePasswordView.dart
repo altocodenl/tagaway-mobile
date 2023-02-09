@@ -1,7 +1,11 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/views/offline.dart';
+
+import 'package:tagaway/services/authService.dart';
 
 class ChangePasswordView extends StatefulWidget {
   const ChangePasswordView({Key? key}) : super(key: key);
@@ -88,7 +92,28 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                   ),
                 ),
                 RoundedButton(
-                    title: 'Save', colour: kAltoBlue, onPressed: () {})
+                    title: 'Save', colour: kAltoBlue, onPressed: () {
+                       AuthService.instance.changePassword (
+                          _currentPasswordController.text,
+                          _newPasswordController.text,
+                          _repeatNewPasswordController.text
+                        ).then ((value) {
+                           if (value == 0) return Navigator.of (context).push (MaterialPageRoute(
+                             builder: (_) => const OfflineScreen ()
+                           ));
+                           if (value == 1) return SnackBarGlobal.buildSnackBar (
+                              context, 'New password and repeat new password must be the same.', 'yellow'
+                           );
+                           if (value == 403) return SnackBarGlobal.buildSnackBar (
+                              context, 'Incorrect password.', 'red'
+                           );
+                           if (value == 500) return SnackBarGlobal.buildSnackBar (
+                              context, 'Something is wrong on our side. Sorry.', 'red'
+                           );
+                           if (value == 200) return SnackBarGlobal.buildSnackBar (context, 'Change password successful!', 'green');
+                        });
+                     }
+                  )
               ],
             ),
           ),
