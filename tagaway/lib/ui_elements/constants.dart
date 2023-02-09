@@ -192,3 +192,10 @@ const kOrganizedAmountOfPivs = TextStyle(
   fontWeight: FontWeight.bold,
   color: kAltoOrganized,
 );
+
+void debug (List params) {
+   String acc = 'DEBUG';
+   params.forEach ((v) => acc += ' ' + v.toString ());
+   print (acc);
+}
+

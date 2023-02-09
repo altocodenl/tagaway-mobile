@@ -19,8 +19,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      //home: const LoginView (),
-      home: const ChangePasswordView (),
+      home: const LoginView (),
+      // home: const ChangePasswordView (),
       routes: {
         LoginView.id:   (context) => const LoginView   (),
         DeleteAccount.id: (context) => const DeleteAccount (),
