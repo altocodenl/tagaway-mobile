@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/views/home.dart';
+import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/local.dart';
 import 'package:tagaway/views/uploaded.dart';
 
@@ -16,7 +16,7 @@ class BottomNavigationView extends StatefulWidget {
 
 class _BottomNavigationViewState extends State<BottomNavigationView> {
   int currentIndex = 1;
-  final screens = [const Home(), const LocalView(), const UploadedView()];
+  final screens = [const HomeView(), const LocalView(), const UploadedView()];
 
   @override
   Widget build(BuildContext context) => Scaffold(

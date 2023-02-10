@@ -19,6 +19,7 @@ const kTagColor3 = Color(0xFF5bffec);
 const kTagColor4 = Color(0xFF4aff95);
 const kTagColor5 = Color(0xFFffec5b);
 const kTagColor6 = Color(0xFF80762e);
+const tagColors = [kTagColor1, kTagColor2, kTagColor3, kTagColor4, kTagColor5, kTagColor6];
 
 const kAcpicSplash = TextStyle(
   fontFamily: 'Montserrat',
@@ -199,3 +200,10 @@ void debug (List params) {
    print (acc);
 }
 
+Color tagColor (String tag) {
+   var acc = 0;
+   tag.split ('').forEach ((v) {
+      acc += v.codeUnitAt (0);
+   });
+   return tagColors [acc % tagColors.length];
+}
