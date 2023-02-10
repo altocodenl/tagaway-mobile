@@ -1,3 +1,4 @@
+// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 
 import 'package:tagaway/views/BottomNavigationBar.dart';
@@ -6,6 +7,7 @@ import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/addHometagsView.dart';
+import 'package:tagaway/views/querySelectorView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,10 +27,11 @@ class MyApp extends StatelessWidget {
       // home: const ChangePasswordView (),
       // home: const deleteAccountView (),
       // home: const HomeView (),
-      home: const AddHomeTagsView (),
+      // home: const AddHomeTagsView (),
+      home: const QuerySelectorView(),
       routes: {
-        LoginView.id:   (context) => const LoginView   (),
-        DeleteAccount.id: (context) => const DeleteAccount (),
+        LoginView.id: (context) => const LoginView(),
+        DeleteAccount.id: (context) => const DeleteAccount(),
       },
     );
   }
