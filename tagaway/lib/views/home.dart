@@ -97,7 +97,7 @@ class _HomeState extends State<Home> {
                       onPressed: () {
                         // Navigator.of(context).push(
                         //   MaterialPageRoute(
-                        //       builder: (_) => const LoginScreen()),
+                        //       builder: (_) => const LoginView ()),
                         // );
                       },
                     ))

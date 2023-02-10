@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:tagaway/ui_elements/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesService {
@@ -5,6 +8,18 @@ class SharedPreferencesService {
 
   static final SharedPreferencesService instance =
       SharedPreferencesService._privateConstructor();
+
+  set (String key, dynamic value) async {
+    SharedPreferences myPrefs = await SharedPreferences.getInstance();
+    debug (['SET', key, value]);
+    myPrefs.setString (key, jsonEncode (value));
+  }
+
+  get (String key) async {
+    SharedPreferences myPrefs = await SharedPreferences.getInstance();
+    debug (['GET', key, myPrefs.getString (key)]);
+    return jsonDecode (myPrefs.getString (key) ?? '""');
+  }
 
   setStringValue(String key, String value) async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const kAltoPicAppURL = 'https://altocode.nl/pic/app';
+const kAltoPicAppURL = 'https://altocode.nl/dev/pic/app';
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGreen = Color(0xFF04E762);
 const kAltoOrganized = Color(0xFF00992b);
@@ -192,3 +192,10 @@ const kOrganizedAmountOfPivs = TextStyle(
   fontWeight: FontWeight.bold,
   color: kAltoOrganized,
 );
+
+void debug (List params) {
+   String acc = 'DEBUG';
+   params.forEach ((v) => acc += ' ' + v.toString ());
+   print (acc);
+}
+
