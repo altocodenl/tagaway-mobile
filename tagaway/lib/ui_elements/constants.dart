@@ -31,6 +31,14 @@ const kLocationDotIcon = FontAwesomeIcons.locationDot;
 const kLocationPinIcon = FontAwesomeIcons.locationPin;
 
 // FontAwesomeIcons.circleCheck
+const tagColors = [
+  kTagColor1,
+  kTagColor2,
+  kTagColor3,
+  kTagColor4,
+  kTagColor5,
+  kTagColor6
+];
 
 const kAcpicSplash = TextStyle(
   fontFamily: 'Montserrat',
@@ -209,4 +217,12 @@ void debug(List params) {
   String acc = 'DEBUG';
   params.forEach((v) => acc += ' ' + v.toString());
   print(acc);
+}
+
+Color tagColor(String tag) {
+  var acc = 0;
+  tag.split('').forEach((v) {
+    acc += v.codeUnitAt(0);
+  });
+  return tagColors[acc % tagColors.length];
 }

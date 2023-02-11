@@ -1,18 +1,28 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-// IMPORT UI ELEMENTS
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+import 'package:tagaway/services/tagService.dart';
+
+class HomeView extends StatefulWidget {
+  const HomeView({Key? key}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeState extends State<Home> {
-  bool tagsEmpty = false;
+class _HomeViewState extends State<HomeView> {
+  List hometags = [];
+
+   void initState () {
+      super.initState ();
+      TagService.instance.getTags ().then ((value) {
+         setState (() {
+            hometags = value;
+         });
+      });
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +73,7 @@ class _HomeState extends State<Home> {
         ],
       )),
       body: SafeArea(
-        child: Padding(
+        child: hometags.length == 0 ? Padding(
           padding: const EdgeInsets.only(left: 12, right: 12),
           child: Center(
             child: Column(
@@ -104,49 +114,17 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
+        ) : Padding(
+          padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
+          child: ListView(
+            addAutomaticKeepAlives: false,
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            children: [
+               for (var v in hometags) HomeCard (color: tagColor (v), title: v)
+            ]
+          ),
         ),
-        // child: Padding(
-        //   padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
-        //   child: ListView(
-        //     addAutomaticKeepAlives: false,
-        //     scrollDirection: Axis.vertical,
-        //     shrinkWrap: true,
-        //     children: const [
-        //       HomeCard(
-        //         color: kTagColor1,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor2,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor3,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor4,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor5,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor6,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor1,
-        //         title: 'Vacations',
-        //       ),
-        //       HomeCard(
-        //         color: kTagColor2,
-        //         title: 'Vacations',
-        //       ),
-        //     ],
-        //   ),
-        // ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},

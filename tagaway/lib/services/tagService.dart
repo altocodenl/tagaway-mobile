@@ -12,7 +12,7 @@ class TagService {
 
    static final TagService instance = TagService._privateConstructor();
 
-   Future <int> getTags () async {
+   Future <dynamic> getTags () async {
       try {
          final cookie = await SharedPreferencesService.instance.get ('cookie');
          final response = await http.get (
@@ -23,8 +23,10 @@ class TagService {
             dynamic body = jsonDecode (response.body);
             SharedPreferencesService.instance.set ('hometags', body ['hometags']);
             SharedPreferencesService.instance.set ('tags',     body ['tags']);
+            debug (['hometags', body ['hometags']]);
+            return body ['hometags'];
          }
-         return response.statusCode;
+         return [];
       } on SocketException catch (_) {
          return 0;
       }

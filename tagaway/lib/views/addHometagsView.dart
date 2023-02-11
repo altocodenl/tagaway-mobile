@@ -1,8 +1,9 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-// IMPORT UI ELEMENTS
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/tagService.dart';
 
 class AddHomeTagsView extends StatefulWidget {
   const AddHomeTagsView({Key? key}) : super(key: key);
@@ -12,6 +13,17 @@ class AddHomeTagsView extends StatefulWidget {
 }
 
 class _AddHomeTagsViewState extends State<AddHomeTagsView> {
+   List hometags = [];
+
+   void initState () {
+      super.initState ();
+      TagService.instance.getTags ().then ((value) {
+         setState (() {
+            hometags = value;
+         });
+      });
+   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +35,7 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
           onTap: () {
             showSearch(
               context: context,
-              delegate: CustomSearchDelegate(),
+              delegate: CustomSearchDelegate(hometags),
             );
           },
           child: Container(
@@ -69,36 +81,7 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
         child: ListView(
           // shrinkWrap: true,
           children: [
-            TagListElement(
-              tagColor: kTagColor1,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor2,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor3,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor4,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor5,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor6,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
+            for (var v in hometags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {})
           ],
         ),
       )),
@@ -107,7 +90,10 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
 }
 
 class CustomSearchDelegate extends SearchDelegate {
-  List<String> searchTerms = ['Vacations', 'Family', 'Friends'];
+
+   dynamic hometags = [];
+
+   CustomSearchDelegate (dynamic hometags) : this.hometags = hometags;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -132,7 +118,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in searchTerms) {
+    for (var tag in hometags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
@@ -151,7 +137,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in searchTerms) {
+    for (var tag in hometags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
