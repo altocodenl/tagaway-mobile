@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const kAltoPicAppURL = 'https://altocode.nl/dev/pic/app';
 const kAltoBlue = Color(0xFF5b6eff);
@@ -19,6 +20,17 @@ const kTagColor3 = Color(0xFF5bffec);
 const kTagColor4 = Color(0xFF4aff95);
 const kTagColor5 = Color(0xFFffec5b);
 const kTagColor6 = Color(0xFF80762e);
+const kSelectedTag = Color(0xFFc1d4ff);
+
+const kTagIcon = FontAwesomeIcons.tag;
+const kEmptyCircle = FontAwesomeIcons.circle;
+const kSolidCircleIcon = FontAwesomeIcons.solidCircle;
+const kCircleCheckIcon = FontAwesomeIcons.solidCircleCheck;
+const kClockIcon = FontAwesomeIcons.clock;
+const kLocationDotIcon = FontAwesomeIcons.locationDot;
+const kLocationPinIcon = FontAwesomeIcons.locationPin;
+
+// FontAwesomeIcons.circleCheck
 
 const kAcpicSplash = TextStyle(
   fontFamily: 'Montserrat',
@@ -193,9 +205,8 @@ const kOrganizedAmountOfPivs = TextStyle(
   color: kAltoOrganized,
 );
 
-void debug (List params) {
-   String acc = 'DEBUG';
-   params.forEach ((v) => acc += ' ' + v.toString ());
-   print (acc);
+void debug(List params) {
+  String acc = 'DEBUG';
+  params.forEach((v) => acc += ' ' + v.toString());
+  print(acc);
 }
-

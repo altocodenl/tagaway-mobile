@@ -167,7 +167,7 @@ class TagListElement extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 12.0),
                   child: FaIcon(
-                    FontAwesomeIcons.tag,
+                    kTagIcon,
                     color: tagColor,
                   ),
                 ),
@@ -230,7 +230,7 @@ class EditTagListElement extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: 12.0),
                         child: FaIcon(
-                          FontAwesomeIcons.tag,
+                          kTagIcon,
                           color: tagColor,
                         ),
                       ),
@@ -370,30 +370,71 @@ class GridMonthElement extends StatelessWidget {
   final String month;
   final Color whiteOrAltoBlueDashIcon;
 
-  // FontAwesomeIcons.solidCircleCheck
-  // FontAwesomeIcons.solidCircle
-  // FontAwesomeIcons.circle
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FaIcon(
+          roundedIcon,
+          color: roundedIconColor,
+          size: 16,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(month, style: kHorizontalMonth),
+        ),
+        FaIcon(
+          FontAwesomeIcons.minus,
+          color: whiteOrAltoBlueDashIcon,
+        ),
+      ],
+    );
+  }
+}
+
+class QuerySelectionTagElement extends StatelessWidget {
+  const QuerySelectionTagElement({
+    Key? key,
+    required this.elementColor,
+    required this.icon,
+    required this.iconColor,
+    required this.tagTitle,
+    required this.onTap,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final Color elementColor;
+  final IconData icon;
+  final Color iconColor;
+  final String tagTitle;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 40.0),
-      child: Column(
-        children: [
-          FaIcon(
-            roundedIcon,
-            color: roundedIconColor,
-            size: 16,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+            color: elementColor,
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: FaIcon(
+                  icon,
+                  color: iconColor,
+                  size: 20,
+                ),
+              ),
+              Text(
+                tagTitle,
+                style: kLookingAtText,
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(month, style: kHorizontalMonth),
-          ),
-          FaIcon(
-            FontAwesomeIcons.minus,
-            color: whiteOrAltoBlueDashIcon,
-          ),
-        ],
+        ),
       ),
     );
   }

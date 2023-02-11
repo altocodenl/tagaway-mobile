@@ -289,132 +289,58 @@ class _TopRowState extends State<TopRow> {
                   style: kLocalYear,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 20, top: 20.0),
+                  padding: const EdgeInsets.only(top: 20.0),
                   child: SizedBox(
                     height: 80,
                     child: ListView(
+                      reverse: true,
                       scrollDirection: Axis.horizontal,
                       children: [
-                        const GridMonthElement(
-                          roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                          roundedIconColor: kAltoOrganized,
-                          month: 'Jul',
-                          whiteOrAltoBlueDashIcon: Colors.white,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40.0),
-                          child: Column(
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons.solidCircle,
-                                color: kGreyDarker,
-                                size: 16,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  'Aug',
-                                  style: kHorizontalMonth,
-                                ),
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.minus,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40.0),
-                          child: Column(
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons.solidCircleCheck,
-                                color: kAltoOrganized,
-                                size: 16,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  'Sep',
-                                  style: kHorizontalMonth,
-                                ),
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.minus,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40.0),
-                          child: Column(
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons.solidCircleCheck,
-                                color: kAltoOrganized,
-                                size: 16,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  'Oct',
-                                  style: kHorizontalMonth,
-                                ),
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.minus,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40.0),
-                          child: Column(
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons.circle,
-                                color: kGreyDarker,
-                                size: 16,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  'Nov',
-                                  style: kHorizontalMonth,
-                                ),
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.minus,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 0.0),
-                          child: Column(
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons.solidCircle,
-                                color: kGreyDarker,
-                                size: 16,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  'Dec',
-                                  style: kHorizontalMonth,
-                                ),
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.minus,
-                                color: kAltoBlue,
-                              ),
-                            ],
-                          ),
+                        GridView.count(
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 1,
+                          crossAxisSpacing: 0,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          childAspectRatio: 1.15,
+                          children: const [
+                            GridMonthElement(
+                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIconColor: kAltoOrganized,
+                              month: 'Jul',
+                              whiteOrAltoBlueDashIcon: Colors.white,
+                            ),
+                            GridMonthElement(
+                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIconColor: kAltoOrganized,
+                              month: 'Aug',
+                              whiteOrAltoBlueDashIcon: Colors.white,
+                            ),
+                            GridMonthElement(
+                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIconColor: kAltoOrganized,
+                              month: 'Sep',
+                              whiteOrAltoBlueDashIcon: Colors.white,
+                            ),
+                            GridMonthElement(
+                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIconColor: kAltoOrganized,
+                              month: 'Oct',
+                              whiteOrAltoBlueDashIcon: Colors.white,
+                            ),
+                            GridMonthElement(
+                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIconColor: kAltoOrganized,
+                              month: 'Nov',
+                              whiteOrAltoBlueDashIcon: Colors.white,
+                            ),
+                            GridMonthElement(
+                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIconColor: kAltoOrganized,
+                              month: 'Dec',
+                              whiteOrAltoBlueDashIcon: Colors.white,
+                            ),
+                          ],
                         ),
                       ],
                     ),
