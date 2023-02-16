@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
+import 'package:tagaway/services/local_vars_shared_prefsService.dart';
 import 'package:tagaway/services/tagService.dart';
 
 class AddHomeTagsView extends StatefulWidget {
@@ -14,14 +15,26 @@ class AddHomeTagsView extends StatefulWidget {
 
 class _AddHomeTagsViewState extends State<AddHomeTagsView> {
    List hometags = [];
+   List tags     = [];
+   List potentialHometags = [];
 
    void initState () {
       super.initState ();
-      TagService.instance.getTags ().then ((value) {
+      SharedPreferencesService.instance.updateStream.stream.listen ((value) async {
+         if (value != 'hometags' && value != 'tags') return;
+         dynamic Hometags = await SharedPreferencesService.instance.get ('hometags');
+         dynamic Tags     = await SharedPreferencesService.instance.get ('tags');
          setState (() {
-            hometags = value;
+            hometags = Hometags;
+            tags     = Tags;
+            potentialHometags = [];
+            tags.forEach ((tag) {
+               if (RegExp ('^[a-z]::').hasMatch (tag)) return;
+               if (! hometags.contains (tag)) potentialHometags.add (tag);
+            });
          });
       });
+      TagService.instance.getTags ();
    }
 
   @override
@@ -35,7 +48,7 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
           onTap: () {
             showSearch(
               context: context,
-              delegate: CustomSearchDelegate(hometags),
+              delegate: CustomSearchDelegate(potentialHometags),
             );
           },
           child: Container(
@@ -91,9 +104,9 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
 
 class CustomSearchDelegate extends SearchDelegate {
 
-   dynamic hometags = [];
+   dynamic potentialHometags = [];
 
-   CustomSearchDelegate (dynamic hometags) : this.hometags = hometags;
+   CustomSearchDelegate (dynamic potentialHometags) : this.potentialHometags = potentialHometags;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -118,7 +131,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in hometags) {
+    for (var tag in potentialHometags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
@@ -137,7 +150,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in hometags) {
+    for (var tag in potentialHometags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
@@ -148,6 +161,9 @@ class CustomSearchDelegate extends SearchDelegate {
         var result = matchQuery[index];
         return ListTile(
           title: Text(result),
+          onTap: () {
+             TagService.instance.addHometag (result);
+          }
         );
       },
     );
