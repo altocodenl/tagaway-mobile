@@ -29,6 +29,12 @@ const kCircleCheckIcon = FontAwesomeIcons.solidCircleCheck;
 const kClockIcon = FontAwesomeIcons.clock;
 const kLocationDotIcon = FontAwesomeIcons.locationDot;
 const kLocationPinIcon = FontAwesomeIcons.locationPin;
+const kSearchIcon = FontAwesomeIcons.magnifyingGlass;
+const kSlidersIcon = FontAwesomeIcons.sliders;
+const kCameraIcon = FontAwesomeIcons.camera;
+const kEllipsisIcon = FontAwesomeIcons.ellipsis;
+const kMinusIcon = FontAwesomeIcons.minus;
+const kBoxArchiveIcon = FontAwesomeIcons.boxArchive;
 
 // FontAwesomeIcons.circleCheck
 const tagColors = [
@@ -78,6 +84,12 @@ const kSubtitle = TextStyle(
   color: kGreyDarker,
 );
 
+const kWhiteSubtitle = TextStyle(
+    fontFamily: 'Montserrat',
+    fontWeight: FontWeight.bold,
+    fontSize: 20,
+    color: Colors.white);
+
 const kPlainText = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 16,
@@ -103,6 +115,13 @@ const kButtonText = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: Colors.white,
+);
+
+const kWhiteButtonText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoBlue,
 );
 
 const kGridBottomRowText = TextStyle(
@@ -211,6 +230,13 @@ const kOrganizedAmountOfPivs = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoOrganized,
+);
+
+const kUploadedAmountOfPivs = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
 );
 
 void debug(List params) {

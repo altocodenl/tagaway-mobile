@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/grid_item.dart';
+import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
   const LocalView({Key? key}) : super(key: key);
@@ -177,6 +177,110 @@ class _LocalViewState extends State<LocalView> {
                 }),
           ),
         ),
+        // Container(
+        //   height: double.infinity,
+        //   width: double.infinity,
+        //   color: kAltoBlue.withOpacity(.8),
+        // ),
+        // Center(
+        //     child: Padding(
+        //   padding: const EdgeInsets.only(left: 12, right: 12),
+        //   child: Container(
+        //     height: 200,
+        //     width: double.infinity,
+        //     decoration: const BoxDecoration(
+        //       color: Colors.white,
+        //       borderRadius: BorderRadius.all(Radius.circular(20)),
+        //     ),
+        //     child: Column(
+        //       children: [
+        //         const Padding(
+        //           padding: EdgeInsets.only(top: 20.0),
+        //           child: Text(
+        //             'Create a new tag',
+        //             style: TextStyle(
+        //                 fontFamily: 'Montserrat',
+        //                 fontWeight: FontWeight.bold,
+        //                 fontSize: 20,
+        //                 color: kAltoBlue),
+        //           ),
+        //         ),
+        //         Padding(
+        //           padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
+        //           child: TextField(
+        //             controller: newTagName,
+        //             autofocus: true,
+        //             textAlign: TextAlign.center,
+        //             enableSuggestions: true,
+        //             decoration: const InputDecoration(
+        //               hintText: 'Insert the name of your new tag here…',
+        //               contentPadding: EdgeInsets.symmetric(
+        //                   vertical: 10.0, horizontal: 10.0),
+        //               border: OutlineInputBorder(
+        //                 borderRadius: BorderRadius.all(Radius.circular(25)),
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //         Padding(
+        //           padding: const EdgeInsets.only(top: 30.0, right: 20),
+        //           child: Row(
+        //             mainAxisAlignment: MainAxisAlignment.end,
+        //             children: const [
+        //               Padding(
+        //                 padding: EdgeInsets.only(right: 30.0),
+        //                 child: Text(
+        //                   'Cancel',
+        //                   style: TextStyle(
+        //                       fontFamily: 'Montserrat',
+        //                       fontWeight: FontWeight.bold,
+        //                       fontSize: 16,
+        //                       color: kAltoBlue),
+        //                 ),
+        //               ),
+        //               Text(
+        //                 'Create',
+        //                 style: TextStyle(
+        //                     fontFamily: 'Montserrat',
+        //                     fontWeight: FontWeight.bold,
+        //                     fontSize: 16,
+        //                     color: kAltoBlue),
+        //               ),
+        //             ],
+        //           ),
+        //         )
+        //       ],
+        //     ),
+        //   ),
+        // ))
+        // Center(
+        //     child: Padding(
+        //   padding: const EdgeInsets.only(left: 12, right: 12),
+        //   child: Container(
+        //     height: 180,
+        //     width: double.infinity,
+        //     decoration: const BoxDecoration(
+        //       color: kAltoBlue,
+        //       borderRadius: BorderRadius.all(Radius.circular(20)),
+        //     ),
+        //     child: Column(
+        //       children: [
+        //         const Padding(
+        //           padding: EdgeInsets.only(
+        //               top: 20.0, right: 15, left: 15, bottom: 10),
+        //           child: Text(
+        //             'Your pics will backup as you tag them',
+        //             textAlign: TextAlign.center,
+        //             style: kWhiteSubtitle,
+        //           ),
+        //         ),
+        //         Center(
+        //             child: WhiteRoundedButton(
+        //                 title: 'Start tagging', onPressed: () {}))
+        //       ],
+        //     ),
+        //   ),
+        // ))
       ],
     );
   }
@@ -277,16 +381,40 @@ class _TopRowState extends State<TopRow> {
     return Column(
       children: [
         Container(
-          // height: 190,
           width: double.infinity,
           color: Colors.white,
           child: SafeArea(
             child: Column(
               children: [
-                const Text(
-                  '2022',
-                  textAlign: TextAlign.center,
-                  style: kLocalYear,
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0, right: 12),
+                  child: Row(
+                    children: const [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment(0.29, .9),
+                          child: Text(
+                            '2022',
+                            textAlign: TextAlign.center,
+                            style: kLocalYear,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        kSearchIcon,
+                        color: Colors.white,
+                        size: 25,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20.0),
+                        child: Icon(
+                          kSlidersIcon,
+                          color: Colors.white,
+                          size: 25,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
@@ -302,35 +430,35 @@ class _TopRowState extends State<TopRow> {
                           crossAxisSpacing: 0,
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
-                          childAspectRatio: 1.15,
+                          childAspectRatio: 1.11,
                           children: const [
                             GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                              roundedIconColor: kAltoOrganized,
+                              roundedIcon: kSolidCircleIcon,
+                              roundedIconColor: kGreyDarker,
                               month: 'Jul',
                               whiteOrAltoBlueDashIcon: Colors.white,
                             ),
                             GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIcon: kCircleCheckIcon,
                               roundedIconColor: kAltoOrganized,
                               month: 'Aug',
                               whiteOrAltoBlueDashIcon: Colors.white,
                             ),
                             GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                              roundedIconColor: kAltoOrganized,
+                              roundedIcon: kEmptyCircle,
+                              roundedIconColor: kGreyDarker,
                               month: 'Sep',
                               whiteOrAltoBlueDashIcon: Colors.white,
                             ),
                             GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                              roundedIcon: kCircleCheckIcon,
                               roundedIconColor: kAltoOrganized,
                               month: 'Oct',
                               whiteOrAltoBlueDashIcon: Colors.white,
                             ),
                             GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                              roundedIconColor: kAltoOrganized,
+                              roundedIcon: kSolidCircleIcon,
+                              roundedIconColor: kGreyDarker,
                               month: 'Nov',
                               whiteOrAltoBlueDashIcon: Colors.white,
                             ),
@@ -338,7 +466,7 @@ class _TopRowState extends State<TopRow> {
                               roundedIcon: FontAwesomeIcons.solidCircleCheck,
                               roundedIconColor: kAltoOrganized,
                               month: 'Dec',
-                              whiteOrAltoBlueDashIcon: Colors.white,
+                              whiteOrAltoBlueDashIcon: kAltoBlue,
                             ),
                           ],
                         ),
@@ -350,58 +478,40 @@ class _TopRowState extends State<TopRow> {
             ),
           ),
         ),
-        // Container(
-        //   height: 60,
-        //   width: double.infinity,
-        //   decoration: const BoxDecoration(
-        //     border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
-        //     color: Colors.white,
-        //   ),
-        //   child: Padding(
-        //     padding: const EdgeInsets.only(left: 12, right: 12),
-        //     child: Row(
-        //       children: [
-        //         const Padding(
-        //           padding: EdgeInsets.only(right: 8.0),
-        //           child: Text(
-        //             'Now tagging with',
-        //             style: kLookingAtText,
-        //           ),
-        //         ),
-        //         Container(
-        //           height: 40,
-        //           width: 180,
-        //           decoration: const BoxDecoration(
-        //               color: kGreyLighter,
-        //               borderRadius: BorderRadius.all(Radius.circular(10))),
-        //           child: Padding(
-        //             padding: const EdgeInsets.only(left: 12),
-        //             child: Row(
-        //               children: const <Widget>[
-        //                 Padding(
-        //                   padding: EdgeInsets.only(right: 12.0),
-        //                   child: FaIcon(
-        //                     FontAwesomeIcons.tag,
-        //                     color: kTagColor1,
-        //                     size: 20,
-        //                   ),
-        //                 ),
-        //                 Text('Vacations', style: kGridTagListElement),
-        //               ],
-        //             ),
-        //           ),
-        //         ),
-        //         const Expanded(
-        //           child: Text(
-        //             '4,444',
-        //             textAlign: TextAlign.right,
-        //             style: kOrganizedAmountOfPivs,
-        //           ),
-        //         )
-        //       ],
-        //     ),
-        //   ),
-        // )
+        Container(
+          height: 60,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
+            color: Colors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 12, right: 12),
+            child: Row(
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    'Now tagging with',
+                    style: kLookingAtText,
+                  ),
+                ),
+                GridTagElement(
+                  gridTagElementIcon: kTagIcon,
+                  iconColor: kTagColor1,
+                  gridTagName: 'Vacations',
+                ),
+                Expanded(
+                  child: Text(
+                    '4,444',
+                    textAlign: TextAlign.right,
+                    style: kOrganizedAmountOfPivs,
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
       ],
     );
   }

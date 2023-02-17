@@ -66,7 +66,7 @@ class GridItem extends StatelessWidget {
                     color: kAltoOrganized,
                     size: 25,
                   ),
-                ))
+                )),
 
             // SelectedAsset(
             //   selectedListLengthStreamController:

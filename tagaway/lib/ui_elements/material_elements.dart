@@ -103,6 +103,32 @@ class RoundedButton extends StatelessWidget {
   }
 }
 
+class WhiteRoundedButton extends StatelessWidget {
+  const WhiteRoundedButton(
+      {Key? key, required this.title, required this.onPressed})
+      : super(key: key);
+
+  final String title;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(title, style: kWhiteButtonText),
+        style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            minimumSize: const Size(200, 42)),
+      ),
+    );
+  }
+}
+
 class HomeCard extends StatelessWidget {
   const HomeCard({
     Key? key,
@@ -260,6 +286,210 @@ class EditTagListElement extends StatelessWidget {
   }
 }
 
+class GridTagElement extends StatelessWidget {
+  const GridTagElement({
+    Key? key,
+    required this.gridTagElementIcon,
+    required this.iconColor,
+    required this.gridTagName,
+  }) : super(key: key);
+
+  final IconData gridTagElementIcon;
+  final Color iconColor;
+  final String gridTagName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.only(left: 12, right: 12),
+        decoration: const BoxDecoration(
+            color: kGreyLighter,
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: FaIcon(
+                gridTagElementIcon,
+                color: iconColor,
+                size: 20,
+              ),
+            ),
+            Text(gridTagName, style: kGridTagListElement),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GridSeeMoreElement extends StatelessWidget {
+  const GridSeeMoreElement({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  color: Colors.white,
+                  height: 600,
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: [
+                      const Icon(
+                        kMinusIcon,
+                        color: kGreyDarker,
+                        size: 30,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'You’re looking at',
+                              style: kLookingAtText,
+                            ),
+                          ],
+                        ),
+                      ),
+                      GridView.count(
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        // crossAxisSpacing: 1,
+                        mainAxisSpacing: 8,
+                        shrinkWrap: true,
+                        childAspectRatio: 4,
+                        children: const [
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kGreyDarker,
+                              gridTagName: 'Untagged'),
+                          GridTagElement(
+                              gridTagElementIcon: kBoxArchiveIcon,
+                              iconColor: kGreyDarker,
+                              gridTagName: 'To organize'),
+                          GridTagElement(
+                              gridTagElementIcon: kClockIcon,
+                              iconColor: kGreyDarker,
+                              gridTagName: '2020'),
+                          GridTagElement(
+                              gridTagElementIcon: kClockIcon,
+                              iconColor: kGreyDarker,
+                              gridTagName: 'May'),
+                          GridTagElement(
+                              gridTagElementIcon: kLocationDotIcon,
+                              iconColor: kGreyDarker,
+                              gridTagName: 'AR'),
+                          GridTagElement(
+                              gridTagElementIcon: kLocationPinIcon,
+                              iconColor: kGreyDarker,
+                              gridTagName: 'Ayacucho'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor1,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor2,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor3,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor4,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor5,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor6,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor1,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor2,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor3,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor4,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor5,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor6,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor1,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor2,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor3,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor4,
+                              gridTagName: 'Lorem ipsum'),
+                          GridTagElement(
+                              gridTagElementIcon: kTagIcon,
+                              iconColor: kTagColor5,
+                              gridTagName: 'Lorem ipsum'),
+                        ],
+                      )
+                    ],
+                  ));
+            });
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: Container(
+          height: 40,
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          decoration: const BoxDecoration(
+              color: kGreyLighter,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          child: const Center(
+            child: FaIcon(
+              kEllipsisIcon,
+              color: kGreyDarker,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class UserMenuElementTransparent extends StatelessWidget {
   const UserMenuElementTransparent({
     Key? key,
@@ -384,7 +614,7 @@ class GridMonthElement extends StatelessWidget {
           child: Text(month, style: kHorizontalMonth),
         ),
         FaIcon(
-          FontAwesomeIcons.minus,
+          kMinusIcon,
           color: whiteOrAltoBlueDashIcon,
         ),
       ],

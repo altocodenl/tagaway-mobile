@@ -64,7 +64,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 QuerySelectionTagElement(
                   onTap: () {},
                   elementColor: kGreyLighter,
-                  icon: FontAwesomeIcons.boxArchive,
+                  icon: kBoxArchiveIcon,
                   iconColor: kGrey,
                   tagTitle: 'To Organize',
                 ),
@@ -126,13 +126,13 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               ],
             ),
           ),
-          // const Text('See more years',
-          //     style: TextStyle(
-          //       fontFamily: 'Montserrat',
-          //       fontWeight: FontWeight.bold,
-          //       fontSize: 15,
-          //       color: kGrey,
-          //     )),
+          const Text('See more years',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: kGrey,
+              )),
           const Padding(
             padding: EdgeInsets.only(top: 20),
             child: Text('Months',
