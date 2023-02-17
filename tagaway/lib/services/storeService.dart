@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
 
-class SharedPreferencesService {
-  SharedPreferencesService._privateConstructor ();
-  static final SharedPreferencesService instance = SharedPreferencesService._privateConstructor ();
+class StoreService {
+  StoreService._privateConstructor ();
+  static final StoreService instance = StoreService._privateConstructor ();
 
   var updateStream = StreamController<String>.broadcast ();
 

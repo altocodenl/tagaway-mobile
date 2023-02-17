@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/homeView.dart';
-import 'package:tagaway/views/local.dart';
+import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/uploaded.dart';
 
 class BottomNavigationView extends StatefulWidget {

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-import 'package:tagaway/services/local_vars_shared_prefsService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class AuthService {
@@ -26,8 +26,8 @@ class AuthService {
             }),
          );
          if (response.statusCode == 200) {
-            SharedPreferencesService.instance.set ('cookie', response.headers ['set-cookie']!);
-            SharedPreferencesService.instance.set ('csrf',   jsonDecode (response.body) ['csrf']);
+            StoreService.instance.set ('cookie', response.headers ['set-cookie']!);
+            StoreService.instance.set ('csrf',   jsonDecode (response.body) ['csrf']);
          }
          return response.statusCode;
       } on SocketException catch (_) {
@@ -36,8 +36,8 @@ class AuthService {
    }
 
    Future <int> deleteAccount () async {
-      final cookie = await SharedPreferencesService.instance.get ('cookie');
-      final csrf   = await SharedPreferencesService.instance.get ('csrf');
+      final cookie = await StoreService.instance.get ('cookie');
+      final csrf   = await StoreService.instance.get ('csrf');
       try {
          final response = await http.post (
             Uri.parse (kAltoPicAppURL + '/auth/delete'),
@@ -54,8 +54,8 @@ class AuthService {
    }
 
    Future <int> changePassword (String old, String New, String repeat) async {
-      final cookie = await SharedPreferencesService.instance.get ('cookie');
-      final csrf   = await SharedPreferencesService.instance.get ('csrf');
+      final cookie = await StoreService.instance.get ('cookie');
+      final csrf   = await StoreService.instance.get ('csrf');
       try {
          final response = await http.post (
             Uri.parse (kAltoPicAppURL + '/auth/changePassword'),

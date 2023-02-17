@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
-import 'package:tagaway/services/local_vars_shared_prefsService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
 class AddHomeTagsView extends StatefulWidget {
@@ -20,10 +20,10 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
 
    void initState () {
       super.initState ();
-      SharedPreferencesService.instance.updateStream.stream.listen ((value) async {
+      StoreService.instance.updateStream.stream.listen ((value) async {
          if (value != 'hometags' && value != 'tags') return;
-         dynamic Hometags = await SharedPreferencesService.instance.get ('hometags');
-         dynamic Tags     = await SharedPreferencesService.instance.get ('tags');
+         dynamic Hometags = await StoreService.instance.get ('hometags');
+         dynamic Tags     = await StoreService.instance.get ('tags');
          setState (() {
             hometags = Hometags;
             tags     = Tags;

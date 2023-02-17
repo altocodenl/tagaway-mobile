@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
-import 'package:tagaway/services/local_vars_shared_prefsService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/authService.dart';
 
 class DeleteAccount extends StatefulWidget {
@@ -72,7 +72,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                         AuthService.instance.deleteAccount ()
                             .then((value) {
                           if (value == 200) {
-                            SharedPreferencesService.instance.removeAll();
+                            StoreService.instance.removeAll();
                             SnackBarGlobal.buildSnackBar(context,
                                 'Your account has been deleted.', 'green');
                             /*

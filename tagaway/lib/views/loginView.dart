@@ -13,7 +13,7 @@ import 'package:tagaway/views/recover_password.dart';
 import 'package:tagaway/views/photo_access_needed.dart';
 
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/local_vars_shared_prefsService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/permissionCheckService.dart';
 
 class LoginView extends StatefulWidget {
@@ -40,7 +40,7 @@ class _LoginViewState extends State<LoginView> {
    @override
    void initState() {
       if (Platform.isAndroid == true) {
-         myFuture = SharedPreferencesService.instance.getBooleanValue ('recurringUser')
+         myFuture = StoreService.instance.getBooleanValue ('recurringUser')
          .then ((value) => setState (() {
             recurringUserLocal = value;
          }));

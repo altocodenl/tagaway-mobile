@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-import 'package:tagaway/services/local_vars_shared_prefsService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class TagService {
@@ -15,15 +15,15 @@ class TagService {
    Future <dynamic> getTags () async {
       dynamic output = {'hometags': [], 'tags': []};
       try {
-         final cookie   = await SharedPreferencesService.instance.get ('cookie');
+         final cookie   = await StoreService.instance.get ('cookie');
          final response = await http.get (
             Uri.parse (kAltoPicAppURL + '/tags'),
             headers: <String, String> {'cookie': cookie}
          );
          if (response.statusCode == 200) {
             dynamic body = jsonDecode (response.body);
-            SharedPreferencesService.instance.set ('hometags', body ['hometags']);
-            SharedPreferencesService.instance.set ('tags',     body ['tags']);
+            StoreService.instance.set ('hometags', body ['hometags']);
+            StoreService.instance.set ('tags',     body ['tags']);
             output = {'hometags': body ['hometags'], 'tags': body ['tags']};
          }
          return output;
@@ -34,8 +34,8 @@ class TagService {
 
    Future <dynamic> editHometags (dynamic hometags) async {
       try {
-         final csrf     = await SharedPreferencesService.instance.get ('csrf');
-         final cookie   = await SharedPreferencesService.instance.get ('cookie');
+         final csrf     = await StoreService.instance.get ('csrf');
+         final cookie   = await StoreService.instance.get ('cookie');
          final response = await http.post (
             Uri.parse (kAltoPicAppURL + '/hometags'),
             headers: <String, String> {
@@ -58,14 +58,14 @@ class TagService {
    }
 
    Future <dynamic> addHometag (String tag) async {
-      dynamic hometags = await SharedPreferencesService.instance.get ('hometags');
+      dynamic hometags = await StoreService.instance.get ('hometags');
       if (hometags.contains (tag)) return 0;
       hometags.add (tag);
       return this.editHometags (hometags);
    }
 
    Future <dynamic> removeHometag (String tag) async {
-      dynamic hometags = await SharedPreferencesService.instance.get ('hometags');
+      dynamic hometags = await StoreService.instance.get ('hometags');
       if (! hometags.contains (tag)) return 0;
       hometags.remove (tag);
       return this.editHometags (hometags);
