@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
-import 'package:tagaway/views/offline.dart';
+import 'package:tagaway/views/offlineView.dart';
 
 import 'package:tagaway/services/authService.dart';
 

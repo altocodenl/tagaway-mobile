@@ -6,8 +6,8 @@
 // import 'package:acpic/ui_elements/material_elements.dart';
 // import 'package:acpic/ui_elements/constants.dart';
 // //IMPORT SCREENS
-// import 'package:acpic/screens/distributor.dart';
-// import 'package:acpic/screens/offline.dart';
+// import 'package:acpic/screens/distributorView.dart';
+// import 'package:acpic/screens/offlineView.dart';
 // //IMPORT SERVICES
 // import 'package:acpic/services/recoverPasswordService.dart';
 //

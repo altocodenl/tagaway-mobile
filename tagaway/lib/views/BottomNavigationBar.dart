@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
-import 'package:tagaway/views/uploaded.dart';
+import 'package:tagaway/views/uploadedView.dart';
 
 class BottomNavigationView extends StatefulWidget {
   const BottomNavigationView({Key? key}) : super(key: key);

@@ -8,9 +8,9 @@ import 'package:flutter/services.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
-import 'package:tagaway/views/offline.dart';
-import 'package:tagaway/views/recover_password.dart';
-import 'package:tagaway/views/photo_access_needed.dart';
+import 'package:tagaway/views/offlineView.dart';
+import 'package:tagaway/views/recoverPasswordView.dart';
+import 'package:tagaway/views/photoAccessNeededView.dart';
 
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';

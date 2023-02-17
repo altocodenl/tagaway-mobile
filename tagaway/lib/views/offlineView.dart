@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 //IMPORT SCREENS
-import 'package:tagaway/views/distributor.dart';
+import 'package:tagaway/views/distributorView.dart';
 
 class OfflineScreen extends StatefulWidget {
   const OfflineScreen({Key? key}) : super(key: key);
