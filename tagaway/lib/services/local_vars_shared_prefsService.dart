@@ -1,22 +1,25 @@
 import 'dart:convert';
+import 'dart:async';
 
-import 'package:tagaway/ui_elements/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SharedPreferencesService {
-  SharedPreferencesService._privateConstructor();
+import 'package:tagaway/ui_elements/constants.dart';
 
-  static final SharedPreferencesService instance =
-      SharedPreferencesService._privateConstructor();
+class SharedPreferencesService {
+  SharedPreferencesService._privateConstructor ();
+  static final SharedPreferencesService instance = SharedPreferencesService._privateConstructor ();
+
+  var updateStream = StreamController<String>.broadcast ();
 
   set (String key, dynamic value) async {
-    SharedPreferences myPrefs = await SharedPreferences.getInstance();
+    SharedPreferences myPrefs = await SharedPreferences.getInstance ();
     debug (['SET', key, value]);
     myPrefs.setString (key, jsonEncode (value));
+    updateStream.add (key);
   }
 
   get (String key) async {
-    SharedPreferences myPrefs = await SharedPreferences.getInstance();
+    SharedPreferences myPrefs = await SharedPreferences.getInstance ();
     debug (['GET', key, myPrefs.getString (key)]);
     return jsonDecode (myPrefs.getString (key) ?? '""');
   }

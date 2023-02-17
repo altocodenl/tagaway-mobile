@@ -1,8 +1,10 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-// IMPORT UI ELEMENTS
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/local_vars_shared_prefsService.dart';
+import 'package:tagaway/services/tagService.dart';
 
 class EditHomeTagsView extends StatefulWidget {
   const EditHomeTagsView({Key? key}) : super(key: key);
@@ -12,6 +14,20 @@ class EditHomeTagsView extends StatefulWidget {
 }
 
 class _EditHomeTagsViewState extends State<EditHomeTagsView> {
+   List hometags = [];
+
+   void initState () {
+      super.initState ();
+      SharedPreferencesService.instance.updateStream.stream.listen ((value) async {
+         if (value != 'hometags') return;
+         dynamic Hometags = await SharedPreferencesService.instance.get ('hometags');
+         setState (() {
+            hometags = Hometags;
+         });
+      });
+      TagService.instance.getTags ();
+   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,30 +51,12 @@ class _EditHomeTagsViewState extends State<EditHomeTagsView> {
         child: ListView(
           // shrinkWrap: true,
           children: [
-            EditTagListElement(
-              tagColor: kTagColor1,
-              tagName: 'Lorem ipsum dolor',
-              onTapOnRedCircle: () {},
-              onTagElementVerticalDragDown: () {},
-            ),
-            EditTagListElement(
-              tagColor: kTagColor2,
-              tagName: 'Lorem ipsum dolor',
-              onTapOnRedCircle: () {},
-              onTagElementVerticalDragDown: () {},
-            ),
-            EditTagListElement(
-              tagColor: kTagColor3,
-              tagName: 'Lorem ipsum dolor',
-              onTapOnRedCircle: () {},
-              onTagElementVerticalDragDown: () {},
-            ),
-            EditTagListElement(
-              tagColor: kTagColor4,
-              tagName: 'Lorem ipsum dolor',
-              onTapOnRedCircle: () {},
-              onTagElementVerticalDragDown: () {},
-            ),
+            for (var v in hometags) EditTagListElement (tagColor: tagColor (v), tagName: v, onTapOnRedCircle: () {
+               // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+               return () {
+                  TagService.instance.removeHometag (v);
+               };
+            }, onTagElementVerticalDragDown: () {})
           ],
         ),
       )),
