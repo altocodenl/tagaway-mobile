@@ -1,7 +1,7 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
+import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
-import 'package:tagaway/views/editHomeTagsView.dart';
 import 'package:tagaway/views/loginView.dart';
 
 void main() {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const EditHomeTagsView(),
+      home: const BottomNavigationView(),
       routes: {
         LoginView.id: (context) => const LoginView(),
         DeleteAccount.id: (context) => const DeleteAccount(),
