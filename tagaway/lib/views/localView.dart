@@ -5,8 +5,6 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
-import 'package:tagaway/services/uploadService.dart';
-
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
@@ -355,18 +353,13 @@ class _GridState extends State<Grid> {
             ),
             itemCount: itemList.length,
             itemBuilder: (BuildContext context, index) {
-              return GestureDetector (
-                onTap: () {
-                  UploadService.instance.uploadPiv (itemList [index]);
-                },
-                child: GridItem(
+              return GridItem(
                   item: itemList[index],
                   isSelected: (bool value) {
                     if (value) selectedList.add(itemList[index]);
                     else       selectedList.remove(itemList[index]);
                   },
-                )
-              );
+                );
             }
           )
         ),

@@ -1,13 +1,12 @@
-import 'dart:async';
-
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/uploadService.dart';
 
 class TagService {
    TagService._privateConstructor ();
    static final TagService instance = TagService._privateConstructor ();
 
-   Future <dynamic> getTags () async {
+   getTags () async {
       var response = await ajax ('get', 'tags');
       if (response ['code'] == 200) {
          StoreService.instance.set ('hometags', response ['body'] ['hometags']);
@@ -16,7 +15,7 @@ class TagService {
       return response ['code'];
    }
 
-   Future <dynamic> editHometags (String tag, bool add) async {
+   editHometags (String tag, bool add) async {
       // Refresh hometag list first in case it was updated in another client
       await getTags ();
       var hometags = await StoreService.instance.get ('hometags');
@@ -26,5 +25,9 @@ class TagService {
       var response = await ajax ('post', 'hometags', {'hometags': hometags});
       if (response ['code'] == 200) await getTags ();
       return response ['code'];
+   }
+
+   tagPiv (dynamic piv) async {
+
    }
 }

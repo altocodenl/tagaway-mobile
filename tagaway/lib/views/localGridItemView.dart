@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/uploadService.dart';
 
 class GridItem extends StatelessWidget {
   final AssetEntity item;
@@ -29,7 +31,11 @@ class GridItem extends StatelessWidget {
             valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
           );
         }
-        return Stack(
+        return GestureDetector (
+          onTap: () {
+            UploadService.instance.uploadPiv (item);
+          },
+          child: Stack(
           children: [
             Container(
               decoration: BoxDecoration(
@@ -75,7 +81,8 @@ class GridItem extends StatelessWidget {
             //   item: item,
             // ),
           ],
-        );
+        )
+      );
       },
     );
   }

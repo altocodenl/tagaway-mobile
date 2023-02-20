@@ -1,7 +1,5 @@
-import 'dart:async';
-
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/storeService.dart';
 
 class AuthService {
    AuthService._privateConstructor ();

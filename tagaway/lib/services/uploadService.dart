@@ -1,17 +1,13 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:core';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
-import 'package:photo_manager/photo_manager.dart';
-
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/storeService.dart';
 
 class UploadService {
    UploadService._privateConstructor ();
    static final UploadService instance = UploadService._privateConstructor ();
+
+   var ongoingUploads = [];
 
    startUpload () async {
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
@@ -35,6 +31,12 @@ class UploadService {
       }, file.path);
 
       await completeUpload (uploadId);
+   }
+
+   queueUpload (dynamic piv) async {
+      if (ongoingUploads.length > 0) return ongoingUploads.add (piv);
+   }
+}
 
 //     File image = await piv;
 //     var uri = Uri.parse(kAltoPicAppURL + '/piv');
@@ -122,9 +124,9 @@ class UploadService {
 //       print(e);
 //       print(idList.length);
 //     }
-   }
 
   // TODO: to refactor
+  /*
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -524,3 +526,4 @@ class UploadService {
 //
 //   await Future.doWhile(uploadOneIsolate);
 // }
+  */
