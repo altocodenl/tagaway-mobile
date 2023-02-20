@@ -6,14 +6,14 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
-class AddHomeTagsView extends StatefulWidget {
-  const AddHomeTagsView({Key? key}) : super(key: key);
+class AddHometagsView extends StatefulWidget {
+  const AddHometagsView({Key? key}) : super(key: key);
 
   @override
-  State<AddHomeTagsView> createState() => _AddHomeTagsViewState();
+  State<AddHometagsView> createState() => _AddHometagsViewState();
 }
 
-class _AddHomeTagsViewState extends State<AddHomeTagsView> {
+class _AddHometagsViewState extends State<AddHometagsView> {
    List hometags = [];
    List tags     = [];
    List potentialHometags = [];

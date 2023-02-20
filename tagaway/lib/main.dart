@@ -9,9 +9,9 @@ import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 
 // HOME VIEWS
-import 'package:tagaway/views/addHomeTagsView.dart';
-import 'package:tagaway/views/editHomeTagsView.dart';
-import 'package:tagaway/views/yourHomeTagsView.dart';
+import 'package:tagaway/views/addHometagsView.dart';
+import 'package:tagaway/views/editHometagsView.dart';
+import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 
 // LOCAL VIEW
@@ -40,9 +40,9 @@ class MyApp extends StatelessWidget {
 
       // HOME VIEWS
       // home: const HomeView (),
-      // home: const YourHomeTagsView (),
-      // home: const AddHomeTagsView (),
-      // home: const EditHomeTagsView (),
+      // home: const YourHometagsView (),
+      // home: const AddHometagsView (),
+      // home: const EditHometagsView (),
 
       // LOCAL VIEW
       home: const LocalView (),
