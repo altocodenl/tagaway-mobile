@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
@@ -353,7 +351,7 @@ class _GridState extends State<Grid> {
             ),
             itemCount: itemList.length,
             itemBuilder: (BuildContext context, index) {
-              return GridItem(
+              return LocalGridItem(
                   item: itemList[index],
                   isSelected: (bool value) {
                     if (value) selectedList.add(itemList[index]);

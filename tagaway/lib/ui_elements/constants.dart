@@ -28,6 +28,7 @@ const kTagColor5 = Color(0xFFffec5b);
 const kTagColor6 = Color(0xFF80762e);
 const kSelectedTag = Color(0xFFc1d4ff);
 
+// FontAwesomeIcons.circleCheck
 const kTagIcon = FontAwesomeIcons.tag;
 const kEmptyCircle = FontAwesomeIcons.circle;
 const kSolidCircleIcon = FontAwesomeIcons.solidCircle;
@@ -41,8 +42,9 @@ const kCameraIcon = FontAwesomeIcons.camera;
 const kEllipsisIcon = FontAwesomeIcons.ellipsis;
 const kMinusIcon = FontAwesomeIcons.minus;
 const kBoxArchiveIcon = FontAwesomeIcons.boxArchive;
+const kShareArrownUpIcon = FontAwesomeIcons.arrowUpFromBracket;
+const kTrashCanIcon = FontAwesomeIcons.trashCan;
 
-// FontAwesomeIcons.circleCheck
 const tagColors = [
   kTagColor1,
   kTagColor2,
