@@ -13,39 +13,29 @@ class UploadService {
    UploadService._privateConstructor ();
    static final UploadService instance = UploadService._privateConstructor ();
 
-   Future <dynamic> startUpload () async {
-      try {
-         final cookie   = await StoreService.instance.get ('cookie');
-         final csrf     = await StoreService.instance.get ('csrf');
-         final response = await http.post (
-            Uri.parse (kAltoPicAppURL + '/upload'),
-            headers: <String, String> {
-               'Content-Type': 'application/json; charset=UTF-8',
-               'cookie':       cookie
-            },
-            body: jsonEncode (<String, dynamic> {
-               'csrf':     csrf,
-               'op':   'start',
-               'tags': [],
-               'total': 1
-            }),
-         );
-         if (response.statusCode == 200) return response.body;
-         return -1;
-      } on SocketException catch (_) {
-         return -1;
-      }
+   startUpload () async {
+      var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
+      return response ['body'] ['id'];
+   }
+
+   completeUpload (int uploadId) async {
+      var response = await ajax ('post', 'upload', {'op': 'complete', 'id': uploadId});
+      return response ['code'];
    }
 
    uploadPiv (dynamic piv) async {
-      final cookie   = await StoreService.instance.get ('cookie');
-      final csrf     = await StoreService.instance.get ('csrf');
+      int uploadId = await startUpload ();
 
-      final uploadId = await this.startUpload ();
+      File file = await piv.originFile;
 
-      piv = piv.originFile;
+      var response = await ajaxMulti ('piv', {
+         'id':           uploadId,
+         'tags':         '[]',
+         'lastModified': piv.createDateTime.millisecondsSinceEpoch.abs ()
+      }, file.path);
 
-      debug (['piv', piv, uploadId]);
+      await completeUpload (uploadId);
+
 //     File image = await piv;
 //     var uri = Uri.parse(kAltoPicAppURL + '/piv');
 //     var request = http.MultipartRequest('POST', uri);

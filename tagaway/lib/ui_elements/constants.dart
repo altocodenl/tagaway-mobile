@@ -248,7 +248,7 @@ const kUploadedAmountOfPivs = TextStyle(
 void debug(List params) {
   String acc = 'DEBUG';
   params.forEach((v) => acc += ' ' + v.toString());
-  print(acc);
+  print (acc);
 }
 
 Color tagColor (String tag) {
@@ -260,9 +260,9 @@ Color tagColor (String tag) {
 }
 
 Future <dynamic> ajax (String method, String path, [dynamic body]) async {
-   debug (['AJAX REQ', method, path, body]);
    String cookie = await StoreService.instance.get ('cookie');
    int start = DateTime.now ().millisecondsSinceEpoch;
+   debug (['AJAX REQ:' + start.toString (), method, path.toUpperCase (), body]);
    var response;
    try {
       if (method == 'get') response = await http.get (
@@ -280,10 +280,28 @@ Future <dynamic> ajax (String method, String path, [dynamic body]) async {
             body: jsonEncode (body)
          );
       }
-      debug (['AJAX RES', (DateTime.now ().millisecondsSinceEpoch - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (response.body == '' ? '{}' : response.body)]);
+      debug (['AJAX RES:' + start.toString (), (DateTime.now ().millisecondsSinceEpoch - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (response.body == '' ? '{}' : response.body)]);
       return {'code': response.statusCode, 'headers': response.headers, 'body': jsonDecode (response.body == '' ? '{}' : response.body)};
    } on SocketException catch (_) {
       return {'code': 0};
    }
 }
 
+Future <dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async {
+   var request = http.MultipartRequest ('post', Uri.parse (kAltoPicAppURL + '/' + path));
+   request.headers ['cookie'] = await StoreService.instance.get ('cookie');
+   request.fields  ['csrf']   = await StoreService.instance.get ('csrf');
+   fields.forEach ((k, v) => request.fields [k] = v.toString ());
+   request.files.add (await http.MultipartFile.fromPath ('piv', filePath));
+   int start = DateTime.now ().millisecondsSinceEpoch;
+   debug (['AJAX MULTI REQ:' + start.toString (), 'POST', path, fields, filePath]);
+   var response;
+   try {
+      var response = await request.send ();
+      String rbody = await response.stream.bytesToString ();
+      debug (['AJAX MULTI RES:' + start.toString (), (DateTime.now ().millisecondsSinceEpoch - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (rbody == '' ? '{}' : rbody)]);
+      return {'code': response.statusCode, 'headers': response.headers, 'body': jsonDecode (rbody == '' ? '{}' : rbody)};
+   } on SocketException catch (_) {
+      return {'code': 0};
+   }
+}

@@ -95,7 +95,13 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
         child: ListView(
           // shrinkWrap: true,
           children: [
-            for (var v in hometags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {})
+            for (var v in potentialHometags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
+             // For some reason, any code we put outside of the function below will be invoked on widget draw.
+             // Returning the desired behavior in a function solves the problem.
+             return () {
+                TagService.instance.editHometags (v, true);
+             };
+            })
           ],
         ),
       )),

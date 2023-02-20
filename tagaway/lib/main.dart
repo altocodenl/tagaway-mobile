@@ -11,6 +11,7 @@ import 'package:tagaway/views/deleteAccountView.dart';
 // HOME VIEWS
 import 'package:tagaway/views/addHomeTagsView.dart';
 import 'package:tagaway/views/editHomeTagsView.dart';
+import 'package:tagaway/views/yourHomeTagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 
 // LOCAL VIEW
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      //home: const BottomNavigationView(),
+      // home: const BottomNavigationView(),
 
       // AUTH VIEWS
       // home: const LoginView (),
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
 
       // HOME VIEWS
       // home: const HomeView (),
+      // home: const YourHomeTagsView (),
       // home: const AddHomeTagsView (),
       // home: const EditHomeTagsView (),
 

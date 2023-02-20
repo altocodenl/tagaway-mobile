@@ -1,8 +1,10 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
-// IMPORT UI ELEMENTS
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 
 class YourHomeTagsView extends StatefulWidget {
   const YourHomeTagsView({Key? key}) : super(key: key);
@@ -12,6 +14,20 @@ class YourHomeTagsView extends StatefulWidget {
 }
 
 class _YourHomeTagsViewState extends State<YourHomeTagsView> {
+   List hometags = [];
+
+   void initState () {
+      StoreService.instance.updateStream.stream.listen ((value) async {
+         if (value != 'hometags') return;
+         dynamic Hometags = await StoreService.instance.get ('hometags');
+         setState (() {
+            hometags = Hometags;
+         });
+      });
+      // TODO: handle error
+      TagService.instance.getTags ();
+   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,37 +52,8 @@ class _YourHomeTagsViewState extends State<YourHomeTagsView> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            TagListElement(
-              tagColor: kTagColor1,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor2,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor3,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor4,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor5,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-            TagListElement(
-              tagColor: kTagColor6,
-              tagName: 'Vacations',
-              onTap: () {},
-            ),
-          ],
+            for (var v in hometags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {})
+          ]
         ),
       )),
       floatingActionButton: FloatingActionButton.extended(
