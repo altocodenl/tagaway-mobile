@@ -1,15 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
-class GridItem extends StatelessWidget {
+class LocalGridItem extends StatelessWidget {
   final AssetEntity item;
   final ValueChanged<bool> isSelected;
 
-  const GridItem({Key? key, required this.item, required this.isSelected})
+  const LocalGridItem({Key? key, required this.item, required this.isSelected})
       : super(key: key);
 
   String parseVideoDuration(Duration duration) {
@@ -59,10 +58,10 @@ class GridItem extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(100),
                       border: Border.all(color: Colors.white, width: 2)),
-                  child: const FaIcon(
-                    // FontAwesomeIcons.solidCircle,
+                  child: const Icon(
+                    // kSolidCircleIcon,
                     // color: kGreyDarker,
-                    FontAwesomeIcons.solidCircleCheck,
+                    kCircleCheckIcon,
                     color: kAltoOrganized,
                     size: 25,
                   ),

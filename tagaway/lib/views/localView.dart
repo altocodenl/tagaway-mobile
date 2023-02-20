@@ -352,7 +352,7 @@ class _GridState extends State<Grid> {
               ),
               itemCount: itemList.length,
               itemBuilder: (BuildContext context, index) {
-                return GridItem(
+                return LocalGridItem(
                     item: itemList[index],
                     isSelected: (bool value) {
                       if (value) {

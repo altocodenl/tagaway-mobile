@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-
-import 'package:tagaway/services/tagService.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -15,14 +12,14 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   List hometags = [];
 
-   void initState () {
-      super.initState ();
-      TagService.instance.getTags ().then ((value) {
-         setState (() {
-            hometags = value;
-         });
-      });
-   }
+  //  void initState () {
+  //     super.initState ();
+  //     TagService.instance.getTags ().then ((value) {
+  //        setState (() {
+  //           hometags = value;
+  //        });
+  //     });
+  //  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,58 +70,60 @@ class _HomeViewState extends State<HomeView> {
         ],
       )),
       body: SafeArea(
-        child: hometags.length == 0 ? Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Image.asset(
-                        'images/tag blue with white - 400x400.png',
-                        scale: 2,
+        child: hometags.length == 0
+            ? Padding(
+                padding: const EdgeInsets.only(left: 12, right: 12),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Image.asset(
+                              'images/tag blue with white - 400x400.png',
+                              scale: 2,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
+                          style: kHomeEmptyText,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: RoundedButton(
+                            title: 'Get started',
+                            colour: kAltoBlue,
+                            onPressed: () {
+                              // Navigator.of(context).push(
+                              //   MaterialPageRoute(
+                              //       builder: (_) => const LoginView ()),
+                              // );
+                            },
+                          ))
+                    ],
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 10),
-                  child: Text(
-                    'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
-                    style: kHomeEmptyText,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: RoundedButton(
-                      title: 'Get started',
-                      colour: kAltoBlue,
-                      onPressed: () {
-                        // Navigator.of(context).push(
-                        //   MaterialPageRoute(
-                        //       builder: (_) => const LoginView ()),
-                        // );
-                      },
-                    ))
-              ],
-            ),
-          ),
-        ) : Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
-          child: ListView(
-            addAutomaticKeepAlives: false,
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            children: [
-               for (var v in hometags) HomeCard (color: tagColor (v), title: v)
-            ]
-          ),
-        ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
+                child: ListView(
+                    addAutomaticKeepAlives: false,
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: [
+                      for (var v in hometags)
+                        HomeCard(color: tagColor(v), title: v)
+                    ]),
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
