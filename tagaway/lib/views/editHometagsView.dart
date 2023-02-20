@@ -25,6 +25,7 @@ class _EditHomeTagsViewState extends State<EditHomeTagsView> {
             hometags = Hometags;
          });
       });
+      // TODO: handle error
       TagService.instance.getTags ();
    }
 
@@ -54,7 +55,7 @@ class _EditHomeTagsViewState extends State<EditHomeTagsView> {
             for (var v in hometags) EditTagListElement (tagColor: tagColor (v), tagName: v, onTapOnRedCircle: () {
                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                return () {
-                  TagService.instance.removeHometag (v);
+                  TagService.instance.editHometags (v, false);
                };
             }, onTagElementVerticalDragDown: () {})
           ],

@@ -1,5 +1,11 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:tagaway/services/storeService.dart';
 
 const kAltoPicAppURL = 'https://altocode.nl/dev/pic/app';
 const kAltoBlue = Color(0xFF5b6eff);
@@ -245,10 +251,39 @@ void debug(List params) {
   print(acc);
 }
 
-Color tagColor(String tag) {
+Color tagColor (String tag) {
   var acc = 0;
   tag.split('').forEach((v) {
     acc += v.codeUnitAt(0);
   });
   return tagColors[acc % tagColors.length];
 }
+
+Future <dynamic> ajax (String method, String path, [dynamic body]) async {
+   debug (['AJAX REQ', method, path, body]);
+   String cookie = await StoreService.instance.get ('cookie');
+   int start = DateTime.now ().millisecondsSinceEpoch;
+   var response;
+   try {
+      if (method == 'get') response = await http.get (
+         Uri.parse (kAltoPicAppURL + '/' + path),
+         headers: {'cookie': cookie}
+      );
+      else {
+         if (path != 'auth/login') body ['csrf'] = await StoreService.instance.get ('csrf');
+         response = await http.post (
+            Uri.parse (kAltoPicAppURL + '/' + path),
+            headers: {
+               'Content-Type': method == 'post' ? 'application/json; charset=UTF-8' : '',
+               'cookie':       cookie
+            },
+            body: jsonEncode (body)
+         );
+      }
+      debug (['AJAX RES', (DateTime.now ().millisecondsSinceEpoch - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (response.body == '' ? '{}' : response.body)]);
+      return {'code': response.statusCode, 'headers': response.headers, 'body': jsonDecode (response.body == '' ? '{}' : response.body)};
+   } on SocketException catch (_) {
+      return {'code': 0};
+   }
+}
+

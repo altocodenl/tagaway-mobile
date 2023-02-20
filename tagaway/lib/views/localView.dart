@@ -1,9 +1,12 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/uploadService.dart';
+
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
@@ -342,26 +345,30 @@ class _GridState extends State<Grid> {
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: GridView.builder(
-              reverse: true,
-              shrinkWrap: true,
-              cacheExtent: 50,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 1,
-                crossAxisSpacing: 1,
-              ),
-              itemCount: itemList.length,
-              itemBuilder: (BuildContext context, index) {
-                return GridItem(
-                    item: itemList[index],
-                    isSelected: (bool value) {
-                      if (value) {
-                        selectedList.add(itemList[index]);
-                      } else {
-                        selectedList.remove(itemList[index]);
-                      }
-                    });
-              }),
+            reverse: true,
+            shrinkWrap: true,
+            cacheExtent: 50,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 1,
+              crossAxisSpacing: 1,
+            ),
+            itemCount: itemList.length,
+            itemBuilder: (BuildContext context, index) {
+              return GestureDetector (
+                onTap: () {
+                  UploadService.instance.uploadPiv (itemList [index]);
+                },
+                child: GridItem(
+                  item: itemList[index],
+                  isSelected: (bool value) {
+                    if (value) selectedList.add(itemList[index]);
+                    else       selectedList.remove(itemList[index]);
+                  },
+                )
+              );
+            }
+          )
         ),
       ),
     );

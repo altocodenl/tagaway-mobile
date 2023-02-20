@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
 class HomeView extends StatefulWidget {
@@ -17,11 +18,15 @@ class _HomeViewState extends State<HomeView> {
 
    void initState () {
       super.initState ();
-      TagService.instance.getTags ().then ((value) {
+      StoreService.instance.updateStream.stream.listen ((value) async {
+         if (value != 'hometags') return;
+         dynamic Hometags = await StoreService.instance.get ('hometags');
          setState (() {
-            hometags = value;
+            hometags = Hometags;
          });
       });
+      // TODO: handle error
+      TagService.instance.getTags ();
    }
 
   @override

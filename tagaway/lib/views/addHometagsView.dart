@@ -34,6 +34,7 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
             });
          });
       });
+      // TODO: handle error
       TagService.instance.getTags ();
    }
 
@@ -162,7 +163,7 @@ class CustomSearchDelegate extends SearchDelegate {
         return ListTile(
           title: Text(result),
           onTap: () {
-             TagService.instance.addHometag (result);
+             TagService.instance.editHometags (result, true);
           }
         );
       },
