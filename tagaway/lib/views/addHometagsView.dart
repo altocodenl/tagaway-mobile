@@ -6,14 +6,14 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
-class AddHomeTagsView extends StatefulWidget {
-  const AddHomeTagsView({Key? key}) : super(key: key);
+class AddHometagsView extends StatefulWidget {
+  const AddHometagsView({Key? key}) : super(key: key);
 
   @override
-  State<AddHomeTagsView> createState() => _AddHomeTagsViewState();
+  State<AddHometagsView> createState() => _AddHometagsViewState();
 }
 
-class _AddHomeTagsViewState extends State<AddHomeTagsView> {
+class _AddHometagsViewState extends State<AddHometagsView> {
    List hometags = [];
    List tags     = [];
    List potentialHometags = [];
@@ -34,6 +34,7 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
             });
          });
       });
+      // TODO: handle error
       TagService.instance.getTags ();
    }
 
@@ -94,7 +95,13 @@ class _AddHomeTagsViewState extends State<AddHomeTagsView> {
         child: ListView(
           // shrinkWrap: true,
           children: [
-            for (var v in hometags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {})
+            for (var v in potentialHometags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
+             // For some reason, any code we put outside of the function below will be invoked on widget draw.
+             // Returning the desired behavior in a function solves the problem.
+             return () {
+                TagService.instance.editHometags (v, true);
+             };
+            })
           ],
         ),
       )),
@@ -162,7 +169,7 @@ class CustomSearchDelegate extends SearchDelegate {
         return ListTile(
           title: Text(result),
           onTap: () {
-             TagService.instance.addHometag (result);
+             TagService.instance.editHometags (result, true);
           }
         );
       },

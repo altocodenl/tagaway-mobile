@@ -1,4 +1,3 @@
-// IMPORT FLUTTER PACKAGES
 import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
@@ -6,19 +5,126 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager/photo_manager.dart';
-//IMPORT SCREENS
-// import 'package:acpic/screens/grid.dart';
-// IMPORT UI ELEMENTS
-// import 'package:acpic/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class UploadService {
-  // UploadService._privateConstructor();
+   UploadService._privateConstructor ();
+   static final UploadService instance = UploadService._privateConstructor ();
 
-  // static final UploadService instance = UploadService._privateConstructor();
-  List<String> idList = [];
+   startUpload () async {
+      var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
+      return response ['body'] ['id'];
+   }
 
-  // List<AssetEntity> assetEntityList = [];
+   completeUpload (int uploadId) async {
+      var response = await ajax ('post', 'upload', {'op': 'complete', 'id': uploadId});
+      return response ['code'];
+   }
+
+   uploadPiv (dynamic piv) async {
+      int uploadId = await startUpload ();
+
+      File file = await piv.originFile;
+
+      var response = await ajaxMulti ('piv', {
+         'id':           uploadId,
+         'tags':         '[]',
+         'lastModified': piv.createDateTime.millisecondsSinceEpoch.abs ()
+      }, file.path);
+
+      await completeUpload (uploadId);
+
+//     File image = await piv;
+//     var uri = Uri.parse(kAltoPicAppURL + '/piv');
+//     var request = http.MultipartRequest('POST', uri);
+//     try {
+//       request.headers['cookie'] = arguments[1];
+//       request.fields['id'] = arguments[2].toString();
+//       request.fields['csrf'] = arguments[3];
+//       request.fields['tags'] = arguments[4].toString();
+//       request.fields['lastModified'] =
+//           asset.createDateTime.millisecondsSinceEpoch.abs().toString();
+//       request.files.add(await http.MultipartFile.fromPath('piv', image.path));
+//       var response = await client.send(request);
+//       final respStr = await response.stream.bytesToString();
+//       print(respStr);
+//       print('DEBUG response ' + response.statusCode.toString() + ' ' + respStr);
+//       sendPort.send('online');
+//       // print(idList[0]);
+//       sendPort.send(idList[0]);
+//       // sendPort.send(idList.length);
+//       idList.removeAt(0);
+//       if (response.statusCode == 409 && respStr == '{"error":"capacity"}') {
+//         sendPort.send('capacityError');
+//         client.close();
+//         idList.clear();
+//         return false;
+//       } else if (response.statusCode == 409 &&
+//           respStr == '{"error":"status: complete"}') {
+//         sendPort.send('completeError');
+//         client.close();
+//         idList.clear();
+//         return false;
+//       } else if (response.statusCode == 409 &&
+//           respStr == '{"error":"status: cancelled"}') {
+//         sendPort.send('cancelledError');
+//         client.close();
+//         idList.clear();
+//         return false;
+//       } else if (response.statusCode == 409 &&
+//           respStr == '{"error":"status: stalled"}') {
+//         print('Stalled');
+//         // Send op: 'wait' + id + csrf
+//         // If 200 go on, if not error streamline.
+//         try {
+//           final response = await http.post(
+//             Uri.parse(kAltoPicAppURL + '/upload'),
+//             headers: <String, String>{
+//               'Content-Type': 'application/json; charset=UTF-8',
+//               'cookie': arguments[1]
+//             },
+//             body: jsonEncode(<String, dynamic>{
+//               'op': 'wait',
+//               'csrf': arguments[3],
+//               'id': arguments[2]
+//             }),
+//           );
+//           if (response.statusCode == 200) {
+//             uploadOneIsolate();
+//           } else {
+//             print(response.statusCode);
+//             print('I am in stalled Else');
+//             sendPort.send('offline');
+//           }
+//         } on SocketException catch (_) {
+//           sendPort.send('offline');
+//         }
+//       } else if (response.statusCode == 409 &&
+//           respStr == '{"error":"status: error"}') {
+//         sendPort.send('errorError');
+//         client.close();
+//         idList.clear();
+//         return false;
+//       } else if (response.statusCode >= 500) {
+//         sendPort.send('serverError');
+//         client.close();
+//         idList.clear();
+//         return false;
+//       }
+//     } on SocketException catch (_) {
+//       sendPort.send('offline');
+//       print('SocketException');
+//       print(idList.length);
+//     } on Exception catch (e) {
+//       print('Exception');
+//       print(e);
+//       print(idList.length);
+//     }
+   }
+
+  // TODO: to refactor
 
   Future<String> uploadStart(
       String op, String csrf, List tags, String cookie, int total) async {
@@ -74,6 +180,10 @@ class UploadService {
       return 0;
     }
   }
+
+  List<String> idList = [];
+
+  // List<AssetEntity> assetEntityList = [];
 
   Future<int> uploadError(
       String csrf, Object error, int id, String cookie) async {

@@ -1,8 +1,21 @@
-// IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
+
+// GLOBAL VIEWS
 import 'package:tagaway/views/BottomNavigationBar.dart';
-import 'package:tagaway/views/deleteAccountView.dart';
+
+// AUTH VIEWS
 import 'package:tagaway/views/loginView.dart';
+import 'package:tagaway/views/changePasswordView.dart';
+import 'package:tagaway/views/deleteAccountView.dart';
+
+// HOME VIEWS
+import 'package:tagaway/views/addHometagsView.dart';
+import 'package:tagaway/views/editHometagsView.dart';
+import 'package:tagaway/views/yourHometagsView.dart';
+import 'package:tagaway/views/homeView.dart';
+
+// LOCAL VIEW
+import 'package:tagaway/views/localView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +31,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const BottomNavigationView(),
+      // home: const BottomNavigationView(),
+
+      // AUTH VIEWS
+      // home: const LoginView (),
+      // home: const ChangePasswordView (),
+      // home: const DeleteAccountView (),
+
+      // HOME VIEWS
+      // home: const HomeView (),
+      // home: const YourHometagsView (),
+      // home: const AddHometagsView (),
+      // home: const EditHometagsView (),
+
+      // LOCAL VIEW
+      home: const LocalView (),
+
       routes: {
         LoginView.id: (context) => const LoginView(),
         DeleteAccount.id: (context) => const DeleteAccount(),

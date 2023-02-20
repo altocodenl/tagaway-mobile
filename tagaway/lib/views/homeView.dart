@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -12,14 +14,19 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   List hometags = [];
 
-  //  void initState () {
-  //     super.initState ();
-  //     TagService.instance.getTags ().then ((value) {
-  //        setState (() {
-  //           hometags = value;
-  //        });
-  //     });
-  //  }
+  @override
+  void initState() {
+    super.initState();
+    StoreService.instance.updateStream.stream.listen((value) async {
+      if (value != 'hometags') return;
+      dynamic Hometags = await StoreService.instance.get('hometags');
+      setState(() {
+        hometags = Hometags;
+      });
+    });
+    // TODO: handle error
+    TagService.instance.getTags();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +77,7 @@ class _HomeViewState extends State<HomeView> {
         ],
       )),
       body: SafeArea(
-        child: hometags.length == 0
+        child: hometags.isEmpty
             ? Padding(
                 padding: const EdgeInsets.only(left: 12, right: 12),
                 child: Center(

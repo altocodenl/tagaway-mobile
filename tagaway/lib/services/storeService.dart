@@ -13,14 +13,14 @@ class StoreService {
 
   set (String key, dynamic value) async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
-    debug (['SET', key, value]);
+    // debug (['SET', key, value]);
     myPrefs.setString (key, jsonEncode (value));
     updateStream.add (key);
   }
 
   get (String key) async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
-    debug (['GET', key, myPrefs.getString (key)]);
+    // debug (['GET', key, myPrefs.getString (key)]);
     return jsonDecode (myPrefs.getString (key) ?? '""');
   }
 

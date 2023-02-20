@@ -6,14 +6,14 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
-class EditHomeTagsView extends StatefulWidget {
-  const EditHomeTagsView({Key? key}) : super(key: key);
+class EditHometagsView extends StatefulWidget {
+  const EditHometagsView({Key? key}) : super(key: key);
 
   @override
-  State<EditHomeTagsView> createState() => _EditHomeTagsViewState();
+  State<EditHometagsView> createState() => _EditHometagsViewState();
 }
 
-class _EditHomeTagsViewState extends State<EditHomeTagsView> {
+class _EditHometagsViewState extends State<EditHometagsView> {
    List hometags = [];
 
    void initState () {
@@ -25,6 +25,7 @@ class _EditHomeTagsViewState extends State<EditHomeTagsView> {
             hometags = Hometags;
          });
       });
+      // TODO: handle error
       TagService.instance.getTags ();
    }
 
@@ -54,7 +55,7 @@ class _EditHomeTagsViewState extends State<EditHomeTagsView> {
             for (var v in hometags) EditTagListElement (tagColor: tagColor (v), tagName: v, onTapOnRedCircle: () {
                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                return () {
-                  TagService.instance.removeHometag (v);
+                  TagService.instance.editHometags (v, false);
                };
             }, onTagElementVerticalDragDown: () {})
           ],
