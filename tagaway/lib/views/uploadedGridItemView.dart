@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:video_player/video_player.dart';
 
@@ -167,7 +168,11 @@ class ImageBig extends StatelessWidget {
                 children: [
                   Expanded(
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        // var piv = await item.originFile;
+                        await Share.share(
+                            'We are the handsome people of tagaway');
+                      },
                       icon: const Icon(
                         kShareArrownUpIcon,
                         size: 25,
