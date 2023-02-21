@@ -110,58 +110,56 @@ class ImageBig extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: kGreyDarker, size: 30),
+        iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
         centerTitle: true,
         elevation: 0,
+        backgroundColor: kGreyDarkest,
         title: Padding(
           padding: const EdgeInsets.only(right: 20.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                item.createDateTime.day.toString(),
-                style: kBigTitle,
-              ),
+              Text(item.createDateTime.day.toString(),
+                  style: kDarkBackgroundBigTitle),
               const Text(
                 '/',
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               Text(
                 item.createDateTime.month.toString(),
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               const Text(
                 '/',
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               Text(
                 item.createDateTime.year.toString(),
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
             ],
           ),
         ),
-        backgroundColor: Colors.white,
       ),
-      body: SafeArea(
-        child: Stack(children: [
-          Container(
-            color: Colors.white,
-            alignment: Alignment.center,
-            child: FutureBuilder<File?>(
-              future: imageFile,
-              builder: (_, snapshot) {
-                final file = snapshot.data;
-                if (file == null) return Container();
-                return Image.file(file);
-              },
-            ),
+      body: Stack(children: [
+        Container(
+          color: kGreyDarkest,
+          alignment: Alignment.center,
+          child: FutureBuilder<File?>(
+            future: imageFile,
+            builder: (_, snapshot) {
+              final file = snapshot.data;
+              if (file == null) return Container();
+              return Image.file(file);
+            },
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              color: Colors.white,
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            width: double.infinity,
+            color: kGreyDarkest,
+            child: SafeArea(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
@@ -170,13 +168,16 @@ class ImageBig extends StatelessWidget {
                     child: IconButton(
                       onPressed: () async {
                         var piv = await item.originFile;
-                        await Share.shareXFiles([XFile(piv!.path)],
+                        var mimeType = await item.mimeTypeAsync;
+                        print(piv!.path);
+                        print(mimeType);
+                        await Share.shareXFiles([XFile(piv.path)],
                             text: 'hello world');
                       },
                       icon: const Icon(
                         kShareArrownUpIcon,
                         size: 25,
-                        color: kGreyDarker,
+                        color: kGreyLightest,
                       ),
                     ),
                   ),
@@ -186,16 +187,16 @@ class ImageBig extends StatelessWidget {
                       icon: const Icon(
                         kTrashCanIcon,
                         size: 25,
-                        color: kGreyDarker,
+                        color: kGreyLightest,
                       ),
                     ),
                   )
                 ],
               ),
             ),
-          )
-        ]),
-      ),
+          ),
+        )
+      ]),
     );
   }
 }
@@ -243,7 +244,8 @@ class _VideoBigState extends State<VideoBig> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: kGreyDarker, size: 30),
+        backgroundColor: kGreyDarkest,
+        iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
         centerTitle: true,
         elevation: 0,
         title: Padding(
@@ -253,33 +255,32 @@ class _VideoBigState extends State<VideoBig> {
             children: [
               Text(
                 widget.item.createDateTime.day.toString(),
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               const Text(
                 '/',
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               Text(
                 widget.item.createDateTime.month.toString(),
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               const Text(
                 '/',
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
               Text(
                 widget.item.createDateTime.year.toString(),
-                style: kBigTitle,
+                style: kDarkBackgroundBigTitle,
               ),
             ],
           ),
         ),
-        backgroundColor: Colors.white,
       ),
       body: initialized
           // If the video is initialized, display it
           ? Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: kGreyDarkest,
               body: SafeArea(
                 child: Stack(children: [
                   Center(
@@ -293,7 +294,7 @@ class _VideoBigState extends State<VideoBig> {
                     alignment: Alignment.bottomCenter,
                     child: Container(
                       width: double.infinity,
-                      color: Colors.white,
+                      color: kGreyDarkest,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
@@ -304,7 +305,7 @@ class _VideoBigState extends State<VideoBig> {
                               icon: const Icon(
                                 kShareArrownUpIcon,
                                 size: 25,
-                                color: kGreyDarker,
+                                color: kGreyLightest,
                               ),
                             ),
                           ),
@@ -314,7 +315,7 @@ class _VideoBigState extends State<VideoBig> {
                               icon: const Icon(
                                 kTrashCanIcon,
                                 size: 25,
-                                color: kAltoRed,
+                                color: kGreyLightest,
                               ),
                             ),
                           )

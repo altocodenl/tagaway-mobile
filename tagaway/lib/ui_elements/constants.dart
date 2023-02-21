@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:tagaway/services/storeService.dart';
 
 const kAltoPicAppURL = 'https://altocode.nl/dev/pic/app';
@@ -78,6 +77,12 @@ const kBigTitle = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 25,
   color: kGreyDarker,
+);
+
+const kDarkBackgroundBigTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 25,
+  color: kGreyLightest,
 );
 
 const kBigTitleOffline = TextStyle(
@@ -250,10 +255,10 @@ const kUploadedAmountOfPivs = TextStyle(
 void debug(List params) {
   String acc = 'DEBUG';
   params.forEach((v) => acc += ' ' + v.toString());
-  print (acc);
+  print(acc);
 }
 
-Color tagColor (String tag) {
+Color tagColor(String tag) {
   var acc = 0;
   tag.split('').forEach((v) {
     acc += v.codeUnitAt(0);
@@ -261,8 +266,8 @@ Color tagColor (String tag) {
   return tagColors[acc % tagColors.length];
 }
 
-int now () {
-   return DateTime.now ().millisecondsSinceEpoch;
+int now() {
+  return DateTime.now().millisecondsSinceEpoch;
 }
 
 Future <dynamic> ajax (String method, String path, [dynamic body]) async {
