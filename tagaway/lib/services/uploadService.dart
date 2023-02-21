@@ -39,23 +39,17 @@ class UploadService {
       }, file.path);
 
       if (response ['code'] == 200) {
-        // pivMap [piv.id] = response ['body'] ['id'];
-        // await StoreService.instance.set ('pivMap', pivMap);
+         StoreService.instance.set ('pivMap:' + piv.id, response ['body'] ['id']);
       }
       return response;
    }
 
    // Calls with piv are from the service
    // Calls with no piv are recursive to keep the ball rolling
+   // Because there can only be a single upload going, a return is no guarantee of the action being done. Alas.
+   // So the state must be checked periodically to see which uploads have completed.
    queuePiv (dynamic piv) async {
-      debug (['queuepiv', piv]);
       if (piv != null) {
-         // TODO fix & uncomment
-         // If we have an entry in pivMap for this piv, we have already uploaded it earlier.
-         // if (pivMap [piv.id] != null) return;
-         // The `true` means it is currently uploading.
-         // pivMap [piv.id] = true;
-
          uploadQueue.add (piv);
          if (uploading) return;
          uploading = true;
@@ -63,10 +57,13 @@ class UploadService {
 
       var nextPiv = uploadQueue [0];
       uploadQueue.removeAt (0);
-      // If upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
-      var result = await uploadPiv (nextPiv);
-      // TODO: report & stop if 409 no capacity
-      // TODO: report & stop if any other errors
+      // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now.
+      if (StoreService.instance.get ('pivMap:' + nextPiv.id) == '') {
+         // If upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
+         var result = await uploadPiv (nextPiv);
+         // TODO: report & stop if 409 no capacity
+         // TODO: report & stop if any other errors
+      }
 
       if (uploadQueue.length == 0) {
          await completeUpload ();
