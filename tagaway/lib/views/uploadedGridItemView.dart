@@ -169,9 +169,9 @@ class ImageBig extends StatelessWidget {
                   Expanded(
                     child: IconButton(
                       onPressed: () async {
-                        // var piv = await item.originFile;
-                        await Share.share(
-                            'We are the handsome people of tagaway');
+                        var piv = await item.originFile;
+                        await Share.shareXFiles([XFile(piv!.path)],
+                            text: 'hello world');
                       },
                       icon: const Icon(
                         kShareArrownUpIcon,
