@@ -11,6 +11,8 @@ class StoreService {
 
   var updateStream = StreamController<String>.broadcast ();
 
+  var store = {};
+
   reset () async {
      SharedPreferences myPrefs = await SharedPreferences.getInstance ();
      await myPrefs.clear ();
@@ -20,20 +22,24 @@ class StoreService {
   load () async {
      SharedPreferences myPrefs = await SharedPreferences.getInstance ();
      var keys = await myPrefs.getKeys ();
-     return keys;
+     keys.forEach ((k) {
+        store [k] = jsonDecode (myPrefs.getString (k) ?? '""');
+     });
+     debug (['STORE LOAD', store]);
   }
 
   set (String key, dynamic value) async {
+     debug (['STORE SET', key, value]);
      SharedPreferences myPrefs = await SharedPreferences.getInstance ();
-     // debug (['SET', key, value]);
+     store [key] = value;
      myPrefs.setString (key, jsonEncode (value));
      updateStream.add (key);
   }
 
   get (String key) async {
-     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
-     // debug (['GET', key, myPrefs.getString (key)]);
-     return jsonDecode (myPrefs.getString (key) ?? '""');
+     var value = store [key] ?? '';
+     debug (['STORE GET', key, value]);
+     return value;
   }
 
 }
