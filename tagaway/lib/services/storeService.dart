@@ -23,20 +23,23 @@ class StoreService {
      SharedPreferences myPrefs = await SharedPreferences.getInstance ();
      var keys = await myPrefs.getKeys ();
      keys.forEach ((k) {
+        // TODO: remove the commented line below after debugging uploads
+        // if (RegExp ('^pivMap:').hasMatch (k)) return;
         store [k] = jsonDecode (myPrefs.getString (k) ?? '""');
      });
      debug (['STORE LOAD', store]);
   }
 
+  // This function need not be awaited for setting the in-memory key, only if you want to await until the key is persisted to disk
   set (String key, dynamic value) async {
      debug (['STORE SET', key, value]);
-     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
      store [key] = value;
-     myPrefs.setString (key, jsonEncode (value));
      updateStream.add (key);
+     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
+     myPrefs.setString (key, jsonEncode (value));
   }
 
-  get (String key) async {
+  get (String key) {
      var value = store [key] ?? '';
      debug (['STORE GET', key, value]);
      return value;
