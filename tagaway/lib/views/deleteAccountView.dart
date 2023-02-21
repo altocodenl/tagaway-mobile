@@ -72,7 +72,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                         AuthService.instance.deleteAccount ()
                             .then((value) {
                           if (value == 200) {
-                            StoreService.instance.removeAll();
+                            StoreService.instance.reset ();
                             SnackBarGlobal.buildSnackBar(context,
                                 'Your account has been deleted.', 'green');
                             /*

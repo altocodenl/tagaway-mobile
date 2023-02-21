@@ -4,16 +4,7 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
 
 class UploadService {
-   dynamic pivMap;
-
-   // UploadService._privateConstructor ();
-   UploadService._privateConstructor () {
-      () async {
-         var pivMap = await StoreService.instance.get ('pivMap');
-         if (pivMap == '') pivMap = {};
-         this.pivMap = pivMap;
-      } ();
-   }
+   UploadService._privateConstructor ();
    static final UploadService instance = UploadService._privateConstructor ();
 
    var uploadQueue = [];
@@ -48,8 +39,8 @@ class UploadService {
       }, file.path);
 
       if (response ['code'] == 200) {
-        pivMap [piv.id] = response ['body'] ['id'];
-        await StoreService.instance.set ('pivMap', pivMap);
+        // pivMap [piv.id] = response ['body'] ['id'];
+        // await StoreService.instance.set ('pivMap', pivMap);
       }
       return response;
    }
@@ -57,13 +48,15 @@ class UploadService {
    // Calls with piv are from the service
    // Calls with no piv are recursive to keep the ball rolling
    queuePiv (dynamic piv) async {
+      debug (['queuepiv', piv]);
       if (piv != null) {
+         // TODO fix & uncomment
          // If we have an entry in pivMap for this piv, we have already uploaded it earlier.
-         if (pivMap [piv.id] != null) return;
+         // if (pivMap [piv.id] != null) return;
          // The `true` means it is currently uploading.
-         pivMap [piv.id] = true;
-         uploadQueue.add (piv);
+         // pivMap [piv.id] = true;
 
+         uploadQueue.add (piv);
          if (uploading) return;
          uploading = true;
       }
@@ -75,7 +68,10 @@ class UploadService {
       // TODO: report & stop if 409 no capacity
       // TODO: report & stop if any other errors
 
-      if (uploadQueue.length == 0) return completeUpload ();
+      if (uploadQueue.length == 0) {
+         await completeUpload ();
+         return uploading = false;
+      }
 
       return queuePiv (null);
    }

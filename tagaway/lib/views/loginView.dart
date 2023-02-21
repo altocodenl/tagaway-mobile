@@ -40,7 +40,7 @@ class _LoginViewState extends State<LoginView> {
    @override
    void initState() {
       if (Platform.isAndroid == true) {
-         myFuture = StoreService.instance.getBooleanValue ('recurringUser')
+         myFuture = StoreService.instance.get ('recurringUser')
          .then ((value) => setState (() {
             recurringUserLocal = value;
          }));
