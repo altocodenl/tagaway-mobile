@@ -9,7 +9,7 @@ class AuthService {
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
       if (response ['code'] == 200) {
          StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!);
-         StoreService.instance.set ('csrf',   response ['body'] ['csrf']);
+         StoreService.instance.set ('csrf',   response ['body']    ['csrf']);
       }
       return response ['code'];
    }
@@ -19,9 +19,9 @@ class AuthService {
       return response ['code'];
    }
 
-   Future <int> changePassword (String old, String nnew, String repeat) async {
-      if (nnew != repeat) return 1;
-      var response = await ajax ('post', 'auth/changePassword', {'old': old, 'new': nnew});
+   Future <int> changePassword (String old, String nEw, String repeat) async {
+      if (nEw != repeat) return 1;
+      var response = await ajax ('post', 'auth/changePassword', {'old': old, 'new': nEw});
       return response ['code'];
    }
 

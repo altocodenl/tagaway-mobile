@@ -32,7 +32,7 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector (
           onTap: () {
-            UploadService.instance.uploadPiv (item);
+            UploadService.instance.queuePiv (item);
           },
           child: Stack(
           children: [
