@@ -7,9 +7,11 @@ import 'package:tagaway/views/loginView.dart';
 
 import 'package:tagaway/views/localView.dart';
 
+import 'package:tagaway/services/storeService.dart';
 
 void main() {
   runApp(const MyApp());
+  StoreService.instance.load ();
 }
 
 class MyApp extends StatelessWidget {
