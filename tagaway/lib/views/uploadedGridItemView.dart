@@ -168,11 +168,7 @@ class ImageBig extends StatelessWidget {
                     child: IconButton(
                       onPressed: () async {
                         var piv = await item.originFile;
-                        var mimeType = await item.mimeTypeAsync;
-                        print(piv!.path);
-                        print(mimeType);
-                        await Share.shareXFiles([XFile(piv.path)],
-                            text: 'hello world');
+                        await Share.shareXFiles([XFile(piv!.path)]);
                       },
                       icon: const Icon(
                         kShareArrownUpIcon,
@@ -301,7 +297,10 @@ class _VideoBigState extends State<VideoBig> {
                         children: [
                           Expanded(
                             child: IconButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                var piv = await widget.item.originFile;
+                                await Share.shareXFiles([XFile(piv!.path)]);
+                              },
                               icon: const Icon(
                                 kShareArrownUpIcon,
                                 size: 25,

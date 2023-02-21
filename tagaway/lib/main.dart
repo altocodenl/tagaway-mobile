@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/storeService.dart';
 // GLOBAL VIEWS
 import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 // AUTH VIEWS
 import 'package:tagaway/views/loginView.dart';
 
-import 'package:tagaway/views/localView.dart';
-
-import 'package:tagaway/services/storeService.dart';
-
 void main() {
   runApp(const MyApp());
-  StoreService.instance.load ();
+  StoreService.instance.load();
 }
 
 class MyApp extends StatelessWidget {
@@ -24,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: const BottomNavigationView(),
+      home: const BottomNavigationView(),
 
       // AUTH VIEWS
       // home: const LoginView (),
@@ -38,7 +35,7 @@ class MyApp extends StatelessWidget {
       // home: const EditHometagsView (),
 
       // LOCAL VIEW
-      home: const LocalView (),
+      // home: const LocalView (),
 
       routes: {
         LoginView.id: (context) => const LoginView(),
