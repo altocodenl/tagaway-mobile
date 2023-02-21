@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:tagaway/services/storeService.dart';
 
 const kAltoPicAppURL = 'https://altocode.nl/dev/pic/app';
@@ -78,6 +77,12 @@ const kBigTitle = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 25,
   color: kGreyDarker,
+);
+
+const kDarkBackgroundBigTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 25,
+  color: kGreyLightest,
 );
 
 const kBigTitleOffline = TextStyle(
@@ -250,10 +255,10 @@ const kUploadedAmountOfPivs = TextStyle(
 void debug(List params) {
   String acc = 'DEBUG';
   params.forEach((v) => acc += ' ' + v.toString());
-  print (acc);
+  print(acc);
 }
 
-Color tagColor (String tag) {
+Color tagColor(String tag) {
   var acc = 0;
   tag.split('').forEach((v) {
     acc += v.codeUnitAt(0);
@@ -261,53 +266,73 @@ Color tagColor (String tag) {
   return tagColors[acc % tagColors.length];
 }
 
-int now () {
-   return DateTime.now ().millisecondsSinceEpoch;
+int now() {
+  return DateTime.now().millisecondsSinceEpoch;
 }
 
-Future <dynamic> ajax (String method, String path, [dynamic body]) async {
-   String cookie = await StoreService.instance.get ('cookie');
-   int start = now ();
-   debug (['AJAX REQ:' + start.toString (), method, path.toUpperCase (), body]);
-   var response;
-   try {
-      if (method == 'get') response = await http.get (
-         Uri.parse (kAltoPicAppURL + '/' + path),
-         headers: {'cookie': cookie}
-      );
-      else {
-         if (path != 'auth/login') body ['csrf'] = await StoreService.instance.get ('csrf');
-         response = await http.post (
-            Uri.parse (kAltoPicAppURL + '/' + path),
-            headers: {
-               'Content-Type': method == 'post' ? 'application/json; charset=UTF-8' : '',
-               'cookie':       cookie
-            },
-            body: jsonEncode (body)
-         );
-      }
-      debug (['AJAX RES:' + start.toString (), (now () - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (response.body == '' ? '{}' : response.body)]);
-      return {'code': response.statusCode, 'headers': response.headers, 'body': jsonDecode (response.body == '' ? '{}' : response.body)};
-   } on SocketException catch (_) {
-      return {'code': 0};
-   }
+Future<dynamic> ajax(String method, String path, [dynamic body]) async {
+  String cookie = await StoreService.instance.get('cookie');
+  int start = now();
+  debug(['AJAX REQ:' + start.toString(), method, path.toUpperCase(), body]);
+  var response;
+  try {
+    if (method == 'get')
+      response = await http.get(Uri.parse(kAltoPicAppURL + '/' + path),
+          headers: {'cookie': cookie});
+    else {
+      if (path != 'auth/login')
+        body['csrf'] = await StoreService.instance.get('csrf');
+      response = await http.post(Uri.parse(kAltoPicAppURL + '/' + path),
+          headers: {
+            'Content-Type':
+                method == 'post' ? 'application/json; charset=UTF-8' : '',
+            'cookie': cookie
+          },
+          body: jsonEncode(body));
+    }
+    debug([
+      'AJAX RES:' + start.toString(),
+      (now() - start).toString() + 'ms',
+      response.statusCode,
+      response.headers,
+      jsonDecode(response.body == '' ? '{}' : response.body)
+    ]);
+    return {
+      'code': response.statusCode,
+      'headers': response.headers,
+      'body': jsonDecode(response.body == '' ? '{}' : response.body)
+    };
+  } on SocketException catch (_) {
+    return {'code': 0};
+  }
 }
 
-Future <dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async {
-   var request = http.MultipartRequest ('post', Uri.parse (kAltoPicAppURL + '/' + path));
-   request.headers ['cookie'] = await StoreService.instance.get ('cookie');
-   request.fields  ['csrf']   = await StoreService.instance.get ('csrf');
-   fields.forEach ((k, v) => request.fields [k] = v.toString ());
-   request.files.add (await http.MultipartFile.fromPath ('piv', filePath));
-   int start = now ();
-   debug (['AJAX MULTI REQ:' + start.toString (), 'POST', path, fields, filePath]);
-   var response;
-   try {
-      var response = await request.send ();
-      String rbody = await response.stream.bytesToString ();
-      debug (['AJAX MULTI RES:' + start.toString (), (now () - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (rbody == '' ? '{}' : rbody)]);
-      return {'code': response.statusCode, 'headers': response.headers, 'body': jsonDecode (rbody == '' ? '{}' : rbody)};
-   } on SocketException catch (_) {
-      return {'code': 0};
-   }
+Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
+  var request =
+      http.MultipartRequest('post', Uri.parse(kAltoPicAppURL + '/' + path));
+  request.headers['cookie'] = await StoreService.instance.get('cookie');
+  request.fields['csrf'] = await StoreService.instance.get('csrf');
+  fields.forEach((k, v) => request.fields[k] = v.toString());
+  request.files.add(await http.MultipartFile.fromPath('piv', filePath));
+  int start = now();
+  debug(['AJAX MULTI REQ:' + start.toString(), 'POST', path, fields, filePath]);
+  var response;
+  try {
+    var response = await request.send();
+    String rbody = await response.stream.bytesToString();
+    debug([
+      'AJAX MULTI RES:' + start.toString(),
+      (now() - start).toString() + 'ms',
+      response.statusCode,
+      response.headers,
+      jsonDecode(rbody == '' ? '{}' : rbody)
+    ]);
+    return {
+      'code': response.statusCode,
+      'headers': response.headers,
+      'body': jsonDecode(rbody == '' ? '{}' : rbody)
+    };
+  } on SocketException catch (_) {
+    return {'code': 0};
+  }
 }
