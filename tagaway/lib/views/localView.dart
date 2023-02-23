@@ -6,6 +6,8 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
+  static const String id = 'local_view';
+
   const LocalView({Key? key}) : super(key: key);
 
   @override
@@ -339,28 +341,28 @@ class _GridState extends State<Grid> {
       padding: const EdgeInsets.only(bottom: 0.0),
       child: SizedBox.expand(
         child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: GridView.builder(
-            reverse: true,
-            shrinkWrap: true,
-            cacheExtent: 50,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 1,
-              crossAxisSpacing: 1,
-            ),
-            itemCount: itemList.length,
-            itemBuilder: (BuildContext context, index) {
-              return LocalGridItem(
-                  item: itemList[index],
-                  isSelected: (bool value) {
-                    if (value) selectedList.add(itemList[index]);
-                    else       selectedList.remove(itemList[index]);
-                  },
-                );
-            }
-          )
-        ),
+            textDirection: TextDirection.rtl,
+            child: GridView.builder(
+                reverse: true,
+                shrinkWrap: true,
+                cacheExtent: 50,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 1,
+                  crossAxisSpacing: 1,
+                ),
+                itemCount: itemList.length,
+                itemBuilder: (BuildContext context, index) {
+                  return LocalGridItem(
+                    item: itemList[index],
+                    isSelected: (bool value) {
+                      if (value)
+                        selectedList.add(itemList[index]);
+                      else
+                        selectedList.remove(itemList[index]);
+                    },
+                  );
+                })),
       ),
     );
   }

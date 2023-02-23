@@ -7,6 +7,7 @@ import 'package:photo_manager/photo_manager.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
 
 class UploadedView extends StatefulWidget {
@@ -293,7 +294,10 @@ class _TopRowState extends State<TopRow> {
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushReplacementNamed(
+                                context, QuerySelectorView.id);
+                          },
                           child: Transform.rotate(
                             angle: 90 * -math.pi / 180.0,
                             child: const Icon(

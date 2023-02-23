@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/storeService.dart';
-// GLOBAL VIEWS
 import 'package:tagaway/views/BottomNavigationBar.dart';
+import 'package:tagaway/views/addHometagsView.dart';
+import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
+import 'package:tagaway/views/editHometagsView.dart';
+import 'package:tagaway/views/homeView.dart';
+import 'package:tagaway/views/localView.dart';
 // AUTH VIEWS
 import 'package:tagaway/views/loginView.dart';
+import 'package:tagaway/views/querySelectorView.dart';
+import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +31,7 @@ class MyApp extends StatelessWidget {
 
       // AUTH VIEWS
       // home: const LoginView (),
-      // home: const ChangePasswordView (),
+      // home: const ChangePasswordView(),
       // home: const DeleteAccountView (),
 
       // HOME VIEWS
@@ -35,11 +41,19 @@ class MyApp extends StatelessWidget {
       // home: const EditHometagsView (),
 
       // LOCAL VIEW
-      // home: const LocalView (),
+      // home: const LocalView(),
 
       routes: {
         LoginView.id: (context) => const LoginView(),
+        HomeView.id: (context) => const HomeView(),
         DeleteAccount.id: (context) => const DeleteAccount(),
+        YourHometagsView.id: (context) => const YourHometagsView(),
+        AddHometagsView.id: (context) => const AddHometagsView(),
+        EditHometagsView.id: (context) => const EditHometagsView(),
+        ChangePasswordView.id: (context) => const ChangePasswordView(),
+        QuerySelectorView.id: (context) => const QuerySelectorView(),
+        BottomNavigationView.id: (context) => const BottomNavigationView(),
+        LocalView.id: (context) => const LocalView(),
       },
     );
   }
