@@ -356,20 +356,27 @@ class TopRow extends StatefulWidget {
 }
 
 class _TopRowState extends State<TopRow> {
+  dynamic cancelListener;
 
   String currentlyTagging = '';
 
   @override
   void initState() {
+    PhotoManager.requestPermissionExtend();
     super.initState();
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'currentlyTagging') return;
-      dynamic v = await StoreService.instance.get ('currentlyTagging');
+    cancelListener = StoreService.instance.listen (['currentlyTagging'], (v) {
       setState(() {
         currentlyTagging = v;
       });
     });
   }
+
+  @override
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -493,7 +500,7 @@ class _TopRowState extends State<TopRow> {
                 ),
                 GridTagElement(
                   gridTagElementIcon: kTagIcon,
-                  iconColor: kTagColor1,
+                  iconColor: tagColor (currentlyTagging),
                   gridTagName: currentlyTagging,
                 ),
                 Expanded(
