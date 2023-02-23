@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/BottomNavigationBar.dart';
 
 class QuerySelectorView extends StatefulWidget {
   static const String id = 'query_selector_view';
@@ -27,9 +26,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               color: kGreyDarker,
               size: 25,
             ),
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, BottomNavigationView.id);
-            }),
+            onPressed: () {}),
         title: const Text('Filter', style: kSubPageAppBarTitle),
         actions: const [
           Padding(
