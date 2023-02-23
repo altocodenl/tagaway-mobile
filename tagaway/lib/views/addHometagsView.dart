@@ -13,26 +13,30 @@ class AddHometagsView extends StatefulWidget {
 }
 
 class _AddHometagsViewState extends State<AddHometagsView> {
+  dynamic cancelListener;
   List hometags = [];
   List tags = [];
   List potentialHometags = [];
 
   void initState() {
     super.initState();
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'hometags' && value != 'tags') return;
-      dynamic Hometags = await StoreService.instance.get('hometags');
-      dynamic Tags = await StoreService.instance.get('tags');
+    cancelListener = StoreService.instance.listen (['hometags', 'tags'], (v1, v2) {
       setState(() {
-        hometags = Hometags;
-        tags = Tags;
-        potentialHometags = [];
+        hometags = v1;
+        tags = v2;
+        List PotentialHometags = [];
         tags.forEach((tag) {
           if (RegExp('^[a-z]::').hasMatch(tag)) return;
-          if (!hometags.contains(tag)) potentialHometags.add(tag);
+          if (!hometags.contains(tag)) PotentialHometags.add(tag);
         });
+        potentialHometags = PotentialHometags;
       });
     });
+  }
+
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
   }
 
   @override

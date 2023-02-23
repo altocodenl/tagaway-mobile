@@ -16,16 +16,18 @@ class YourHometagsView extends StatefulWidget {
 }
 
 class _YourHometagsViewState extends State<YourHometagsView> {
+  dynamic cancelListener;
   List hometags = [];
 
   void initState() {
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'hometags') return;
-      dynamic Hometags = await StoreService.instance.get('hometags');
-      setState(() {
-        hometags = Hometags;
-      });
+    cancelListener = StoreService.instance.listen (['hometags'], (v) {
+       setState (() => hometags = v);
     });
+  }
+
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
   }
 
   @override
