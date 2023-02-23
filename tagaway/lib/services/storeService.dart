@@ -27,6 +27,12 @@ class StoreService {
             dynamic v2 = await StoreService.instance.get (list [1]);
             fun (v1, v2);
          }
+         if (list.length == 3) {
+            dynamic v1 = await StoreService.instance.get (list [0]);
+            dynamic v2 = await StoreService.instance.get (list [1]);
+            dynamic v3 = await StoreService.instance.get (list [2]);
+            fun (v1, v2, v3);
+         }
       };
       // Run updater once to fetch current values
       updater ();

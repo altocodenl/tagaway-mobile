@@ -18,6 +18,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
   List tags = [];
   List potentialHometags = [];
 
+  @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen (['hometags', 'tags'], (v1, v2) {
@@ -34,6 +35,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
     });
   }
 
+  @override
   void dispose () {
      super.dispose ();
      cancelListener ();

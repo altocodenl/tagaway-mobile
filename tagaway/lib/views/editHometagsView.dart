@@ -18,6 +18,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
   dynamic cancelListener;
   List hometags = [];
 
+  @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen (['hometags'], (v) {
@@ -25,6 +26,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
     });
   }
 
+  @override
   void dispose () {
      super.dispose ();
      cancelListener ();

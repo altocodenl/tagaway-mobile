@@ -32,6 +32,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
     });
   }
 
+  @override
   void dispose () {
      super.dispose ();
      cancelListener ();
