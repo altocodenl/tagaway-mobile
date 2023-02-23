@@ -19,12 +19,14 @@ class _YourHometagsViewState extends State<YourHometagsView> {
   dynamic cancelListener;
   List hometags = [];
 
+  @override
   void initState() {
     cancelListener = StoreService.instance.listen (['hometags'], (v) {
        setState (() => hometags = v);
     });
   }
 
+  @override
   void dispose () {
      super.dispose ();
      cancelListener ();

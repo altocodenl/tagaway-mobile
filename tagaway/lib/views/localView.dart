@@ -39,6 +39,7 @@ class _LocalViewState extends State<LocalView> {
     });
   }
 
+  @override
   void dispose () {
      super.dispose ();
      cancelListener ();

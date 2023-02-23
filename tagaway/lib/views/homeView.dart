@@ -36,6 +36,7 @@ class _HomeViewState extends State<HomeView> {
     TagService.instance.getTags();
   }
 
+  @override
   void dispose () {
      super.dispose ();
      cancelListener ();
