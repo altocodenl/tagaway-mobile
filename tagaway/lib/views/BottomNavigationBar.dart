@@ -10,6 +10,8 @@ import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/services/storeService.dart';
 
 class BottomNavigationView extends StatefulWidget {
+  static const String id = 'bottom_navigation_view';
+
   const BottomNavigationView({Key? key}) : super(key: key);
 
   @override
@@ -17,7 +19,7 @@ class BottomNavigationView extends StatefulWidget {
 }
 
 class _BottomNavigationViewState extends State<BottomNavigationView> {
-  int currentIndex = 1;
+  int currentIndex = 0;
   final screens = [const HomeView(), const LocalView(), const UploadedView()];
 
   @override

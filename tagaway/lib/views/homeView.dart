@@ -1,12 +1,19 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/changePasswordView.dart';
+import 'package:tagaway/views/deleteAccountView.dart';
+import 'package:tagaway/views/yourHometagsView.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
 class HomeView extends StatefulWidget {
+  static const String id = 'how_view';
   const HomeView({Key? key}) : super(key: key);
 
   @override
@@ -28,6 +35,13 @@ class _HomeViewState extends State<HomeView> {
     });
     // TODO: handle error
     TagService.instance.getTags();
+  }
+
+  _launchUrl() async {
+    if (!await launchUrl(Uri.parse(kTagawayHomeURL),
+        mode: LaunchMode.externalApplication)) {
+      throw "cannot launch url";
+    }
   }
 
   @override
@@ -68,13 +82,23 @@ class _HomeViewState extends State<HomeView> {
           const UserMenuElementTransparent(
               textOnElement: 'Your usage: 4GB of your free 5GB'),
           UserMenuElementLightGrey(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return const ChangePasswordView();
+              }));
+            },
             textOnElement: 'Change password',
           ),
           UserMenuElementLightGrey(
-              onTap: () {}, textOnElement: 'Go to hometag web'),
+              onTap: () {
+                _launchUrl();
+              },
+              textOnElement: 'Go to tagaway web'),
           UserMenuElementLightGrey(
-              onTap: () {}, textOnElement: 'Delete My Account'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, DeleteAccount.id);
+              },
+              textOnElement: 'Delete My Account'),
           UserMenuElementDarkGrey(onTap: () {}, textOnElement: 'Log out'),
         ],
       )),
@@ -113,10 +137,6 @@ class _HomeViewState extends State<HomeView> {
                             colour: kAltoBlue,
                             onPressed: () {
                               StoreService.instance.set ('currentIndex', 1);
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //       builder: (_) => const LoginView ()),
-                              // );
                             },
                           ))
                     ],
@@ -136,7 +156,11 @@ class _HomeViewState extends State<HomeView> {
               ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const YourHometagsView();
+          }));
+        },
         backgroundColor: kAltoBlue,
         child: const Icon(Icons.create_rounded),
       ),

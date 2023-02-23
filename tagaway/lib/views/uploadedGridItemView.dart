@@ -62,11 +62,15 @@ class UploadedGridItem extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) {
-                    if (item.type == AssetType.image) {
-                      return ImageBig(item: item, imageFile: item.originFile);
-                    } else {
-                      return VideoBig(item: item, videoFile: item.originFile);
-                    }
+                    return CarrouselView(
+                      item: item,
+                      imageFile: item.originFile,
+                    );
+                    // if (item.type == AssetType.image) {
+                    //   return ImageBig(item: item, imageFile: item.originFile);
+                    // } else {
+                    //   return VideoBig(item: item, videoFile: item.originFile);
+                    // }
                   }),
                 );
               },
@@ -86,13 +90,6 @@ class UploadedGridItem extends StatelessWidget {
             //         size: 25,
             //       ),
             //     )),
-
-            // SelectedAsset(
-            //   selectedListLengthStreamController:
-            //   selectedListLengthStreamController,
-            //   isSelected: isSelected,
-            //   item: item,
-            // ),
           ],
         );
       },
@@ -355,6 +352,201 @@ class _VideoBigState extends State<VideoBig> {
               child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
             )),
+    );
+  }
+}
+
+class CarrouselView extends StatefulWidget {
+  const CarrouselView({Key? key, required this.imageFile, required this.item})
+      : super(key: key);
+  final Future<File?> imageFile;
+  final AssetEntity item;
+
+  @override
+  State<CarrouselView> createState() => _CarrouselViewState();
+}
+
+final PageController controller = PageController();
+
+class _CarrouselViewState extends State<CarrouselView> {
+  @override
+  Widget build(BuildContext context) {
+    return PageView(
+      controller: controller,
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: kGreyDarkest,
+            title: Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(widget.item.createDateTime.day.toString(),
+                      style: kDarkBackgroundBigTitle),
+                  const Text(
+                    '/',
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  Text(
+                    widget.item.createDateTime.month.toString(),
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  const Text(
+                    '/',
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  Text(
+                    widget.item.createDateTime.year.toString(),
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: Stack(children: [
+            Container(
+              color: kGreyDarkest,
+              alignment: Alignment.center,
+              child: FutureBuilder<File?>(
+                future: widget.imageFile,
+                builder: (_, snapshot) {
+                  final file = snapshot.data;
+                  if (file == null) return Container();
+                  return Image.file(file);
+                },
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                color: kGreyDarkest,
+                child: SafeArea(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            var piv = await widget.item.originFile;
+                            await Share.shareXFiles([XFile(piv!.path)]);
+                          },
+                          icon: const Icon(
+                            kShareArrownUpIcon,
+                            size: 25,
+                            color: kGreyLightest,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            kTrashCanIcon,
+                            size: 25,
+                            color: kGreyLightest,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ]),
+        ),
+        Scaffold(
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: kGreyDarkest,
+            title: Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(widget.item.createDateTime.day.toString(),
+                      style: kDarkBackgroundBigTitle),
+                  const Text(
+                    '/',
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  Text(
+                    widget.item.createDateTime.month.toString(),
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  const Text(
+                    '/',
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  Text(
+                    widget.item.createDateTime.year.toString(),
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: Stack(children: [
+            Container(
+              color: kGreyDarkest,
+              alignment: Alignment.center,
+              child: FutureBuilder<File?>(
+                future: widget.imageFile,
+                builder: (_, snapshot) {
+                  final file = snapshot.data;
+                  if (file == null) return Container();
+                  return Image.file(file);
+                },
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                color: kGreyDarkest,
+                child: SafeArea(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            var piv = await widget.item.originFile;
+                            await Share.shareXFiles([XFile(piv!.path)]);
+                          },
+                          icon: const Icon(
+                            kShareArrownUpIcon,
+                            size: 25,
+                            color: kGreyLightest,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            kTrashCanIcon,
+                            size: 25,
+                            color: kGreyLightest,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ]),
+        ),
+      ],
     );
   }
 }

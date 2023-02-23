@@ -525,7 +525,7 @@ class UserMenuElementLightGrey extends StatelessWidget {
     required this.textOnElement,
   }) : super(key: key);
 
-  final Function onTap;
+  final VoidCallback onTap;
   final String textOnElement;
 
   @override
@@ -533,7 +533,7 @@ class UserMenuElementLightGrey extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
       child: GestureDetector(
-        onTap: onTap(),
+        onTap: onTap,
         child: Container(
           height: 50,
           decoration: const BoxDecoration(
