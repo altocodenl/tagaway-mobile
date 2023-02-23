@@ -19,19 +19,22 @@ class BottomNavigationView extends StatefulWidget {
 }
 
 class _BottomNavigationViewState extends State<BottomNavigationView> {
+  dynamic cancelListener;
+
   int currentIndex = 0;
   final screens = [const HomeView(), const LocalView(), const UploadedView()];
 
   @override
   void initState() {
     super.initState();
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'currentIndex') return;
-      dynamic CurrentIndex = await StoreService.instance.get('currentIndex');
-      setState(() {
-        currentIndex = CurrentIndex;
-      });
+    cancelListener = StoreService.instance.listen (['currentIndex'], (v) {
+       setState (() => currentIndex = v == '' ? 0 : v);
     });
+  }
+
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
   }
 
   @override

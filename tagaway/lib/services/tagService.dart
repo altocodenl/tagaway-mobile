@@ -15,7 +15,7 @@ class TagService {
          response ['body'] ['tags'].forEach ((tag) {
             if (! RegExp ('^[a-z]::').hasMatch (tag)) usertags.add (tag);
          });
-         StoreService.instance.set ('usertags', usertags);
+         StoreService.instance.set ('usertags', usertags, true);
       }
       return response ['code'];
    }

@@ -15,6 +15,27 @@ class StoreService {
 
   var store = {};
 
+  listen (dynamic list, Function fun) {
+      Function updater = () async {
+         // No variadic functions in Dart! Put some MC Hammer for context.
+         if (list.length == 1) {
+            dynamic v = await StoreService.instance.get (list [0]);
+            fun (v);
+         }
+         if (list.length == 2) {
+            dynamic v1 = await StoreService.instance.get (list [0]);
+            dynamic v2 = await StoreService.instance.get (list [1]);
+            fun (v1, v2);
+         }
+      };
+      // Run updater once to fetch current values
+      updater ();
+      // Register listener and return its cancel method
+      return updateStream.stream.listen ((key) async {
+         if (list.contains (key)) return updater ();
+      }).cancel;
+   }
+
   reset () async {
      SharedPreferences myPrefs = await SharedPreferences.getInstance ();
      await myPrefs.clear ();

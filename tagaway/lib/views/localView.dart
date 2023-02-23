@@ -21,26 +21,27 @@ class LocalView extends StatefulWidget {
 }
 
 class _LocalViewState extends State<LocalView> {
+  dynamic cancelListener;
   final TextEditingController newTagName = TextEditingController();
 
-  dynamic tags = [];
+  dynamic usertags = [];
   String currentlyTagging = '';
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'usertags' && value != 'currentlyTagging') return;
-      dynamic Tags             = await StoreService.instance.get ('usertags');
-      String  CurrentlyTagging = await StoreService.instance.get ('currentlyTagging');
+    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging'], (v1, v2) {
       setState(() {
-        tags = Tags;
-        currentlyTagging = CurrentlyTagging;
+        usertags = v1;
+        currentlyTagging = v2;
       });
     });
-    // TODO: handle error
-    TagService.instance.getTags();
+  }
+
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
   }
 
   @override
@@ -132,7 +133,7 @@ class _LocalViewState extends State<LocalView> {
                               ),
                             ),
                           ),
-                          for (var v in tags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
+                          for (var v in usertags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
                              // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                              return () {
                                 StoreService.instance.set ('currentlyTagging', v, true);

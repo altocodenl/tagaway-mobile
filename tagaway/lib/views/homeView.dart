@@ -21,20 +21,24 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  dynamic cancelListener;
+
   List hometags = [];
 
   @override
   void initState() {
     super.initState();
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'hometags') return;
-      dynamic Hometags = await StoreService.instance.get('hometags');
-      setState(() {
-        hometags = Hometags;
-      });
+    cancelListener = StoreService.instance.listen (['hometags'], (v) {
+       setState (() => hometags = v == '' ? [] : v);
     });
+
     // TODO: handle error
     TagService.instance.getTags();
+  }
+
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
   }
 
   _launchUrl() async {
