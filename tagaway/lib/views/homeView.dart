@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tagService.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -110,6 +112,7 @@ class _HomeViewState extends State<HomeView> {
                             title: 'Get started',
                             colour: kAltoBlue,
                             onPressed: () {
+                              StoreService.instance.set ('currentIndex', 1);
                               // Navigator.of(context).push(
                               //   MaterialPageRoute(
                               //       builder: (_) => const LoginView ()),

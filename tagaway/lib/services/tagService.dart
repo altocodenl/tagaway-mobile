@@ -11,6 +11,11 @@ class TagService {
       if (response ['code'] == 200) {
          StoreService.instance.set ('hometags', response ['body'] ['hometags']);
          StoreService.instance.set ('tags',     response ['body'] ['tags']);
+         var usertags = [];
+         response ['body'] ['tags'].forEach ((tag) {
+            if (! RegExp ('^[a-z]::').hasMatch (tag)) usertags.add (tag);
+         });
+         StoreService.instance.set ('usertags', usertags);
       }
       return response ['code'];
    }
@@ -27,8 +32,18 @@ class TagService {
       return response ['code'];
    }
 
-   tagPiv (dynamic piv) async {
-      // If piv on map is deleted, reupload it.
+   tagPivById (String id, String tag) async {
+      var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id]});
+      return response ['code'];
+   }
 
+   tagPiv (dynamic piv, String tag) async {
+      String pivId = StoreService.instance.get ('pivMap:' + piv.id);
+      if (pivId != '') {
+         var code = await tagPivById (pivId, tag);
+         // If piv doesn't exist, reupload and queue tag
+         if (code == 404) return UploadService.instance.queuePiv (piv);
+      }
+      // If piv on map is deleted, reupload it.
    }
 }

@@ -272,6 +272,11 @@ int now() {
 
 Future <dynamic> ajax (String method, String path, [dynamic body]) async {
    String cookie = await StoreService.instance.get ('cookie');
+   // If we make an ajax call before the store service is initialized, give it 150ms to initialize it and get the cookie again
+   if (cookie == '') {
+      await Future.delayed (Duration(milliseconds: 150));
+      cookie = await StoreService.instance.get ('cookie');
+   }
    int start = now ();
    debug (['AJAX REQ:' + start.toString (), method.toUpperCase (), '/' + path, body]);
    var response;

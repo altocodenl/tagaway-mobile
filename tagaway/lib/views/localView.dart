@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
+
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
@@ -15,10 +21,24 @@ class LocalView extends StatefulWidget {
 class _LocalViewState extends State<LocalView> {
   final TextEditingController newTagName = TextEditingController();
 
+  dynamic tags = [];
+  String currentlyTagging = '';
+
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
+    StoreService.instance.updateStream.stream.listen((value) async {
+      if (value != 'usertags' && value != 'currentlyTagging') return;
+      dynamic Tags             = await StoreService.instance.get ('usertags');
+      String  CurrentlyTagging = await StoreService.instance.get ('currentlyTagging');
+      setState(() {
+        tags = Tags;
+        currentlyTagging = CurrentlyTagging;
+      });
+    });
+    // TODO: handle error
+    TagService.instance.getTags();
   }
 
   @override
@@ -56,7 +76,7 @@ class _LocalViewState extends State<LocalView> {
                       child: ListView(
                         padding: const EdgeInsets.only(left: 12, right: 12),
                         controller: scrollController,
-                        children: [
+                        children: currentlyTagging == '' ? [
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 8.0),
@@ -76,99 +96,46 @@ class _LocalViewState extends State<LocalView> {
                               ),
                             ),
                           ),
-                          // const Center(
-                          //   child: Padding(
-                          //     padding: EdgeInsets.only(top: 8.0),
-                          //     child: FaIcon(
-                          //       FontAwesomeIcons.anglesDown,
-                          //       color: kGrey,
-                          //       size: 16,
-                          //     ),
-                          //   ),
-                          // ),
-                          // const Center(
-                          //   child: Padding(
-                          //     padding: EdgeInsets.only(top: 8.0, bottom: 8),
-                          //     child: Text(
-                          //       'Tag your pics and videos',
-                          //       style: TextStyle(
-                          //           fontFamily: 'Montserrat',
-                          //           fontWeight: FontWeight.bold,
-                          //           fontSize: 20,
-                          //           color: kAltoBlue),
-                          //     ),
-                          //   ),
-                          // ),
-                          // const Center(
-                          //   child: Padding(
-                          //     padding: EdgeInsets.only(top: 8.0, bottom: 8),
-                          //     child: Text(
-                          //       'Choose a tag and select the pics & videos you want!',
-                          //       textAlign: TextAlign.center,
-                          //       style: kPlainTextBold,
-                          //     ),
-                          //   ),
-                          // ),
-                          TagListElement(
-                            tagColor: kTagColor1,
-                            tagName: 'Vacations',
-                            onTap: () {},
+                        ] : [
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0),
+                              child: FaIcon(
+                                FontAwesomeIcons.anglesDown,
+                                color: kGrey,
+                                size: 16,
+                              ),
+                            ),
                           ),
-                          TagListElement(
-                            tagColor: kTagColor2,
-                            tagName: 'Vacations',
-                            onTap: () {},
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                              child: Text(
+                                'Tag your pics and videos',
+                                style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: kAltoBlue),
+                              ),
+                            ),
                           ),
-                          TagListElement(
-                            tagColor: kTagColor3,
-                            tagName: 'Vacations',
-                            onTap: () {},
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                              child: Text(
+                                'Choose a tag and select the pics & videos you want!',
+                                textAlign: TextAlign.center,
+                                style: kPlainTextBold,
+                              ),
+                            ),
                           ),
-                          TagListElement(
-                            tagColor: kTagColor4,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor5,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor6,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor1,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor2,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor3,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor4,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor5,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor6,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
+                          for (var v in tags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
+                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                             return () {
+                                StoreService.instance.set ('currentlyTagging', v, true);
+                             };
+                          })
                         ],
                       ),
                     ),
@@ -374,6 +341,21 @@ class TopRow extends StatefulWidget {
 }
 
 class _TopRowState extends State<TopRow> {
+
+  String currentlyTagging = '';
+
+  @override
+  void initState() {
+    super.initState();
+    StoreService.instance.updateStream.stream.listen((value) async {
+      if (value != 'currentlyTagging') return;
+      dynamic v = await StoreService.instance.get ('currentlyTagging');
+      setState(() {
+        currentlyTagging = v;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -476,7 +458,7 @@ class _TopRowState extends State<TopRow> {
             ),
           ),
         ),
-        Container(
+        currentlyTagging != '' ? Container(
           height: 60,
           width: double.infinity,
           decoration: const BoxDecoration(
@@ -486,7 +468,7 @@ class _TopRowState extends State<TopRow> {
           child: Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: Row(
-              children: const [
+              children: [
                 Padding(
                   padding: EdgeInsets.only(right: 8.0),
                   child: Text(
@@ -497,7 +479,7 @@ class _TopRowState extends State<TopRow> {
                 GridTagElement(
                   gridTagElementIcon: kTagIcon,
                   iconColor: kTagColor1,
-                  gridTagName: 'Vacations',
+                  gridTagName: currentlyTagging,
                 ),
                 Expanded(
                   child: Text(
@@ -509,7 +491,7 @@ class _TopRowState extends State<TopRow> {
               ],
             ),
           ),
-        )
+        ) : Container ()
       ],
     );
   }

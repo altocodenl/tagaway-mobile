@@ -7,6 +7,8 @@ import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/uploadedView.dart';
 
+import 'package:tagaway/services/storeService.dart';
+
 class BottomNavigationView extends StatefulWidget {
   const BottomNavigationView({Key? key}) : super(key: key);
 
@@ -15,8 +17,20 @@ class BottomNavigationView extends StatefulWidget {
 }
 
 class _BottomNavigationViewState extends State<BottomNavigationView> {
-  int currentIndex = 2;
+  int currentIndex = 1;
   final screens = [const HomeView(), const LocalView(), const UploadedView()];
+
+  @override
+  void initState() {
+    super.initState();
+    StoreService.instance.updateStream.stream.listen((value) async {
+      if (value != 'currentIndex') return;
+      dynamic CurrentIndex = await StoreService.instance.get('currentIndex');
+      setState(() {
+        currentIndex = CurrentIndex;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -31,7 +45,9 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
           currentIndex: currentIndex,
           unselectedLabelStyle: kBottomNavigationText,
           selectedLabelStyle: kBottomNavigationText,
-          onTap: (index) => setState(() => currentIndex = index),
+          onTap: (index) {
+             StoreService.instance.set ('currentIndex', index);
+          },
           items: const [
             BottomNavigationBarItem(
                 icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),

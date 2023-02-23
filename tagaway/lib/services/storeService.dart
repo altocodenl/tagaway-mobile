@@ -31,18 +31,26 @@ class StoreService {
   }
 
   // This function need not be awaited for setting the in-memory key, only if you want to await until the key is persisted to disk
-  set (String key, dynamic value) async {
+  set (String key, dynamic value, [bool memoryOnly = false]) async {
      debug (['STORE SET', key, value]);
      store [key] = value;
      updateStream.add (key);
-     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
-     myPrefs.setString (key, jsonEncode (value));
+     // Some fields should not be stored, we want these to be in-memory only
+     if (! memoryOnly) {
+        SharedPreferences myPrefs = await SharedPreferences.getInstance ();
+        myPrefs.setString (key, jsonEncode (value));
+     }
   }
 
   get (String key) {
      var value = store [key] ?? '';
      debug (['STORE GET', key, value]);
      return value;
+  }
+
+  remove (String key) async {
+     SharedPreferences myPrefs = await SharedPreferences.getInstance ();
+     myPrefs.remove (key);
   }
 
 }
