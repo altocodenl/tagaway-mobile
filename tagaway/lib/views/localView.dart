@@ -209,26 +209,34 @@ class _LocalViewState extends State<LocalView> {
                   padding: const EdgeInsets.only(top: 30.0, right: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(right: 30.0),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: kAltoBlue),
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                           StoreService.instance.set ('newTag', '', true);
+                        },
+                        child: Padding(
+                           padding: EdgeInsets.only(right: 30.0),
+                           child: Text(
+                             'Cancel',
+                             style: TextStyle(
+                                 fontFamily: 'Montserrat',
+                                 fontWeight: FontWeight.bold,
+                                 fontSize: 16,
+                                 color: kAltoBlue),
+                           ),
                         ),
                       ),
-                      Text(
-                        'Create',
-                        style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: kAltoBlue),
-                      ),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                           'Create',
+                           style: TextStyle(
+                               fontFamily: 'Montserrat',
+                               fontWeight: FontWeight.bold,
+                               fontSize: 16,
+                               color: kAltoBlue),
+                         ),
+                       ),
                     ],
                   ),
                 )
@@ -236,6 +244,16 @@ class _LocalViewState extends State<LocalView> {
             ),
           ),
         ))),
+        Visibility (visible: newTag == '' && swiped == true && currentlyTagging == '', child: Align(
+          alignment: const Alignment(0, .9),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+               StoreService.instance.set ('newTag', true, true);
+            },
+            backgroundColor: kAltoBlue,
+            label: const Text('Create tag', style: kSelectAllButton),
+          ),
+        )),
         // Center(
         //     child: Padding(
         //   padding: const EdgeInsets.only(left: 12, right: 12),
