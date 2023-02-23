@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       home: const BottomNavigationView(),
 
       // AUTH VIEWS
-      // home: const LoginView (),
+      // home: const LoginView(),
       // home: const ChangePasswordView(),
       // home: const DeleteAccountView (),
 
