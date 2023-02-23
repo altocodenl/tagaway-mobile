@@ -26,15 +26,17 @@ class _LocalViewState extends State<LocalView> {
 
   dynamic usertags = [];
   String currentlyTagging = '';
+  bool swiped = false;
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging'], (v1, v2) {
+    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped'], (v1, v2, v3) {
       setState(() {
-        usertags = v1;
-        currentlyTagging = v2;
+        if (v1 != '') usertags = v1;
+        if (v2 != '') currentlyTagging = v2;
+        if (v3 != '') swiped = v3;
       });
     });
   }
@@ -63,6 +65,12 @@ class _LocalViewState extends State<LocalView> {
         Align(
           alignment: Alignment.bottomCenter,
           child: SizedBox.expand(
+            child: NotificationListener<DraggableScrollableNotification>(
+            onNotification: (state){
+               if (state.extent < 0.0701) StoreService.instance.set ('swiped', false, true);
+               if (state.extent > 0.7699) StoreService.instance.set ('swiped', true,  true);
+               return true;
+            },
             child: DraggableScrollableSheet(
                 snap: true,
                 initialChildSize: .07,
@@ -80,8 +88,8 @@ class _LocalViewState extends State<LocalView> {
                       child: ListView(
                         padding: const EdgeInsets.only(left: 12, right: 12),
                         controller: scrollController,
-                        children: currentlyTagging == '' ? [
-                          const Center(
+                        children: [
+                          Visibility (visible: ! swiped, child: const Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 8.0),
                               child: FaIcon(
@@ -90,8 +98,8 @@ class _LocalViewState extends State<LocalView> {
                                 size: 16,
                               ),
                             ),
-                          ),
-                          const Center(
+                           )),
+                           Visibility (visible: ! swiped, child: const Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 8.0, bottom: 8),
                               child: Text(
@@ -99,9 +107,8 @@ class _LocalViewState extends State<LocalView> {
                                 style: kPlainTextBold,
                               ),
                             ),
-                          ),
-                        ] : [
-                          const Center(
+                          )),
+                          Visibility (visible: swiped, child: const Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 8.0),
                               child: FaIcon(
@@ -110,8 +117,8 @@ class _LocalViewState extends State<LocalView> {
                                 size: 16,
                               ),
                             ),
-                          ),
-                          const Center(
+                          )),
+                          Visibility (visible: swiped, child: const Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 8.0, bottom: 8),
                               child: Text(
@@ -123,8 +130,8 @@ class _LocalViewState extends State<LocalView> {
                                     color: kAltoBlue),
                               ),
                             ),
-                          ),
-                          const Center(
+                          )),
+                          Visibility (visible: swiped, child: const Center(
                             child: Padding(
                               padding: EdgeInsets.only(top: 8.0, bottom: 8),
                               child: Text(
@@ -133,7 +140,7 @@ class _LocalViewState extends State<LocalView> {
                                 style: kPlainTextBold,
                               ),
                             ),
-                          ),
+                          )),
                           for (var v in usertags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
                              // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                              return () {
@@ -145,6 +152,7 @@ class _LocalViewState extends State<LocalView> {
                     ),
                   );
                 }),
+              )
           ),
         ),
         // Container(
