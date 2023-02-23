@@ -39,8 +39,6 @@ class _LocalViewState extends State<LocalView> {
         currentlyTagging = CurrentlyTagging;
       });
     });
-    // TODO: handle error
-    TagService.instance.getTags();
   }
 
   @override
