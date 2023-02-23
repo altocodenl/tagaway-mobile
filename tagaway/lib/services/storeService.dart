@@ -9,6 +9,8 @@ class StoreService {
   StoreService._privateConstructor ();
   static final StoreService instance = StoreService._privateConstructor ();
 
+  bool showLogs = false;
+
   var updateStream = StreamController<String>.broadcast ();
 
   var store = {};
@@ -27,12 +29,12 @@ class StoreService {
         // if (RegExp ('^pivMap:').hasMatch (k)) return;
         store [k] = jsonDecode (myPrefs.getString (k) ?? '""');
      });
-     debug (['STORE LOAD', store]);
+     if (showLogs) debug (['STORE LOAD', store]);
   }
 
   // This function need not be awaited for setting the in-memory key, only if you want to await until the key is persisted to disk
   set (String key, dynamic value, [bool memoryOnly = false]) async {
-     debug (['STORE SET', key, value]);
+     if (showLogs) debug (['STORE SET', key, value]);
      store [key] = value;
      updateStream.add (key);
      // Some fields should not be stored, we want these to be in-memory only
@@ -44,7 +46,7 @@ class StoreService {
 
   get (String key) {
      var value = store [key] ?? '';
-     debug (['STORE GET', key, value]);
+     if (showLogs) debug (['STORE GET', key, value]);
      return value;
   }
 

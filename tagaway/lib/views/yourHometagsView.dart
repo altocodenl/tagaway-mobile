@@ -26,8 +26,6 @@ class _YourHometagsViewState extends State<YourHometagsView> {
         hometags = Hometags;
       });
     });
-    // TODO: handle error
-    TagService.instance.getTags();
   }
 
   @override

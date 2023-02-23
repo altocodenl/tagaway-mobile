@@ -33,8 +33,6 @@ class _AddHometagsViewState extends State<AddHometagsView> {
         });
       });
     });
-    // TODO: handle error
-    TagService.instance.getTags();
   }
 
   @override
