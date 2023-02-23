@@ -27,16 +27,18 @@ class _LocalViewState extends State<LocalView> {
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
+  dynamic newTag = '';
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped'], (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped', 'newTag'], (v1, v2, v3, v4) {
       setState(() {
         if (v1 != '') usertags = v1;
         currentlyTagging = v2;
         if (v3 != '') swiped = v3;
+        newTag = v4;
       });
     });
   }
@@ -158,82 +160,82 @@ class _LocalViewState extends State<LocalView> {
               )
           ),
         )),
-        // Container(
-        //   height: double.infinity,
-        //   width: double.infinity,
-        //   color: kAltoBlue.withOpacity(.8),
-        // ),
-        // Center(
-        //     child: Padding(
-        //   padding: const EdgeInsets.only(left: 12, right: 12),
-        //   child: Container(
-        //     height: 200,
-        //     width: double.infinity,
-        //     decoration: const BoxDecoration(
-        //       color: Colors.white,
-        //       borderRadius: BorderRadius.all(Radius.circular(20)),
-        //     ),
-        //     child: Column(
-        //       children: [
-        //         const Padding(
-        //           padding: EdgeInsets.only(top: 20.0),
-        //           child: Text(
-        //             'Create a new tag',
-        //             style: TextStyle(
-        //                 fontFamily: 'Montserrat',
-        //                 fontWeight: FontWeight.bold,
-        //                 fontSize: 20,
-        //                 color: kAltoBlue),
-        //           ),
-        //         ),
-        //         Padding(
-        //           padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
-        //           child: TextField(
-        //             controller: newTagName,
-        //             autofocus: true,
-        //             textAlign: TextAlign.center,
-        //             enableSuggestions: true,
-        //             decoration: const InputDecoration(
-        //               hintText: 'Insert the name of your new tag here…',
-        //               contentPadding: EdgeInsets.symmetric(
-        //                   vertical: 10.0, horizontal: 10.0),
-        //               border: OutlineInputBorder(
-        //                 borderRadius: BorderRadius.all(Radius.circular(25)),
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //         Padding(
-        //           padding: const EdgeInsets.only(top: 30.0, right: 20),
-        //           child: Row(
-        //             mainAxisAlignment: MainAxisAlignment.end,
-        //             children: const [
-        //               Padding(
-        //                 padding: EdgeInsets.only(right: 30.0),
-        //                 child: Text(
-        //                   'Cancel',
-        //                   style: TextStyle(
-        //                       fontFamily: 'Montserrat',
-        //                       fontWeight: FontWeight.bold,
-        //                       fontSize: 16,
-        //                       color: kAltoBlue),
-        //                 ),
-        //               ),
-        //               Text(
-        //                 'Create',
-        //                 style: TextStyle(
-        //                     fontFamily: 'Montserrat',
-        //                     fontWeight: FontWeight.bold,
-        //                     fontSize: 16,
-        //                     color: kAltoBlue),
-        //               ),
-        //             ],
-        //           ),
-        //         )
-        //       ],
-        //     ),
-        //   ),
-        // ))
+        Visibility (visible: newTag != '', child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          color: kAltoBlue.withOpacity(.8),
+        )),
+        Visibility (visible: newTag != '', child: Center(
+            child: Padding(
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: Text(
+                    'Create a new tag',
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: kAltoBlue),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
+                  child: TextField(
+                    controller: newTagName,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    enableSuggestions: true,
+                    decoration: const InputDecoration(
+                      hintText: 'Insert the name of your new tag here…',
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 10.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25)),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30.0, right: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.only(right: 30.0),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: kAltoBlue),
+                        ),
+                      ),
+                      Text(
+                        'Create',
+                        style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: kAltoBlue),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ))),
         // Center(
         //     child: Padding(
         //   padding: const EdgeInsets.only(left: 12, right: 12),

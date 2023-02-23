@@ -17,22 +17,9 @@ class StoreService {
 
   listen (dynamic list, Function fun) {
       Function updater = () async {
-         // No variadic functions in Dart! Put some MC Hammer for context.
-         if (list.length == 1) {
-            dynamic v = await StoreService.instance.get (list [0]);
-            fun (v);
-         }
-         if (list.length == 2) {
-            dynamic v1 = await StoreService.instance.get (list [0]);
-            dynamic v2 = await StoreService.instance.get (list [1]);
-            fun (v1, v2);
-         }
-         if (list.length == 3) {
-            dynamic v1 = await StoreService.instance.get (list [0]);
-            dynamic v2 = await StoreService.instance.get (list [1]);
-            dynamic v3 = await StoreService.instance.get (list [2]);
-            fun (v1, v2, v3);
-         }
+         var results = [];
+         list.forEach ((v) => results.add (StoreService.instance.get (v)));
+         Function.apply (fun, results);
       };
       // Run updater once to fetch current values
       updater ();
