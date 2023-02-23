@@ -27,16 +27,18 @@ class _LocalViewState extends State<LocalView> {
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
+  dynamic newTag = '';
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped'], (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped', 'newTag'], (v1, v2, v3, v4) {
       setState(() {
         if (v1 != '') usertags = v1;
-        if (v2 != '') currentlyTagging = v2;
+        currentlyTagging = v2;
         if (v3 != '') swiped = v3;
+        newTag = v4;
       });
     });
   }
@@ -53,16 +55,19 @@ class _LocalViewState extends State<LocalView> {
       children: [
         const Grid(),
         const TopRow(),
-        // Align(
-        //   alignment: const Alignment(0.8, .9),
-        //   child: FloatingActionButton.extended(
-        //     onPressed: () {},
-        //     backgroundColor: kAltoBlue,
-        //     label: const Text('Done', style: kSelectAllButton),
-        //     icon: const Icon(Icons.done),
-        //   ),
-        // )
-        Align(
+        Visibility (visible: currentlyTagging != '', child: Align(
+          alignment: const Alignment(0.8, .9),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+               StoreService.instance.set ('swiped', false, true);
+               StoreService.instance.set ('currentlyTagging', '', true);
+            },
+            backgroundColor: kAltoBlue,
+            label: const Text('Done', style: kSelectAllButton),
+            icon: const Icon(Icons.done),
+          )
+        )),
+        Visibility (visible: currentlyTagging == '', child: Align(
           alignment: Alignment.bottomCenter,
           child: SizedBox.expand(
             child: NotificationListener<DraggableScrollableNotification>(
@@ -154,83 +159,101 @@ class _LocalViewState extends State<LocalView> {
                 }),
               )
           ),
-        ),
-        // Container(
-        //   height: double.infinity,
-        //   width: double.infinity,
-        //   color: kAltoBlue.withOpacity(.8),
-        // ),
-        // Center(
-        //     child: Padding(
-        //   padding: const EdgeInsets.only(left: 12, right: 12),
-        //   child: Container(
-        //     height: 200,
-        //     width: double.infinity,
-        //     decoration: const BoxDecoration(
-        //       color: Colors.white,
-        //       borderRadius: BorderRadius.all(Radius.circular(20)),
-        //     ),
-        //     child: Column(
-        //       children: [
-        //         const Padding(
-        //           padding: EdgeInsets.only(top: 20.0),
-        //           child: Text(
-        //             'Create a new tag',
-        //             style: TextStyle(
-        //                 fontFamily: 'Montserrat',
-        //                 fontWeight: FontWeight.bold,
-        //                 fontSize: 20,
-        //                 color: kAltoBlue),
-        //           ),
-        //         ),
-        //         Padding(
-        //           padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
-        //           child: TextField(
-        //             controller: newTagName,
-        //             autofocus: true,
-        //             textAlign: TextAlign.center,
-        //             enableSuggestions: true,
-        //             decoration: const InputDecoration(
-        //               hintText: 'Insert the name of your new tag here…',
-        //               contentPadding: EdgeInsets.symmetric(
-        //                   vertical: 10.0, horizontal: 10.0),
-        //               border: OutlineInputBorder(
-        //                 borderRadius: BorderRadius.all(Radius.circular(25)),
-        //               ),
-        //             ),
-        //           ),
-        //         ),
-        //         Padding(
-        //           padding: const EdgeInsets.only(top: 30.0, right: 20),
-        //           child: Row(
-        //             mainAxisAlignment: MainAxisAlignment.end,
-        //             children: const [
-        //               Padding(
-        //                 padding: EdgeInsets.only(right: 30.0),
-        //                 child: Text(
-        //                   'Cancel',
-        //                   style: TextStyle(
-        //                       fontFamily: 'Montserrat',
-        //                       fontWeight: FontWeight.bold,
-        //                       fontSize: 16,
-        //                       color: kAltoBlue),
-        //                 ),
-        //               ),
-        //               Text(
-        //                 'Create',
-        //                 style: TextStyle(
-        //                     fontFamily: 'Montserrat',
-        //                     fontWeight: FontWeight.bold,
-        //                     fontSize: 16,
-        //                     color: kAltoBlue),
-        //               ),
-        //             ],
-        //           ),
-        //         )
-        //       ],
-        //     ),
-        //   ),
-        // ))
+        )),
+        Visibility (visible: newTag != '', child: Container(
+          height: double.infinity,
+          width: double.infinity,
+          color: kAltoBlue.withOpacity(.8),
+        )),
+        Visibility (visible: newTag != '', child: Center(
+            child: Padding(
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: Text(
+                    'Create a new tag',
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: kAltoBlue),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
+                  child: TextField(
+                    controller: newTagName,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    enableSuggestions: true,
+                    decoration: const InputDecoration(
+                      hintText: 'Insert the name of your new tag here…',
+                      contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 10.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25)),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30.0, right: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                           StoreService.instance.set ('newTag', '', true);
+                        },
+                        child: Padding(
+                           padding: EdgeInsets.only(right: 30.0),
+                           child: Text(
+                             'Cancel',
+                             style: TextStyle(
+                                 fontFamily: 'Montserrat',
+                                 fontWeight: FontWeight.bold,
+                                 fontSize: 16,
+                                 color: kAltoBlue),
+                           ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                           'Create',
+                           style: TextStyle(
+                               fontFamily: 'Montserrat',
+                               fontWeight: FontWeight.bold,
+                               fontSize: 16,
+                               color: kAltoBlue),
+                         ),
+                       ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ))),
+        Visibility (visible: newTag == '' && swiped == true && currentlyTagging == '', child: Align(
+          alignment: const Alignment(0, .9),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+               StoreService.instance.set ('newTag', true, true);
+            },
+            backgroundColor: kAltoBlue,
+            label: const Text('Create tag', style: kSelectAllButton),
+          ),
+        )),
         // Center(
         //     child: Padding(
         //   padding: const EdgeInsets.only(left: 12, right: 12),
@@ -353,20 +376,27 @@ class TopRow extends StatefulWidget {
 }
 
 class _TopRowState extends State<TopRow> {
+  dynamic cancelListener;
 
   String currentlyTagging = '';
 
   @override
   void initState() {
+    PhotoManager.requestPermissionExtend();
     super.initState();
-    StoreService.instance.updateStream.stream.listen((value) async {
-      if (value != 'currentlyTagging') return;
-      dynamic v = await StoreService.instance.get ('currentlyTagging');
+    cancelListener = StoreService.instance.listen (['currentlyTagging'], (v) {
       setState(() {
         currentlyTagging = v;
       });
     });
   }
+
+  @override
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -490,7 +520,7 @@ class _TopRowState extends State<TopRow> {
                 ),
                 GridTagElement(
                   gridTagElementIcon: kTagIcon,
-                  iconColor: kTagColor1,
+                  iconColor: tagColor (currentlyTagging),
                   gridTagName: currentlyTagging,
                 ),
                 Expanded(
