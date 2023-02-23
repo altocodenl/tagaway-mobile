@@ -35,7 +35,7 @@ class _LocalViewState extends State<LocalView> {
     cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped'], (v1, v2, v3) {
       setState(() {
         if (v1 != '') usertags = v1;
-        if (v2 != '') currentlyTagging = v2;
+        currentlyTagging = v2;
         if (v3 != '') swiped = v3;
       });
     });
@@ -53,16 +53,19 @@ class _LocalViewState extends State<LocalView> {
       children: [
         const Grid(),
         const TopRow(),
-        // Align(
-        //   alignment: const Alignment(0.8, .9),
-        //   child: FloatingActionButton.extended(
-        //     onPressed: () {},
-        //     backgroundColor: kAltoBlue,
-        //     label: const Text('Done', style: kSelectAllButton),
-        //     icon: const Icon(Icons.done),
-        //   ),
-        // )
-        Align(
+        Visibility (visible: currentlyTagging != '', child: Align(
+          alignment: const Alignment(0.8, .9),
+          child: FloatingActionButton.extended(
+            onPressed: () {
+               StoreService.instance.set ('swiped', false, true);
+               StoreService.instance.set ('currentlyTagging', '', true);
+            },
+            backgroundColor: kAltoBlue,
+            label: const Text('Done', style: kSelectAllButton),
+            icon: const Icon(Icons.done),
+          )
+        )),
+        Visibility (visible: currentlyTagging == '', child: Align(
           alignment: Alignment.bottomCenter,
           child: SizedBox.expand(
             child: NotificationListener<DraggableScrollableNotification>(
@@ -154,7 +157,7 @@ class _LocalViewState extends State<LocalView> {
                 }),
               )
           ),
-        ),
+        )),
         // Container(
         //   height: double.infinity,
         //   width: double.infinity,
