@@ -1,16 +1,14 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tagService.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'how_view';
@@ -28,8 +26,8 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['hometags'], (v) {
-       setState (() => hometags = v == '' ? [] : v);
+    cancelListener = StoreService.instance.listen(['hometags'], (v) {
+      setState(() => hometags = v == '' ? [] : v);
     });
 
     // TODO: handle error
@@ -37,9 +35,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   _launchUrl() async {
@@ -109,7 +107,13 @@ class _HomeViewState extends State<HomeView> {
       )),
       body: SafeArea(
         child: hometags.isEmpty
-            ? Padding(
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+                ),
+              )
+            /*
+        Padding(
                 padding: const EdgeInsets.only(left: 12, right: 12),
                 child: Center(
                   child: Column(
@@ -141,13 +145,15 @@ class _HomeViewState extends State<HomeView> {
                             title: 'Get started',
                             colour: kAltoBlue,
                             onPressed: () {
-                              StoreService.instance.set ('currentIndex', 1);
+                              StoreService.instance.set('currentIndex', 1);
                             },
                           ))
                     ],
                   ),
                 ),
               )
+
+     */
             : Padding(
                 padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
                 child: ListView(
@@ -160,14 +166,17 @@ class _HomeViewState extends State<HomeView> {
                     ]),
               ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return const YourHometagsView();
-          }));
-        },
-        backgroundColor: kAltoBlue,
-        child: const Icon(Icons.create_rounded),
+      floatingActionButton: Visibility(
+        visible: hometags.isNotEmpty,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) {
+              return const YourHometagsView();
+            }));
+          },
+          backgroundColor: kAltoBlue,
+          child: const Icon(Icons.create_rounded),
+        ),
       ),
     );
   }
