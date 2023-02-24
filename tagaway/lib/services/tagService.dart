@@ -61,7 +61,7 @@ class TagService {
     var pivIds = [], videoIds = [];
     response ['body'] ['pivs'].forEach ((v) {
        pivIds.add (v ['id']);
-       if (v ['vid'] != null) videoIds.add (v);
+       if (v ['vid'] != null) videoIds.add (v ['id']);
     });
     return {'pivIds': pivIds, 'videoIds': videoIds};
   }
