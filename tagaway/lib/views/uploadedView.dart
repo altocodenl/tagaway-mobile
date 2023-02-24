@@ -178,31 +178,23 @@ class UploadGrid extends StatefulWidget {
 }
 
 class _UploadGridState extends State<UploadGrid> {
-  late dynamic itemList;
-  late List<AssetEntity> selectedList;
+  dynamic pivIds = [];
+  dynamic videoIds = [];
+  dynamic selectedList = [];
 
   @override
   void initState() {
-    loadList();
     super.initState();
+    fetchAssets ();
   }
 
-  loadList() {
-    itemList = [];
-    selectedList = [];
-    _fetchAssets();
-  }
-
-  _fetchAssets() async {
+  fetchAssets() async {
     await TagService.instance.getPivs().then((value) {
       setState(() {
-        itemList = value;
-        print('itemList is $itemList');
+        pivIds   = value ['pivIds'];
+        videoIds = value ['videoIds'];
       });
     });
-
-    // Update the state and notify UI
-    // setState(() => itemList = recentAssets);
   }
 
   @override
@@ -221,15 +213,16 @@ class _UploadGridState extends State<UploadGrid> {
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
-              itemCount: itemList.length,
+              itemCount: pivIds.length,
               itemBuilder: (BuildContext context, index) {
                 return UploadedGridItem(
-                  item: itemList[index],
+                  item: pivIds [index],
+                  isVideo: videoIds.contains (pivIds [index]),
                   // isSelected: (bool value) {
                   //   if (value) {
-                  //     selectedList.add(itemList[index]);
+                  //     selectedList.add(pivIds [index]);
                   //   } else {
-                  //     selectedList.remove(itemList[index]);
+                  //     selectedList.remove(pivIds [index]);
                   //   }
                   // }
                 );
