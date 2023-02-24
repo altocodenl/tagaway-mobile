@@ -33,8 +33,7 @@ class _HomeViewState extends State<HomeView> {
     // TODO: handle error
     TagService.instance.getTags();
 
-    TagService.instance.getPivs();
-
+    // TagService.instance.getPivs();
   }
 
   @override

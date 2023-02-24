@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:tagaway/services/storeService.dart';
 
 const kAltoPicAppURL = 'https://altocode.nl/dev/pic/app';
+const kTagawayThumbURL = 'https://altocode.nl/dev/pic/app/thumb/S/';
 const kTagawayHomeURL = 'https://altocode.nl/dev/pic';
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGreen = Color(0xFF04E762);
@@ -271,37 +272,49 @@ int now() {
   return DateTime.now().millisecondsSinceEpoch;
 }
 
-Future <dynamic> ajax (String method, String path, [dynamic body]) async {
-   String cookie = await StoreService.instance.get ('cookie');
-   // If we make an ajax call before the store service is initialized, give it 150ms to initialize it and get the cookie again
-   if (cookie == '') {
-      await Future.delayed (Duration(milliseconds: 150));
-      cookie = await StoreService.instance.get ('cookie');
-   }
-   int start = now ();
-   debug (['AJAX REQ:' + start.toString (), method.toUpperCase (), '/' + path, body]);
-   var response;
-   try {
-      if (method == 'get') response = await http.get (
-         Uri.parse (kAltoPicAppURL + '/' + path),
-         headers: {'cookie': cookie}
-      );
-      else {
-         if (path != 'auth/login') body ['csrf'] = await StoreService.instance.get ('csrf');
-         response = await http.post (
-            Uri.parse (kAltoPicAppURL + '/' + path),
-            headers: {
-               'Content-Type': method == 'post' ? 'application/json; charset=UTF-8' : '',
-               'cookie':       cookie
-            },
-            body: jsonEncode (body)
-         );
-      }
-      debug (['AJAX RES:' + start.toString (), method, '/' + path, (now () - start).toString () + 'ms', response.statusCode, response.headers, jsonDecode (response.body == '' ? '{}' : response.body)]);
-      return {'code': response.statusCode, 'headers': response.headers, 'body': jsonDecode (response.body == '' ? '{}' : response.body)};
-   } on SocketException catch (_) {
-      return {'code': 0};
-   }
+Future<dynamic> ajax(String method, String path, [dynamic body]) async {
+  String cookie = await StoreService.instance.get('cookie');
+  // If we make an ajax call before the store service is initialized, give it 150ms to initialize it and get the cookie again
+  if (cookie == '') {
+    await Future.delayed(Duration(milliseconds: 150));
+    cookie = await StoreService.instance.get('cookie');
+  }
+  int start = now();
+  debug(
+      ['AJAX REQ:' + start.toString(), method.toUpperCase(), '/' + path, body]);
+  var response;
+  try {
+    if (method == 'get')
+      response = await http.get(Uri.parse(kAltoPicAppURL + '/' + path),
+          headers: {'cookie': cookie});
+    else {
+      if (path != 'auth/login')
+        body['csrf'] = await StoreService.instance.get('csrf');
+      response = await http.post(Uri.parse(kAltoPicAppURL + '/' + path),
+          headers: {
+            'Content-Type':
+                method == 'post' ? 'application/json; charset=UTF-8' : '',
+            'cookie': cookie
+          },
+          body: jsonEncode(body));
+    }
+    debug([
+      'AJAX RES:' + start.toString(),
+      method,
+      '/' + path,
+      (now() - start).toString() + 'ms',
+      response.statusCode,
+      response.headers,
+      jsonDecode(response.body == '' ? '{}' : response.body)
+    ]);
+    return {
+      'code': response.statusCode,
+      'headers': response.headers,
+      'body': jsonDecode(response.body == '' ? '{}' : response.body)
+    };
+  } on SocketException catch (_) {
+    return {'code': 0};
+  }
 }
 
 Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
