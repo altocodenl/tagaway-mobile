@@ -213,6 +213,7 @@ class _LocalViewState extends State<LocalView> {
                       GestureDetector(
                         onTap: () {
                            StoreService.instance.set ('newTag', '', true);
+                           newTagName.clear ();
                         },
                         child: Padding(
                            padding: EdgeInsets.only(right: 30.0),
@@ -227,7 +228,13 @@ class _LocalViewState extends State<LocalView> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                           var text = newTagName.text;
+                           if (text == '') return;
+                           StoreService.instance.set ('newTag', '', true);
+                           StoreService.instance.set ('currentlyTagging', text, true);
+                           newTagName.clear ();
+                        },
                         child: Text(
                            'Create',
                            style: TextStyle(
