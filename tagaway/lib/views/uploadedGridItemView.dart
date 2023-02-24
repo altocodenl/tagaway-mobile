@@ -38,20 +38,19 @@ class UploadedGridItem extends StatelessWidget {
             ),
           ),
         ),
-
-        // item.type == AssetType.video
-        //     ? Align(
-        //         alignment: Alignment.bottomRight,
-        //         child: Padding(
-        //           padding: const EdgeInsets.only(right: 5.0, bottom: 5),
-        //           child: Text(
-        //             parseVideoDuration(Duration(seconds: item.duration)),
-        //             style:
-        //                 const TextStyle(color: Colors.white, fontSize: 14),
-        //           ),
-        //         ),
-        //       )
-        //     : Container(),
+        isVideo
+            ? const Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 10.0, bottom: 5),
+                  child: Icon(
+                    kVideoIcon,
+                    color: Colors.white,
+                    size: 15,
+                  ),
+                ),
+              )
+            : Container(),
 
         // GestureDetector(
         //   onTap: () {

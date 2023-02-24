@@ -45,6 +45,7 @@ const kMinusIcon = FontAwesomeIcons.minus;
 const kBoxArchiveIcon = FontAwesomeIcons.boxArchive;
 const kShareArrownUpIcon = FontAwesomeIcons.arrowUpFromBracket;
 const kTrashCanIcon = FontAwesomeIcons.trashCan;
+const kVideoIcon = FontAwesomeIcons.video;
 
 const tagColors = [
   kTagColor1,
