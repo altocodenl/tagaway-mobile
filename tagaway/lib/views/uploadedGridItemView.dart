@@ -33,7 +33,7 @@ class UploadedGridItem extends StatelessWidget {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.cover,
-              image: NetworkImage((kTagawayThumbURL) + (item),
+              image: NetworkImage((kTagawayThumbSURL) + (item),
                   headers: {'cookie': StoreService.instance.get('cookie')}),
             ),
           ),
