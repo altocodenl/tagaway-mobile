@@ -55,212 +55,242 @@ class _LocalViewState extends State<LocalView> {
       children: [
         const Grid(),
         const TopRow(),
-        Visibility (visible: currentlyTagging != '', child: Align(
-          alignment: const Alignment(0.8, .9),
-          child: FloatingActionButton.extended(
-            onPressed: () {
-               StoreService.instance.set ('swiped', false, true);
-               StoreService.instance.set ('currentlyTagging', '', true);
-            },
-            backgroundColor: kAltoBlue,
-            label: const Text('Done', style: kSelectAllButton),
-            icon: const Icon(Icons.done),
-          )
-        )),
-        Visibility (visible: currentlyTagging == '', child: Align(
-          alignment: Alignment.bottomCenter,
-          child: SizedBox.expand(
-            child: NotificationListener<DraggableScrollableNotification>(
-            onNotification: (state){
-               if (state.extent < 0.0701) StoreService.instance.set ('swiped', false, true);
-               if (state.extent > 0.7699) StoreService.instance.set ('swiped', true,  true);
-               return true;
-            },
-            child: DraggableScrollableSheet(
-                snap: true,
-                initialChildSize: .07,
-                minChildSize: .07,
-                maxChildSize: .77,
-                builder:
-                    (BuildContext context, ScrollController scrollController) {
-                  return ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      topRight: Radius.circular(25),
+        Visibility(
+            visible: currentlyTagging != '',
+            child: Align(
+                alignment: const Alignment(0.8, .9),
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    StoreService.instance.set('swiped', false, true);
+                    StoreService.instance.set('currentlyTagging', '', true);
+                  },
+                  backgroundColor: kAltoBlue,
+                  label: const Text('Done', style: kSelectAllButton),
+                  icon: const Icon(Icons.done),
+                ))),
+        Visibility(
+            visible: currentlyTagging == '',
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox.expand(
+                  child: NotificationListener<DraggableScrollableNotification>(
+                onNotification: (state) {
+                  if (state.extent < 0.0701)
+                    StoreService.instance.set('swiped', false, true);
+                  if (state.extent > 0.7699)
+                    StoreService.instance.set('swiped', true, true);
+                  return true;
+                },
+                child: DraggableScrollableSheet(
+                    snap: true,
+                    initialChildSize: .07,
+                    minChildSize: .07,
+                    maxChildSize: .77,
+                    builder: (BuildContext context,
+                        ScrollController scrollController) {
+                      return ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(25),
+                          topRight: Radius.circular(25),
+                        ),
+                        child: Container(
+                          color: Colors.white,
+                          child: ListView(
+                            padding: const EdgeInsets.only(left: 12, right: 12),
+                            controller: scrollController,
+                            children: [
+                              Visibility(
+                                  visible: !swiped,
+                                  child: const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 8.0),
+                                      child: FaIcon(
+                                        FontAwesomeIcons.anglesUp,
+                                        color: kGrey,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  )),
+                              Visibility(
+                                  visible: !swiped,
+                                  child: const Center(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 8.0, bottom: 8),
+                                      child: Text(
+                                        'Swipe to start tagging',
+                                        style: kPlainTextBold,
+                                      ),
+                                    ),
+                                  )),
+                              Visibility(
+                                  visible: swiped,
+                                  child: const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(top: 8.0),
+                                      child: FaIcon(
+                                        FontAwesomeIcons.anglesDown,
+                                        color: kGrey,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  )),
+                              Visibility(
+                                  visible: swiped,
+                                  child: const Center(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 8.0, bottom: 8),
+                                      child: Text(
+                                        'Tag your pics and videos',
+                                        style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                            color: kAltoBlue),
+                                      ),
+                                    ),
+                                  )),
+                              Visibility(
+                                  visible: swiped,
+                                  child: const Center(
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 8.0, bottom: 8),
+                                      child: Text(
+                                        'Choose a tag and select the pics & videos you want!',
+                                        textAlign: TextAlign.center,
+                                        style: kPlainTextBold,
+                                      ),
+                                    ),
+                                  )),
+                              for (var v in usertags)
+                                TagListElement(
+                                    tagColor: tagColor(v),
+                                    tagName: v,
+                                    onTap: () {
+                                      // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                                      return () {
+                                        StoreService.instance
+                                            .set('currentlyTagging', v, true);
+                                      };
+                                    })
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+              )),
+            )),
+        Visibility(
+            visible: newTag != '',
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
+              color: kAltoBlue.withOpacity(.8),
+            )),
+        Visibility(
+            visible: newTag != '',
+            child: Center(
+                child: Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12),
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 20.0),
+                      child: Text(
+                        'Create a new tag',
+                        style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: kAltoBlue),
+                      ),
                     ),
-                    child: Container(
-                      color: Colors.white,
-                      child: ListView(
-                        padding: const EdgeInsets.only(left: 12, right: 12),
-                        controller: scrollController,
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 12, right: 12, top: 20),
+                      child: TextField(
+                        controller: newTagName,
+                        autofocus: true,
+                        textAlign: TextAlign.center,
+                        enableSuggestions: true,
+                        decoration: const InputDecoration(
+                          hintText: 'Insert the name of your new tag here…',
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 10.0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(25)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 30.0, right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Visibility (visible: ! swiped, child: const Center(
+                          GestureDetector(
+                            onTap: () {
+                              StoreService.instance.set('newTag', '', true);
+                              newTagName.clear();
+                            },
                             child: Padding(
-                              padding: EdgeInsets.only(top: 8.0),
-                              child: FaIcon(
-                                FontAwesomeIcons.anglesUp,
-                                color: kGrey,
-                                size: 16,
-                              ),
-                            ),
-                           )),
-                           Visibility (visible: ! swiped, child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                              padding: EdgeInsets.only(right: 30.0),
                               child: Text(
-                                'Swipe to start tagging',
-                                style: kPlainTextBold,
-                              ),
-                            ),
-                          )),
-                          Visibility (visible: swiped, child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8.0),
-                              child: FaIcon(
-                                FontAwesomeIcons.anglesDown,
-                                color: kGrey,
-                                size: 16,
-                              ),
-                            ),
-                          )),
-                          Visibility (visible: swiped, child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
-                              child: Text(
-                                'Tag your pics and videos',
+                                'Cancel',
                                 style: TextStyle(
                                     fontFamily: 'Montserrat',
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 20,
+                                    fontSize: 16,
                                     color: kAltoBlue),
                               ),
                             ),
-                          )),
-                          Visibility (visible: swiped, child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
-                              child: Text(
-                                'Choose a tag and select the pics & videos you want!',
-                                textAlign: TextAlign.center,
-                                style: kPlainTextBold,
-                              ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              var text = newTagName.text;
+                              if (text == '') return;
+                              StoreService.instance.set('newTag', '', true);
+                              StoreService.instance
+                                  .set('currentlyTagging', text, true);
+                              newTagName.clear();
+                            },
+                            child: Text(
+                              'Create',
+                              style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: kAltoBlue),
                             ),
-                          )),
-                          for (var v in usertags) TagListElement (tagColor: tagColor (v), tagName: v, onTap: () {
-                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                             return () {
-                                StoreService.instance.set ('currentlyTagging', v, true);
-                             };
-                          })
+                          ),
                         ],
                       ),
-                    ),
-                  );
-                }),
-              )
-          ),
-        )),
-        Visibility (visible: newTag != '', child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          color: kAltoBlue.withOpacity(.8),
-        )),
-        Visibility (visible: newTag != '', child: Center(
-            child: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12),
-          child: Container(
-            height: 200,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: Text(
-                    'Create a new tag',
-                    style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: kAltoBlue),
-                  ),
+                    )
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
-                  child: TextField(
-                    controller: newTagName,
-                    autofocus: true,
-                    textAlign: TextAlign.center,
-                    enableSuggestions: true,
-                    decoration: const InputDecoration(
-                      hintText: 'Insert the name of your new tag here…',
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25)),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 30.0, right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                           StoreService.instance.set ('newTag', '', true);
-                           newTagName.clear ();
-                        },
-                        child: Padding(
-                           padding: EdgeInsets.only(right: 30.0),
-                           child: Text(
-                             'Cancel',
-                             style: TextStyle(
-                                 fontFamily: 'Montserrat',
-                                 fontWeight: FontWeight.bold,
-                                 fontSize: 16,
-                                 color: kAltoBlue),
-                           ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                           var text = newTagName.text;
-                           if (text == '') return;
-                           StoreService.instance.set ('newTag', '', true);
-                           StoreService.instance.set ('currentlyTagging', text, true);
-                           newTagName.clear ();
-                        },
-                        child: Text(
-                           'Create',
-                           style: TextStyle(
-                               fontFamily: 'Montserrat',
-                               fontWeight: FontWeight.bold,
-                               fontSize: 16,
-                               color: kAltoBlue),
-                         ),
-                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ))),
-        Visibility (visible: newTag == '' && swiped == true && currentlyTagging == '', child: Align(
-          alignment: const Alignment(0, .9),
-          child: FloatingActionButton.extended(
-            onPressed: () {
-               StoreService.instance.set ('newTag', true, true);
-            },
-            backgroundColor: kAltoBlue,
-            label: const Text('Create tag', style: kSelectAllButton),
-          ),
-        )),
+              ),
+            ))),
+        Visibility(
+            visible: newTag == '' && swiped == true && currentlyTagging == '',
+            child: Align(
+              alignment: const Alignment(0, .9),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  StoreService.instance.set('newTag', true, true);
+                },
+                backgroundColor: kAltoBlue,
+                label: const Text('Create tag', style: kSelectAllButton),
+              ),
+            )),
         // Center(
         //     child: Padding(
         //   padding: const EdgeInsets.only(left: 12, right: 12),
@@ -404,7 +434,6 @@ class _TopRowState extends State<TopRow> {
      cancelListener ();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -507,40 +536,43 @@ class _TopRowState extends State<TopRow> {
             ),
           ),
         ),
-        currentlyTagging != '' ? Container(
-          height: 60,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12),
-            child: Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    'Now tagging with',
-                    style: kLookingAtText,
+        currentlyTagging != ''
+            ? Container(
+                height: 60,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  border:
+                      Border(top: BorderSide(width: 1, color: kGreyLighter)),
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'Now tagging with',
+                          style: kLookingAtText,
+                        ),
+                      ),
+                      GridTagElement(
+                        gridTagElementIcon: kTagIcon,
+                        iconColor: tagColor(currentlyTagging),
+                        gridTagName: currentlyTagging,
+                      ),
+                      Expanded(
+                        child: Text(
+                          '4,444',
+                          textAlign: TextAlign.right,
+                          style: kOrganizedAmountOfPivs,
+                        ),
+                      )
+                    ],
                   ),
                 ),
-                GridTagElement(
-                  gridTagElementIcon: kTagIcon,
-                  iconColor: tagColor (currentlyTagging),
-                  gridTagName: currentlyTagging,
-                ),
-                Expanded(
-                  child: Text(
-                    '4,444',
-                    textAlign: TextAlign.right,
-                    style: kOrganizedAmountOfPivs,
-                  ),
-                )
-              ],
-            ),
-          ),
-        ) : Container ()
+              )
+            : Container()
       ],
     );
   }
