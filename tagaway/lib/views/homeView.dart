@@ -21,13 +21,13 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
-  List hometags = [];
+  dynamic hometags = '';
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen(['hometags'], (v) {
-      setState(() => hometags = v == '' ? [] : v);
+      setState(() => hometags = v);
     });
 
     // TODO: handle error
@@ -106,65 +106,63 @@ class _HomeViewState extends State<HomeView> {
         ],
       )),
       body: SafeArea(
-        child: hometags.isEmpty
+        child: hometags == ''
             ? const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
                 ),
               )
-            /*
-        Padding(
-                padding: const EdgeInsets.only(left: 12, right: 12),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Image.asset(
-                              'images/tag blue with white - 400x400.png',
-                              scale: 2,
+            : (hometags.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 12),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Image.asset(
+                                  'images/tag blue with white - 400x400.png',
+                                  scale: 2,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 10),
+                            child: Text(
+                              'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
+                              style: kHomeEmptyText,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: RoundedButton(
+                                title: 'Get started',
+                                colour: kAltoBlue,
+                                onPressed: () {
+                                  StoreService.instance.set('currentIndex', 1);
+                                },
+                              ))
+                        ],
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
-                          style: kHomeEmptyText,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: RoundedButton(
-                            title: 'Get started',
-                            colour: kAltoBlue,
-                            onPressed: () {
-                              StoreService.instance.set('currentIndex', 1);
-                            },
-                          ))
-                    ],
-                  ),
-                ),
-              )
-
-     */
-            : Padding(
-                padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
-                child: ListView(
-                    addAutomaticKeepAlives: false,
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    children: [
-                      for (var v in hometags)
-                        HomeCard(color: tagColor(v), title: v)
-                    ]),
-              ),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
+                    child: ListView(
+                        addAutomaticKeepAlives: false,
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        children: [
+                          for (var v in hometags)
+                            HomeCard(color: tagColor(v), title: v)
+                        ]),
+                  )),
       ),
       floatingActionButton: Visibility(
         visible: hometags.isNotEmpty,
