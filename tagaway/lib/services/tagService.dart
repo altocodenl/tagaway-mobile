@@ -51,15 +51,18 @@ class TagService {
     // If piv on map is deleted, reupload it.
   }
 
-  Future<List> getPivs() async {
+  getPivs() async {
     var response = await ajax('post', 'query', {
       'tags': [],
       'sort': 'newest',
       'from': 1,
       'to': 10000,
-      'idsOnly': true
     });
-    debug(['got pivs', response['body']]);
-    return response['body'];
+    var pivIds = [], videoIds = [];
+    response ['body'] ['pivs'].forEach ((v) {
+       pivIds.add (v ['id']);
+       if (v ['vid'] != null) videoIds.add (v);
+    });
+    return {'pivIds': pivIds, 'videoIds': videoIds};
   }
 }

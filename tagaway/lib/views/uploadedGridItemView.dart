@@ -9,11 +9,13 @@ import 'package:tagaway/ui_elements/constants.dart';
 
 class UploadedGridItem extends StatelessWidget {
   final String item;
+  final bool isVideo;
   // final ValueChanged<bool> isSelected;
 
   const UploadedGridItem({
     Key? key,
     required this.item,
+    required this.isVideo,
     // required this.isSelected
   }) : super(key: key);
 
