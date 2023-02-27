@@ -4,13 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/storeService.dart';
 
-class LocalGridItem extends StatelessWidget {
-  final AssetEntity item;
-  final ValueChanged<bool> isSelected;
+class LocalGridItem extends StatefulWidget {
+  final AssetEntity asset;
+  const LocalGridItem(this.asset);
 
-  const LocalGridItem({Key? key, required this.item, required this.isSelected})
-      : super(key: key);
+  @override
+  State<LocalGridItem> createState() => _LocalGridItemState(this.asset);
+}
+
+class _LocalGridItemState extends State<LocalGridItem> {
+  dynamic cancelListener;
+  final AssetEntity asset;
+  bool selected = false;
+
+  _LocalGridItemState(this.asset);
 
   String parseVideoDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -19,9 +28,21 @@ class LocalGridItem extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'currentlyTagging'], (v1, v2) {
+      setState(() {
+        if (v2 == '') selected = v1 != '';
+        // TODO: add condition where selected depends on whether piv is tagged
+      });
+    });
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List?>(
-      future: item.thumbnailDataWithSize(const ThumbnailSize.square(1000)),
+      future: asset.thumbnailDataWithSize(const ThumbnailSize.square(1000)),
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null) {
@@ -31,7 +52,7 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector(
             onTap: () {
-              UploadService.instance.queuePiv (item);
+              UploadService.instance.queuePiv (asset);
             },
             child: Stack(
               children: [
@@ -43,14 +64,14 @@ class LocalGridItem extends StatelessWidget {
                     ),
                   ),
                 ),
-                item.type == AssetType.video
+                asset.type == AssetType.video
                     ? Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
                           padding: const EdgeInsets.only(right: 5.0, bottom: 5),
                           child: Text(
                             parseVideoDuration(
-                                Duration(seconds: item.duration)),
+                                Duration(seconds: asset.duration)),
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 14),
                           ),
@@ -64,21 +85,12 @@ class LocalGridItem extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(color: Colors.white, width: 2)),
-                      child: const Icon(
-                        // kSolidCircleIcon,
-                        // color: kGreyDarker,
-                        kCircleCheckIcon,
-                        color: kAltoOrganized,
+                      child: Icon(
+                        selected ? kCircleCheckIcon : kSolidCircleIcon,
+                        color: selected ? kAltoOrganized : kGreyDarker,
                         size: 25,
                       ),
                     )),
-
-                // SelectedAsset(
-                //   selectedListLengthStreamController:
-                //   selectedListLengthStreamController,
-                //   isSelected: isSelected,
-                //   item: item,
-                // ),
               ],
             ));
       },

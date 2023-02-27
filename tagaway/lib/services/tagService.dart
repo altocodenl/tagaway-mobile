@@ -33,10 +33,11 @@ class TagService {
     return response['code'];
   }
 
-  tagPivById(String id, String tag) async {
+  tagPivById(String id, String tag, bool del) async {
     var response = await ajax('post', 'tag', {
       'tag': tag,
-      'ids': [id]
+      'ids': [id],
+      'del': del
     });
     return response['code'];
   }
@@ -44,7 +45,7 @@ class TagService {
   tagPiv(dynamic piv, String tag) async {
     String pivId = StoreService.instance.get('pivMap:' + piv.id);
     if (pivId != '') {
-      var code = await tagPivById(pivId, tag);
+      var code = await tagPivById(pivId, tag, false);
       // If piv doesn't exist, reupload and queue tag
       if (code == 404) return UploadService.instance.queuePiv(piv);
     }

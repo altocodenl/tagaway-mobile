@@ -44,7 +44,7 @@ class UploadService {
       return response;
    }
 
-   // Calls with piv are from the service
+   // Calls with piv are come from the view or another service
    // Calls with no piv are recursive to keep the ball rolling
    // Because there can only be a single upload going, a return is no guarantee of the action being done. Alas.
    // So the state must be checked periodically to see which uploads have completed.
