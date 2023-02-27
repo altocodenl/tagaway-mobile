@@ -332,22 +332,15 @@ class Grid extends StatefulWidget {
 }
 
 class _GridState extends State<Grid> {
-  late List<AssetEntity> itemList;
-  late List<AssetEntity> selectedList;
+  List<AssetEntity> itemList = [];
 
   @override
   void initState() {
-    loadList();
     super.initState();
+    fetchAssets ();
   }
 
-  loadList() {
-    itemList = [];
-    selectedList = [];
-    _fetchAssets();
-  }
-
-  _fetchAssets() async {
+  fetchAssets() async {
     FilterOptionGroup makeOption() {
       // final option = FilterOption();
       return FilterOptionGroup()
@@ -390,15 +383,7 @@ class _GridState extends State<Grid> {
                 ),
                 itemCount: itemList.length,
                 itemBuilder: (BuildContext context, index) {
-                  return LocalGridItem(
-                    item: itemList[index],
-                    isSelected: (bool value) {
-                      if (value)
-                        selectedList.add(itemList[index]);
-                      else
-                        selectedList.remove(itemList[index]);
-                    },
-                  );
+                  return LocalGridItem(itemList[index]);
                 })),
       ),
     );
