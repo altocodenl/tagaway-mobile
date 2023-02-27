@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/storeService.dart';
 
 class LocalGridItem extends StatefulWidget {
   final AssetEntity asset;
@@ -21,23 +21,23 @@ class _LocalGridItemState extends State<LocalGridItem> {
 
   _LocalGridItemState(this.asset);
 
-  String parseVideoDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
-  }
+  // String parseVideoDuration(Duration duration) {
+  //   String twoDigits(int n) => n.toString().padLeft(2, "0");
+  //   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+  //   return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
+  // }
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'currentlyTagging'], (v1, v2) {
+    cancelListener = StoreService.instance
+        .listen(['pivMap:' + asset.id, 'currentlyTagging'], (v1, v2) {
       setState(() {
         if (v2 == '') selected = v1 != '';
         // TODO: add condition where selected depends on whether piv is tagged
       });
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class _LocalGridItemState extends State<LocalGridItem> {
         }
         return GestureDetector(
             onTap: () {
-              UploadService.instance.queuePiv (asset);
+              UploadService.instance.queuePiv(asset);
             },
             child: Stack(
               children: [
@@ -65,15 +65,14 @@ class _LocalGridItemState extends State<LocalGridItem> {
                   ),
                 ),
                 asset.type == AssetType.video
-                    ? Align(
+                    ? const Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 5.0, bottom: 5),
-                          child: Text(
-                            parseVideoDuration(
-                                Duration(seconds: asset.duration)),
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
+                          padding: EdgeInsets.only(right: 10.0, bottom: 5),
+                          child: Icon(
+                            kVideoIcon,
+                            color: Colors.white,
+                            size: 15,
                           ),
                         ),
                       )
