@@ -403,15 +403,17 @@ class _TopRowState extends State<TopRow> {
 
   String currentlyTagging = '';
   dynamic taggedPivCount = '';
+  dynamic timeHeader = {'year': 2022, 'months': [['Jul', 'gray'], ['Aug', 'green'], ['Sep', 'white'], ['Oct', 'green'], ['Nov', 'gray'], ['Dec', 'green']]};
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['currentlyTagging', 'taggedPivCount'], (v1, v2) {
+    cancelListener = StoreService.instance.listen (['currentlyTagging', 'taggedPivCount', 'timeHeader'], (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
+        // timeHeader     = v3;
       });
     });
   }
@@ -477,45 +479,13 @@ class _TopRowState extends State<TopRow> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           childAspectRatio: 1.11,
-                          children: const [
-                            GridMonthElement(
-                              roundedIcon: kSolidCircleIcon,
-                              roundedIconColor: kGreyDarker,
-                              month: 'Jul',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                            ),
-                            GridMonthElement(
-                              roundedIcon: kCircleCheckIcon,
-                              roundedIconColor: kAltoOrganized,
-                              month: 'Aug',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                            ),
-                            GridMonthElement(
-                              roundedIcon: kEmptyCircle,
-                              roundedIconColor: kGreyDarker,
-                              month: 'Sep',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                            ),
-                            GridMonthElement(
-                              roundedIcon: kCircleCheckIcon,
-                              roundedIconColor: kAltoOrganized,
-                              month: 'Oct',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                            ),
-                            GridMonthElement(
-                              roundedIcon: kSolidCircleIcon,
-                              roundedIconColor: kGreyDarker,
-                              month: 'Nov',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                            ),
-                            GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                              roundedIconColor: kAltoOrganized,
-                              month: 'Dec',
-                              whiteOrAltoBlueDashIcon: kAltoBlue,
-                            ),
-                          ],
-                        ),
+                          children: [for (var month in timeHeader ['months']) GridMonthElement (
+                            roundedIcon: month [1] == 'green' ? kCircleCheckIcon : (month [1] == 'gray' ? kSolidCircleIcon : kEmptyCircle),
+                            roundedIconColor: month [1] == 'green' ? kAltoOrganized : kGreyDarker,
+                            month: month [0],
+                            whiteOrAltoBlueDashIcon: Colors.white,
+                          )],
+                        )
                       ],
                     ),
                   ),
