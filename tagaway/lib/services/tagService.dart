@@ -51,6 +51,10 @@ class TagService {
       var code = await tagPivById(pivId, tag, del);
       // If piv exists, we are done. Otherwise, we need to upload it.
       if (code == 200) return;
+      if (code == 404) {
+         StoreService.instance.remove ('pivMap:' + piv.id);
+         StoreService.instance.remove ('rpivMap:' + pivId);
+      }
       // TODO: add error handling for non 200, non 404
     }
     UploadService.instance.queuePiv (piv);

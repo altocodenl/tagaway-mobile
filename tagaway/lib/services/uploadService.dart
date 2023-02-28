@@ -45,7 +45,8 @@ class UploadService {
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
             for (var tag in pendingTags) {
-               await TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
+               // We don't await for this, we keep on going to fire the tag operations as quickly as possible without delaying further uploads.
+               TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
             }
          }
          StoreService.instance.remove ('pendingTags:' + piv.id);
