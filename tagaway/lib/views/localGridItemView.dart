@@ -7,29 +7,15 @@ import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 
-class LocalGridItem extends StatefulWidget {
+class LocalGridItem extends StatelessWidget {
   final AssetEntity asset;
   const LocalGridItem(this.asset);
-
-  @override
-  State<LocalGridItem> createState() => _LocalGridItemState(this.asset);
-}
-
-class _LocalGridItemState extends State<LocalGridItem> {
-  final AssetEntity asset;
-
-  _LocalGridItemState(this.asset);
 
   // String parseVideoDuration(Duration duration) {
   //   String twoDigits(int n) => n.toString().padLeft(2, "0");
   //   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
   //   return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
   // }
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
