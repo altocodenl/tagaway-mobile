@@ -43,15 +43,22 @@ class TagService {
   }
 
   togglePiv (dynamic piv, String tag) async {
-    String pivId = StoreService.instance.get('pivMap:' + piv.id);
-    debug (['togglePiv', pivId]);
+    String pivId = StoreService.instance.get ('pivMap:' + piv.id);
+    bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
+    StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
+    // If we have an entry for the piv:
     if (pivId != '') {
-      // TODO: add toggle functionality
-      var code = await tagPivById(pivId, tag, false);
-      // If piv doesn't exist, reupload and queue tag
-      if (code == 404) return UploadService.instance.queuePiv(piv);
+      var code = await tagPivById(pivId, tag, del);
+      // If piv exists, we are done. Otherwise, we need to upload it.
+      if (code == 200) return;
+      // TODO: add error handling for non 200, non 404
     }
-    // If piv on map is deleted, reupload it.
+    UploadService.instance.queuePiv (piv);
+    var pendingTags = StoreService.instance.get ('pending:' + piv.id);
+    if (pendingTags == '') pendingTags = [];
+    if (del) pendingTags.remove (tag);
+    else     pendingTags.add    (tag);
+    StoreService.instance.set ('pendingTags:' + piv.id, pendingTags);
   }
 
   getTaggedPivs (String tag) async {

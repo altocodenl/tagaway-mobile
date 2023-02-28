@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 
 class UploadService {
    UploadService._privateConstructor ();
@@ -41,6 +42,13 @@ class UploadService {
       if (response ['code'] == 200) {
          StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
          StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+         var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
+         if (pendingTags != '') {
+            for (var tag in pendingTags) {
+               await TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
+            }
+         }
+         StoreService.instance.remove ('pendingTags:' + piv.id);
       }
       return response;
    }
