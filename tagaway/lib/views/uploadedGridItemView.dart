@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
@@ -29,15 +30,29 @@ class UploadedGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: NetworkImage((kTagawayThumbSURL) + (item),
-                  headers: {'cookie': StoreService.instance.get('cookie')}),
-            ),
-          ),
-        ),
+        CachedNetworkImage(
+            imageUrl: (kTagawayThumbSURL) + (item),
+            httpHeaders: {'cookie': StoreService.instance.get('cookie')},
+            placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(
+                  color: kAltoBlue,
+                )),
+            imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          fit: BoxFit.cover, image: imageProvider)),
+                )),
+        // Container(
+        //   decoration: BoxDecoration(
+        //       image: DecorationImage(
+        //           fit: BoxFit.cover,
+        //           image: CachedNetworkImageProvider(
+        //               (kTagawayThumbSURL) + (item),
+        //               headers: {
+        //                 'cookie': StoreService.instance.get('cookie')
+        //               }))),
+        // ),
+
         isVideo
             ? const Align(
                 alignment: Alignment.bottomRight,
