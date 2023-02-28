@@ -22,11 +22,11 @@ class _LocalGridItemState extends State<LocalGridItem> {
 
   _LocalGridItemState(this.asset);
 
-  String parseVideoDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
-  }
+  // String parseVideoDuration(Duration duration) {
+  //   String twoDigits(int n) => n.toString().padLeft(2, "0");
+  //   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+  //   return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
+  // }
 
   @override
   void initState() {
@@ -73,15 +73,14 @@ class _LocalGridItemState extends State<LocalGridItem> {
                   ),
                 ),
                 asset.type == AssetType.video
-                    ? Align(
+                    ? const Align(
                         alignment: Alignment.bottomRight,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 5.0, bottom: 5),
-                          child: Text(
-                            parseVideoDuration(
-                                Duration(seconds: asset.duration)),
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
+                          padding: EdgeInsets.only(right: 10.0, bottom: 5),
+                          child: Icon(
+                            kVideoIcon,
+                            color: Colors.white,
+                            size: 15,
                           ),
                         ),
                       )

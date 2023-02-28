@@ -19,11 +19,11 @@ class UploadedGridItem extends StatelessWidget {
     // required this.isSelected
   }) : super(key: key);
 
-  String parseVideoDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
-  }
+  // String parseVideoDuration(Duration duration) {
+  //   String twoDigits(int n) => n.toString().padLeft(2, "0");
+  //   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+  //   return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
+  // }
 
   @override
   Widget build(BuildContext context) {
