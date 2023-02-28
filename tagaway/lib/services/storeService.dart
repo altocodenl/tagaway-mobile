@@ -37,6 +37,8 @@ class StoreService {
    }
 
    reset () async {
+     // We load prefs directly to have them already available.
+     var prefs = await SharedPreferences.getInstance ();
      await prefs.clear ();
    }
 
