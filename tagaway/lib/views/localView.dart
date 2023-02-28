@@ -384,6 +384,8 @@ class _GridState extends State<Grid> {
                 ),
                 itemCount: itemList.length,
                 itemBuilder: (BuildContext context, index) {
+                  // Not an orthodox place to do this, but a convenient one.
+                  StoreService.instance.set ('pivDateMap:' + itemList[index].id, itemList[index].createDateTime.millisecondsSinceEpoch, true);
                   return LocalGridItem(itemList[index]);
                 })),
       ),
@@ -413,9 +415,10 @@ class _TopRowState extends State<TopRow> {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
-        // timeHeader     = v3;
+        //timeHeader     = v3;
       });
     });
+    TagService.instance.getTimeHeader (2022, 7);
   }
 
   @override
@@ -437,12 +440,12 @@ class _TopRowState extends State<TopRow> {
                 Padding(
                   padding: const EdgeInsets.only(left: 12.0, right: 12),
                   child: Row(
-                    children: const [
+                    children: [
                       Expanded(
                         child: Align(
                           alignment: Alignment(0.29, .9),
                           child: Text(
-                            '2022',
+                            timeHeader ['year'].toString (),
                             textAlign: TextAlign.center,
                             style: kLocalYear,
                           ),
@@ -480,7 +483,7 @@ class _TopRowState extends State<TopRow> {
                           scrollDirection: Axis.horizontal,
                           childAspectRatio: 1.11,
                           children: [for (var month in timeHeader ['months']) GridMonthElement (
-                            roundedIcon: month [1] == 'green' ? kCircleCheckIcon : (month [1] == 'gray' ? kSolidCircleIcon : kEmptyCircle),
+                            roundedIcon:      month [1] == 'green' ? kCircleCheckIcon : (month [1] == 'gray' ? kSolidCircleIcon : kEmptyCircle),
                             roundedIconColor: month [1] == 'green' ? kAltoOrganized : kGreyDarker,
                             month: month [0],
                             whiteOrAltoBlueDashIcon: Colors.white,

@@ -85,6 +85,36 @@ class TagService {
     StoreService.instance.set ('taggedPivCount', count);
   }
 
+   getTimeHeader (int year, int month) async {
+      var months = month == 1 ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] : ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var minDate = DateTime.utc (year,                         month,              1).millisecondsSinceEpoch;
+      var maxDate = DateTime.utc (month == 7 ? year + 1 : year, month == 1 ? 7 : 1, 1).millisecondsSinceEpoch;
+      var response = await ajax('post', 'query', {
+         'tags': [],
+         'sort': 'newest',
+         'from': 1,
+         'to': 10000,
+         'idsOnly': true,
+      });
+      if (response ['code'] == 200) {
+         var allIds = response ['body'];
+         var localCount  = [0, 0, 0, 0, 0, 0];
+         var remoteCount = [0, 0, 0, 0, 0, 0];
+         StoreService.instance.prefs.getKeys ().toList ().forEach ((k) {
+           if (!RegExp('^pivMap:').hasMatch (k)) return;
+           var id = k.replaceAll ('pivMap:', '');
+           var date = StoreService.instance.get ('pivDateMap:' + id);
+           // TODO: uncomment
+           // if (date < minDate || date > maxDate) return;
+           debug (['MATCHING', id]);
+           // TODO: add to right element of local count
+           // CHECK FOR EXISTENCE OF PIVMAP. If it exists, add it to remote count.
+         });
+      }
+      return {'year': 2022, 'months': months};
+   }
+
+
   getPivs () async {
     var response = await ajax('post', 'query', {
       'tags': [],
