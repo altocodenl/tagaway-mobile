@@ -258,8 +258,14 @@ const kUploadedAmountOfPivs = TextStyle(
   color: kGreyDarker,
 );
 
+int now() {
+  return DateTime.now().millisecondsSinceEpoch;
+}
+
+int nowms = now ();
+
 void debug(List params) {
-  String acc = 'DEBUG';
+  String acc = 'DEBUG (' + (now () - nowms).toString () + 'ms)';
   params.forEach((v) => acc += ' ' + v.toString());
   print(acc);
 }
@@ -270,10 +276,6 @@ Color tagColor(String tag) {
     acc += v.codeUnitAt(0);
   });
   return tagColors[acc % tagColors.length];
-}
-
-int now() {
-  return DateTime.now().millisecondsSinceEpoch;
 }
 
 Future<dynamic> ajax(String method, String path, [dynamic body]) async {
