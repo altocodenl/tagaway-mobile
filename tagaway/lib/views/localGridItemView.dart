@@ -16,9 +16,7 @@ class LocalGridItem extends StatefulWidget {
 }
 
 class _LocalGridItemState extends State<LocalGridItem> {
-  dynamic cancelListener;
   final AssetEntity asset;
-  bool selected = false;
 
   _LocalGridItemState(this.asset);
 
@@ -31,18 +29,6 @@ class _LocalGridItemState extends State<LocalGridItem> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'tagMap:' + asset.id, 'currentlyTagging'], (v1, v2, v3) {
-      setState(() {
-        if (v3 == '') selected = v1 != '';
-        else          selected = v2 != '';
-      });
-    });
-  }
-
-  @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
   }
 
   @override
@@ -92,16 +78,54 @@ class _LocalGridItemState extends State<LocalGridItem> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(100),
                           border: Border.all(color: Colors.white, width: 2)),
-                      child: Icon(
-                        selected ? kCircleCheckIcon : kSolidCircleIcon,
-                        color: selected ? kAltoOrganized : kGreyDarker,
-                        size: 25,
-                      ),
+                      child: LocalGridItemSelection (asset)
                     )),
               ],
             ));
       },
     );
+  }
+}
+
+class LocalGridItemSelection extends StatefulWidget {
+  final AssetEntity asset;
+  const LocalGridItemSelection(this.asset);
+
+  @override
+  State<LocalGridItemSelection> createState() => _LocalGridItemSelectionState(this.asset);
+}
+
+class _LocalGridItemSelectionState extends State<LocalGridItemSelection> {
+  dynamic cancelListener;
+  final AssetEntity asset;
+  bool selected = false;
+
+  _LocalGridItemSelectionState(this.asset);
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'tagMap:' + asset.id, 'currentlyTagging'], (v1, v2, v3) {
+      setState(() {
+        if (v3 == '') selected = v1 != '';
+        else          selected = v2 != '';
+      });
+    });
+  }
+
+  @override
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+     return Icon(
+       selected ? kCircleCheckIcon : kSolidCircleIcon,
+       color: selected ? kAltoOrganized : kGreyDarker,
+       size: 25,
+     );
   }
 }
 
