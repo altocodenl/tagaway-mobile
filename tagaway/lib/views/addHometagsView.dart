@@ -3,6 +3,7 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/yourHometagsView.dart';
 
 class AddHometagsView extends StatefulWidget {
   static const String id = 'add_home_tags';
@@ -96,7 +97,9 @@ class _AddHometagsViewState extends State<AddHometagsView> {
             Padding(
               padding: const EdgeInsets.only(top: 18, right: 12),
               child: GestureDetector(
-                  onTap: () {}, child: const Text('Cancel', style: kPlainText)),
+                  onTap: () {
+                     Navigator.pushReplacementNamed(context, YourHometagsView.id);
+                  }, child: const Text('Cancel', style: kPlainText)),
             )
           ],
         ),
@@ -115,6 +118,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
                       // Returning the desired behavior in a function solves the problem.
                       return () {
                         TagService.instance.editHometags(v, true);
+                        Navigator.pushReplacementNamed(context, YourHometagsView.id);
                       };
                     })
             ],

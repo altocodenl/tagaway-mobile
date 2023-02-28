@@ -9,6 +9,7 @@ import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tagaway/views/addHometagsView.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'how_view';
@@ -22,12 +23,16 @@ class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
   dynamic hometags = '';
+  dynamic tags = '';
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['hometags'], (v) {
-      setState(() => hometags = v);
+    cancelListener = StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
+      setState(() {
+         hometags = v1;
+         tags = v2;
+      });
     });
 
     // TODO: handle error
@@ -131,10 +136,10 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.only(bottom: 10),
                             child: Text(
-                              'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!',
+                              tags.isEmpty ? 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!' : 'Start adding your shortcuts!',
                               style: kHomeEmptyText,
                               textAlign: TextAlign.center,
                             ),
@@ -145,7 +150,8 @@ class _HomeViewState extends State<HomeView> {
                                 title: 'Get started',
                                 colour: kAltoBlue,
                                 onPressed: () {
-                                  StoreService.instance.set('currentIndex', 1);
+                                  if (tags.isEmpty) StoreService.instance.set('currentIndex', 1);
+                                  else              Navigator.pushReplacementNamed(context, AddHometagsView.id);
                                 },
                               ))
                         ],

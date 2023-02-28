@@ -22,8 +22,8 @@ class TagService {
 
   editHometags(String tag, bool add) async {
     // Refresh hometag list first in case it was updated in another client
-    await getTags();
-    var hometags = await StoreService.instance.get('hometags');
+    await getTags ();
+    var hometags = StoreService.instance.get('hometags');
     if (hometags == '') hometags = [];
     if ((add && hometags.contains(tag)) || (!add && !hometags.contains(tag)))
       return;
@@ -47,6 +47,11 @@ class TagService {
     bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
     StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
+
+    // If there are no hometags yet, add one if this is a tagging operation.
+    var hometags = StoreService.instance.get ('hometags');
+    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+
     // If we have an entry for the piv:
     if (pivId != '') {
       var code = await tagPivById(pivId, tag, del);
