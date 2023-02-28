@@ -39,7 +39,8 @@ class UploadService {
       }, file.path);
 
       if (response ['code'] == 200) {
-         StoreService.instance.set ('pivMap:' + piv.id, response ['body'] ['id']);
+         StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
+         StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
       }
       return response;
    }

@@ -34,6 +34,7 @@ class _LocalViewState extends State<LocalView> {
     PhotoManager.requestPermissionExtend();
     super.initState();
     cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped', 'newTag'], (v1, v2, v3, v4) {
+      if (v2 != '') TagService.instance.getTaggedPivs (v2);
       setState(() {
         if (v1 != '') usertags = v1;
         currentlyTagging = v2;

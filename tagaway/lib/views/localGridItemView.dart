@@ -2,9 +2,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 
 class LocalGridItem extends StatefulWidget {
   final AssetEntity asset;
@@ -30,14 +31,19 @@ class _LocalGridItemState extends State<LocalGridItem> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'currentlyTagging'], (v1, v2) {
+    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'tagMap:' + asset.id, 'currentlyTagging'], (v1, v2, v3) {
       setState(() {
-        if (v2 == '') selected = v1 != '';
-        // TODO: add condition where selected depends on whether piv is tagged
+        if (v3 == '') selected = v1 != '';
+        else          selected = v2 != '';
       });
     });
   }
 
+  @override
+  void dispose () {
+     super.dispose ();
+     cancelListener ();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +58,9 @@ class _LocalGridItemState extends State<LocalGridItem> {
         }
         return GestureDetector(
             onTap: () {
-              UploadService.instance.queuePiv (asset);
+              var currentlyTagging = StoreService.instance.get ('currentlyTagging');
+              if (currentlyTagging == '') UploadService.instance.queuePiv (asset);
+              else                        TagService.instance.togglePiv (asset, currentlyTagging);
             },
             child: Stack(
               children: [

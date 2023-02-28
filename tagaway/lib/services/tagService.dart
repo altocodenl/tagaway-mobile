@@ -9,8 +9,8 @@ class TagService {
   getTags() async {
     var response = await ajax('get', 'tags');
     if (response['code'] == 200) {
-      StoreService.instance.set('hometags', response['body']['hometags']);
-      StoreService.instance.set('tags', response['body']['tags']);
+      StoreService.instance.set('hometags', response['body']['hometags'], true);
+      StoreService.instance.set('tags', response['body']['tags'], true);
       var usertags = [];
       response['body']['tags'].forEach((tag) {
         if (!RegExp('^[a-z]::').hasMatch(tag)) usertags.add(tag);
@@ -42,9 +42,11 @@ class TagService {
     return response['code'];
   }
 
-  tagPiv(dynamic piv, String tag) async {
+  togglePiv (dynamic piv, String tag) async {
     String pivId = StoreService.instance.get('pivMap:' + piv.id);
+    debug (['togglePiv', pivId]);
     if (pivId != '') {
+      // TODO: add toggle functionality
       var code = await tagPivById(pivId, tag, false);
       // If piv doesn't exist, reupload and queue tag
       if (code == 404) return UploadService.instance.queuePiv(piv);
@@ -52,7 +54,22 @@ class TagService {
     // If piv on map is deleted, reupload it.
   }
 
-  getPivs() async {
+  getTaggedPivs (String tag) async {
+    var response = await ajax('post', 'query', {
+      'tags': [tag],
+      'sort': 'newest',
+      'from': 1,
+      'to': 10000,
+      'idsOnly': true
+    });
+    await StoreService.instance.remove ('tagMap:*', true);
+    response ['body'].forEach ((v) {
+      var id = StoreService.instance.get ('rpivMap:' + v);
+      if (id != '') StoreService.instance.set ('tagMap:' + id, true, true);
+    });
+  }
+
+  getPivs () async {
     var response = await ajax('post', 'query', {
       'tags': [],
       'sort': 'newest',
