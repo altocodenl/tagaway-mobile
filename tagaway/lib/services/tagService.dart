@@ -22,8 +22,8 @@ class TagService {
 
   editHometags(String tag, bool add) async {
     // Refresh hometag list first in case it was updated in another client
-    await getTags();
-    var hometags = await StoreService.instance.get('hometags');
+    await getTags ();
+    var hometags = StoreService.instance.get('hometags');
     if (hometags == '') hometags = [];
     if ((add && hometags.contains(tag)) || (!add && !hometags.contains(tag)))
       return;
@@ -47,6 +47,11 @@ class TagService {
     bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
     StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
+
+    // If there are no hometags yet, add one if this is a tagging operation.
+    var hometags = StoreService.instance.get ('hometags');
+    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+
     // If we have an entry for the piv:
     if (pivId != '') {
       var code = await tagPivById(pivId, tag, del);
@@ -84,6 +89,36 @@ class TagService {
     });
     StoreService.instance.set ('taggedPivCount', count);
   }
+
+   getTimeHeader (int year, int month) async {
+      var months = month == 1 ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] : ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var minDate = DateTime.utc (year,                         month,              1).millisecondsSinceEpoch;
+      var maxDate = DateTime.utc (month == 7 ? year + 1 : year, month == 1 ? 7 : 1, 1).millisecondsSinceEpoch;
+      var response = await ajax('post', 'query', {
+         'tags': [],
+         'sort': 'newest',
+         'from': 1,
+         'to': 10000,
+         'idsOnly': true,
+      });
+      if (response ['code'] == 200) {
+         var allIds = response ['body'];
+         var localCount  = [0, 0, 0, 0, 0, 0];
+         var remoteCount = [0, 0, 0, 0, 0, 0];
+         StoreService.instance.prefs.getKeys ().toList ().forEach ((k) {
+           if (!RegExp('^pivMap:').hasMatch (k)) return;
+           var id = k.replaceAll ('pivMap:', '');
+           var date = StoreService.instance.get ('pivDateMap:' + id);
+           // TODO: uncomment
+           // if (date < minDate || date > maxDate) return;
+           debug (['MATCHING', id]);
+           // TODO: add to right element of local count
+           // CHECK FOR EXISTENCE OF PIVMAP. If it exists, add it to remote count.
+         });
+      }
+      return {'year': 2022, 'months': months};
+   }
+
 
   getPivs () async {
     var response = await ajax('post', 'query', {
