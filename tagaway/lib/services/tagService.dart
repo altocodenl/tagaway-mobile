@@ -46,6 +46,7 @@ class TagService {
     String pivId = StoreService.instance.get ('pivMap:' + piv.id);
     bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
     StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
+    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
     // If we have an entry for the piv:
     if (pivId != '') {
       var code = await tagPivById(pivId, tag, del);
@@ -74,10 +75,14 @@ class TagService {
       'idsOnly': true
     });
     await StoreService.instance.remove ('tagMap:*', true);
+    int count = 0;
     response ['body'].forEach ((v) {
       var id = StoreService.instance.get ('rpivMap:' + v);
-      if (id != '') StoreService.instance.set ('tagMap:' + id, true, true);
+      if (id == '') return;
+      StoreService.instance.set ('tagMap:' + id, true, true);
+      count += 1;
     });
+    StoreService.instance.set ('taggedPivCount', count);
   }
 
   getPivs () async {

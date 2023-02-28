@@ -402,14 +402,16 @@ class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
 
   String currentlyTagging = '';
+  dynamic taggedPivCount = '';
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['currentlyTagging'], (v) {
+    cancelListener = StoreService.instance.listen (['currentlyTagging', 'taggedPivCount'], (v1, v2) {
       setState(() {
-        currentlyTagging = v;
+        currentlyTagging = v1;
+        taggedPivCount = v2;
       });
     });
   }
@@ -549,7 +551,7 @@ class _TopRowState extends State<TopRow> {
                       ),
                       Expanded(
                         child: Text(
-                          '4,444',
+                          taggedPivCount.toString (),
                           textAlign: TextAlign.right,
                           style: kOrganizedAmountOfPivs,
                         ),

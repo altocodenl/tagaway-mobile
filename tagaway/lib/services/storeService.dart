@@ -78,6 +78,7 @@ class StoreService {
       }
       if (showLogs) debug (['STORE REMOVE', key]);
       store [key] = '';
+      updateStream.add (key);
       if (! memoryOnly) await prefs.remove (key);
    }
 }
