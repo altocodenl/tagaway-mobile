@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -94,28 +96,27 @@ class TagService {
       var months = month == 1 ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] : ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       var minDate = DateTime.utc (year,                         month,              1).millisecondsSinceEpoch;
       var maxDate = DateTime.utc (month == 7 ? year + 1 : year, month == 1 ? 7 : 1, 1).millisecondsSinceEpoch;
-      var response = await ajax('post', 'query', {
-         'tags': [],
-         'sort': 'newest',
-         'from': 1,
-         'to': 10000,
-         'idsOnly': true,
+      var localCount  = [0, 0, 0, 0, 0, 0];
+      var remoteCount  = [0, 0, 0, 0, 0, 0];
+
+      var prefs = await SharedPreferences.getInstance ();
+
+      // TODO: get list of all pivs (localCount), then compare with pivMap (remoteCount)
+      prefs.getKeys ().toList ().forEach ((k) {
+        if (!RegExp('^pivMap:').hasMatch (k)) return;
+        var id = k.replaceAll ('pivMap:', '');
+        var date = StoreService.instance.get ('pivDateMap:' + id);
+
+        // TODO: uncomment date pruning
+        // if (date < minDate || date > maxDate) return;
+        var pivMonthIndex = new DateTime.fromMillisecondsSinceEpoch (date).month - month;
+
+        // TODO: remove this condition after uncommenting date pruning
+        if (pivMonthIndex < 0) return;
+
+        localCount [pivMonthIndex] += 1;
       });
-      if (response ['code'] == 200) {
-         var allIds = response ['body'];
-         var localCount  = [0, 0, 0, 0, 0, 0];
-         var remoteCount = [0, 0, 0, 0, 0, 0];
-         StoreService.instance.prefs.getKeys ().toList ().forEach ((k) {
-           if (!RegExp('^pivMap:').hasMatch (k)) return;
-           var id = k.replaceAll ('pivMap:', '');
-           var date = StoreService.instance.get ('pivDateMap:' + id);
-           // TODO: uncomment
-           // if (date < minDate || date > maxDate) return;
-           debug (['MATCHING', id]);
-           // TODO: add to right element of local count
-           // CHECK FOR EXISTENCE OF PIVMAP. If it exists, add it to remote count.
-         });
-      }
+      debug (['counts', localCount, remoteCount]);
       return {'year': 2022, 'months': months};
    }
 
