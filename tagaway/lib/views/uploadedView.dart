@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/tagService.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
@@ -98,65 +97,18 @@ class _UploadedViewState extends State<UploadedView> {
                           //     ),
                           //   ),
                           // ),
-                          TagListElement(
-                            tagColor: kTagColor1,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor2,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor3,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor4,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor5,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor6,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor1,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor2,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor3,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor4,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor5,
-                            tagName: 'Vacations',
-                            onTap: () {},
-                          ),
-                          TagListElement(
-                            tagColor: kTagColor6,
-                            tagName: 'Vacations',
-                            onTap: () {},
+                          ListView.builder(
+                            itemCount: 4,
+                            padding: EdgeInsets.zero,
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (BuildContext context, int index) {
+                              return TagListElement(
+                                tagColor: kTagColor1,
+                                tagName: 'Vacations',
+                                onTap: () {},
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -185,14 +137,14 @@ class _UploadGridState extends State<UploadGrid> {
   @override
   void initState() {
     super.initState();
-    fetchAssets ();
+    fetchAssets();
   }
 
   fetchAssets() async {
     await TagService.instance.getPivs().then((value) {
       setState(() {
-        pivIds   = value ['pivIds'];
-        videoIds = value ['videoIds'];
+        pivIds = value['pivIds'];
+        videoIds = value['videoIds'];
       });
     });
   }
@@ -216,8 +168,8 @@ class _UploadGridState extends State<UploadGrid> {
               itemCount: pivIds.length,
               itemBuilder: (BuildContext context, index) {
                 return UploadedGridItem(
-                  item: pivIds [index],
-                  isVideo: videoIds.contains (pivIds [index]),
+                  item: pivIds[index],
+                  isVideo: videoIds.contains(pivIds[index]),
                   // isSelected: (bool value) {
                   //   if (value) {
                   //     selectedList.add(pivIds [index]);

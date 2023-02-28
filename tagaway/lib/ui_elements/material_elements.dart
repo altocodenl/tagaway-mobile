@@ -363,108 +363,23 @@ class GridSeeMoreElement extends StatelessWidget {
                           ],
                         ),
                       ),
-                      GridView.count(
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        // crossAxisSpacing: 1,
-                        mainAxisSpacing: 8,
-                        shrinkWrap: true,
-                        childAspectRatio: 4,
-                        children: const [
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kGreyDarker,
-                              gridTagName: 'Untagged'),
-                          GridTagElement(
-                              gridTagElementIcon: kBoxArchiveIcon,
-                              iconColor: kGreyDarker,
-                              gridTagName: 'To organize'),
-                          GridTagElement(
-                              gridTagElementIcon: kClockIcon,
-                              iconColor: kGreyDarker,
-                              gridTagName: '2020'),
-                          GridTagElement(
-                              gridTagElementIcon: kClockIcon,
-                              iconColor: kGreyDarker,
-                              gridTagName: 'May'),
-                          GridTagElement(
-                              gridTagElementIcon: kLocationDotIcon,
-                              iconColor: kGreyDarker,
-                              gridTagName: 'AR'),
-                          GridTagElement(
-                              gridTagElementIcon: kLocationPinIcon,
-                              iconColor: kGreyDarker,
-                              gridTagName: 'Ayacucho'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor1,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor2,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor3,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor4,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor5,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor6,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor1,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor2,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor3,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor4,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor5,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor6,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor1,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor2,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor3,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor4,
-                              gridTagName: 'Lorem ipsum'),
-                          GridTagElement(
-                              gridTagElementIcon: kTagIcon,
-                              iconColor: kTagColor5,
-                              gridTagName: 'Lorem ipsum'),
-                        ],
-                      )
+                      GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: 24,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 4,
+                          ),
+                          itemBuilder: (BuildContext context, index) {
+                            return const GridTagElement(
+                                gridTagElementIcon: kTagIcon,
+                                iconColor: kTagColor1,
+                                gridTagName: 'Vacations');
+                          })
                     ],
                   ));
             });
