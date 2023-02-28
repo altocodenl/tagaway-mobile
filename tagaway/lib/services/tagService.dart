@@ -83,11 +83,13 @@ class TagService {
       'from': 1,
       'to': 10000,
     });
-    var pivIds = [], videoIds = [];
-    response ['body'] ['pivs'].forEach ((v) {
-       pivIds.add (v ['id']);
-       if (v ['vid'] != null) videoIds.add (v ['id']);
-    });
-    return {'pivIds': pivIds, 'videoIds': videoIds};
+    if (response ['code'] == 200) {
+       var pivIds = [], videoIds = [];
+       response ['body'] ['pivs'].forEach ((v) {
+          pivIds.add (v ['id']);
+          if (v ['vid'] != null) videoIds.add (v ['id']);
+       });
+       return {'pivIds': pivIds, 'videoIds': videoIds};
+    }
   }
 }
