@@ -1,9 +1,10 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -42,17 +43,6 @@ class UploadedGridItem extends StatelessWidget {
                       image: DecorationImage(
                           fit: BoxFit.cover, image: imageProvider)),
                 )),
-        // Container(
-        //   decoration: BoxDecoration(
-        //       image: DecorationImage(
-        //           fit: BoxFit.cover,
-        //           image: CachedNetworkImageProvider(
-        //               (kTagawayThumbSURL) + (item),
-        //               headers: {
-        //                 'cookie': StoreService.instance.get('cookie')
-        //               }))),
-        // ),
-
         isVideo
             ? const Align(
                 alignment: Alignment.bottomRight,
@@ -67,24 +57,18 @@ class UploadedGridItem extends StatelessWidget {
               )
             : Container(),
 
-        // GestureDetector(
-        //   onTap: () {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(builder: (_) {
-        //         return CarrouselView(
-        //           item: item,
-        //           imageFile: item.originFile,
-        //         );
-        // if (item.type == AssetType.image) {
-        //   return ImageBig(item: item, imageFile: item.originFile);
-        // } else {
-        //   return VideoBig(item: item, videoFile: item.originFile);
-        // }
-        //       }),
-        //     );
-        //   },
-        // )
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) {
+                return CarrouselView(
+                  item: item,
+                );
+              }),
+            );
+          },
+        )
         // Align(
         //     alignment: const Alignment(0.9, -.9),
         //     child: Container(
@@ -104,6 +88,144 @@ class UploadedGridItem extends StatelessWidget {
     );
     //   },
     // );
+  }
+}
+
+class CarrouselView extends StatefulWidget {
+  const CarrouselView({Key? key, required this.item}) : super(key: key);
+
+  final String item;
+
+  @override
+  State<CarrouselView> createState() => _CarrouselViewState();
+}
+
+final PageController controller = PageController();
+
+class _CarrouselViewState extends State<CarrouselView> {
+  @override
+  Widget build(BuildContext context) {
+    return PageView(
+      controller: controller,
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: kGreyDarkest,
+            title: Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  // Text(widget.item.createDateTime.day.toString(),
+                  //     style: kDarkBackgroundBigTitle),
+                  // const Text(
+                  //   '/',
+                  //   style: kDarkBackgroundBigTitle,
+                  // ),
+                  // Text(
+                  //   widget.item.createDateTime.month.toString(),
+                  //   style: kDarkBackgroundBigTitle,
+                  // ),
+                  // const Text(
+                  //   '/',
+                  //   style: kDarkBackgroundBigTitle,
+                  // ),
+                  // Text(
+                  //   widget.item.createDateTime.year.toString(),
+                  //   style: kDarkBackgroundBigTitle,
+                  // ),
+                ],
+              ),
+            ),
+          ),
+          body: Stack(children: [
+            CachedNetworkImage(
+                imageUrl: (kTagawayThumbMURL) + (widget.item),
+                httpHeaders: {'cookie': StoreService.instance.get('cookie')},
+                placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(
+                      color: kAltoBlue,
+                    )),
+                imageBuilder: (context, imageProvider) => Container(
+                      decoration: BoxDecoration(
+                          color: kGreyDarkest,
+                          image: DecorationImage(
+                              alignment: Alignment.center,
+                              fit: BoxFit.none,
+                              image: imageProvider)),
+                    )),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                color: kGreyDarkest,
+                child: SafeArea(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            FutureBuilder<Response>(
+                                future: http.get(
+                                    Uri.parse(
+                                        (kTagawayThumbMURL) + (widget.item)),
+                                    headers: {
+                                      'cookie':
+                                          StoreService.instance.get('cookie')
+                                    }),
+                                builder: (_, snapshot) {
+                                  final responder = snapshot.data;
+                                  final bytes = responder?.bodyBytes;
+                                  final temp = getTemporaryDirectory();
+                                  final path = '${temp.path}/image.jpg';
+                                  File(path).writeAsBytesSync(bytes!);
+                                });
+
+                            final response = await http.get(
+                                Uri.parse((kTagawayThumbMURL) + (widget.item)),
+                                headers: {
+                                  'cookie': StoreService.instance.get('cookie')
+                                });
+                            print('came back with image' +
+                                DateTime.now().toString());
+                            final bytes = response.bodyBytes;
+                            final temp = await getTemporaryDirectory();
+                            final path = '${temp.path}/image.jpg';
+                            File(path).writeAsBytesSync(bytes);
+                            print('about to share' + DateTime.now().toString());
+                            await Share.shareXFiles([XFile(path)]);
+                          },
+                          icon: const Icon(
+                            kShareArrownUpIcon,
+                            size: 25,
+                            color: kGreyLightest,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            kTrashCanIcon,
+                            size: 25,
+                            color: kGreyLightest,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ]),
+        ),
+      ],
+    );
   }
 }
 
@@ -454,198 +576,3 @@ class UploadedGridItem extends StatelessWidget {
 //     );
 //   }
 // }
-
-class CarrouselView extends StatefulWidget {
-  const CarrouselView({Key? key, required this.imageFile, required this.item})
-      : super(key: key);
-  final Future<File?> imageFile;
-  final AssetEntity item;
-
-  @override
-  State<CarrouselView> createState() => _CarrouselViewState();
-}
-
-final PageController controller = PageController();
-
-class _CarrouselViewState extends State<CarrouselView> {
-  @override
-  Widget build(BuildContext context) {
-    return PageView(
-      controller: controller,
-      children: [
-        Scaffold(
-          appBar: AppBar(
-            iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
-            centerTitle: true,
-            elevation: 0,
-            backgroundColor: kGreyDarkest,
-            title: Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.item.createDateTime.day.toString(),
-                      style: kDarkBackgroundBigTitle),
-                  const Text(
-                    '/',
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  Text(
-                    widget.item.createDateTime.month.toString(),
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  const Text(
-                    '/',
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  Text(
-                    widget.item.createDateTime.year.toString(),
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          body: Stack(children: [
-            Container(
-              color: kGreyDarkest,
-              alignment: Alignment.center,
-              child: FutureBuilder<File?>(
-                future: widget.imageFile,
-                builder: (_, snapshot) {
-                  final file = snapshot.data;
-                  if (file == null) return Container();
-                  return Image.file(file);
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                color: kGreyDarkest,
-                child: SafeArea(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () async {
-                            var piv = await widget.item.originFile;
-                            await Share.shareXFiles([XFile(piv!.path)]);
-                          },
-                          icon: const Icon(
-                            kShareArrownUpIcon,
-                            size: 25,
-                            color: kGreyLightest,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            kTrashCanIcon,
-                            size: 25,
-                            color: kGreyLightest,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            )
-          ]),
-        ),
-        Scaffold(
-          appBar: AppBar(
-            iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
-            centerTitle: true,
-            elevation: 0,
-            backgroundColor: kGreyDarkest,
-            title: Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(widget.item.createDateTime.day.toString(),
-                      style: kDarkBackgroundBigTitle),
-                  const Text(
-                    '/',
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  Text(
-                    widget.item.createDateTime.month.toString(),
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  const Text(
-                    '/',
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  Text(
-                    widget.item.createDateTime.year.toString(),
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          body: Stack(children: [
-            Container(
-              color: kGreyDarkest,
-              alignment: Alignment.center,
-              child: FutureBuilder<File?>(
-                future: widget.imageFile,
-                builder: (_, snapshot) {
-                  final file = snapshot.data;
-                  if (file == null) return Container();
-                  return Image.file(file);
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                color: kGreyDarkest,
-                child: SafeArea(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () async {
-                            var piv = await widget.item.originFile;
-                            await Share.shareXFiles([XFile(piv!.path)]);
-                          },
-                          icon: const Icon(
-                            kShareArrownUpIcon,
-                            size: 25,
-                            color: kGreyLightest,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            kTrashCanIcon,
-                            size: 25,
-                            color: kGreyLightest,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            )
-          ]),
-        ),
-      ],
-    );
-  }
-}
