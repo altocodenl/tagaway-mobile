@@ -58,6 +58,7 @@ class UploadService {
    // Calls with no piv are recursive to keep the ball rolling
    // Because there can only be a single upload going, a return is no guarantee of the action being done. Alas.
    // So the state must be checked periodically to see which uploads have completed.
+   // TODO: add logic to revive uploads that haven't been completed if the application is restarted
    queuePiv (dynamic piv) async {
       if (piv != null) {
          uploadQueue.add (piv);
