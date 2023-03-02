@@ -42,6 +42,16 @@ class StoreService {
      await prefs.clear ();
    }
 
+   // To be invoked to clear everything except auth state - for development purposes only
+   resetDev () async {
+      var prefs = await SharedPreferences.getInstance ();
+      var keys = await prefs.getKeys ().toList ();
+      for (var k in keys) {
+        if (k == 'cookie' || k == 'csrf') return;
+        remove (k);
+      }
+    }
+
    // This function is called by main.dart to recreate the in-memory store
    load () async {
       // We load prefs directly to have them already available.
@@ -81,4 +91,5 @@ class StoreService {
       updateStream.add (key);
       if (! memoryOnly) await prefs.remove (key);
    }
+
 }
