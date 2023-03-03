@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:video_player/video_player.dart';
 
 class SnackBarGlobal {
   SnackBarGlobal._();
@@ -57,7 +59,7 @@ class WhiteSnackBar {
       SnackBar(
         content: Text(
           message,
-          textAlign: TextAlign.left,
+          textAlign: TextAlign.center,
           style: kWhiteSnackBarText,
         ),
         backgroundColor: Colors.white,
@@ -582,5 +584,93 @@ class QuerySelectionTagElement extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class VideoPlayerWidget extends StatefulWidget {
+  const VideoPlayerWidget({Key? key, required this.item}) : super(key: key);
+  final String item;
+
+  @override
+  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  bool initialized = false;
+
+  @override
+  void initState() {
+    _initVideo();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  _initVideo() async {
+    _controller = VideoPlayerController.network(
+        (kTagawayVideoURL) + (widget.item),
+        httpHeaders: {'cookie': StoreService.instance.get('cookie')})
+      // Play the video again when it ends
+      ..setLooping(true)
+      // initialize the controller and notify UI when done
+      ..initialize().then((_) => setState(() {
+            initialized = true;
+            _controller.play();
+          }));
+    // _controller.play();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _controller.value.isInitialized
+        ? Stack(
+            children: [
+              Container(
+                alignment: Alignment.topCenter,
+                decoration: const BoxDecoration(
+                  color: kGreyDarkest,
+                ),
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+              Align(
+                alignment: const Alignment(0.8, .7),
+                child: FloatingActionButton(
+                  backgroundColor: kAltoBlue,
+                  onPressed: () {
+                    // Wrap the play or pause in a call to `setState`. This ensures the
+                    // correct icon is shown.
+                    setState(() {
+                      // If the video is playing, pause it.
+                      if (_controller.value.isPlaying) {
+                        _controller.pause();
+                      } else {
+                        // If the video is paused, play it.
+                        _controller.play();
+                      }
+                    });
+                  },
+                  // Display the correct icon depending on the state of the player.
+                  child: Icon(
+                    _controller.value.isPlaying
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : const Center(
+            child: CircularProgressIndicator(
+            backgroundColor: kGreyDarkest,
+            color: kAltoBlue,
+          ));
   }
 }

@@ -4,12 +4,14 @@ import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
+import 'package:tagaway/views/distributorView.dart';
 import 'package:tagaway/views/editHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 // AUTH VIEWS
 import 'package:tagaway/views/loginView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
+import 'package:tagaway/views/requestPermissionView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const BottomNavigationView(),
+      // home: const BottomNavigationView(),
 
       // AUTH VIEWS
       // home: const LoginView(),
@@ -43,7 +45,11 @@ class MyApp extends StatelessWidget {
       // LOCAL VIEW
       // home: const LocalView(),
 
+      // OTHER VIEWS
+      home: const RequestPermissionView(),
+
       routes: {
+        Distributor.id: (context) => const Distributor(),
         LoginView.id: (context) => const LoginView(),
         HomeView.id: (context) => const HomeView(),
         DeleteAccount.id: (context) => const DeleteAccount(),
@@ -53,6 +59,7 @@ class MyApp extends StatelessWidget {
         ChangePasswordView.id: (context) => const ChangePasswordView(),
         QuerySelectorView.id: (context) => const QuerySelectorView(),
         BottomNavigationView.id: (context) => const BottomNavigationView(),
+        RequestPermissionView.id: (context) => const RequestPermissionView(),
         LocalView.id: (context) => const LocalView(),
       },
     );

@@ -3,21 +3,25 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 
 class UploadedGridItem extends StatelessWidget {
   final String item;
   final bool isVideo;
+  final List pivIds;
+  final List videoIds;
   // final ValueChanged<bool> isSelected;
 
   const UploadedGridItem({
     Key? key,
     required this.item,
     required this.isVideo,
+    required this.pivIds,
+    required this.videoIds,
     // required this.isSelected
   }) : super(key: key);
 
@@ -64,6 +68,9 @@ class UploadedGridItem extends StatelessWidget {
               MaterialPageRoute(builder: (_) {
                 return CarrouselView(
                   item: item,
+                  isVideo: isVideo,
+                  pivIds: pivIds,
+                  videoIds: videoIds,
                 );
               }),
             );
@@ -92,23 +99,37 @@ class UploadedGridItem extends StatelessWidget {
 }
 
 class CarrouselView extends StatefulWidget {
-  const CarrouselView({Key? key, required this.item}) : super(key: key);
+  const CarrouselView(
+      {Key? key,
+      required this.item,
+      required this.isVideo,
+      required this.pivIds,
+      required this.videoIds})
+      : super(key: key);
 
   final String item;
+  final bool isVideo;
+  final List pivIds;
+  final List videoIds;
 
   @override
   State<CarrouselView> createState() => _CarrouselViewState();
 }
 
-final PageController controller = PageController();
-
 class _CarrouselViewState extends State<CarrouselView> {
   @override
   Widget build(BuildContext context) {
-    return PageView(
-      controller: controller,
-      children: [
-        Scaffold(
+    return PageView.builder(
+      reverse: true,
+      physics: const BouncingScrollPhysics(),
+      controller: PageController(
+        initialPage: widget.pivIds.indexOf(widget.item),
+        keepPage: true,
+      ),
+      // pageSnapping: true,
+      itemCount: widget.pivIds.length,
+      itemBuilder: (context, index) {
+        return Scaffold(
           appBar: AppBar(
             iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
             centerTitle: true,
@@ -118,7 +139,11 @@ class _CarrouselViewState extends State<CarrouselView> {
               padding: const EdgeInsets.only(right: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
+                  Text('$index'),
+                  Text(widget.videoIds
+                      .contains(widget.pivIds[index])
+                      .toString()),
                   // Text(widget.item.createDateTime.day.toString(),
                   //     style: kDarkBackgroundBigTitle),
                   // const Text(
@@ -142,21 +167,28 @@ class _CarrouselViewState extends State<CarrouselView> {
             ),
           ),
           body: Stack(children: [
-            CachedNetworkImage(
-                imageUrl: (kTagawayThumbMURL) + (widget.item),
-                httpHeaders: {'cookie': StoreService.instance.get('cookie')},
-                placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(
-                      color: kAltoBlue,
-                    )),
-                imageBuilder: (context, imageProvider) => Container(
-                      decoration: BoxDecoration(
-                          color: kGreyDarkest,
-                          image: DecorationImage(
-                              alignment: Alignment.center,
-                              fit: BoxFit.none,
-                              image: imageProvider)),
-                    )),
+            Visibility(
+                visible: !widget.videoIds.contains(widget.pivIds[index]),
+                child: CachedNetworkImage(
+                    imageUrl: (kTagawayThumbMURL) + (widget.pivIds[index]),
+                    httpHeaders: {
+                      'cookie': StoreService.instance.get('cookie')
+                    },
+                    placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
+                          color: kAltoBlue,
+                        )),
+                    imageBuilder: (context, imageProvider) => Container(
+                          decoration: BoxDecoration(
+                              color: kGreyDarkest,
+                              image: DecorationImage(
+                                  alignment: Alignment.center,
+                                  fit: BoxFit.none,
+                                  image: imageProvider)),
+                        )),
+                replacement: VideoPlayerWidget(
+                  item: widget.pivIds[index],
+                )),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -170,35 +202,42 @@ class _CarrouselViewState extends State<CarrouselView> {
                       Expanded(
                         child: IconButton(
                           onPressed: () async {
-                            FutureBuilder<Response>(
-                                future: http.get(
-                                    Uri.parse(
-                                        (kTagawayThumbMURL) + (widget.item)),
-                                    headers: {
-                                      'cookie':
-                                          StoreService.instance.get('cookie')
-                                    }),
-                                builder: (_, snapshot) {
-                                  final responder = snapshot.data;
-                                  final bytes = responder?.bodyBytes;
-                                  final temp = getTemporaryDirectory();
-                                  final path = '${temp.path}/image.jpg';
-                                  File(path).writeAsBytesSync(bytes!);
-                                });
+                            if (widget.videoIds
+                                    .contains(widget.pivIds[index]) ==
+                                false) {
+                              WhiteSnackBar.buildSnackBar(context,
+                                  'Preparing your image for sharing...');
+                              final response = await http.get(
+                                  Uri.parse((kTagawayThumbMURL) +
+                                      (widget.pivIds[index])),
+                                  headers: {
+                                    'cookie':
+                                        StoreService.instance.get('cookie')
+                                  });
+                              final bytes = response.bodyBytes;
+                              final temp = await getTemporaryDirectory();
+                              final path = '${temp.path}/image.jpg';
+                              File(path).writeAsBytesSync(bytes);
+                              await Share.shareXFiles([XFile(path)]);
+                            } else if (widget.videoIds
+                                    .contains(widget.pivIds[index]) ==
+                                true) {
+                              WhiteSnackBar.buildSnackBar(context,
+                                  'Preparing your video for sharing...');
+                              final response = await http.get(
+                                  Uri.parse((kTagawayVideoURL) +
+                                      (widget.pivIds[index])),
+                                  headers: {
+                                    'cookie':
+                                        StoreService.instance.get('cookie')
+                                  });
 
-                            final response = await http.get(
-                                Uri.parse((kTagawayThumbMURL) + (widget.item)),
-                                headers: {
-                                  'cookie': StoreService.instance.get('cookie')
-                                });
-                            print('came back with image' +
-                                DateTime.now().toString());
-                            final bytes = response.bodyBytes;
-                            final temp = await getTemporaryDirectory();
-                            final path = '${temp.path}/image.jpg';
-                            File(path).writeAsBytesSync(bytes);
-                            print('about to share' + DateTime.now().toString());
-                            await Share.shareXFiles([XFile(path)]);
+                              final bytes = response.bodyBytes;
+                              final temp = await getTemporaryDirectory();
+                              final path = '${temp.path}/video.mp4';
+                              File(path).writeAsBytesSync(bytes);
+                              await Share.shareXFiles([XFile(path)]);
+                            }
                           },
                           icon: const Icon(
                             kShareArrownUpIcon,
@@ -221,10 +260,10 @@ class _CarrouselViewState extends State<CarrouselView> {
                   ),
                 ),
               ),
-            )
+            ),
           ]),
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -424,7 +463,7 @@ class _CarrouselViewState extends State<CarrouselView> {
 //   @override
 //   _VideoBigState createState() => _VideoBigState();
 // }
-//
+
 // class _VideoBigState extends State<VideoBig> {
 //   late VideoPlayerController _controller;
 //   bool initialized = false;

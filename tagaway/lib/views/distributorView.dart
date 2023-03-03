@@ -10,6 +10,10 @@ class Distributor extends StatefulWidget {
 }
 
 class _DistributorState extends State<Distributor> {
+  bool recurringUserLocal = false;
+  bool isCookieLoaded = false;
+  String cookie = 'empty';
+
   @override
   Widget build(BuildContext context) {
     return const Placeholder(
