@@ -48,12 +48,13 @@ class StoreService {
       var keys = await prefs.getKeys ().toList ();
       for (var k in keys) {
         if (k == 'cookie' || k == 'csrf') return;
-        remove (k);
+        await remove (k);
       }
     }
 
    // This function is called by main.dart to recreate the in-memory store
-   load () async {
+   load ([var reset]) async {
+      if (reset != null) await resetDev ();
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
       var keys = await prefs.getKeys ().toList ();

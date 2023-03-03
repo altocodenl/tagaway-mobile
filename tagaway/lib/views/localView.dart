@@ -362,6 +362,11 @@ class _GridState extends State<Grid> {
       end: 1000000, // end at a very big index (to get all the assets)
     );
 
+    for (var asset in recentAssets) {
+       StoreService.instance.set ('pivDate:' + asset.id, asset.createDateTime.millisecondsSinceEpoch, true);
+    }
+    TagService.instance.getTimeHeader ();
+
     // Update the state and notify UI
     setState(() => itemList = recentAssets);
   }
@@ -385,7 +390,6 @@ class _GridState extends State<Grid> {
                 itemCount: itemList.length,
                 itemBuilder: (BuildContext context, index) {
                   // Not an orthodox place to do this, but a convenient one.
-                  StoreService.instance.set ('pivDateMap:' + itemList[index].id, itemList[index].createDateTime.millisecondsSinceEpoch, true);
                   return LocalGridItem(itemList[index]);
                 })),
       ),
@@ -405,7 +409,7 @@ class _TopRowState extends State<TopRow> {
 
   String currentlyTagging = '';
   dynamic taggedPivCount = '';
-  dynamic timeHeader = {'year': 2022, 'months': [['Jul', 'gray'], ['Aug', 'green'], ['Sep', 'white'], ['Oct', 'green'], ['Nov', 'gray'], ['Dec', 'green']]};
+  dynamic timeHeader = [];
 
   @override
   void initState() {
@@ -415,10 +419,9 @@ class _TopRowState extends State<TopRow> {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
-        //timeHeader     = v3;
+        timeHeader     = v3 == '' ? [] : v3;
       });
     });
-    TagService.instance.getTimeHeader (2022, 7);
   }
 
   @override
@@ -445,7 +448,7 @@ class _TopRowState extends State<TopRow> {
                         child: Align(
                           alignment: Alignment(0.29, .9),
                           child: Text(
-                            timeHeader ['year'].toString (),
+                            timeHeader.isEmpty ? '' : timeHeader.last [0].toString (),
                             textAlign: TextAlign.center,
                             style: kLocalYear,
                           ),
@@ -482,10 +485,10 @@ class _TopRowState extends State<TopRow> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           childAspectRatio: 1.11,
-                          children: [for (var month in timeHeader ['months']) GridMonthElement (
-                            roundedIcon:      month [1] == 'green' ? kCircleCheckIcon : (month [1] == 'gray' ? kSolidCircleIcon : kEmptyCircle),
-                            roundedIconColor: month [1] == 'green' ? kAltoOrganized : kGreyDarker,
-                            month: month [0],
+                          children: [for (var month in timeHeader.reversed.take (6).toList ().reversed) GridMonthElement (
+                            roundedIcon:      month [2] == 'green' ? kCircleCheckIcon : (month [2] == 'gray' ? kSolidCircleIcon : kEmptyCircle),
+                            roundedIconColor: month [2] == 'green' ? kAltoOrganized : kGreyDarker,
+                            month: month [1],
                             whiteOrAltoBlueDashIcon: Colors.white,
                           )],
                         )

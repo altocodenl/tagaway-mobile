@@ -42,6 +42,7 @@ class UploadService {
       if (response ['code'] == 200) {
          StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
          StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+         TagService.instance.getTimeHeader ();
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
             for (var tag in pendingTags) {

@@ -47,8 +47,8 @@ class TagService {
   togglePiv (dynamic piv, String tag) async {
     String pivId = StoreService.instance.get ('pivMap:' + piv.id);
     bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
-    StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
-    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
+    StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true, true);
+    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1), true);
 
     // If there are no hometags yet, add one if this is a tagging operation.
     var hometags = StoreService.instance.get ('hometags');
@@ -92,32 +92,51 @@ class TagService {
     StoreService.instance.set ('taggedPivCount', count);
   }
 
-   getTimeHeader (int year, int month) async {
-      var months = month == 1 ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] : ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      var minDate = DateTime.utc (year,                         month,              1).millisecondsSinceEpoch;
-      var maxDate = DateTime.utc (month == 7 ? year + 1 : year, month == 1 ? 7 : 1, 1).millisecondsSinceEpoch;
-      var localCount  = [0, 0, 0, 0, 0, 0];
-      var remoteCount  = [0, 0, 0, 0, 0, 0];
+   getTimeHeader () {
+      var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var localCount  = {};
+      var remoteCount = {};
+      var output      = [];
+      var min = now (), max = 0;
 
-      var prefs = await SharedPreferences.getInstance ();
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+        // pivDate entries exist for *all* local pivs, whereas pivMap entries exist only for local pivs that were already uploaded
+        if (! RegExp ('^pivDate:').hasMatch (k)) return;
 
-      // TODO: get list of all pivs (localCount), then compare with pivMap (remoteCount)
-      prefs.getKeys ().toList ().forEach ((k) {
-        if (!RegExp('^pivMap:').hasMatch (k)) return;
-        var id = k.replaceAll ('pivMap:', '');
-        var date = StoreService.instance.get ('pivDateMap:' + id);
+        var id   = k.replaceAll ('pivDate:', '');
+        var date = StoreService.instance.get (k);
+        if (date < min) min = date;
+        if (date > max) max = date;
 
-        // TODO: uncomment date pruning
-        // if (date < minDate || date > maxDate) return;
-        var pivMonthIndex = new DateTime.fromMillisecondsSinceEpoch (date).month - month;
+        date        = new DateTime.fromMillisecondsSinceEpoch (date);
+        var dateKey = date.year.toString () + ':' + date.month.toString ();
+        if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
+        if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
 
-        // TODO: remove this condition after uncommenting date pruning
-        if (pivMonthIndex < 0) return;
-
-        localCount [pivMonthIndex] += 1;
+        localCount [dateKey] += 1;
+        if (StoreService.instance.get ('pivMap:' + id) != '') remoteCount [dateKey] += 1;
       });
-      debug (['counts', localCount, remoteCount]);
-      return {'year': 2022, 'months': months};
+
+      var fromYear  = DateTime.fromMillisecondsSinceEpoch (min).year;
+      var toYear    = DateTime.fromMillisecondsSinceEpoch (max).year;
+      var fromMonth = DateTime.fromMillisecondsSinceEpoch (min).month;
+      var toMonth   = DateTime.fromMillisecondsSinceEpoch (max).month;
+      fromMonth = fromMonth < 7 ? 1  : 7;
+      toMonth   = toMonth   > 6 ? 12 : 6;
+
+      for (var year = fromYear; year <= toYear; year++) {
+         for (var month = (year == fromYear ? fromMonth : 1); month <= (year == toYear ? toMonth : 12); month++) {
+            var dateKey = year.toString () + ':' + month.toString ();
+            if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
+            if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
+
+            if (localCount [dateKey] == 0)                         output.add ([year, monthNames [month - 1], 'white']);
+            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, monthNames [month - 1], 'gray']);
+            else                                                   output.add ([year, monthNames [month - 1], 'green']);
+         }
+      };
+
+      StoreService.instance.set ('timeHeader', output, true);
    }
 
 
