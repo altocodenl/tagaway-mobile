@@ -168,6 +168,8 @@ class _UploadGridState extends State<UploadGrid> {
               itemCount: pivIds.length,
               itemBuilder: (BuildContext context, index) {
                 return UploadedGridItem(
+                  pivIds: pivIds,
+                  videoIds: videoIds,
                   item: pivIds[index],
                   isVideo: videoIds.contains(pivIds[index]),
                   // isSelected: (bool value) {
