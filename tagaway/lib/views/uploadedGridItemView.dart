@@ -124,7 +124,7 @@ class _CarrouselViewState extends State<CarrouselView> {
       physics: const BouncingScrollPhysics(),
       controller: PageController(
         initialPage: widget.pivIds.indexOf(widget.item),
-        keepPage: true,
+        keepPage: false,
       ),
       // pageSnapping: true,
       itemCount: widget.pivIds.length,

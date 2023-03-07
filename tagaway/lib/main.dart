@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       // home: const BottomNavigationView(),
 
       // AUTH VIEWS
-      // home: const LoginView(),
+      home: const LoginView(),
       // home: const ChangePasswordView(),
       // home: const DeleteAccountView (),
 
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       // home: const LocalView(),
 
       // OTHER VIEWS
-      home: const RequestPermissionView(),
+      // home: const RequestPermissionView(),
 
       routes: {
         Distributor.id: (context) => const Distributor(),
