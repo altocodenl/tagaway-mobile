@@ -31,7 +31,7 @@ class LocalGridItem extends StatelessWidget {
         return GestureDetector(
             onTap: () {
               var currentlyTagging = StoreService.instance.get ('currentlyTagging');
-              if (currentlyTagging == '') UploadService.instance.queuePiv (asset);
+              if (currentlyTagging == '') StoreService.instance.set ('startTaggingModal', true, true);
               else                        TagService.instance.togglePiv (asset, currentlyTagging);
             },
             child: Stack(

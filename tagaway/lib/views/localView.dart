@@ -28,18 +28,32 @@ class _LocalViewState extends State<LocalView> {
   String currentlyTagging = '';
   bool swiped = false;
   dynamic newTag = '';
+  dynamic startTaggingModal = '';
+
+  /*
+  final ScrollController _controller = ScrollController();
+
+  void _scrollDown() {
+    _controller.animateTo(
+      _controller.position.maxScrollExtent,
+      duration: Duration(seconds: 2),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+  */
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped', 'newTag'], (v1, v2, v3, v4) {
+    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped', 'newTag', 'startTaggingModal'], (v1, v2, v3, v4, v5) {
       if (v2 != '') TagService.instance.getTaggedPivs (v2);
       setState(() {
         if (v1 != '') usertags = v1;
         currentlyTagging = v2;
         if (v3 != '') swiped = v3;
         newTag = v4;
+        startTaggingModal = v5;
       });
     });
   }
@@ -88,6 +102,7 @@ class _LocalViewState extends State<LocalView> {
                     minChildSize: .07,
                     maxChildSize: .77,
                     builder: (BuildContext context,
+                       //  ScrollController _controller) {
                         ScrollController scrollController) {
                       return ClipRRect(
                         borderRadius: const BorderRadius.only(
@@ -98,6 +113,7 @@ class _LocalViewState extends State<LocalView> {
                           color: Colors.white,
                           child: ListView(
                             padding: const EdgeInsets.only(left: 12, right: 12),
+                            // controller: _controller,
                             controller: scrollController,
                             children: [
                               Visibility(
@@ -291,35 +307,42 @@ class _LocalViewState extends State<LocalView> {
                 backgroundColor: kAltoBlue,
                 label: const Text('Create tag', style: kSelectAllButton),
               ),
-            )),
-        // Center(
-        //     child: Padding(
-        //   padding: const EdgeInsets.only(left: 12, right: 12),
-        //   child: Container(
-        //     height: 180,
-        //     width: double.infinity,
-        //     decoration: const BoxDecoration(
-        //       color: kAltoBlue,
-        //       borderRadius: BorderRadius.all(Radius.circular(20)),
-        //     ),
-        //     child: Column(
-        //       children: [
-        //         const Padding(
-        //           padding: EdgeInsets.only(
-        //               top: 20.0, right: 15, left: 15, bottom: 10),
-        //           child: Text(
-        //             'Your pics will backup as you tag them',
-        //             textAlign: TextAlign.center,
-        //             style: kWhiteSubtitle,
-        //           ),
-        //         ),
-        //         Center(
-        //             child: WhiteRoundedButton(
-        //                 title: 'Start tagging', onPressed: () {}))
-        //       ],
-        //     ),
-        //   ),
-        // ))
+            )
+        ),
+        Visibility (
+          visible: startTaggingModal == true,
+          child: Center(
+            child: Padding(
+             padding: const EdgeInsets.only(left: 12, right: 12),
+             child: Container(
+               height: 180,
+               width: double.infinity,
+               decoration: const BoxDecoration(
+                 color: kAltoBlue,
+                 borderRadius: BorderRadius.all(Radius.circular(20)),
+               ),
+               child: Column(
+                 children: [
+                   const Padding(
+                     padding: EdgeInsets.only(
+                         top: 20.0, right: 15, left: 15, bottom: 10),
+                     child: Text(
+                       'Your pics will backup as you tag them',
+                       textAlign: TextAlign.center,
+                       style: kWhiteSubtitle,
+                     ),
+                   ),
+                   Center(
+                       child: WhiteRoundedButton(
+                           title: 'Start tagging', onPressed: () {
+                              StoreService.instance.set ('startTaggingModal', false, true);
+                              // _scrollDown ();
+                           }))
+                 ],
+               ),
+             ),
+           ))
+        )
       ],
     );
   }
@@ -389,7 +412,6 @@ class _GridState extends State<Grid> {
                 ),
                 itemCount: itemList.length,
                 itemBuilder: (BuildContext context, index) {
-                  // Not an orthodox place to do this, but a convenient one.
                   return LocalGridItem(itemList[index]);
                 })),
       ),
