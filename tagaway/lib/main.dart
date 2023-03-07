@@ -30,9 +30,10 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // home: const BottomNavigationView(),
+      home: const Distributor(),
 
       // AUTH VIEWS
-      home: const LoginView(),
+      // home: const LoginView(),
       // home: const ChangePasswordView(),
       // home: const DeleteAccountView (),
 
