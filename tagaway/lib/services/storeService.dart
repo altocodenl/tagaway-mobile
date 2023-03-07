@@ -80,6 +80,13 @@ class StoreService {
       return value;
    }
 
+   getFromDisk (String key) async {
+      // We load prefs directly to have them already available.
+      var prefs = await SharedPreferences.getInstance ();
+      var value = await prefs.getString (key);
+      return value == null ? '' : jsonDecode (value);
+   }
+
    remove (String key, [bool memoryOnly = false]) async {
       if (RegExp ('^[^:]+:\\*').hasMatch (key)) {
          for (var k in store.keys) {
