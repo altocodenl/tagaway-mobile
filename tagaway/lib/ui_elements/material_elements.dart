@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -588,7 +590,10 @@ class QuerySelectionTagElement extends StatelessWidget {
 }
 
 class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({Key? key, required this.item}) : super(key: key);
+  const VideoPlayerWidget({
+    Key? key,
+    required this.item,
+  }) : super(key: key);
   final String item;
 
   @override
@@ -613,16 +618,22 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   _initVideo() async {
     _controller = VideoPlayerController.network(
-        (kTagawayVideoURL) + (widget.item),
-        httpHeaders: {'cookie': StoreService.instance.get('cookie')})
-      // Play the video again when it ends
-      ..setLooping(true)
-      // initialize the controller and notify UI when done
-      ..initialize().then((_) => setState(() {
-            initialized = true;
-            _controller.play();
-          }));
-    // _controller.play();
+      (kTagawayVideoURL) + (widget.item),
+      httpHeaders: {
+        'cookie': StoreService.instance.get('cookie'),
+        // This line turns off cache. Cache in video_player seems to be broken.
+        'if-none-match': 'foo'
+      },
+    );
+    // Play the video again when it ends
+    _controller.setLooping(true);
+    // initialize the controller and notify UI when done
+    _controller.initialize().then((_) => setState(() {
+          initialized = true;
+          _controller.play();
+        }));
+
+    // _controller.play();}
   }
 
   @override
