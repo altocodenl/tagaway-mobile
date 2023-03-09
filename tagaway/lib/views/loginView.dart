@@ -153,6 +153,8 @@ class _LoginViewState extends State<LoginView> {
                                   (recurringUserLocal == false ||
                                       recurringUserLocal == null)) {
                             // TODO: add proper routing here
+                            Navigator.pushReplacementNamed(
+                                context, BottomNavigationView.id);
                             // Navigator.pushReplacement (context, MaterialPageRoute (builder: (BuildContext context) => RequestPermission ()));
                             return SnackBarGlobal.buildSnackBar(context,
                                 'Login successful, need permissions', 'yellow');

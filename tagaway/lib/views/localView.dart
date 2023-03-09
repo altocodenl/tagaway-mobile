@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-
-import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/ui_elements/material_elements.dart';
-
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
-
+import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
@@ -37,10 +33,16 @@ class _LocalViewState extends State<LocalView> {
 
   @override
   void initState() {
-    PhotoManager.requestPermissionExtend();
+    // PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['usertags', 'currentlyTagging', 'swiped', 'newTag', 'startTaggingModal'], (v1, v2, v3, v4, v5) {
-      if (v2 != '') TagService.instance.getTaggedPivs (v2);
+    cancelListener = StoreService.instance.listen([
+      'usertags',
+      'currentlyTagging',
+      'swiped',
+      'newTag',
+      'startTaggingModal'
+    ], (v1, v2, v3, v4, v5) {
+      if (v2 != '') TagService.instance.getTaggedPivs(v2);
       setState(() {
         if (v1 != '') usertags = v1;
         currentlyTagging = v2;
@@ -53,9 +55,9 @@ class _LocalViewState extends State<LocalView> {
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
@@ -356,7 +358,7 @@ class _GridState extends State<Grid> {
   @override
   void initState() {
     super.initState();
-    fetchAssets ();
+    fetchAssets();
   }
 
   fetchAssets() async {
@@ -381,9 +383,10 @@ class _GridState extends State<Grid> {
     );
 
     for (var asset in recentAssets) {
-       StoreService.instance.set ('pivDate:' + asset.id, asset.createDateTime.millisecondsSinceEpoch, true);
+      StoreService.instance.set('pivDate:' + asset.id,
+          asset.createDateTime.millisecondsSinceEpoch, true);
     }
-    TagService.instance.getTimeHeader ();
+    TagService.instance.getTimeHeader();
 
     // Update the state and notify UI
     setState(() => itemList = recentAssets);
@@ -432,19 +435,20 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen (['currentlyTagging', 'taggedPivCount', 'timeHeader'], (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen(
+        ['currentlyTagging', 'taggedPivCount', 'timeHeader'], (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
-        timeHeader     = v3 == '' ? [] : v3;
+        timeHeader = v3 == '' ? [] : v3;
       });
     });
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
@@ -465,7 +469,9 @@ class _TopRowState extends State<TopRow> {
                         child: Align(
                           alignment: Alignment(0.29, .9),
                           child: Text(
-                            timeHeader.isEmpty ? '' : timeHeader.last [0].toString (),
+                            timeHeader.isEmpty
+                                ? ''
+                                : timeHeader.last[0].toString(),
                             textAlign: TextAlign.center,
                             style: kLocalYear,
                           ),
@@ -502,12 +508,24 @@ class _TopRowState extends State<TopRow> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           childAspectRatio: 1.11,
-                          children: [for (var month in timeHeader.reversed.take (6).toList ().reversed) GridMonthElement (
-                            roundedIcon:      month [2] == 'green' ? kCircleCheckIcon : (month [2] == 'gray' ? kSolidCircleIcon : kEmptyCircle),
-                            roundedIconColor: month [2] == 'green' ? kAltoOrganized : kGreyDarker,
-                            month: month [1],
-                            whiteOrAltoBlueDashIcon: Colors.white,
-                          )],
+                          children: [
+                            for (var month in timeHeader.reversed
+                                .take(6)
+                                .toList()
+                                .reversed)
+                              GridMonthElement(
+                                roundedIcon: month[2] == 'green'
+                                    ? kCircleCheckIcon
+                                    : (month[2] == 'gray'
+                                        ? kSolidCircleIcon
+                                        : kEmptyCircle),
+                                roundedIconColor: month[2] == 'green'
+                                    ? kAltoOrganized
+                                    : kGreyDarker,
+                                month: month[1],
+                                whiteOrAltoBlueDashIcon: Colors.white,
+                              )
+                          ],
                         )
                       ],
                     ),
@@ -544,7 +562,7 @@ class _TopRowState extends State<TopRow> {
                       ),
                       Expanded(
                         child: Text(
-                          taggedPivCount.toString (),
+                          taggedPivCount.toString(),
                           textAlign: TextAlign.right,
                           style: kOrganizedAmountOfPivs,
                         ),

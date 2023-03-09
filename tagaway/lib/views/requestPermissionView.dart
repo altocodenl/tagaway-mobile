@@ -3,15 +3,12 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-//IMPORT SERVICES
-import 'package:tagaway/services/permissionCheckService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
 //IMPORT SCREENS
 import 'package:tagaway/views/BottomNavigationBar.dart';
-import 'package:tagaway/views/distributorView.dart';
 
 class RequestPermissionView extends StatelessWidget {
   static const String id = 'permission_screen';
@@ -62,11 +59,13 @@ class RequestPermissionView extends StatelessWidget {
                             builder: (_) => const BottomNavigationView()),
                       );
                     } else {
-                      checkPermission(context).then((value) {
-                        Navigator.pushReplacementNamed(context, Distributor.id,
-                            arguments:
-                                PermissionLevelFlag(permissionLevel: value));
-                      });
+                      SnackBarGlobal.buildSnackBar(
+                          context, 'to be fixed', 'red');
+                      // checkPermission(context).then((value) {
+                      //   Navigator.pushReplacementNamed(context, Distributor.id,
+                      //       arguments:
+                      //           PermissionLevelFlag(permissionLevel: value));
+                      // });
                     }
                     if (Platform.isAndroid == true) {
                       StoreService.instance.set('recurringUser', true);

@@ -1,4 +1,7 @@
+import 'dart:core';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Distributor extends StatefulWidget {
   static const String id = 'distributor';
@@ -10,16 +13,8 @@ class Distributor extends StatefulWidget {
 }
 
 class _DistributorState extends State<Distributor> {
-  bool recurringUserLocal = false;
-  bool isCookieLoaded = false;
-  String cookie = 'empty';
-
   @override
   Widget build(BuildContext context) {
-    return const Placeholder(
-      child: Center(
-        child: Text('Hello world'),
-      ),
-    );
+    return Container();
   }
 }
