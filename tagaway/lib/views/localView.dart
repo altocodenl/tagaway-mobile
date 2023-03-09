@@ -30,17 +30,10 @@ class _LocalViewState extends State<LocalView> {
   dynamic newTag = '';
   dynamic startTaggingModal = '';
 
-  /*
-  final ScrollController _controller = ScrollController();
-
-  void _scrollDown() {
-    _controller.animateTo(
-      _controller.position.maxScrollExtent,
-      duration: Duration(seconds: 2),
-      curve: Curves.fastOutSlowIn,
-    );
-  }
-  */
+  // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
+  // For this reason, we need to set the `initialChildSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
+  // For more info, refer to https://github.com/flutter/flutter/issues/45009
+  double initialChildSize = 0.07;
 
   @override
   void initState() {
@@ -54,6 +47,7 @@ class _LocalViewState extends State<LocalView> {
         if (v3 != '') swiped = v3;
         newTag = v4;
         startTaggingModal = v5;
+        if (swiped == false && initialChildSize == 0.77) initialChildSize = 0.07;
       });
     });
   }
@@ -78,6 +72,8 @@ class _LocalViewState extends State<LocalView> {
                   onPressed: () {
                     StoreService.instance.set('swiped', false, true);
                     StoreService.instance.set('currentlyTagging', '', true);
+                    // We update the tag list in case we just created a new one.
+                    TagService.instance.getTags ();
                   },
                   backgroundColor: kAltoBlue,
                   label: const Text('Done', style: kSelectAllButton),
@@ -98,11 +94,10 @@ class _LocalViewState extends State<LocalView> {
                 },
                 child: DraggableScrollableSheet(
                     snap: true,
-                    initialChildSize: .07,
-                    minChildSize: .07,
-                    maxChildSize: .77,
+                    initialChildSize: initialChildSize,
+                    minChildSize: 0.07,
+                    maxChildSize: 0.77,
                     builder: (BuildContext context,
-                       //  ScrollController _controller) {
                         ScrollController scrollController) {
                       return ClipRRect(
                         borderRadius: const BorderRadius.only(
@@ -113,7 +108,6 @@ class _LocalViewState extends State<LocalView> {
                           color: Colors.white,
                           child: ListView(
                             padding: const EdgeInsets.only(left: 12, right: 12),
-                            // controller: _controller,
                             controller: scrollController,
                             children: [
                               Visibility(
@@ -335,8 +329,9 @@ class _LocalViewState extends State<LocalView> {
                    Center(
                        child: WhiteRoundedButton(
                            title: 'Start tagging', onPressed: () {
+                              StoreService.instance.set ('swiped', true, true);
                               StoreService.instance.set ('startTaggingModal', false, true);
-                              // _scrollDown ();
+                              initialChildSize = 0.77;
                            }))
                  ],
                ),
