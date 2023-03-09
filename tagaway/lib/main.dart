@@ -10,6 +10,7 @@ import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 // AUTH VIEWS
 import 'package:tagaway/views/loginView.dart';
+import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // home: const BottomNavigationView(),
-      home: const Distributor(),
+      // home: const Distributor(),
 
       // AUTH VIEWS
       // home: const LoginView(),
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
       // home: const LocalView(),
 
       // OTHER VIEWS
-      // home: const RequestPermissionView(),
+      home: const RequestPermissionView(),
 
       routes: {
         Distributor.id: (context) => const Distributor(),
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
         BottomNavigationView.id: (context) => const BottomNavigationView(),
         RequestPermissionView.id: (context) => const RequestPermissionView(),
         LocalView.id: (context) => const LocalView(),
+        PhotoAccessNeededView.id: (context) => const PhotoAccessNeededView()
       },
     );
   }

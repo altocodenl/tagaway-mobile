@@ -7,7 +7,7 @@ import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/distributorView.dart';
+import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/offlineView.dart';
 
 class LoginView extends StatefulWidget {
@@ -153,6 +153,8 @@ class _LoginViewState extends State<LoginView> {
                                   (recurringUserLocal == false ||
                                       recurringUserLocal == null)) {
                             // TODO: add proper routing here
+                            Navigator.pushReplacementNamed(
+                                context, BottomNavigationView.id);
                             // Navigator.pushReplacement (context, MaterialPageRoute (builder: (BuildContext context) => RequestPermission ()));
                             return SnackBarGlobal.buildSnackBar(context,
                                 'Login successful, need permissions', 'yellow');
@@ -160,7 +162,7 @@ class _LoginViewState extends State<LoginView> {
                               flag.permissionLevel == 'limited') {
                             // TODO: add proper routing here
                             Navigator.pushReplacementNamed(
-                                context, Distributor.id);
+                                context, BottomNavigationView.id);
                             // Navigator.pushReplacement (context, MaterialPageRoute (builder: (BuildContext context) => GridPage ()));
                             return SnackBarGlobal.buildSnackBar(
                                 context,

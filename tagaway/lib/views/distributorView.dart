@@ -1,5 +1,7 @@
+import 'dart:core';
+
 import 'package:flutter/cupertino.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:flutter/material.dart';
 
 class Distributor extends StatefulWidget {
   static const String id = 'distributor';
@@ -11,29 +13,8 @@ class Distributor extends StatefulWidget {
 }
 
 class _DistributorState extends State<Distributor> {
-  bool recurringUserLocal = false;
-  bool isCookieLoaded = false;
-  String cookie = 'empty';
-
-  @override
-  void initState() {
-    checkCookie();
-    super.initState();
-  }
-
-  checkCookie() {
-    setState(() {
-      cookie = StoreService.instance.get('cookie');
-      print(cookie);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return const Placeholder(
-      child: Center(
-        child: Text('Hello world'),
-      ),
-    );
+    return Container();
   }
 }
