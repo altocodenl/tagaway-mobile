@@ -19,6 +19,7 @@ class TagService {
       });
       StoreService.instance.set('usertags', usertags, true);
     }
+    // TODO: handle errors
     return response['code'];
   }
 
@@ -31,7 +32,10 @@ class TagService {
       return;
     add ? hometags.add(tag) : hometags.remove(tag);
     var response = await ajax('post', 'hometags', {'hometags': hometags});
-    if (response['code'] == 200) await getTags();
+    if (response['code'] == 200) {
+      await getTags();
+    }
+    // TODO: handle errors
     return response['code'];
   }
 
@@ -65,12 +69,13 @@ class TagService {
       }
       // TODO: add error handling for non 200, non 404
     }
-    UploadService.instance.queuePiv (piv);
-    var pendingTags = StoreService.instance.get ('pending:' + piv.id);
-    if (pendingTags == '') pendingTags = [];
-    if (del) pendingTags.remove (tag);
-    else     pendingTags.add    (tag);
-    StoreService.instance.set ('pendingTags:' + piv.id, pendingTags);
+     UploadService.instance.queuePiv (piv);
+     var pendingTags = StoreService.instance.get ('pending:' + piv.id);
+     if (pendingTags == '') pendingTags = [];
+     if (del) pendingTags.remove (tag);
+     else     pendingTags.add    (tag);
+     StoreService.instance.set ('pendingTags:' + piv.id, pendingTags);
+    // TODO: add error handling
   }
 
   getTaggedPivs (String tag) async {
@@ -92,10 +97,11 @@ class TagService {
     StoreService.instance.set ('taggedPivCount', count);
   }
 
-   getTimeHeader () {
+   getLocalTimeHeader () {
       var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       var localCount  = {};
       var remoteCount = {};
+      var lastPivInMonth = {};
       var output      = [];
       var min = now (), max = 0;
 
@@ -108,13 +114,17 @@ class TagService {
         if (date < min) min = date;
         if (date > max) max = date;
 
-        date        = new DateTime.fromMillisecondsSinceEpoch (date);
-        var dateKey = date.year.toString () + ':' + date.month.toString ();
+        var Date        = new DateTime.fromMillisecondsSinceEpoch (date);
+        var dateKey = Date.year.toString () + ':' + Date.month.toString ();
         if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
         if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
+        if (lastPivInMonth [dateKey] == null) lastPivInMonth [dateKey] = {};
 
         localCount [dateKey] += 1;
         if (StoreService.instance.get ('pivMap:' + id) != '') remoteCount [dateKey] += 1;
+        if (lastPivInMonth [dateKey] ['id'] == null || lastPivInMonth [dateKey] ['date'] < date) {
+           lastPivInMonth [dateKey] = {'id': id, 'date': date};
+        }
       });
 
       var fromYear  = DateTime.fromMillisecondsSinceEpoch (min).year;
@@ -131,8 +141,8 @@ class TagService {
             if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
 
             if (localCount [dateKey] == 0)                         output.add ([year, monthNames [month - 1], 'white']);
-            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, monthNames [month - 1], 'gray']);
-            else                                                   output.add ([year, monthNames [month - 1], 'green']);
+            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, monthNames [month - 1], 'gray', lastPivInMonth [dateKey] ['id']]);
+            else                                                   output.add ([year, monthNames [month - 1], 'green', lastPivInMonth [dateKey] ['id']]);
          }
       };
 
@@ -155,5 +165,6 @@ class TagService {
        });
        return {'pivIds': pivIds, 'videoIds': videoIds};
     }
+    // TODO: handle errors
   }
 }

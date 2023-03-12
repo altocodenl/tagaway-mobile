@@ -278,6 +278,8 @@ Color tagColor(String tag) {
   return tagColors[acc % tagColors.length];
 }
 
+bool showLogs = false;
+
 Future<dynamic> ajax(String method, String path, [dynamic body]) async {
   String cookie = await StoreService.instance.get('cookie');
   // If we make an ajax call before the store service is initialized, give it 150ms to initialize it and get the cookie again
@@ -286,7 +288,7 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
     cookie = await StoreService.instance.get('cookie');
   }
   int start = now();
-  debug(
+  if (showLogs) debug(
       ['AJAX REQ:' + start.toString(), method.toUpperCase(), '/' + path, body]);
   var response;
   try {
@@ -304,7 +306,7 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
           },
           body: jsonEncode(body));
     }
-    debug([
+    if (showLogs) debug([
       'AJAX RES:' + start.toString(),
       method,
       '/' + path,
@@ -331,7 +333,7 @@ Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
   fields.forEach((k, v) => request.fields[k] = v.toString());
   request.files.add(await http.MultipartFile.fromPath('piv', filePath));
   int start = now();
-  debug([
+  if (showLogs) debug([
     'AJAX MULTI REQ:' + start.toString(),
     'POST',
     '/' + path,
@@ -342,7 +344,7 @@ Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
   try {
     var response = await request.send();
     String rbody = await response.stream.bytesToString();
-    debug([
+    if (showLogs) debug([
       'AJAX MULTI RES:' + start.toString(),
       'POST',
       '/' + path,

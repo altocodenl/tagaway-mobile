@@ -512,16 +512,20 @@ class GridMonthElement extends StatelessWidget {
     required this.roundedIconColor,
     required this.month,
     required this.whiteOrAltoBlueDashIcon,
+    required this.onTap
   }) : super(key: key);
 
   final IconData roundedIcon;
   final Color roundedIconColor;
   final String month;
   final Color whiteOrAltoBlueDashIcon;
+  final dynamic onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return GestureDetector(
+       onTap: onTap,
+       child: Column(
       children: [
         FaIcon(
           roundedIcon,
@@ -535,9 +539,9 @@ class GridMonthElement extends StatelessWidget {
         FaIcon(
           kMinusIcon,
           color: whiteOrAltoBlueDashIcon,
-        ),
+        )
       ],
-    );
+    ));
   }
 }
 

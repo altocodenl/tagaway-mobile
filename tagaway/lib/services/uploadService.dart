@@ -21,6 +21,7 @@ class UploadService {
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
       upload = {'id': response ['body'] ['id'], 'time': now ()};
       return upload ['id'];
+      // TODO: handle errors
    }
 
    completeUpload () async {
@@ -34,6 +35,7 @@ class UploadService {
       File file = await piv.originFile;
 
       var response = await ajaxMulti ('piv', {
+         // TODO: handle error in startUpload
          'id':           await startUpload (),
          'tags':         '[]',
          'lastModified': piv.createDateTime.millisecondsSinceEpoch
@@ -42,7 +44,7 @@ class UploadService {
       if (response ['code'] == 200) {
          StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
          StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
-         TagService.instance.getTimeHeader ();
+         TagService.instance.getLocalTimeHeader ();
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
             for (var tag in pendingTags) {
@@ -79,6 +81,7 @@ class UploadService {
 
       if (uploadQueue.length == 0) {
          await completeUpload ();
+         // TODO: handle error in completeUpload
          return uploading = false;
       }
 

@@ -386,7 +386,7 @@ class _GridState extends State<Grid> {
       StoreService.instance.set('pivDate:' + asset.id,
           asset.createDateTime.millisecondsSinceEpoch, true);
     }
-    TagService.instance.getTimeHeader();
+    TagService.instance.getLocalTimeHeader();
 
     // Update the state and notify UI
     setState(() => itemList = recentAssets);
@@ -399,6 +399,12 @@ class _GridState extends State<Grid> {
       child: SizedBox.expand(
         child: Directionality(
             textDirection: TextDirection.rtl,
+            child: NotificationListener<ScrollMetricsNotification>(
+                onNotification: (state) {
+                  // TODO: make changes be reflected on selected month
+                  debug (['GRIDVIEW NOTIFICATION', state]);
+                  return true;
+                },
             child: GridView.builder(
                 reverse: true,
                 shrinkWrap: true,
@@ -411,7 +417,7 @@ class _GridState extends State<Grid> {
                 itemCount: itemList.length,
                 itemBuilder: (BuildContext context, index) {
                   return LocalGridItem(itemList[index]);
-                })),
+                }))),
       ),
     );
   }
@@ -524,6 +530,10 @@ class _TopRowState extends State<TopRow> {
                                     : kGreyDarker,
                                 month: month[1],
                                 whiteOrAltoBlueDashIcon: Colors.white,
+                                onTap: () {
+                                  // TODO: add method to jump to proper piv
+                                  if (month [2] != 'white') return debug (['TODO JUMP TO', month [3]]);
+                                }
                               )
                           ],
                         )
