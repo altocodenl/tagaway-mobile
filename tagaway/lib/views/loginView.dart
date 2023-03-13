@@ -70,14 +70,18 @@ class _LoginViewState extends State<LoginView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
+                  Hero(
+                    tag: 'logo',
+                    child: Image.asset(
+                      'images/tag blue with white - 400x400.png',
+                      scale: 4,
+                    ),
+                  ),
                   const Padding(
-                    padding: EdgeInsets.only(bottom: 10.0, top: 20),
-                    child: Hero(
-                      tag: 'logo',
-                      child: Text(
-                        'tagaway',
-                        style: kAcpicMain,
-                      ),
+                    padding: EdgeInsets.only(bottom: 10.0, top: 10),
+                    child: Text(
+                      'tagaway',
+                      style: kAcpicMain,
                     ),
                   ),
                   const Padding(
@@ -123,6 +127,7 @@ class _LoginViewState extends State<LoginView> {
                     title: 'Log In',
                     colour: kAltoBlue,
                     onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       AuthService.instance
                           .login(
                               _usernameController.text,

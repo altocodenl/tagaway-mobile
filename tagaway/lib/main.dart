@@ -13,6 +13,8 @@ import 'package:tagaway/views/loginView.dart';
 import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
+import 'package:tagaway/views/signUpFormView.dart';
+import 'package:tagaway/views/signUpView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
@@ -32,8 +34,10 @@ class MyApp extends StatelessWidget {
       ),
       // home: const BottomNavigationView(),
       // home: const Distributor(),
+      // home: const PhotoAccessNeededView(),
 
       // AUTH VIEWS
+      home: const SignUpView(),
       // home: const LoginView(),
       // home: const ChangePasswordView(),
       // home: const DeleteAccountView (),
@@ -48,9 +52,11 @@ class MyApp extends StatelessWidget {
       // home: const LocalView(),
 
       // OTHER VIEWS
-      home: const RequestPermissionView(),
+      // home: const RequestPermissionView(),
 
       routes: {
+        SignUpFormView.id: (context) => const SignUpFormView(),
+        SignUpView.id: (context) => const SignUpView(),
         Distributor.id: (context) => const Distributor(),
         LoginView.id: (context) => const LoginView(),
         HomeView.id: (context) => const HomeView(),
