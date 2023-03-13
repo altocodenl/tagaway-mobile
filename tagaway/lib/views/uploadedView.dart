@@ -262,42 +262,48 @@ class _TopRowState extends State<TopRow> {
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           childAspectRatio: 1.11,
-                          children: const [
+                          children: [
                             GridMonthElement(
                               roundedIcon: kSolidCircleIcon,
                               roundedIconColor: kGreyDarker,
                               month: 'Jul',
                               whiteOrAltoBlueDashIcon: Colors.white,
+                              onTap: () {}
                             ),
                             GridMonthElement(
                               roundedIcon: kCircleCheckIcon,
                               roundedIconColor: kAltoOrganized,
                               month: 'Aug',
                               whiteOrAltoBlueDashIcon: Colors.white,
+                              onTap: () {}
                             ),
                             GridMonthElement(
                               roundedIcon: kEmptyCircle,
                               roundedIconColor: kGreyDarker,
                               month: 'Sep',
                               whiteOrAltoBlueDashIcon: Colors.white,
+                              onTap: () {}
                             ),
                             GridMonthElement(
                               roundedIcon: kCircleCheckIcon,
                               roundedIconColor: kAltoOrganized,
                               month: 'Oct',
                               whiteOrAltoBlueDashIcon: Colors.white,
+                              onTap: () {}
                             ),
                             GridMonthElement(
                               roundedIcon: kSolidCircleIcon,
                               roundedIconColor: kGreyDarker,
                               month: 'Nov',
                               whiteOrAltoBlueDashIcon: Colors.white,
+                              onTap: () {}
                             ),
                             GridMonthElement(
                               roundedIcon: FontAwesomeIcons.solidCircleCheck,
                               roundedIconColor: kAltoOrganized,
                               month: 'Dec',
                               whiteOrAltoBlueDashIcon: kAltoBlue,
+                              onTap: () {}
                             ),
                           ],
                         ),
