@@ -1,7 +1,7 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 //IMPORT SERVICES
-import 'package:tagaway/services/permissionCheckService.dart';
+import 'package:tagaway/services/permissionService.dart';
 //IMPORT SCREENS
 
 class LifeCycleManager extends StatefulWidget {

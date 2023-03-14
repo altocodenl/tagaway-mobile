@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -10,7 +11,7 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
 
 class RequestPermissionView extends StatelessWidget {
-  static const String id = 'permission_screen';
+  static const String id = 'requestPermission';
   const RequestPermissionView({Key? key}) : super(key: key);
 
   @override
@@ -50,24 +51,27 @@ class RequestPermissionView extends StatelessWidget {
                   title: 'Upload Pictures',
                   colour: kAltoBlue,
                   onPressed: () async {
+                    await StoreService.instance.set ('userWasAskedPermission', true);
                     final permitted =
                         await PhotoManager.requestPermissionExtend();
                     if (permitted.isAuth) {
+                      Navigator.pushReplacementNamed(context, 'bottomNavigation');
+                      /*
                       Navigator.of(context).push(
                         MaterialPageRoute(
                             builder: (_) => const BottomNavigationView()),
                       );
+                      */
                     } else {
-                      SnackBarGlobal.buildSnackBar(
-                          context, 'to be fixed', 'red');
+                      Navigator.pushReplacementNamed(context, 'distributor');
+                      // SnackBarGlobal.buildSnackBar(
+                          //context, 'to be fixed', 'red');
+
                       // checkPermission(context).then((value) {
                       //   Navigator.pushReplacementNamed(context, Distributor.id,
                       //       arguments:
                       //           PermissionLevelFlag(permissionLevel: value));
                       // });
-                    }
-                    if (Platform.isAndroid == true) {
-                      // StoreService.instance.set('recurringUser', true);
                     }
                   },
                 ),

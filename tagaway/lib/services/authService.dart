@@ -10,6 +10,7 @@ class AuthService {
       if (response ['code'] == 200) {
          StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!);
          StoreService.instance.set ('csrf',   response ['body']    ['csrf']);
+         StoreService.instance.set ('recurringUser', true);
       }
       return response ['code'];
    }

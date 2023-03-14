@@ -17,6 +17,7 @@ class StoreService {
   static final StoreService instance = StoreService._privateConstructor ();
 
   bool showLogs = false;
+  bool loaded   = false;
 
   var updateStream = StreamController<String>.broadcast ();
 
@@ -63,6 +64,7 @@ class StoreService {
          store [k] = await jsonDecode (prefs.getString (k) ?? '""');
       };
       if (showLogs) keys.forEach ((k) => debug (['STORE LOAD', k, jsonEncode (store [k])]));
+      loaded = true;
    }
 
    // This function need not be awaited for setting the in-memory key, only if you want to await until the key is persisted to disk
@@ -74,17 +76,17 @@ class StoreService {
       if (! memoryOnly) await prefs.setString (key, jsonEncode (value));
    }
 
-   get (String key) {
+   get (String key) async {
+      if (! loaded) {
+         // We load prefs directly to have them already available.
+         var prefs = await SharedPreferences.getInstance ();
+         var value = await prefs.getString (key);
+         if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
+         return value == null ? '' : jsonDecode (value);
+      }
       var value = store [key] == null ? '' : store [key];
       if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
       return value;
-   }
-
-   getFromDisk (String key) async {
-      // We load prefs directly to have them already available.
-      var prefs = await SharedPreferences.getInstance ();
-      var value = await prefs.getString (key);
-      return value == null ? '' : jsonDecode (value);
    }
 
    remove (String key, [bool memoryOnly = false]) async {

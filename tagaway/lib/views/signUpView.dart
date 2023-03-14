@@ -6,7 +6,7 @@ import 'package:tagaway/views/signUpFormView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SignUpView extends StatelessWidget {
-  static const String id = 'sign_up_view';
+  static const String id = 'signup';
 
   launchAltocodeHome() async {
     if (!await launchUrl(Uri.parse(kAltoURL),

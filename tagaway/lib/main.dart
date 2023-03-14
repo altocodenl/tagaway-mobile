@@ -19,12 +19,12 @@ import 'package:tagaway/views/signUpView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Tagaway());
   StoreService.instance.load();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Tagaway extends StatelessWidget {
+  const Tagaway({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +33,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      home: const Distributor(),
       // home: const BottomNavigationView(),
-      // home: const Distributor(),
       // home: const PhotoAccessNeededView(),
 
       // AUTH VIEWS
-      home: const SignUpView(),
+      // home: const SignUpView(),
       // home: const LoginView(),
       // home: const ChangePasswordView(),
       // home: const DeleteAccountView (),

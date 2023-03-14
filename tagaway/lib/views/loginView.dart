@@ -14,7 +14,7 @@ import 'package:tagaway/views/signUpView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
-  static const String id = 'login_screen';
+  static const String id = 'login';
 
   const LoginView({Key? key}) : super(key: key);
 
@@ -176,6 +176,7 @@ class _LoginViewState extends State<LoginView> {
                                     'red');
 
                               if (value == 200) {
+                                return Navigator.pushReplacementNamed(context, 'distributor');
                                 if (Platform.isIOS &&
                                         flag.permissionLevel == 'denied' ||
                                     Platform.isAndroid &&

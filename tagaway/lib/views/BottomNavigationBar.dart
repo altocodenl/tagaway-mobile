@@ -10,7 +10,7 @@ import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/services/storeService.dart';
 
 class BottomNavigationView extends StatefulWidget {
-  static const String id = 'bottom_navigation_view';
+  static const String id = 'bottomNavigation';
 
   const BottomNavigationView({Key? key}) : super(key: key);
 

@@ -9,7 +9,7 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class PhotoAccessNeededView extends StatefulWidget {
-  static const String id = 'photo_access_needed';
+  static const String id = 'photoAccessNeeded';
 
   const PhotoAccessNeededView({Key? key}) : super(key: key);
 
