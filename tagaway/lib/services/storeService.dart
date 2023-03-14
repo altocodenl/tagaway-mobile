@@ -76,7 +76,14 @@ class StoreService {
       if (! memoryOnly) await prefs.setString (key, jsonEncode (value));
    }
 
-   get (String key) async {
+   get (String key) {
+      var value = store [key] == null ? '' : store [key];
+      if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
+      return value;
+   }
+
+   // Necessary function if you're trying to get things before the prefs get initialized
+   getBeforeLoad (String key) async {
       if (! loaded) {
          // We load prefs directly to have them already available.
          var prefs = await SharedPreferences.getInstance ();

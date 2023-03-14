@@ -32,21 +32,23 @@ class _DistributorState extends State<Distributor> {
     // await StoreService.instance.set ('cookie', '');
     // await StoreService.instance.set ('recurringUser', true);
 
-    var cookie = await StoreService.instance.get ('cookie');
+    var cookie = await StoreService.instance.getBeforeLoad ('cookie');
     if (cookie == '') {
       // If user has no cookie...
-      var recurringUser = await StoreService.instance.get ('recurringUser');
+      var recurringUser = await StoreService.instance.getBeforeLoad ('recurringUser');
       debug (['No cookie, recurring user?', recurringUser == true]);
       // If user is recurring, send to login; otherwise, send to signup.
       return Navigator.pushReplacementNamed(context, recurringUser == true ? 'login' : 'signup');
     }
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
     var permissionStatus = await checkPermission (context);
+    // TODO: remove hardcoding
+    // permissionStatus = 'granted';
     debug (['Cookie present, permission level:', permissionStatus]);
     // If user has granted complete or partial permissions, go to the main part of the app.
     if (permissionStatus == 'granted' || permissionStatus == 'limited') return Navigator.pushReplacementNamed(context, 'bottomNavigation');
 
-    var userWasAskedPermission = await StoreService.instance.get ('userWasAskedPermission');
+    var userWasAskedPermission = await StoreService.instance.getBeforeLoad ('userWasAskedPermission');
     return Navigator.pushReplacementNamed(context, userWasAskedPermission == true ? 'photoAccessNeeded' : 'requestPermission');
   }
 
