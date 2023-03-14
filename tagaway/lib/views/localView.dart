@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -401,8 +403,12 @@ class _GridState extends State<Grid> {
             textDirection: TextDirection.rtl,
             child: NotificationListener<ScrollMetricsNotification>(
                 onNotification: (state) {
-                  // TODO: make changes be reflected on selected month
-                  debug (['GRIDVIEW NOTIFICATION', state]);
+                  var pivHeight = (MediaQuery.of(context).size.width - 1) / 2;
+                  var pivRowIndex = max (0, (state.metrics.pixels / pivHeight).floor() * 2);
+                  // TODO: highlight the proper month
+                  if (! itemList.isEmpty) {
+                     debug (['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
+                  }
                   return true;
                 },
             child: GridView.builder(
@@ -529,7 +535,9 @@ class _TopRowState extends State<TopRow> {
                                     ? kAltoOrganized
                                     : kGreyDarker,
                                 month: month[1],
-                                whiteOrAltoBlueDashIcon: Colors.white,
+                                // TODO: selected
+                                //whiteOrAltoBlueDashIcon: Colors.white,
+                                whiteOrAltoBlueDashIcon: kAltoBlue,
                                 onTap: () {
                                   // TODO: add method to jump to proper piv
                                   if (month [2] != 'white') return debug (['TODO JUMP TO', month [3]]);
