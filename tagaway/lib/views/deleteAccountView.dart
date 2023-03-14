@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/ui_elements/constants.dart';
-
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 
 class DeleteAccount extends StatefulWidget {
   static const String id = 'delete_account';
@@ -22,7 +20,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
 
   @override
   void initState() {
-     super.initState();
+    super.initState();
   }
 
   @override
@@ -42,7 +40,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 20),
                   child: Text(
-                    'Are you sure you want to delete your ac;pic account?',
+                    'Are you sure you want to delete your tagaway account?',
                     textAlign: TextAlign.center,
                     style: kBigTitle,
                   ),
@@ -69,10 +67,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       title: 'Delete Account',
                       colour: kAltoRed,
                       onPressed: () {
-                        AuthService.instance.deleteAccount ()
-                            .then((value) {
+                        AuthService.instance.deleteAccount().then((value) {
                           if (value == 200) {
-                            StoreService.instance.reset ();
+                            StoreService.instance.reset();
                             SnackBarGlobal.buildSnackBar(context,
                                 'Your account has been deleted.', 'green');
                             /*

@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -68,7 +67,7 @@ class RequestPermissionView extends StatelessWidget {
                       // });
                     }
                     if (Platform.isAndroid == true) {
-                      StoreService.instance.set('recurringUser', true);
+                      // StoreService.instance.set('recurringUser', true);
                     }
                   },
                 ),
@@ -80,3 +79,7 @@ class RequestPermissionView extends StatelessWidget {
     );
   }
 }
+
+//RequestPermission logic to implement
+//IF user when presses button if('granted' || Platform.isIOS && 'limited'), then send to BottomNavigationView() and create local bool 'wentThroughPermission' == true.
+//IF user when presses button if(!='granted' || !='limited'), then send to DistributorView() and create local bool 'wentThroughPermission' == true.

@@ -5,11 +5,11 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tagaway/views/addHometagsView.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'how_view';
@@ -28,10 +28,11 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
+    cancelListener =
+        StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
       setState(() {
-         hometags = v1;
-         tags = v2;
+        hometags = v1;
+        tags = v2;
       });
     });
 
@@ -55,7 +56,8 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        elevation: 0,
+        backgroundColor: Colors.grey[50],
         iconTheme: const IconThemeData(color: kAltoBlue),
         leading: Image.asset(
           'images/tag blue with white - 400x400.png',
@@ -106,7 +108,11 @@ class _HomeViewState extends State<HomeView> {
                 Navigator.pushReplacementNamed(context, DeleteAccount.id);
               },
               textOnElement: 'Delete My Account'),
-          UserMenuElementDarkGrey(onTap: () {}, textOnElement: 'Log out'),
+          UserMenuElementDarkGrey(
+              onTap: () {
+                //  TO LOG OUT, IN AC;PIC UPLOADER WE DELETE ALL THE LOCAL VARS AND SEND THE USER TO DISTRIBUTOR
+              },
+              textOnElement: 'Log out'),
         ],
       )),
       body: SafeArea(
@@ -136,9 +142,11 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.only(bottom: 10),
                             child: Text(
-                              tags.isEmpty ? 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!' : 'Start adding your shortcuts!',
+                              tags.isEmpty
+                                  ? 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!'
+                                  : 'Start adding your shortcuts!',
                               style: kHomeEmptyText,
                               textAlign: TextAlign.center,
                             ),
@@ -149,8 +157,12 @@ class _HomeViewState extends State<HomeView> {
                                 title: 'Get started',
                                 colour: kAltoBlue,
                                 onPressed: () {
-                                  if (tags.isEmpty) StoreService.instance.set('currentIndex', 1);
-                                  else              Navigator.pushReplacementNamed(context, AddHometagsView.id);
+                                  if (tags.isEmpty)
+                                    StoreService.instance
+                                        .set('currentIndex', 1);
+                                  else
+                                    Navigator.pushReplacementNamed(
+                                        context, AddHometagsView.id);
                                 },
                               ))
                         ],

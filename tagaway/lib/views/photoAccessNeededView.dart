@@ -5,15 +5,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-// //IMPORT SCREENS
-// import 'package:acpic/screens/grid.dart';
-// //IMPORT SERVICES
-import 'package:tagaway/services/permissionCheckService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-// // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
-// import 'package:tagaway/services/lifecycleManagerService.dart';
-import 'package:tagaway/views/BottomNavigationBar.dart';
 
 class PhotoAccessNeededView extends StatefulWidget {
   static const String id = 'photo_access_needed';
@@ -37,7 +30,7 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
 
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
-  Future<void> androidPlatformChecker() async {
+  androidPlatformChecker() async {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     setState(() {
       brand = androidInfo.brand;
@@ -47,6 +40,7 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
 
   @override
   void initState() {
+    androidVersion = '1';
     if (Platform.isAndroid) {
       androidPlatformChecker();
     }
@@ -101,7 +95,7 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
           regExpAndroid6.hasMatch(androidVersion)) {
         return '';
       } else {
-        return ' Change ac;pic\'s access from ';
+        return ' Change tagaway\'s access from ';
       }
     } else {
       return '';
@@ -153,8 +147,10 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    final flag =
-        ModalRoute.of(context)!.settings.arguments as PermissionLevelFlag;
+    // IMPLEMENT LifeCycleManager()
+
+    // final flag =
+    //     ModalRoute.of(context)!.settings.arguments as PermissionLevelFlag;
     return Scaffold(
       body: SafeArea(
           child: Padding(
@@ -166,158 +162,74 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Image.asset(
-                  'images/icon-guide--upload.png',
-                  scale: 3,
+                  'images/tag blue with white - 400x400.png',
+                  scale: 4,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 20),
                 child: Text(
-                  flag.permissionLevel == 'limited'
-                      ? 'ac;pic\'s access is limited'
-                      : 'ac;pic needs access to your photos.',
+                  'tagaway needs access to your photos.',
                   textAlign: TextAlign.center,
                   style: kBigTitle,
                 ),
               ),
-              flag.permissionLevel == 'limited'
-                  ? const Padding(padding: EdgeInsets.all(0))
-                  : const Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        'We need access to your photos in order to upload them to your account.',
-                        textAlign: TextAlign.center,
-                        style: kPlainText,
-                      ),
-                    ),
-              Padding(
-                padding: flag.permissionLevel == 'limited'
-                    ? const EdgeInsets.only(bottom: 20)
-                    : const EdgeInsets.only(bottom: 10),
-                child: Platform.isIOS && flag.permissionLevel == 'permanent' ||
-                        Platform.isAndroid && flag.permissionLevel == 'denied'
-                    ? RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: kPlainText,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: Platform.isIOS
-                                    ? 'Tap on the button below to change ac;pic\'s access from '
-                                    : 'Tap on the button below and go to '),
-                            TextSpan(
-                                text: Platform.isAndroid ? 'Permissions.' : '',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            TextSpan(
-                              text: androidSettingsStep1(),
-                            ),
-                            TextSpan(
-                                text: androidSettingsStep2(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            TextSpan(
-                              text: androidSettingsPreStep3(),
-                            ),
-                            TextSpan(
-                                text: Platform.isIOS
-                                    ? 'None'
-                                    : androidSettingsDeny(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            TextSpan(
-                              text: settingsTo(),
-                            ),
-                            TextSpan(
-                                text: androidSettingsStep3(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      )
-                    : RichText(
-                        textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          style: kPlainText,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: 'Your permission level for ac;pic is '),
-                            TextSpan(
-                                text: 'Selected Photos.\n\n',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                              text:
-                                  'If you are OK with that, tap on the button below to upload your allowed photos and videos.',
-                            ),
-                          ],
-                        ),
-                      ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: Text(
+                  'We need access to your photos and videos in order to upload them to your account.',
+                  textAlign: TextAlign.center,
+                  style: kPlainText,
+                ),
               ),
-              flag.permissionLevel == 'limited'
-                  ? Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => const BottomNavigationView()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: kAltoBlue,
-                          backgroundColor: Colors.white,
-                          minimumSize: const Size(200, 42),
-                          side: const BorderSide(width: 1, color: kAltoBlue),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          textStyle: kSelectAllButton,
+              Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: kPlainText,
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: Platform.isIOS
+                                ? 'Tap on the button below to change tagaway\'s access from '
+                                : 'Tap on the button below and go to '),
+                        TextSpan(
+                            text: Platform.isAndroid ? 'Permissions.' : '',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                          text: androidSettingsStep1(),
                         ),
-                        child: const Text(
-                          'Upload Limited Pictures',
+                        TextSpan(
+                            text: androidSettingsStep2(),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                          text: androidSettingsPreStep3(),
                         ),
-                      ))
-                  : RoundedButton(
-                      title: 'Change settings',
-                      colour: kAltoBlue,
-                      onPressed: () {
-                        openAppSettings();
-                      },
+                        TextSpan(
+                            text:
+                                Platform.isIOS ? 'None' : androidSettingsDeny(),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                          text: settingsTo(),
+                        ),
+                        TextSpan(
+                            text: androidSettingsStep3(),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                      ],
                     ),
-              flag.permissionLevel == 'limited'
-                  ? Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          style: kPlainText,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text:
-                                    'If you would like to change the selection, or to have all your photos and videos available for upload, tap on the button below to change ac;pic\'s access from '),
-                            TextSpan(
-                                text: 'Selected Photos',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                              text: ' to',
-                            ),
-                            TextSpan(
-                                text: ' All Photos.',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      ),
-                    )
-                  : const Padding(padding: EdgeInsets.all(0)),
-              flag.permissionLevel == 'limited'
-                  ? RoundedButton(
-                      title: 'Change settings',
-                      colour: kAltoBlue,
-                      onPressed: () {
-                        openAppSettings();
-                      },
-                    )
-                  : const Padding(padding: EdgeInsets.all(0)),
+                  )),
+              RoundedButton(
+                title: 'Change settings',
+                colour: kAltoBlue,
+                onPressed: () {
+                  openAppSettings();
+                },
+              ),
+              const Padding(padding: EdgeInsets.all(0)),
             ],
           ),
         ),

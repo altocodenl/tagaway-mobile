@@ -19,81 +19,85 @@ class SignUpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-          child: Stack(
-        children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Hero(
-                    tag: 'logo',
-                    child: Image.asset(
-                      'images/tag blue with white - 400x400.png',
-                      scale: 4,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10.0, top: 10),
-                    child: Hero(
-                      tag: 'welcome',
-                      child: Text(
-                        'Welcome to tagaway',
-                        style: kAcpicMain,
+    //With WillPopScope() the user cannot 'swipe' back
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: SafeArea(
+            child: Stack(
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Hero(
+                      tag: 'logo',
+                      child: Image.asset(
+                        'images/tag blue with white - 400x400.png',
+                        scale: 4,
                       ),
                     ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 30),
-                    child: Text(
-                      'A home for your pictures',
-                      style: kSubtitle,
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 10.0, top: 10),
+                      child: Hero(
+                        tag: 'welcome',
+                        child: Text(
+                          'Welcome to tagaway',
+                          style: kAcpicMain,
+                        ),
+                      ),
                     ),
-                  ),
-                  RoundedButton(
-                    colour: kAltoBlue,
-                    title: 'Sign up with email',
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const SignUpFormView()));
-                    },
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const LoginView()));
-                    },
-                    child: const Text(
-                      'Already have an account?',
-                      style: kPlainHypertext,
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 30),
+                      child: Text(
+                        'A home for your pictures',
+                        style: kSubtitle,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: TextButton(
-              onPressed: () {
-                launchAltocodeHome();
-              },
-              child: const Text(
-                'altocode',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: kAltoBlue,
+                    RoundedButton(
+                      colour: kAltoBlue,
+                      title: 'Sign up with email',
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const SignUpFormView()));
+                      },
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => const LoginView()));
+                      },
+                      child: const Text(
+                        'Already have an account?',
+                        style: kPlainHypertext,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          )
-        ],
-      )),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: TextButton(
+                onPressed: () {
+                  launchAltocodeHome();
+                },
+                child: const Text(
+                  'altocode',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: kAltoBlue,
+                  ),
+                ),
+              ),
+            )
+          ],
+        )),
+      ),
     );
   }
 }

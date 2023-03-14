@@ -196,6 +196,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                             title: 'Next',
                             colour: kGreyDarker,
                             onPressed: () {
+                              //VALIDATE EMAIL. WE CAN USE WHAT WE HAVE IN CupertinoInvite() IN AC;PIC UPLOADER
                               _pageController.animateToPage(
                                 2,
                                 duration: const Duration(milliseconds: 400),
@@ -258,6 +259,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                               title: 'Create account',
                               colour: kAltoBlue,
                               onPressed: () {
+                                // HERE THE ACCOUNT MUST BE CREATED
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 Navigator.pushReplacementNamed(
                                     context, LoginView.id);

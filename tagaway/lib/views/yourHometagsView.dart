@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
@@ -21,15 +20,15 @@ class _YourHometagsViewState extends State<YourHometagsView> {
 
   @override
   void initState() {
-    cancelListener = StoreService.instance.listen (['hometags'], (v) {
-       setState (() => hometags = v);
+    cancelListener = StoreService.instance.listen(['hometags'], (v) {
+      setState(() => hometags = v);
     });
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
@@ -44,7 +43,8 @@ class _YourHometagsViewState extends State<YourHometagsView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          elevation: 0,
+          backgroundColor: Colors.grey[50],
           iconTheme: const IconThemeData(color: kAltoBlue),
           leading: Padding(
             padding: const EdgeInsets.only(top: 18, left: 12),

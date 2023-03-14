@@ -22,7 +22,8 @@ class _AddHometagsViewState extends State<AddHometagsView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['hometags', 'tags'], (v1, v2) {
+    cancelListener =
+        StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
       setState(() {
         hometags = v1;
         tags = v2;
@@ -37,9 +38,9 @@ class _AddHometagsViewState extends State<AddHometagsView> {
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
@@ -54,9 +55,10 @@ class _AddHometagsViewState extends State<AddHometagsView> {
       },
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0,
           automaticallyImplyLeading: false,
           centerTitle: false,
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.grey[50],
           title: GestureDetector(
             onTap: () {
               showSearch(
@@ -98,8 +100,10 @@ class _AddHometagsViewState extends State<AddHometagsView> {
               padding: const EdgeInsets.only(top: 18, right: 12),
               child: GestureDetector(
                   onTap: () {
-                     Navigator.pushReplacementNamed(context, YourHometagsView.id);
-                  }, child: const Text('Cancel', style: kPlainText)),
+                    Navigator.pushReplacementNamed(
+                        context, YourHometagsView.id);
+                  },
+                  child: const Text('Cancel', style: kPlainText)),
             )
           ],
         ),
@@ -118,7 +122,8 @@ class _AddHometagsViewState extends State<AddHometagsView> {
                       // Returning the desired behavior in a function solves the problem.
                       return () {
                         TagService.instance.editHometags(v, true);
-                        Navigator.pushReplacementNamed(context, YourHometagsView.id);
+                        Navigator.pushReplacementNamed(
+                            context, YourHometagsView.id);
                       };
                     })
             ],

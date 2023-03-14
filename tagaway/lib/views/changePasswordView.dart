@@ -21,16 +21,17 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: kGreyDarker, size: 30),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: const Text('Change your password', style: kSubPageAppBarTitle),
-      ),
-      body: GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: SafeArea(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          iconTheme: const IconThemeData(color: kGreyDarker, size: 30),
+          backgroundColor: Colors.grey[50],
+          centerTitle: true,
+          title: const Text('Change your password', style: kSubPageAppBarTitle),
+        ),
+        body: SafeArea(
             child: Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -103,7 +104,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                           .then((value) {
                         if (value == 0)
                           return Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => const OfflineScreen()));
+                              builder: (_) => const OfflineView()));
                         if (value == 1)
                           return SnackBarGlobal.buildSnackBar(
                               context,
@@ -124,12 +125,12 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
             ),
           ),
         )),
+        // floatingActionButton: FloatingActionButton.extended(
+        //   onPressed: () {},
+        //   backgroundColor: kAltoBlue,
+        //   label: const Text('Save', style: kSelectAllButton),
+        // ),
       ),
-      // floatingActionButton: FloatingActionButton.extended(
-      //   onPressed: () {},
-      //   backgroundColor: kAltoBlue,
-      //   label: const Text('Save', style: kSelectAllButton),
-      // ),
     );
   }
 }

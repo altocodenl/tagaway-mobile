@@ -21,15 +21,15 @@ class _EditHometagsViewState extends State<EditHometagsView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['hometags'], (v) {
-       setState (() => hometags = v);
+    cancelListener = StoreService.instance.listen(['hometags'], (v) {
+      setState(() => hometags = v);
     });
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
@@ -44,7 +44,8 @@ class _EditHometagsViewState extends State<EditHometagsView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          elevation: 0,
+          backgroundColor: Colors.grey[50],
           iconTheme: const IconThemeData(color: kAltoBlue),
           leadingWidth: 70,
           leading: Padding(

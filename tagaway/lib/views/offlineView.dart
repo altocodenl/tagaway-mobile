@@ -8,14 +8,14 @@ import 'package:tagaway/ui_elements/constants.dart';
 //IMPORT SCREENS
 import 'package:tagaway/views/distributorView.dart';
 
-class OfflineScreen extends StatefulWidget {
-  const OfflineScreen({Key? key}) : super(key: key);
+class OfflineView extends StatefulWidget {
+  const OfflineView({Key? key}) : super(key: key);
 
   @override
-  State<OfflineScreen> createState() => _OfflineScreenState();
+  State<OfflineView> createState() => _OfflineViewState();
 }
 
-class _OfflineScreenState extends State<OfflineScreen> {
+class _OfflineViewState extends State<OfflineView> {
   late Timer onlineChecker;
 
   @override
