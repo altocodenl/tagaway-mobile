@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -36,7 +37,10 @@ class _HomeViewState extends State<HomeView> {
       });
     });
 
-    TagService.instance.getTags();
+    TagService.instance.getTags().then ((statusCode) {
+      if (statusCode == 403) Navigator.pushReplacementNamed(context, 'distributor');
+    });
+
   }
 
   @override
@@ -110,7 +114,13 @@ class _HomeViewState extends State<HomeView> {
               textOnElement: 'Delete My Account'),
           UserMenuElementDarkGrey(
               onTap: () {
-                //  TO LOG OUT, IN AC;PIC UPLOADER WE DELETE ALL THE LOCAL VARS AND SEND THE USER TO DISTRIBUTOR
+                 // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                 return () {
+                    AuthService.instance.logout ().then ((value) {
+                      if (value == 200) return Navigator.pushReplacementNamed(context, 'distributor');
+                      // TODO: HANDLE non-200 CASE
+                    });
+                 };
               },
               textOnElement: 'Log out'),
         ],

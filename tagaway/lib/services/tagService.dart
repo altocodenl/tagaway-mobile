@@ -165,6 +165,6 @@ class TagService {
        });
        return {'pivIds': pivIds, 'videoIds': videoIds};
     }
-    // TODO: handle errors
+    else return response ['code'];
   }
 }

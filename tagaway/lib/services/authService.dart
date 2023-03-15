@@ -5,12 +5,26 @@ class AuthService {
    AuthService._privateConstructor ();
    static final AuthService instance = AuthService._privateConstructor ();
 
+   Future <int> signup (String username, String password, String email) async {
+      var response = await ajax ('post', 'auth/signup', {'username': username, 'password': password, 'email': email});
+      return response ['code'];
+   }
+
    Future <int> login (String username, String password, int timezone) async {
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
       if (response ['code'] == 200) {
          StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!);
          StoreService.instance.set ('csrf',   response ['body']    ['csrf']);
          StoreService.instance.set ('recurringUser', true);
+      }
+      return response ['code'];
+   }
+
+   Future <int> logout () async {
+      var response = await ajax ('post', 'auth/logout', {});
+      if (response ['code'] == 200) {
+         await StoreService.instance.set ('cookie', '');
+         await StoreService.instance.set ('csrf',   '');
       }
       return response ['code'];
    }

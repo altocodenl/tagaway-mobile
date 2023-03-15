@@ -315,6 +315,13 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
       response.headers,
       jsonDecode(response.body == '' ? '{}' : response.body)
     ]);
+
+    // If we get a 403, it should be because the cookie is invalid. We delete it locally.
+    if (response.statusCode == 403) {
+      await StoreService.instance.set ('cookie', '');
+      await StoreService.instance.set ('csrf',   '');
+    }
+
     return {
       'code': response.statusCode,
       'headers': response.headers,

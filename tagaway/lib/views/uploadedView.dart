@@ -142,6 +142,7 @@ class _UploadGridState extends State<UploadGrid> {
 
   fetchAssets() async {
     await TagService.instance.getPivs().then((value) {
+      if (value == 403) Navigator.pushReplacementNamed(context, 'distributor');
       setState(() {
         pivIds = value['pivIds'];
         videoIds = value['videoIds'];
