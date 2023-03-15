@@ -7,9 +7,7 @@ import 'package:tagaway/services/permissionService.dart';
 class LifeCycleManager extends StatefulWidget {
   final Widget child;
 
-  const LifeCycleManager(
-      {Key? key, required this.child})
-      : super(key: key);
+  const LifeCycleManager({Key? key, required this.child}) : super(key: key);
 
   @override
   _LifeCycleManagerState createState() => _LifeCycleManagerState();
@@ -40,14 +38,11 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
       });
       checkPermission(context).then((value) {
         if (resumed == true && value == 'granted') {
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(builder: (_) => GridPage()),
-          // );
+          Navigator.pushReplacementNamed(context, 'bottomNavigation');
         } else if (resumed == true && value == 'denied' ||
-            value == 'limited' ||
             value == 'permanent') {
-          Navigator.pushReplacementNamed(context, '/PhotoAccessNeeded',
-              arguments: PermissionLevelFlag(permissionLevel: value));
+          Navigator.pushReplacementNamed(context, 'photoAccessNeeded');
+          // arguments: PermissionLevelFlag(permissionLevel: value));
         }
       });
       print('resumed $resumed');

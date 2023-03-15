@@ -152,90 +152,92 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
 
     // final flag =
     //     ModalRoute.of(context)!.settings.arguments as PermissionLevelFlag;
-    return LifeCycleManager (
-    child: Scaffold(
-      body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Image.asset(
-                  'images/tag blue with white - 400x400.png',
-                  scale: 4,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20),
-                child: Text(
-                  'tagaway needs access to your photos.',
-                  textAlign: TextAlign.center,
-                  style: kBigTitle,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20),
-                child: Text(
-                  'We need access to your photos and videos in order to upload them to your account.',
-                  textAlign: TextAlign.center,
-                  style: kPlainText,
-                ),
-              ),
-              Padding(
+    return LifeCycleManager(
+      child: Scaffold(
+        body: SafeArea(
+            child: Padding(
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: RichText(
+                  child: Image.asset(
+                    'images/tag blue with white - 400x400.png',
+                    scale: 4,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    'tagaway needs access to your photos.',
                     textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: kPlainText,
-                      children: <TextSpan>[
-                        TextSpan(
-                            text: Platform.isIOS
-                                ? 'Tap on the button below to change tagaway\'s access from '
-                                : 'Tap on the button below and go to '),
-                        TextSpan(
-                            text: Platform.isAndroid ? 'Permissions.' : '',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                          text: androidSettingsStep1(),
-                        ),
-                        TextSpan(
-                            text: androidSettingsStep2(),
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                          text: androidSettingsPreStep3(),
-                        ),
-                        TextSpan(
-                            text:
-                                Platform.isIOS ? 'None' : androidSettingsDeny(),
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                          text: settingsTo(),
-                        ),
-                        TextSpan(
-                            text: androidSettingsStep3(),
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  )),
-              RoundedButton(
-                title: 'Change settings',
-                colour: kAltoBlue,
-                onPressed: () {
-                  openAppSettings();
-                },
-              ),
-              const Padding(padding: EdgeInsets.all(0)),
-            ],
+                    style: kBigTitle,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    'We need access to your photos and videos in order to upload them to your account.',
+                    textAlign: TextAlign.center,
+                    style: kPlainText,
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: kPlainText,
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: Platform.isIOS
+                                  ? 'Tap on the button below to change tagaway\'s access from '
+                                  : 'Tap on the button below and go to '),
+                          TextSpan(
+                              text: Platform.isAndroid ? 'Permissions.' : '',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(
+                            text: androidSettingsStep1(),
+                          ),
+                          TextSpan(
+                              text: androidSettingsStep2(),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(
+                            text: androidSettingsPreStep3(),
+                          ),
+                          TextSpan(
+                              text: Platform.isIOS
+                                  ? 'None'
+                                  : androidSettingsDeny(),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(
+                            text: settingsTo(),
+                          ),
+                          TextSpan(
+                              text: androidSettingsStep3(),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    )),
+                RoundedButton(
+                  title: 'Change settings',
+                  colour: kAltoBlue,
+                  onPressed: () {
+                    openAppSettings();
+                  },
+                ),
+                const Padding(padding: EdgeInsets.all(0)),
+              ],
+            ),
           ),
-        ),
-      )),
-    ));
+        )),
+      ),
+    );
   }
 }
