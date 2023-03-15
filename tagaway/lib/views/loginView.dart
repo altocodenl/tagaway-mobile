@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
@@ -36,13 +35,13 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void initState() {
-    if (Platform.isAndroid == true) {
-      myFuture = StoreService.instance
-          .get('recurringUser')
-          .then((value) => setState(() {
-                recurringUserLocal = value;
-              }));
-    }
+    // if (Platform.isAndroid == true) {
+    //   myFuture = StoreService.instance
+    //       .get('recurringUser')
+    //       .then((value) => setState(() {
+    //             recurringUserLocal = value;
+    //           }));
+    // }
     super.initState();
   }
 
@@ -176,7 +175,8 @@ class _LoginViewState extends State<LoginView> {
                                     'red');
 
                               if (value == 200) {
-                                return Navigator.pushReplacementNamed(context, 'distributor');
+                                return Navigator.pushReplacementNamed(
+                                    context, 'distributor');
                                 if (Platform.isIOS &&
                                         flag.permissionLevel == 'denied' ||
                                     Platform.isAndroid &&
