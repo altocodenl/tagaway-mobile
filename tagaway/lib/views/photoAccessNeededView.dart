@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:tagaway/services/lifecycleManagerService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -151,7 +152,8 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
 
     // final flag =
     //     ModalRoute.of(context)!.settings.arguments as PermissionLevelFlag;
-    return Scaffold(
+    return LifeCycleManager (
+    child: Scaffold(
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.only(left: 12, right: 12),
@@ -234,6 +236,6 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
           ),
         ),
       )),
-    );
+    ));
   }
 }

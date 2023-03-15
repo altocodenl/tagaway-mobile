@@ -6,10 +6,9 @@ import 'package:tagaway/services/permissionService.dart';
 
 class LifeCycleManager extends StatefulWidget {
   final Widget child;
-  final ValueChanged<bool> resumed;
 
   const LifeCycleManager(
-      {required Key key, required this.child, required this.resumed})
+      {Key? key, required this.child})
       : super(key: key);
 
   @override
