@@ -4,7 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future checkPermission(BuildContext context) async {
+Future checkPermission() async {
   final serviceStatus = Platform.isIOS
       ? await Permission.photos.status
       : await Permission.storage.status;

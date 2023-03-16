@@ -36,7 +36,7 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
       setState(() {
         resumed = true;
       });
-      checkPermission(context).then((value) {
+      checkPermission().then((value) {
         if (resumed == true && value == 'granted') {
           Navigator.pushReplacementNamed(context, 'bottomNavigation');
         } else if (resumed == true && value == 'denied' ||

@@ -47,31 +47,10 @@ class RequestPermissionView extends StatelessWidget {
                   title: 'Upload Pictures',
                   colour: kAltoBlue,
                   onPressed: () async {
-                    await StoreService.instance
-                        .set('userWasAskedPermission', true);
-                    final permitted =
-                        await PhotoManager.requestPermissionExtend();
-                    if (permitted.isAuth) {
-                      Navigator.pushReplacementNamed(
-                          context, 'bottomNavigation');
-                      /*
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const BottomNavigationView()),
-                      );
-                      */
-                    } else {
-                      Navigator.pushReplacementNamed(context, 'distributor');
-                      // SnackBarGlobal.buildSnackBar(
-                      //context, 'to be fixed', 'red');
-
-                      // checkPermission(context).then((value) {
-                      //   Navigator.pushReplacementNamed(context, Distributor.id,
-                      //       arguments:
-                      //           PermissionLevelFlag(permissionLevel: value));
-                      // });
-                    }
-                  },
+                    await StoreService.instance.set('userWasAskedPermission', true);
+                    final permitted = await PhotoManager.requestPermissionExtend();
+                    Navigator.pushReplacementNamed(context, permitted.isAuth ? 'bottomNavigation' : 'distributor');
+                   }
                 ),
               ],
             ),

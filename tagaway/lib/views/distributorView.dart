@@ -39,7 +39,7 @@ class _DistributorState extends State<Distributor> {
           context, recurringUser == true ? 'login' : 'signup');
     }
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
-    var permissionStatus = await checkPermission(context);
+    var permissionStatus = await checkPermission();
     // TODO: remove hardcoding
     // permissionStatus = 'granted';
     debug(['Cookie present, permission level:', permissionStatus]);
