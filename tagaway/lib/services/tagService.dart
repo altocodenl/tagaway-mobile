@@ -146,7 +146,14 @@ class TagService {
          }
       };
 
-      StoreService.instance.set ('timeHeader', output, true);
+      var semesters = [[]];
+      output.forEach ((month) {
+         var lastSemester = semesters [semesters.length - 1];
+         if (lastSemester.length < 6) lastSemester.add (month);
+         else semesters.add ([month]);
+      });
+
+      StoreService.instance.set ('timeHeader', semesters, true);
    }
 
 
