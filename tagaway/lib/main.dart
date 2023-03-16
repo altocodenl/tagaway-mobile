@@ -15,7 +15,7 @@ import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
 import 'package:tagaway/views/signUpFormView.dart';
-import 'package:tagaway/views/signUpView.dart';
+import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {

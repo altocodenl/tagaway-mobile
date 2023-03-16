@@ -9,7 +9,7 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
-import 'package:tagaway/views/signUpView.dart';
+import 'package:tagaway/views/signupView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
