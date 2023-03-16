@@ -1,6 +1,7 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/homeView.dart';
@@ -27,15 +28,15 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['currentIndex'], (v) {
-       setState (() => currentIndex = v == '' ? 0 : v);
+    cancelListener = StoreService.instance.listen(['currentIndex'], (v) {
+      setState(() => currentIndex = v == '' ? 0 : v);
     });
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
@@ -52,7 +53,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
           unselectedLabelStyle: kBottomNavigationText,
           selectedLabelStyle: kBottomNavigationText,
           onTap: (index) {
-             StoreService.instance.set ('currentIndex', index, true);
+            StoreService.instance.set('currentIndex', index, true);
           },
           items: const [
             BottomNavigationBarItem(

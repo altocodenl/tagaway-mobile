@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class RequestPermissionView extends StatelessWidget {
   static const String id = 'requestPermission';
+
   const RequestPermissionView({Key? key}) : super(key: key);
 
   @override
@@ -44,14 +46,19 @@ class RequestPermissionView extends StatelessWidget {
                   ),
                 ),
                 RoundedButton(
-                  title: 'Upload Pictures',
-                  colour: kAltoBlue,
-                  onPressed: () async {
-                    await StoreService.instance.set('userWasAskedPermission', true);
-                    final permitted = await PhotoManager.requestPermissionExtend();
-                    Navigator.pushReplacementNamed(context, permitted.isAuth ? 'bottomNavigation' : 'distributor');
-                   }
-                ),
+                    title: 'Upload Pictures',
+                    colour: kAltoBlue,
+                    onPressed: () async {
+                      await StoreService.instance
+                          .set('userWasAskedPermission', true);
+                      final permitted =
+                          await PhotoManager.requestPermissionExtend();
+                      Navigator.pushReplacementNamed(
+                          context,
+                          permitted.isAuth
+                              ? 'bottomNavigation'
+                              : 'distributor');
+                    }),
               ],
             ),
           ),

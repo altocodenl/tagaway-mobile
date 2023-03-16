@@ -3,12 +3,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 // //IMPORT SCREENS
 // import 'package:acpic/screens/distributorView.dart';
 // import 'package:acpic/screens/offlineView.dart';
 // //IMPORT SERVICES
 import 'package:tagaway/services/recoverPasswordService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+
 // // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/distributorView.dart';
@@ -19,6 +21,7 @@ class RecoverPasswordView extends StatefulWidget {
   static const String id = 'recover_password';
 
   const RecoverPasswordView({Key? key}) : super(key: key);
+
   @override
   _RecoverPasswordViewState createState() => _RecoverPasswordViewState();
 }

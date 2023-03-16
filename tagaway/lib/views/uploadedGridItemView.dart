@@ -14,6 +14,7 @@ class UploadedGridItem extends StatelessWidget {
   final bool isVideo;
   final List pivIds;
   final List videoIds;
+
   // final ValueChanged<bool> isSelected;
 
   const UploadedGridItem({

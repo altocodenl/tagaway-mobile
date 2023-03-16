@@ -57,5 +57,4 @@
    - Dynamize *everything* (Mono)
 
 - General
-   - Autoindent all *views* (not the services or ui_constants)
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short

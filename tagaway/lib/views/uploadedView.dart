@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/tagService.dart';
+
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -265,47 +266,41 @@ class _TopRowState extends State<TopRow> {
                           childAspectRatio: 1.11,
                           children: [
                             GridMonthElement(
-                              roundedIcon: kSolidCircleIcon,
-                              roundedIconColor: kGreyDarker,
-                              month: 'Jul',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                              onTap: () {}
-                            ),
+                                roundedIcon: kSolidCircleIcon,
+                                roundedIconColor: kGreyDarker,
+                                month: 'Jul',
+                                whiteOrAltoBlueDashIcon: Colors.white,
+                                onTap: () {}),
                             GridMonthElement(
-                              roundedIcon: kCircleCheckIcon,
-                              roundedIconColor: kAltoOrganized,
-                              month: 'Aug',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                              onTap: () {}
-                            ),
+                                roundedIcon: kCircleCheckIcon,
+                                roundedIconColor: kAltoOrganized,
+                                month: 'Aug',
+                                whiteOrAltoBlueDashIcon: Colors.white,
+                                onTap: () {}),
                             GridMonthElement(
-                              roundedIcon: kEmptyCircle,
-                              roundedIconColor: kGreyDarker,
-                              month: 'Sep',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                              onTap: () {}
-                            ),
+                                roundedIcon: kEmptyCircle,
+                                roundedIconColor: kGreyDarker,
+                                month: 'Sep',
+                                whiteOrAltoBlueDashIcon: Colors.white,
+                                onTap: () {}),
                             GridMonthElement(
-                              roundedIcon: kCircleCheckIcon,
-                              roundedIconColor: kAltoOrganized,
-                              month: 'Oct',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                              onTap: () {}
-                            ),
+                                roundedIcon: kCircleCheckIcon,
+                                roundedIconColor: kAltoOrganized,
+                                month: 'Oct',
+                                whiteOrAltoBlueDashIcon: Colors.white,
+                                onTap: () {}),
                             GridMonthElement(
-                              roundedIcon: kSolidCircleIcon,
-                              roundedIconColor: kGreyDarker,
-                              month: 'Nov',
-                              whiteOrAltoBlueDashIcon: Colors.white,
-                              onTap: () {}
-                            ),
+                                roundedIcon: kSolidCircleIcon,
+                                roundedIconColor: kGreyDarker,
+                                month: 'Nov',
+                                whiteOrAltoBlueDashIcon: Colors.white,
+                                onTap: () {}),
                             GridMonthElement(
-                              roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                              roundedIconColor: kAltoOrganized,
-                              month: 'Dec',
-                              whiteOrAltoBlueDashIcon: kAltoBlue,
-                              onTap: () {}
-                            ),
+                                roundedIcon: FontAwesomeIcons.solidCircleCheck,
+                                roundedIconColor: kAltoOrganized,
+                                month: 'Dec',
+                                whiteOrAltoBlueDashIcon: kAltoBlue,
+                                onTap: () {}),
                           ],
                         ),
                       ],

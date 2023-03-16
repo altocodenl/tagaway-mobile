@@ -71,7 +71,8 @@ class _DeleteAccountState extends State<DeleteAccount> {
                             StoreService.instance.reset();
                             SnackBarGlobal.buildSnackBar(context,
                                 'Your account has been deleted.', 'green');
-                            Navigator.pushReplacementNamed(context, 'distributor');
+                            Navigator.pushReplacementNamed(
+                                context, 'distributor');
                           } else {
                             SnackBarGlobal.buildSnackBar(
                                 context,

@@ -51,7 +51,8 @@ class _LocalViewState extends State<LocalView> {
         if (v3 != '') swiped = v3;
         newTag = v4;
         startTaggingModal = v5;
-        if (swiped == false && initialChildSize == 0.77) initialChildSize = 0.07;
+        if (swiped == false && initialChildSize == 0.77)
+          initialChildSize = 0.07;
       });
     });
   }
@@ -77,7 +78,7 @@ class _LocalViewState extends State<LocalView> {
                     StoreService.instance.set('swiped', false, true);
                     StoreService.instance.set('currentlyTagging', '', true);
                     // We update the tag list in case we just created a new one.
-                    TagService.instance.getTags ();
+                    TagService.instance.getTags();
                   },
                   backgroundColor: kAltoBlue,
                   label: const Text('Done', style: kSelectAllButton),
@@ -305,43 +306,43 @@ class _LocalViewState extends State<LocalView> {
                 backgroundColor: kAltoBlue,
                 label: const Text('Create tag', style: kSelectAllButton),
               ),
-            )
-        ),
-        Visibility (
-          visible: startTaggingModal == true,
-          child: Center(
-            child: Padding(
-             padding: const EdgeInsets.only(left: 12, right: 12),
-             child: Container(
-               height: 180,
-               width: double.infinity,
-               decoration: const BoxDecoration(
-                 color: kAltoBlue,
-                 borderRadius: BorderRadius.all(Radius.circular(20)),
-               ),
-               child: Column(
-                 children: [
-                   const Padding(
-                     padding: EdgeInsets.only(
-                         top: 20.0, right: 15, left: 15, bottom: 10),
-                     child: Text(
-                       'Your pics will backup as you tag them',
-                       textAlign: TextAlign.center,
-                       style: kWhiteSubtitle,
-                     ),
-                   ),
-                   Center(
-                       child: WhiteRoundedButton(
-                           title: 'Start tagging', onPressed: () {
-                              StoreService.instance.set ('swiped', true, true);
-                              StoreService.instance.set ('startTaggingModal', false, true);
+            )),
+        Visibility(
+            visible: startTaggingModal == true,
+            child: Center(
+                child: Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12),
+              child: Container(
+                height: 180,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: kAltoBlue,
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                          top: 20.0, right: 15, left: 15, bottom: 10),
+                      child: Text(
+                        'Your pics will backup as you tag them',
+                        textAlign: TextAlign.center,
+                        style: kWhiteSubtitle,
+                      ),
+                    ),
+                    Center(
+                        child: WhiteRoundedButton(
+                            title: 'Start tagging',
+                            onPressed: () {
+                              StoreService.instance.set('swiped', true, true);
+                              StoreService.instance
+                                  .set('startTaggingModal', false, true);
                               initialChildSize = 0.77;
-                           }))
-                 ],
-               ),
-             ),
-           ))
-        )
+                            }))
+                  ],
+                ),
+              ),
+            )))
       ],
     );
   }
@@ -404,26 +405,28 @@ class _GridState extends State<Grid> {
             child: NotificationListener<ScrollMetricsNotification>(
                 onNotification: (state) {
                   var pivHeight = (MediaQuery.of(context).size.width - 1) / 2;
-                  var pivRowIndex = max (0, (state.metrics.pixels / pivHeight).floor() * 2);
+                  var pivRowIndex =
+                      max(0, (state.metrics.pixels / pivHeight).floor() * 2);
                   // TODO: highlight the proper month
-                  if (! itemList.isEmpty) {
-                     debug (['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
+                  if (!itemList.isEmpty) {
+                    debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
                   }
                   return true;
                 },
-            child: GridView.builder(
-                reverse: true,
-                shrinkWrap: true,
-                cacheExtent: 50,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 1,
-                  crossAxisSpacing: 1,
-                ),
-                itemCount: itemList.length,
-                itemBuilder: (BuildContext context, index) {
-                  return LocalGridItem(itemList[index]);
-                }))),
+                child: GridView.builder(
+                    reverse: true,
+                    shrinkWrap: true,
+                    cacheExtent: 50,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 1,
+                      crossAxisSpacing: 1,
+                    ),
+                    itemCount: itemList.length,
+                    itemBuilder: (BuildContext context, index) {
+                      return LocalGridItem(itemList[index]);
+                    }))),
       ),
     );
   }
@@ -526,23 +529,23 @@ class _TopRowState extends State<TopRow> {
                                 .toList()
                                 .reversed)
                               GridMonthElement(
-                                roundedIcon: month[2] == 'green'
-                                    ? kCircleCheckIcon
-                                    : (month[2] == 'gray'
-                                        ? kSolidCircleIcon
-                                        : kEmptyCircle),
-                                roundedIconColor: month[2] == 'green'
-                                    ? kAltoOrganized
-                                    : kGreyDarker,
-                                month: month[1],
-                                // TODO: selected
-                                //whiteOrAltoBlueDashIcon: Colors.white,
-                                whiteOrAltoBlueDashIcon: kAltoBlue,
-                                onTap: () {
-                                  // TODO: add method to jump to proper piv
-                                  if (month [2] != 'white') return debug (['TODO JUMP TO', month [3]]);
-                                }
-                              )
+                                  roundedIcon: month[2] == 'green'
+                                      ? kCircleCheckIcon
+                                      : (month[2] == 'gray'
+                                          ? kSolidCircleIcon
+                                          : kEmptyCircle),
+                                  roundedIconColor: month[2] == 'green'
+                                      ? kAltoOrganized
+                                      : kGreyDarker,
+                                  month: month[1],
+                                  // TODO: selected
+                                  //whiteOrAltoBlueDashIcon: Colors.white,
+                                  whiteOrAltoBlueDashIcon: kAltoBlue,
+                                  onTap: () {
+                                    // TODO: add method to jump to proper piv
+                                    if (month[2] != 'white')
+                                      return debug(['TODO JUMP TO', month[3]]);
+                                  })
                           ],
                         )
                       ],

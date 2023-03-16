@@ -6,6 +6,7 @@ import 'package:tagaway/views/offlineView.dart';
 
 class ChangePasswordView extends StatefulWidget {
   static const String id = 'change_password';
+
   const ChangePasswordView({Key? key}) : super(key: key);
 
   @override

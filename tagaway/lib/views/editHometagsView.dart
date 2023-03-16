@@ -8,6 +8,7 @@ import 'package:tagaway/views/yourHometagsView.dart';
 
 class EditHometagsView extends StatefulWidget {
   static const String id = 'edit_home_tags';
+
   const EditHometagsView({Key? key}) : super(key: key);
 
   @override

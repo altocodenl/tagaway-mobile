@@ -9,6 +9,7 @@ import 'package:tagaway/services/tagService.dart';
 
 class LocalGridItem extends StatelessWidget {
   final AssetEntity asset;
+
   const LocalGridItem(this.asset);
 
   // String parseVideoDuration(Duration duration) {
@@ -30,9 +31,12 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector(
             onTap: () {
-              var currentlyTagging = StoreService.instance.get ('currentlyTagging');
-              if (currentlyTagging == '') StoreService.instance.set ('startTaggingModal', true, true);
-              else                        TagService.instance.togglePiv (asset, currentlyTagging);
+              var currentlyTagging =
+                  StoreService.instance.get('currentlyTagging');
+              if (currentlyTagging == '')
+                StoreService.instance.set('startTaggingModal', true, true);
+              else
+                TagService.instance.togglePiv(asset, currentlyTagging);
             },
             child: Stack(
               children: [
@@ -60,12 +64,11 @@ class LocalGridItem extends StatelessWidget {
                 Align(
                     alignment: const Alignment(0.9, -.9),
                     child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(100),
-                          border: Border.all(color: Colors.white, width: 2)),
-                      child: LocalGridItemSelection (asset)
-                    )),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(color: Colors.white, width: 2)),
+                        child: LocalGridItemSelection(asset))),
               ],
             ));
       },
@@ -75,10 +78,12 @@ class LocalGridItem extends StatelessWidget {
 
 class LocalGridItemSelection extends StatefulWidget {
   final AssetEntity asset;
+
   const LocalGridItemSelection(this.asset);
 
   @override
-  State<LocalGridItemSelection> createState() => _LocalGridItemSelectionState(this.asset);
+  State<LocalGridItemSelection> createState() =>
+      _LocalGridItemSelectionState(this.asset);
 }
 
 class _LocalGridItemSelectionState extends State<LocalGridItemSelection> {
@@ -91,27 +96,31 @@ class _LocalGridItemSelectionState extends State<LocalGridItemSelection> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen (['pivMap:' + asset.id, 'tagMap:' + asset.id, 'currentlyTagging'], (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen(
+        ['pivMap:' + asset.id, 'tagMap:' + asset.id, 'currentlyTagging'],
+        (v1, v2, v3) {
       setState(() {
-        if (v3 == '') selected = v1 != '';
-        else          selected = v2 != '';
+        if (v3 == '')
+          selected = v1 != '';
+        else
+          selected = v2 != '';
       });
     });
   }
 
   @override
-  void dispose () {
-     super.dispose ();
-     cancelListener ();
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
   Widget build(BuildContext context) {
-     return Icon(
-       selected ? kCircleCheckIcon : kSolidCircleIcon,
-       color: selected ? kAltoOrganized : kGreyDarker,
-       size: 25,
-     );
+    return Icon(
+      selected ? kCircleCheckIcon : kSolidCircleIcon,
+      color: selected ? kAltoOrganized : kGreyDarker,
+      size: 25,
+    );
   }
 }
 

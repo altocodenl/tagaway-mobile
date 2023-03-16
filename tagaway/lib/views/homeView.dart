@@ -14,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'how_view';
+
   const HomeView({Key? key}) : super(key: key);
 
   @override
@@ -37,10 +38,10 @@ class _HomeViewState extends State<HomeView> {
       });
     });
 
-    TagService.instance.getTags().then ((statusCode) {
-      if (statusCode == 403) Navigator.pushReplacementNamed(context, 'distributor');
+    TagService.instance.getTags().then((statusCode) {
+      if (statusCode == 403)
+        Navigator.pushReplacementNamed(context, 'distributor');
     });
-
   }
 
   @override
@@ -114,13 +115,15 @@ class _HomeViewState extends State<HomeView> {
               textOnElement: 'Delete My Account'),
           UserMenuElementDarkGrey(
               onTap: () {
-                 // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                 return () {
-                    AuthService.instance.logout ().then ((value) {
-                      if (value == 200) return Navigator.pushReplacementNamed(context, 'distributor');
-                      // TODO: HANDLE non-200 CASE
-                    });
-                 };
+                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                return () {
+                  AuthService.instance.logout().then((value) {
+                    if (value == 200)
+                      return Navigator.pushReplacementNamed(
+                          context, 'distributor');
+                    // TODO: HANDLE non-200 CASE
+                  });
+                };
               },
               textOnElement: 'Log out'),
         ],
