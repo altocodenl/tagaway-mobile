@@ -1,14 +1,10 @@
 // IMPORT FLUTTER PACKAGES
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
-//IMPORT SCREENS
-import 'package:tagaway/views/BottomNavigationBar.dart';
 
 class RequestPermissionView extends StatelessWidget {
   static const String id = 'requestPermission';
@@ -51,11 +47,13 @@ class RequestPermissionView extends StatelessWidget {
                   title: 'Upload Pictures',
                   colour: kAltoBlue,
                   onPressed: () async {
-                    await StoreService.instance.set ('userWasAskedPermission', true);
+                    await StoreService.instance
+                        .set('userWasAskedPermission', true);
                     final permitted =
                         await PhotoManager.requestPermissionExtend();
                     if (permitted.isAuth) {
-                      Navigator.pushReplacementNamed(context, 'bottomNavigation');
+                      Navigator.pushReplacementNamed(
+                          context, 'bottomNavigation');
                       /*
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -65,7 +63,7 @@ class RequestPermissionView extends StatelessWidget {
                     } else {
                       Navigator.pushReplacementNamed(context, 'distributor');
                       // SnackBarGlobal.buildSnackBar(
-                          //context, 'to be fixed', 'red');
+                      //context, 'to be fixed', 'red');
 
                       // checkPermission(context).then((value) {
                       //   Navigator.pushReplacementNamed(context, Distributor.id,
@@ -83,7 +81,3 @@ class RequestPermissionView extends StatelessWidget {
     );
   }
 }
-
-//RequestPermission logic to implement
-//IF user when presses button if('granted' || Platform.isIOS && 'limited'), then send to BottomNavigationView() and create local bool 'wentThroughPermission' == true.
-//IF user when presses button if(!='granted' || !='limited'), then send to DistributorView() and create local bool 'wentThroughPermission' == true.

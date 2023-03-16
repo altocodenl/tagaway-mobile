@@ -148,8 +148,6 @@ class _PhotoAccessNeededViewState extends State<PhotoAccessNeededView> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    // IMPLEMENT LifeCycleManager()
-
     // final flag =
     //     ModalRoute.of(context)!.settings.arguments as PermissionLevelFlag;
     return LifeCycleManager(
