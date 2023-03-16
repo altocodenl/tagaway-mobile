@@ -41,7 +41,8 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
           Navigator.pushReplacementNamed(context, 'bottomNavigation');
         } else if (resumed == true && value == 'denied' ||
             value == 'permanent') {
-          Navigator.pushReplacementNamed(context, 'photoAccessNeeded');
+          return;
+          // Navigator.pushReplacementNamed(context, 'distributor');
           // arguments: PermissionLevelFlag(permissionLevel: value));
         }
       });
