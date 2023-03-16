@@ -52,7 +52,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
           unselectedLabelStyle: kBottomNavigationText,
           selectedLabelStyle: kBottomNavigationText,
           onTap: (index) {
-             StoreService.instance.set ('currentIndex', index);
+             StoreService.instance.set ('currentIndex', index, true);
           },
           items: const [
             BottomNavigationBarItem(

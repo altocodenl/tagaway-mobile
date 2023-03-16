@@ -169,7 +169,7 @@ class _HomeViewState extends State<HomeView> {
                                 onPressed: () {
                                   if (tags.isEmpty)
                                     StoreService.instance
-                                        .set('currentIndex', 1);
+                                        .set('currentIndex', 1, true);
                                   else
                                     Navigator.pushReplacementNamed(
                                         context, AddHometagsView.id);

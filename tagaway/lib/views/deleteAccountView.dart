@@ -59,8 +59,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       title: 'Cancel',
                       colour: kAltoBlue,
                       onPressed: () {
-                        // Navigator.pushReplacement(context,
-                        //     MaterialPageRoute(builder: (_) => Distributor()));
+                        Navigator.pushReplacementNamed(context, 'distributor');
                       },
                     ),
                     RoundedButton(
@@ -72,12 +71,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                             StoreService.instance.reset();
                             SnackBarGlobal.buildSnackBar(context,
                                 'Your account has been deleted.', 'green');
-                            /*
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => Distributor()));
-                            */
+                            Navigator.pushReplacementNamed(context, 'distributor');
                           } else {
                             SnackBarGlobal.buildSnackBar(
                                 context,

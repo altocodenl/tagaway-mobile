@@ -38,6 +38,7 @@ class StoreService {
    }
 
    reset () async {
+     store = {};
      // We load prefs directly to have them already available.
      var prefs = await SharedPreferences.getInstance ();
      await prefs.clear ();
@@ -55,9 +56,11 @@ class StoreService {
 
    // This function is called by main.dart to recreate the in-memory store
    load ([var reset]) async {
-      if (reset != null) await resetDev ();
+      if (reset != null) return await resetDev ();
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
+      // TODO REMOVE
+      await prefs.remove ('currentIndex');
       var keys = await prefs.getKeys ().toList ();
       keys.sort ();
       for (var k in keys) {
