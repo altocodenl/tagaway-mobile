@@ -59,8 +59,6 @@ class StoreService {
       if (reset != null) return await resetDev ();
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
-      // TODO REMOVE
-      await prefs.remove ('currentIndex');
       var keys = await prefs.getKeys ().toList ();
       keys.sort ();
       for (var k in keys) {
