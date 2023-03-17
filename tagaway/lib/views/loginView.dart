@@ -27,6 +27,7 @@ class FakeFlag {
 }
 
 class _LoginViewState extends State<LoginView> {
+  late Timer materialBannerDelayer;
   bool recurringUserLocal = false;
   late Future myFuture;
   final TextEditingController _usernameController = TextEditingController();
@@ -35,13 +36,6 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void initState() {
-    // if (Platform.isAndroid == true) {
-    //   myFuture = StoreService.instance
-    //       .get('recurringUser')
-    //       .then((value) => setState(() {
-    //             recurringUserLocal = value;
-    //           }));
-    // }
     super.initState();
   }
 
@@ -56,6 +50,42 @@ class _LoginViewState extends State<LoginView> {
         mode: LaunchMode.externalApplication)) {
       throw "cannot launch url";
     }
+  }
+
+  materialBannerDisplay() {
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
+        onVisible: () {
+          materialBannerDelayer = Timer(const Duration(seconds: 3), () {
+            ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+          });
+        },
+        elevation: 1,
+        padding: const EdgeInsets.all(20),
+        content: Center(
+          child: Row(
+            children: const [
+              Icon(
+                kEmailValidation,
+                color: kAltoBlue,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    'You need to validate your email before logging in!',
+                    textAlign: TextAlign.center,
+                    style: kPlainTextBold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: Colors.grey[50],
+        actions: const <Widget>[SizedBox()],
+      ),
+    );
   }
 
   @override
@@ -144,6 +174,8 @@ class _LoginViewState extends State<LoginView> {
                           colour: kAltoBlue,
                           onPressed: () {
                             FocusManager.instance.primaryFocus?.unfocus();
+                            materialBannerDisplay();
+
                             AuthService.instance
                                 .login(
                                     _usernameController.text,

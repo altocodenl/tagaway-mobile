@@ -3,12 +3,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
-
-//IMPORT SCREENS
-import 'package:tagaway/views/distributorView.dart';
 
 class OfflineView extends StatefulWidget {
   const OfflineView({Key? key}) : super(key: key);
@@ -30,11 +26,9 @@ class _OfflineViewState extends State<OfflineView> {
 
   internetAvailabilityCheck() async {
     try {
-      final result = await InternetAddress.lookup('altocode.nl');
+      final result = await InternetAddress.lookup(kAltoURL);
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const Distributor()),
-        );
+        Navigator.pushReplacementNamed(context, 'distributor');
         onlineChecker.cancel();
       }
     } on SocketException catch (_) {}

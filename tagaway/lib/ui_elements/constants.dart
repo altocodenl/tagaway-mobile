@@ -49,6 +49,8 @@ const kBoxArchiveIcon = FontAwesomeIcons.boxArchive;
 const kShareArrownUpIcon = FontAwesomeIcons.arrowUpFromBracket;
 const kTrashCanIcon = FontAwesomeIcons.trashCan;
 const kVideoIcon = FontAwesomeIcons.video;
+const kAlert = FontAwesomeIcons.triangleExclamation;
+const kEmailValidation = FontAwesomeIcons.envelopeCircleCheck;
 
 const tagColors = [
   kTagColor1,
@@ -262,10 +264,10 @@ int now() {
   return DateTime.now().millisecondsSinceEpoch;
 }
 
-int nowms = now ();
+int nowms = now();
 
 void debug(List params) {
-  String acc = 'DEBUG (' + (now () - nowms).toString () + 'ms)';
+  String acc = 'DEBUG (' + (now() - nowms).toString() + 'ms)';
   params.forEach((v) => acc += ' ' + v.toString());
   print(acc);
 }
@@ -288,8 +290,13 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
     cookie = await StoreService.instance.get('cookie');
   }
   int start = now();
-  if (showLogs) debug(
-      ['AJAX REQ:' + start.toString(), method.toUpperCase(), '/' + path, body]);
+  if (showLogs)
+    debug([
+      'AJAX REQ:' + start.toString(),
+      method.toUpperCase(),
+      '/' + path,
+      body
+    ]);
   var response;
   try {
     if (method == 'get')
@@ -306,20 +313,21 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
           },
           body: jsonEncode(body));
     }
-    if (showLogs) debug([
-      'AJAX RES:' + start.toString(),
-      method,
-      '/' + path,
-      (now() - start).toString() + 'ms',
-      response.statusCode,
-      response.headers,
-      jsonDecode(response.body == '' ? '{}' : response.body)
-    ]);
+    if (showLogs)
+      debug([
+        'AJAX RES:' + start.toString(),
+        method,
+        '/' + path,
+        (now() - start).toString() + 'ms',
+        response.statusCode,
+        response.headers,
+        jsonDecode(response.body == '' ? '{}' : response.body)
+      ]);
 
     // If we get a 403, it should be because the cookie is invalid. We delete it locally.
     if (response.statusCode == 403) {
-      await StoreService.instance.set ('cookie', '');
-      await StoreService.instance.set ('csrf',   '');
+      await StoreService.instance.set('cookie', '');
+      await StoreService.instance.set('csrf', '');
     }
 
     return {
@@ -340,26 +348,28 @@ Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
   fields.forEach((k, v) => request.fields[k] = v.toString());
   request.files.add(await http.MultipartFile.fromPath('piv', filePath));
   int start = now();
-  if (showLogs) debug([
-    'AJAX MULTI REQ:' + start.toString(),
-    'POST',
-    '/' + path,
-    fields,
-    filePath
-  ]);
+  if (showLogs)
+    debug([
+      'AJAX MULTI REQ:' + start.toString(),
+      'POST',
+      '/' + path,
+      fields,
+      filePath
+    ]);
   var response;
   try {
     var response = await request.send();
     String rbody = await response.stream.bytesToString();
-    if (showLogs) debug([
-      'AJAX MULTI RES:' + start.toString(),
-      'POST',
-      '/' + path,
-      (now() - start).toString() + 'ms',
-      response.statusCode,
-      response.headers,
-      jsonDecode(rbody == '' ? '{}' : rbody)
-    ]);
+    if (showLogs)
+      debug([
+        'AJAX MULTI RES:' + start.toString(),
+        'POST',
+        '/' + path,
+        (now() - start).toString() + 'ms',
+        response.statusCode,
+        response.headers,
+        jsonDecode(rbody == '' ? '{}' : rbody)
+      ]);
     return {
       'code': response.statusCode,
       'headers': response.headers,

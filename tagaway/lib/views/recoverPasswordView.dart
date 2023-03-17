@@ -13,7 +13,6 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/offlineView.dart';
 
-//
 class RecoverPasswordView extends StatefulWidget {
   static const String id = 'recover_password';
 

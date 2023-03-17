@@ -43,7 +43,7 @@
    - When closing and re-opening phone, revive uploads that were not finished (Mono)
 
 - Uploaded
-   - Search view (copy the other one) (Tom)
+   - Search view (copy the other one) (Tom) => I'll do it after finishing 'Add Tags' tasks, since most of that work will impact this view. 
    - Dynamize *everything* (Mono)
 
 - General
