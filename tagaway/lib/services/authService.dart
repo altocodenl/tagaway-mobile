@@ -17,6 +17,8 @@ class AuthService {
          StoreService.instance.set ('csrf',   response ['body']    ['csrf']);
          StoreService.instance.set ('recurringUser', true);
       }
+      // Error code 1 signifies that the user must verify their email
+      if (response ['code'] == 403 && response ['body'] ['error'] == 'verify') return 1;
       return response ['code'];
    }
 
