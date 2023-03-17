@@ -273,10 +273,10 @@ class EditTagListElement extends StatelessWidget {
                       ),
                       const Padding(
                         padding: EdgeInsets.only(left: 12, right: 12.0),
-                        child: FaIcon(
-                          FontAwesomeIcons.bars,
-                          color: kGrey,
-                        ),
+                        // child: FaIcon(
+                        //   FontAwesomeIcons.bars,
+                        //   color: kGrey,
+                        // ),
                       ),
                     ],
                   ),
@@ -506,14 +506,14 @@ class UserMenuElementDarkGrey extends StatelessWidget {
 }
 
 class GridMonthElement extends StatelessWidget {
-  const GridMonthElement({
-    Key? key,
-    required this.roundedIcon,
-    required this.roundedIconColor,
-    required this.month,
-    required this.whiteOrAltoBlueDashIcon,
-    required this.onTap
-  }) : super(key: key);
+  const GridMonthElement(
+      {Key? key,
+      required this.roundedIcon,
+      required this.roundedIconColor,
+      required this.month,
+      required this.whiteOrAltoBlueDashIcon,
+      required this.onTap})
+      : super(key: key);
 
   final IconData roundedIcon;
   final Color roundedIconColor;
@@ -524,24 +524,24 @@ class GridMonthElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-       onTap: onTap,
-       child: Column(
-      children: [
-        FaIcon(
-          roundedIcon,
-          color: roundedIconColor,
-          size: 16,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(month, style: kHorizontalMonth),
-        ),
-        FaIcon(
-          kMinusIcon,
-          color: whiteOrAltoBlueDashIcon,
-        )
-      ],
-    ));
+        onTap: onTap,
+        child: Column(
+          children: [
+            FaIcon(
+              roundedIcon,
+              color: roundedIconColor,
+              size: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(month, style: kHorizontalMonth),
+            ),
+            FaIcon(
+              kMinusIcon,
+              color: whiteOrAltoBlueDashIcon,
+            )
+          ],
+        ));
   }
 }
 

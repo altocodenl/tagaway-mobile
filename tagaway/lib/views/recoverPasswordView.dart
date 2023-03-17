@@ -3,17 +3,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 // //IMPORT SCREENS
 // import 'package:acpic/screens/distributorView.dart';
 // import 'package:acpic/screens/offlineView.dart';
 // //IMPORT SERVICES
 import 'package:tagaway/services/recoverPasswordService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-
 // // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/distributorView.dart';
 import 'package:tagaway/views/offlineView.dart';
 
 //
@@ -32,9 +29,7 @@ class _RecoverPasswordViewState extends State<RecoverPasswordView> {
 
   delayedNavigation() {
     navigationDelayer = Timer(const Duration(seconds: 5), () {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const Distributor()),
-      );
+      Navigator.pushReplacementNamed(context, 'distributor');
     });
   }
 

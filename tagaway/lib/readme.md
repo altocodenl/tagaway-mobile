@@ -21,13 +21,6 @@
       - Wrong username/email/password combination
    - Send to distributor on success (Tom)
 
-- Recover/reset
-   - Move password recovery service to auth and check that it works (Tom)
-   - On success (Tom)
-      - Check that delay is enough to lower keyboard
-      - Send to distributor
-      - See snackbar success message
-
 - Delete account (Tom)
    - Test that it works
 
@@ -37,9 +30,6 @@
 - Add home tags
    - Make it look better (Tom)
    - When clicking on a tag, send back to my home tags view (Tom)
-
-- Edit home tags
-   - Comment out drag icon (Tom)
 
 - Home tags
    - When clicking on hometag, send to uploaded with that tag in the query (Mono)

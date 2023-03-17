@@ -258,7 +258,7 @@ class _LocalViewState extends State<LocalView> {
                               StoreService.instance.set('newTag', '', true);
                               newTagName.clear();
                             },
-                            child: Padding(
+                            child: const Padding(
                               padding: EdgeInsets.only(right: 30.0),
                               child: Text(
                                 'Cancel',
@@ -279,7 +279,7 @@ class _LocalViewState extends State<LocalView> {
                                   .set('currentlyTagging', text, true);
                               newTagName.clear();
                             },
-                            child: Text(
+                            child: const Text(
                               'Create',
                               style: TextStyle(
                                   fontFamily: 'Montserrat',
@@ -482,7 +482,7 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       Expanded(
                         child: Align(
-                          alignment: Alignment(0.29, .9),
+                          alignment: const Alignment(0.29, .9),
                           child: Text(
                             timeHeader.isEmpty
                                 ? ''
@@ -492,12 +492,12 @@ class _TopRowState extends State<TopRow> {
                           ),
                         ),
                       ),
-                      Icon(
+                      const Icon(
                         kSearchIcon,
                         color: Colors.white,
                         size: 25,
                       ),
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.only(left: 20.0),
                         child: Icon(
                           kSlidersIcon,
@@ -549,7 +549,7 @@ class _TopRowState extends State<TopRow> {
                                   }
                                 }
                                 return output;
-                              })())
+                              })()),
                         ],
                       ),
                       /*
@@ -609,7 +609,7 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 12, right: 12),
                   child: Row(
                     children: [
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.only(right: 8.0),
                         child: Text(
                           'Now tagging with',
