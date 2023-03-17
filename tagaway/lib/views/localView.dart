@@ -511,87 +511,52 @@ class _TopRowState extends State<TopRow> {
                 Padding(
                     padding: const EdgeInsets.only(top: 20.0),
                     child: SizedBox(
-                      height: 80,
-                      child: ListView(
-                        reverse: true,
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          GridView.count(
-                              physics: const NeverScrollableScrollPhysics(),
-                              crossAxisCount: 1,
-                              crossAxisSpacing: 0,
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              childAspectRatio: 1.11,
-                              children: (() {
-                                List<Widget> output = [];
-                                for (var semester in timeHeader) {
-                                  for (var month in semester) {
-                                    output.add(GridMonthElement(
-                                        roundedIcon: month[2] == 'green'
-                                            ? kCircleCheckIcon
-                                            : (month[2] == 'gray'
-                                                ? kSolidCircleIcon
-                                                : kEmptyCircle),
-                                        roundedIconColor: month[2] == 'green'
-                                            ? kAltoOrganized
-                                            : kGreyDarker,
-                                        month: month[1],
-                                        // TODO: selected
-                                        //whiteOrAltoBlueDashIcon: Colors.white,
-                                        whiteOrAltoBlueDashIcon: kAltoBlue,
-                                        onTap: () {
-                                          // TODO: add method to jump to proper piv
-                                          if (month[2] != 'white')
-                                            return debug(
-                                                ['TODO JUMP TO', month[3]]);
-                                        }));
-                                  }
-                                }
-                                return output;
-                              })()),
-                        ],
-                      ),
-                      /*
-                        GridView.builder(
+                        height: 80,
+                        child: ListView.builder(
                             itemCount: timeHeader.length,
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
+                            reverse: true,
                             scrollDirection: Axis.horizontal,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 1,
-                              mainAxisSpacing: 8,
-                              //childAspectRatio: 1.11,
-                            ),
-                            itemBuilder: (BuildContext context, index) {
-                              var semester = timeHeader [index];
-                              List<Widget> output = [];
-                              for (var month in semester) output.add (GridMonthElement(
-                                    roundedIcon: month[2] == 'green'
-                                        ? kCircleCheckIcon
-                                        : (month[2] == 'gray'
-                                            ? kSolidCircleIcon
-                                            : kEmptyCircle),
-                                    roundedIconColor: month[2] == 'green'
-                                        ? kAltoOrganized
-                                        : kGreyDarker,
-                                    month: month[1],
-                                    // TODO: selected
-                                    //whiteOrAltoBlueDashIcon: Colors.white,
-                                    whiteOrAltoBlueDashIcon: kAltoBlue,
-                                    onTap: () {
-                                      // TODO: add method to jump to proper piv
-                                      if (month[2] != 'white')
-                                        return debug(
-                                            ['TODO JUMP TO', month[3]]);
-                                    }));
-                              return Row (children: output);
-                              }
-
-                  ),
-                  */
-                    ))
+                            itemBuilder:
+                                (BuildContext context, int semesterIndex) {
+                              return GridView.count(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  crossAxisCount: 1,
+                                  crossAxisSpacing: 0,
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  childAspectRatio: 1.11,
+                                  children: (() {
+                                    List<Widget> output = [];
+                                    if (timeHeader.isEmpty)
+                                      output.add(Container());
+                                    else
+                                      timeHeader[semesterIndex]
+                                          .forEach((month) {
+                                        output.add(GridMonthElement(
+                                            roundedIcon: month[2] == 'green'
+                                                ? kCircleCheckIcon
+                                                : (month[2] == 'gray'
+                                                    ? kSolidCircleIcon
+                                                    : kEmptyCircle),
+                                            roundedIconColor:
+                                                month[2] == 'green'
+                                                    ? kAltoOrganized
+                                                    : kGreyDarker,
+                                            month: month[1],
+                                            // TODO: selected
+                                            //whiteOrAltoBlueDashIcon: Colors.white,
+                                            whiteOrAltoBlueDashIcon: kAltoBlue,
+                                            onTap: () {
+                                              // TODO: add method to jump to proper piv
+                                              if (month[2] != 'white')
+                                                return debug(
+                                                    ['TODO JUMP TO', month[3]]);
+                                            }));
+                                      });
+                                    return output;
+                                  })());
+                            })
+                        ))
               ],
             ),
           ),
