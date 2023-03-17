@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/signupView.dart';
@@ -22,9 +20,9 @@ class LoginView extends StatefulWidget {
 }
 
 // TODO: remove this once we restore the proper permission level check code
-class FakeFlag {
-  String permissionLevel = 'granted';
-}
+// class FakeFlag {
+//   String permissionLevel = 'granted';
+// }
 
 class _LoginViewState extends State<LoginView> {
   late Timer materialBannerDelayer;
@@ -92,11 +90,11 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
-    // TODO: uncomment and get proper status
-    // final flag = ModalRoute.of(context)?.settings.arguments as PermissionLevelFlag;
-    final flag = FakeFlag();
-
+    // final check =
+    //     ModalRoute.of(context)?.settings.arguments as ShowVerifyBanner;
+    // if (check.showVerifyBanner == 'showVerifyBanner') {
+    //   materialBannerDisplay();
+    // }
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -174,7 +172,6 @@ class _LoginViewState extends State<LoginView> {
                           colour: kAltoBlue,
                           onPressed: () {
                             FocusManager.instance.primaryFocus?.unfocus();
-                            materialBannerDisplay();
 
                             AuthService.instance
                                 .login(
@@ -209,38 +206,6 @@ class _LoginViewState extends State<LoginView> {
                               if (value == 200) {
                                 return Navigator.pushReplacementNamed(
                                     context, 'distributor');
-                                if (Platform.isIOS &&
-                                        flag.permissionLevel == 'denied' ||
-                                    Platform.isAndroid &&
-                                        flag.permissionLevel == 'denied' &&
-                                        (recurringUserLocal == false ||
-                                            recurringUserLocal == null)) {
-                                  // TODO: add proper routing here
-                                  Navigator.pushReplacementNamed(
-                                      context, BottomNavigationView.id);
-                                  // Navigator.pushReplacement (context, MaterialPageRoute (builder: (BuildContext context) => RequestPermission ()));
-                                  return SnackBarGlobal.buildSnackBar(
-                                      context,
-                                      'Login successful, need permissions',
-                                      'yellow');
-                                } else if (flag.permissionLevel == 'granted' ||
-                                    flag.permissionLevel == 'limited') {
-                                  // TODO: add proper routing here
-                                  Navigator.pushReplacementNamed(
-                                      context, BottomNavigationView.id);
-                                  // Navigator.pushReplacement (context, MaterialPageRoute (builder: (BuildContext context) => GridPage ()));
-                                  return SnackBarGlobal.buildSnackBar(
-                                      context,
-                                      'Login successful, permissions granted!',
-                                      'green');
-                                } else {
-                                  // TODO: add proper routing here
-                                  //Navigator.pushReplacementNamed (context, PhotoAccessNeeded.id, arguments: PermissionLevelFlag (permissionLevel: value));
-                                  return SnackBarGlobal.buildSnackBar(
-                                      context,
-                                      'Login successful, need permissions',
-                                      'green');
-                                }
                               }
                             });
                           },
@@ -310,9 +275,8 @@ class _LoginViewState extends State<LoginView> {
   }
 }
 
-// Log In logic to implement
-//IF successful log in, IF (Platform.isIOS && 'denied') || (Platform.isAndroid && 'denied' && 'wentThroughPermission' == false), then goes to RequestPermissionView()
-//IF successful log in && 'granted' || 'limited', then goes to BottomNavigationView();
-//IF successful log in, IF ('denied' || 'permanent' || 'restricted' && 'wentThroughPermission' == true), then goes to PhotoAccessNeededView();
-//IF call to server cannot be completed, it goes to OfflineView()
-// IF 500<VALUE, then Red Snackbar
+class ShowVerifyBanner {
+  final String showVerifyBanner;
+
+  ShowVerifyBanner(this.showVerifyBanner);
+}

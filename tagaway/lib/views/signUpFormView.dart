@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/loginView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SignUpFormView extends StatefulWidget {
@@ -260,8 +261,9 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                               onPressed: () {
                                 // HERE THE ACCOUNT MUST BE CREATED
                                 FocusManager.instance.primaryFocus?.unfocus();
-                                Navigator.pushReplacementNamed(
-                                    context, 'login');
+                                Navigator.pushReplacementNamed(context, 'login',
+                                    arguments:
+                                        ShowVerifyBanner('showVerifyBanner'));
                               }),
                         )
                       ],
