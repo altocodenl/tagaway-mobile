@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/loginView.dart';
@@ -15,19 +16,22 @@ class SignUpFormView extends StatefulWidget {
 }
 
 class _SignUpFormViewState extends State<SignUpFormView> {
-  final PageController _pageController = PageController();
-  final TextEditingController _userNameController = TextEditingController();
-  final TextEditingController _repeatUserNameController =
+  final PageController pageController = PageController();
+  final TextEditingController userNameController = TextEditingController();
+  final TextEditingController repeatUserNameController =
       TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _repeatEmailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _repeatpasswordController =
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController repeatEmailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController repeatpasswordController =
       TextEditingController();
+  final RegExp emailValidation = RegExp(
+      r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
+      caseSensitive: false);
 
   @override
   void dispose() {
-    _pageController.dispose();
+    pageController.dispose();
     super.dispose();
   }
 
@@ -74,7 +78,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
             children: [
               PageView(
                 physics: const NeverScrollableScrollPhysics(),
-                controller: _pageController,
+                controller: pageController,
                 children: [
                   Padding(
                     padding:
@@ -88,7 +92,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0, top: 20),
                           child: TextField(
-                            controller: _userNameController,
+                            controller: userNameController,
                             keyboardType: TextInputType.text,
                             autofocus: true,
                             textAlign: TextAlign.center,
@@ -105,7 +109,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                           ),
                         ),
                         TextField(
-                          controller: _repeatUserNameController,
+                          controller: repeatUserNameController,
                           keyboardType: TextInputType.text,
                           autofocus: true,
                           textAlign: TextAlign.center,
@@ -126,12 +130,36 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                               title: 'Next',
                               colour: kGreyDarker,
                               onPressed: () {
-                                _pageController.animateToPage(
-                                  1,
-                                  duration: const Duration(milliseconds: 400),
-                                  curve: Curves.easeInOut,
-                                );
                                 FocusManager.instance.primaryFocus?.unfocus();
+                                if (userNameController.text.isEmpty ||
+                                    repeatUserNameController.text.isEmpty) {
+                                  SnackBarGlobal.buildSnackBar(context,
+                                      'Please fill both fields', 'red');
+                                } else if (userNameController.text !=
+                                    repeatUserNameController.text) {
+                                  SnackBarGlobal.buildSnackBar(context,
+                                      'Your usernames do not match', 'red');
+                                } else if (userNameController.text
+                                        .contains('@') ||
+                                    userNameController.text.contains(':')) {
+                                  SnackBarGlobal.buildSnackBar(
+                                      context,
+                                      'Your username cannot contain @ or :',
+                                      'red');
+                                } else if (userNameController.text.length < 3) {
+                                  SnackBarGlobal.buildSnackBar(
+                                      context,
+                                      'Your username should have at least 3 characters',
+                                      'red');
+                                  //  HOW DO WE RESOLVE THE SPACES IN THE WEB APP SIGN UP?
+                                } else if (userNameController.text ==
+                                    repeatUserNameController.text) {
+                                  pageController.animateToPage(
+                                    1,
+                                    duration: const Duration(milliseconds: 400),
+                                    curve: Curves.easeInOut,
+                                  );
+                                }
                               }),
                         )
                       ],
@@ -149,7 +177,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0, top: 20),
                           child: TextField(
-                            controller: _emailController,
+                            controller: emailController,
                             keyboardType: TextInputType.emailAddress,
                             autofocus: true,
                             textAlign: TextAlign.center,
@@ -166,7 +194,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                           ),
                         ),
                         TextField(
-                          controller: _repeatEmailController,
+                          controller: repeatEmailController,
                           keyboardType: TextInputType.emailAddress,
                           autofocus: true,
                           textAlign: TextAlign.center,
@@ -196,13 +224,32 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                             title: 'Next',
                             colour: kGreyDarker,
                             onPressed: () {
-                              //VALIDATE EMAIL. WE CAN USE WHAT WE HAVE IN CupertinoInvite() IN AC;PIC UPLOADER
-                              _pageController.animateToPage(
-                                2,
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.easeInOut,
-                              );
                               FocusManager.instance.primaryFocus?.unfocus();
+                              if (emailController.text.isEmpty ||
+                                  repeatEmailController.text.isEmpty) {
+                                SnackBarGlobal.buildSnackBar(
+                                    context, 'Please fill both fields', 'red');
+                              } else if (emailController.text !=
+                                  repeatEmailController.text) {
+                                SnackBarGlobal.buildSnackBar(
+                                    context, 'Your emails do not match', 'red');
+                              } else if (emailValidation
+                                      .hasMatch(emailController.text) ==
+                                  false) {
+                                SnackBarGlobal.buildSnackBar(
+                                    context,
+                                    'Please enter a valid email address',
+                                    'red');
+                              } else if (emailValidation
+                                      .hasMatch(emailController.text) &&
+                                  emailController.text ==
+                                      repeatEmailController.text) {
+                                pageController.animateToPage(
+                                  2,
+                                  duration: const Duration(milliseconds: 400),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
                             })
                       ],
                     ),
@@ -219,7 +266,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0, top: 20),
                           child: TextField(
-                            controller: _passwordController,
+                            controller: passwordController,
                             keyboardType: TextInputType.text,
                             autofocus: true,
                             obscureText: true,
@@ -237,7 +284,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                           ),
                         ),
                         TextField(
-                          controller: _repeatpasswordController,
+                          controller: repeatpasswordController,
                           keyboardType: TextInputType.text,
                           autofocus: true,
                           obscureText: true,
@@ -259,11 +306,55 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                               title: 'Create account',
                               colour: kAltoBlue,
                               onPressed: () {
-                                // HERE THE ACCOUNT MUST BE CREATED
                                 FocusManager.instance.primaryFocus?.unfocus();
-                                Navigator.pushReplacementNamed(context, 'login',
-                                    arguments:
-                                        ShowVerifyBanner('showVerifyBanner'));
+                                if (passwordController.text.isEmpty ||
+                                    repeatpasswordController.text.isEmpty) {
+                                  SnackBarGlobal.buildSnackBar(context,
+                                      'Please fill both fields', 'red');
+                                } else if (passwordController.text !=
+                                    repeatpasswordController.text) {
+                                  SnackBarGlobal.buildSnackBar(context,
+                                      'Your passwords do not match', 'red');
+                                } else if (passwordController.text.length < 6) {
+                                  SnackBarGlobal.buildSnackBar(
+                                      context,
+                                      'Your password should have at least 6 characters',
+                                      'red');
+                                }
+                                //  HOW DO WE RESOLVE THE SPACES IN THE WEB APP SIGN UP?
+                                else if (passwordController.text ==
+                                    repeatpasswordController.text) {
+                                  // HERE THE ACCOUNT MUST BE CREATED
+                                  AuthService.instance
+                                      .signup(
+                                          userNameController.text,
+                                          passwordController.text,
+                                          emailController.text)
+                                      .then((value) {
+                                    if (value == 200) {
+                                      Navigator.pushReplacementNamed(
+                                          context, 'login',
+                                          arguments: ShowVerifyBanner(
+                                              'showVerifyBanner'));
+                                      userNameController.clear();
+                                      repeatUserNameController.clear();
+                                      emailController.clear();
+                                      repeatEmailController.clear();
+                                      passwordController.clear();
+                                      repeatpasswordController.clear();
+                                    } else if (value == 403) {
+                                      //HERE WE HAVE TO MANAGE {error: 'email'}, {error: 'username'} and any other error based on 403.
+                                      // SignUp Service currently does not return 'body
+                                      SnackBarGlobal.buildSnackBar(context,
+                                          'There has been an error', 'red');
+                                    } else if (value > 500) {
+                                      //CAN THIS HAPPEN?
+                                      SnackBarGlobal.buildSnackBar(context,
+                                          'There has been an error', 'red');
+                                    }
+                                    //  WHAT CODE CAN WE PUT IF THE DEVICE IS OFFLINE, SO WE NEED TO SEND USER TO OFFLINEVIEW?
+                                  });
+                                }
                               }),
                         )
                       ],

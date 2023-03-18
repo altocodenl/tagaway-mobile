@@ -11,9 +11,12 @@
       - Username repeated
       - Email repeated
       - Too many users
-   - On success (Tom)
-      - With a materialbanner let user know they have to validate account through email link
-      - Redirect to login
+        - Errors (Tom's Notes):
+          - usernames are too short or invalid for any other reason NOT FINISHED 
+          - password is too short or is invalid for any other reason NOT FINISHED
+          - username already exists 
+          - email already registered
+          - we have too many users. 
 
 - Login
    - On error, snackbar (Tom)
