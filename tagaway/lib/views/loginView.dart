@@ -51,50 +51,54 @@ class _LoginViewState extends State<LoginView> {
   }
 
   materialBannerDisplay() {
-    ScaffoldMessenger.of(context).showMaterialBanner(
-      MaterialBanner(
-        onVisible: () {
-          materialBannerDelayer = Timer(const Duration(seconds: 3), () {
-            ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-          });
-        },
-        elevation: 1,
-        padding: const EdgeInsets.all(20),
-        content: Center(
-          child: Row(
-            children: const [
-              Icon(
-                kEmailValidation,
-                color: kAltoBlue,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    'You need to validate your email before logging in!',
-                    textAlign: TextAlign.center,
-                    style: kPlainTextBold,
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          onVisible: () {
+            materialBannerDelayer = Timer(const Duration(seconds: 3), () {
+              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+            });
+          },
+          elevation: 1,
+          padding: const EdgeInsets.all(20),
+          content: Center(
+            child: Row(
+              children: const [
+                Icon(
+                  kEmailValidation,
+                  color: kAltoBlue,
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      'You need to validate your email before logging in!',
+                      textAlign: TextAlign.center,
+                      style: kPlainTextBold,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          backgroundColor: Colors.grey[50],
+          actions: const <Widget>[SizedBox()],
         ),
-        backgroundColor: Colors.grey[50],
-        actions: const <Widget>[SizedBox()],
-      ),
-    );
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    // final check =
-    //     ModalRoute.of(context)?.settings.arguments as ShowVerifyBanner;
-    // if (check.showVerifyBanner == 'showVerifyBanner') {
-    //   materialBannerDisplay();
-    // }
+    final check =
+        ModalRoute.of(context)?.settings.arguments as ShowVerifyBanner?;
+    if (check?.showVerifyBanner == 'showVerifyBanner') {
+      materialBannerDisplay();
+    } else if (check?.showVerifyBanner == null) {
+      Container();
+    }
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -277,6 +281,5 @@ class _LoginViewState extends State<LoginView> {
 
 class ShowVerifyBanner {
   final String showVerifyBanner;
-
   ShowVerifyBanner(this.showVerifyBanner);
 }
