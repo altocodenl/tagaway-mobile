@@ -191,8 +191,8 @@ class _HomeViewState extends State<HomeView> {
                         children: [
                           for (var v in hometags) GestureDetector(
                             onTap: () {
-                              StoreService.instance.set ('queryTags', [v]);
-                              StoreService.instance.set ('currentIndex', 2);
+                              StoreService.instance.set ('queryTags', [v], true);
+                              StoreService.instance.set ('currentIndex', 2, true);
                             },
                             child: HomeCard(color: tagColor(v), title: v)
                          )
