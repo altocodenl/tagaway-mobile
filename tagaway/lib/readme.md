@@ -9,7 +9,7 @@
       - Check valid username, email & password (TOM DID IT)
    - Handle errors with snackbar (Tom)
         - Errors (Tom's Notes):
-          - usernames are too short or invalid for any other reason => NOT FINISHED 
+          - usernames are too short or invalid for any other reason => NOT FINISHED
           - password is too short or is invalid for any other reason => NOT FINISHED
           - username already exists => 403 {error: 'username'}
           - email already registered => 403 {error: 'email'}
@@ -40,8 +40,9 @@
    - When closing and re-opening phone, revive uploads that were not finished (Mono)
 
 - Uploaded
-   - Search view (copy the other one) (Tom) => I'll do it after finishing 'Add Tags' tasks, since most of that work will impact this view. 
+   - Search view (copy the other one) (Tom) => I'll do it after finishing 'Add Tags' tasks, since most of that work will impact this view.
    - Dynamize *everything* (Mono)
 
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
+   - Move utility functions from constants to toolsService
