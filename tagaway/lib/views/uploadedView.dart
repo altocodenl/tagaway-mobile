@@ -14,6 +14,7 @@ import 'package:tagaway/views/uploadedGridItemView.dart';
 
 class UploadedView extends StatefulWidget {
   static const String id = 'uploaded';
+
   const UploadedView({Key? key}) : super(key: key);
 
   @override
@@ -134,19 +135,18 @@ class UploadGrid extends StatefulWidget {
 
 class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
-  dynamic pivIds       = [];
-  dynamic videoIds     = [];
+  dynamic pivIds = [];
+  dynamic videoIds = [];
   dynamic selectedList = [];
-  dynamic queryTags    = [];
 
   @override
   void initState() {
     super.initState();
-    queryPivs (queryTags);
+    queryPivs([]);
     cancelListener = StoreService.instance.listen([
       'queryTags',
     ], (queryTags) {
-      queryPivs (queryTags);
+      queryPivs(queryTags);
     });
   }
 
@@ -212,6 +212,19 @@ class TopRow extends StatefulWidget {
 }
 
 class _TopRowState extends State<TopRow> {
+  dynamic cancelListener;
+  dynamic queryTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'queryTags',
+    ], (QueryTags) {
+      if (queryTags != '') setState(() => queryTags = QueryTags);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -335,42 +348,52 @@ class _TopRowState extends State<TopRow> {
           ),
           child: Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
-            child: Row(
-              children: const [
-                // Padding(
-                //   padding: EdgeInsets.only(right: 8.0),
-                //   child: Text(
-                //     'You’re looking at',
-                //     style: kLookingAtText,
-                //   ),
-                // ),
-                // GridTagElement(
-                //     gridTagElementIcon: kCameraIcon,
-                //     iconColor: kGreyDarker,
-                //     gridTagName: 'Everything'),
-                GridTagElement(
-                    gridTagElementIcon: kClockIcon,
-                    iconColor: kGreyDarker,
-                    gridTagName: '2020'),
-                GridTagElement(
-                    gridTagElementIcon: kClockIcon,
-                    iconColor: kGreyDarker,
-                    gridTagName: 'May'),
-
-                GridTagElement(
+            child: Row(children: (() {
+              List<Widget> output = [];
+              queryTags.forEach((tag) {
+                // Show first two tags only
+                if (output.length > 2) return;
+                // DATE TAG
+                if (RegExp('^d::').hasMatch(tag))
+                  return output.add(GridTagElement(
+                      gridTagElementIcon: kClockIcon,
+                      iconColor: kGreyDarker,
+                      gridTagName: tag.slice(3)));
+                // GEO TAG
+                if (RegExp('^g::').hasMatch(tag))
+                  return output.add(GridTagElement(
+                      gridTagElementIcon: kLocationDotIcon,
+                      iconColor: kGreyDarker,
+                      gridTagName: tag.slice(3)));
+                // NORMAL TAG (TODO: FIX STYLES)
+                output.add(GridTagElement(
                     gridTagElementIcon: kLocationDotIcon,
                     iconColor: kGreyDarker,
-                    gridTagName: 'AR'),
-                GridSeeMoreElement(),
-                Expanded(
+                    gridTagName: tag));
+              });
+              if (queryTags.isEmpty) {
+                output.add(Padding(
+                  padding: EdgeInsets.only(right: 8.0),
                   child: Text(
-                    '4,444',
-                    textAlign: TextAlign.right,
-                    style: kUploadedAmountOfPivs,
+                    'You’re looking at',
+                    style: kLookingAtText,
                   ),
-                )
-              ],
-            ),
+                ));
+                output.add(GridTagElement(
+                    gridTagElementIcon: kCameraIcon,
+                    iconColor: kGreyDarker,
+                    gridTagName: 'Everything'));
+              }
+              if (queryTags.length > 2) output.add(GridSeeMoreElement());
+              output.add(Expanded(
+                child: Text(
+                  '4,444',
+                  textAlign: TextAlign.right,
+                  style: kUploadedAmountOfPivs,
+                ),
+              ));
+              return output;
+            })()),
           ),
         )
       ],
