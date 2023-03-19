@@ -283,12 +283,8 @@ Color tagColor(String tag) {
 bool showLogs = false;
 
 Future<dynamic> ajax(String method, String path, [dynamic body]) async {
-  String cookie = await StoreService.instance.get('cookie');
-  // If we make an ajax call before the store service is initialized, give it 150ms to initialize it and get the cookie again
-  if (cookie == '') {
-    await Future.delayed(Duration(milliseconds: 150));
-    cookie = await StoreService.instance.get('cookie');
-  }
+  // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
+  String cookie = await StoreService.instance.getBeforeLoad('cookie');
   int start = now();
   if (showLogs)
     debug([
@@ -303,7 +299,7 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
       response = await http.get(Uri.parse(kAltoPicAppURL + '/' + path),
           headers: {'cookie': cookie});
     else {
-      if (path != 'auth/login')
+      if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover')
         body['csrf'] = await StoreService.instance.get('csrf');
       response = await http.post(Uri.parse(kAltoPicAppURL + '/' + path),
           headers: {

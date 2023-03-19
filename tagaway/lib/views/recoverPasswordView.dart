@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 // import 'package:acpic/screens/distributorView.dart';
 // import 'package:acpic/screens/offlineView.dart';
 // //IMPORT SERVICES
-import 'package:tagaway/services/recoverPasswordService.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 // // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -79,7 +79,7 @@ class _RecoverPasswordViewState extends State<RecoverPasswordView> {
                     title: 'Recover password',
                     colour: kAltoBlue,
                     onPressed: () {
-                      RecoverPasswordService.instance
+                      AuthService.instance
                           .recoverPassword(_usernameController.text)
                           .then((value) {
                         if (value == 200) {

@@ -22,6 +22,11 @@ class AuthService {
       return response ['code'];
    }
 
+   Future <int> recoverPassword (String username) async {
+      var response = await ajax ('post', 'auth/recover', {'username': username});
+      return response ['code'];
+   }
+
    Future <int> logout () async {
       var response = await ajax ('post', 'auth/logout', {});
       if (response ['code'] == 200) {

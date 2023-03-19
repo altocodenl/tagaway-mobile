@@ -9,19 +9,14 @@ Future checkPermission() async {
       ? await Permission.photos.status
       : await Permission.storage.status;
   if (serviceStatus == PermissionStatus.granted) {
-    // print('granted');
     return 'granted';
   } else if (serviceStatus == PermissionStatus.denied) {
-    // print('denied');
     return 'denied';
   } else if (serviceStatus == PermissionStatus.limited) {
-    // print('limited');
     return 'limited';
   } else if (serviceStatus == PermissionStatus.restricted) {
-    // print('restricted');
     return 'restricted';
   } else if (serviceStatus == PermissionStatus.permanentlyDenied) {
-    // print('permanently denied');
     return 'permanent';
   }
 }
