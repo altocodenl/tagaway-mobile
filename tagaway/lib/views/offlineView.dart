@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class OfflineView extends StatefulWidget {
+  static const String id = 'offline';
+
   const OfflineView({Key? key}) : super(key: key);
 
   @override

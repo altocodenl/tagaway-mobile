@@ -324,14 +324,16 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                 //  HOW DO WE RESOLVE THE SPACES IN THE WEB APP SIGN UP?
                                 else if (passwordController.text ==
                                     repeatpasswordController.text) {
-                                  // HERE THE ACCOUNT MUST BE CREATED
                                   AuthService.instance
                                       .signup(
                                           userNameController.text,
                                           passwordController.text,
                                           emailController.text)
                                       .then((value) {
+                                    print(value);
+                                    // VALUE IS RETURNING 400
                                     if (value == 200) {
+                                      // ACCOUNT IS CREATED
                                       Navigator.pushReplacementNamed(
                                           context, 'login',
                                           arguments: ShowVerifyBanner(

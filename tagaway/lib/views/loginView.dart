@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/signupView.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,9 +19,6 @@ class LoginView extends StatefulWidget {
 }
 
 // TODO: remove this once we restore the proper permission level check code
-// class FakeFlag {
-//   String permissionLevel = 'granted';
-// }
 
 class _LoginViewState extends State<LoginView> {
   late Timer materialBannerDelayer;
@@ -176,7 +172,6 @@ class _LoginViewState extends State<LoginView> {
                           colour: kAltoBlue,
                           onPressed: () {
                             FocusManager.instance.primaryFocus?.unfocus();
-
                             AuthService.instance
                                 .login(
                                     _usernameController.text,
@@ -191,25 +186,29 @@ class _LoginViewState extends State<LoginView> {
                               if (value != 403) _usernameController.clear();
                               _passwordController.clear();
 
-                              if (value == 0)
-                                return Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (_) => const OfflineView()));
-
-                              if (value == 403)
-                                return SnackBarGlobal.buildSnackBar(
+                              if (value == 403) {
+                                SnackBarGlobal.buildSnackBar(
                                     context,
                                     'Incorrect username, email or password.',
                                     'red');
-                              if (value == 500)
-                                return SnackBarGlobal.buildSnackBar(
+                              }
+                              if (value == 500) {
+                                SnackBarGlobal.buildSnackBar(
                                     context,
                                     'Something is wrong on our side. Sorry.',
                                     'red');
-
+                              }
                               if (value == 200) {
                                 return Navigator.pushReplacementNamed(
                                     context, 'distributor');
+                              }
+                              // THIS IS SOMETHING I DID IN UPLOADER. on SocketException catch (_) {return 0;}
+                              if (value == 0) {
+                                Navigator.pushReplacementNamed(
+                                    context, 'offline');
+                              }
+                              if (value == 1) {
+                                materialBannerDisplay();
                               }
                             });
                           },

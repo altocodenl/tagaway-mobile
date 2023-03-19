@@ -5,24 +5,18 @@
 - Signup
    - Make signup view call service (Mono)
    - Client-side validations for inputs (Mono)
-      - Check repetitions for username, email and password
-      - Check valid username, email & password
+      - Check repetitions for username, email and password (TOM DID IT)
+      - Check valid username, email & password (TOM DID IT)
    - Handle errors with snackbar (Tom)
-      - Username repeated
-      - Email repeated
-      - Too many users
         - Errors (Tom's Notes):
-          - usernames are too short or invalid for any other reason NOT FINISHED 
-          - password is too short or is invalid for any other reason NOT FINISHED
-          - username already exists 
-          - email already registered
-          - we have too many users. 
+          - usernames are too short or invalid for any other reason => NOT FINISHED 
+          - password is too short or is invalid for any other reason => NOT FINISHED
+          - username already exists => 403 {error: 'username'}
+          - email already registered => 403 {error: 'email'}
+          - we have too many users. => ?
 
 - Login
-   - On error, snackbar (Tom)
-      - Need validation
-      - Wrong username/email/password combination
-   - Send to distributor on success (Tom)
+   -IN THEORY ALL DONE, NEEDS TESTING
 
 - Delete account (Tom)
    - Test that it works
