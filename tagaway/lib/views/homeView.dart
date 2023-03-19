@@ -13,7 +13,7 @@ import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends StatefulWidget {
-  static const String id = 'how_view';
+  static const String id = 'home';
 
   const HomeView({Key? key}) : super(key: key);
 
@@ -189,9 +189,14 @@ class _HomeViewState extends State<HomeView> {
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         children: [
-                          for (var v in hometags)
-                            HomeCard(color: tagColor(v), title: v)
-                        ]),
+                          for (var v in hometags) GestureDetector(
+                            onTap: () {
+                              StoreService.instance.set ('queryTags', [v]);
+                              StoreService.instance.set ('currentIndex', 2);
+                            },
+                            child: HomeCard(color: tagColor(v), title: v)
+                         )
+                       ])
                   )),
       ),
       floatingActionButton: Visibility(

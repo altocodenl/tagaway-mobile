@@ -10,7 +10,7 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
 
 class LocalView extends StatefulWidget {
-  static const String id = 'local_view';
+  static const String id = 'local';
 
   const LocalView({Key? key}) : super(key: key);
 

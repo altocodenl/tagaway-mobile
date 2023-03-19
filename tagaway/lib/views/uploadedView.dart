@@ -1,17 +1,19 @@
-// IMPORT FLUTTER PACKAGES
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tagaway/services/tagService.dart';
 
-// IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
+
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
 
 class UploadedView extends StatefulWidget {
+  static const String id = 'uploaded';
   const UploadedView({Key? key}) : super(key: key);
 
   @override
@@ -131,24 +133,37 @@ class UploadGrid extends StatefulWidget {
 }
 
 class _UploadGridState extends State<UploadGrid> {
-  dynamic pivIds = [];
-  dynamic videoIds = [];
+  dynamic cancelListener;
+  dynamic pivIds       = [];
+  dynamic videoIds     = [];
   dynamic selectedList = [];
+  dynamic queryTags    = [];
 
   @override
   void initState() {
     super.initState();
-    fetchAssets();
+    queryPivs (queryTags);
+    cancelListener = StoreService.instance.listen([
+      'queryTags',
+    ], (queryTags) {
+      queryPivs (queryTags);
+    });
   }
 
-  fetchAssets() async {
-    await TagService.instance.getPivs().then((value) {
+  queryPivs(queryTags) async {
+    await TagService.instance.queryPivs(queryTags).then((value) {
       if (value == 403) Navigator.pushReplacementNamed(context, 'distributor');
       setState(() {
         pivIds = value['pivIds'];
         videoIds = value['videoIds'];
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override

@@ -156,10 +156,9 @@ class TagService {
       StoreService.instance.set ('timeHeader', semesters, true);
    }
 
-
-  getPivs () async {
+   queryPivs (dynamic tags) async {
     var response = await ajax('post', 'query', {
-      'tags': [],
+      'tags': tags,
       'sort': 'newest',
       'from': 1,
       'to': 10000,
