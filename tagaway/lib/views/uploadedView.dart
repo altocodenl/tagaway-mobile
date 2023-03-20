@@ -2,14 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/ui_elements/material_elements.dart';
-
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
-
-import 'package:tagaway/views/querySelectorView.dart';
+import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
 
 class UploadedView extends StatefulWidget {
@@ -152,12 +148,14 @@ class _UploadGridState extends State<UploadGrid> {
 
   queryPivs(queryTags) async {
     await TagService.instance.queryPivs(queryTags).then((value) {
-      if (value ['code'] == 403) return Navigator.pushReplacementNamed(context, 'distributor');
+      if (value['code'] == 403)
+        return Navigator.pushReplacementNamed(context, 'distributor');
       // TODO: HANDLE NON-403, NON-200
-      if (value ['code'] == 200) setState(() {
-        pivIds = value['body']['pivIds'];
-        videoIds = value['body']['videoIds'];
-      });
+      if (value['code'] == 200)
+        setState(() {
+          pivIds = value['body']['pivIds'];
+          videoIds = value['body']['videoIds'];
+        });
     });
   }
 
@@ -251,7 +249,9 @@ class _TopRowState extends State<TopRow> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, 'searchTags');
+                        },
                         child: const Icon(
                           kSearchIcon,
                           color: kGreyDarker,
@@ -263,7 +263,7 @@ class _TopRowState extends State<TopRow> {
                         child: GestureDetector(
                           onTap: () {
                             Navigator.pushReplacementNamed(
-                                context, QuerySelectorView.id);
+                                context, 'querySelector');
                           },
                           child: Transform.rotate(
                             angle: 90 * -math.pi / 180.0,
