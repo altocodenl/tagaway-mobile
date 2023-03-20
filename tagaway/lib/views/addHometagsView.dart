@@ -3,7 +3,6 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/yourHometagsView.dart';
 
 class AddHometagsView extends StatefulWidget {
   static const String id = 'add_home_tags';
@@ -101,8 +100,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
               padding: const EdgeInsets.only(top: 18, right: 12),
               child: GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacementNamed(
-                        context, YourHometagsView.id);
+                    Navigator.pushReplacementNamed(context, 'yourHomeTags');
                   },
                   child: const Text('Cancel', style: kPlainText)),
             )
@@ -123,8 +121,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
                       // Returning the desired behavior in a function solves the problem.
                       return () {
                         TagService.instance.editHometags(v, true);
-                        Navigator.pushReplacementNamed(
-                            context, YourHometagsView.id);
+                        Navigator.pushReplacementNamed(context, 'yourHomeTags');
                       };
                     })
             ],
@@ -192,10 +189,15 @@ class CustomSearchDelegate extends SearchDelegate {
       itemCount: matchQuery.length,
       itemBuilder: (context, index) {
         var result = matchQuery[index];
-        return ListTile(
-            title: Text(result),
+        return TagListElement(
+            tagName: result,
+            tagColor: tagColor(result),
             onTap: () {
-              TagService.instance.editHometags(result, true);
+              // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+              return () {
+                TagService.instance.editHometags(result, true);
+                Navigator.pushReplacementNamed(context, 'yourHomeTags');
+              };
             });
       },
     );

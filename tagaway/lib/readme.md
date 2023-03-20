@@ -12,26 +12,14 @@
           - email already registered => 403 {error: 'email'}
           - we have too many users. => ?
 
-- Login
-   -IN THEORY ALL DONE, NEEDS TESTING
-
-- Delete account (Tom)
-   - Test that it works
-
 - Sidebar
    - Dynamize usage (get account & display usage) (Mono)
-
-- Add home tags
-   - Make it look better (Tom)
-   - When clicking on a tag, send back to my home tags view (Tom)
 
 - Home tags
    - When clicking on hometag, send to uploaded with that tag in the query (Mono)
 
 - Local
    - Time header
-      - Make service return semesters (Mono)
-      - Create builder for semesters (Tom)
       - On scroll, change active month (Mono)
       - When clicking on month, jump to relevant scroll position (Mono)
    - When closing and re-opening phone, revive uploads that were not finished (Mono)
