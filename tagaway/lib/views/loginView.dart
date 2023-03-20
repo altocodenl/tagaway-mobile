@@ -51,7 +51,7 @@ class _LoginViewState extends State<LoginView> {
       ScaffoldMessenger.of(context).showMaterialBanner(
         MaterialBanner(
           onVisible: () {
-            materialBannerDelayer = Timer(const Duration(seconds: 3), () {
+            materialBannerDelayer = Timer(const Duration(seconds: 4), () {
               ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
             });
           },

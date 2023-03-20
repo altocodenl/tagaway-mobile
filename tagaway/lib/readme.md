@@ -3,10 +3,7 @@
 ## TODO
 
 - Signup
-   - Make signup view call service (Mono)
-   - Client-side validations for inputs (Mono)
-      - Check repetitions for username, email and password (TOM DID IT)
-      - Check valid username, email & password (TOM DID IT)
+   - Tighten up client-side validations for inputs (Mono)
    - Handle errors with snackbar (Tom)
         - Errors (Tom's Notes):
           - usernames are too short or invalid for any other reason => NOT FINISHED
