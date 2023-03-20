@@ -46,6 +46,7 @@ class StoreService {
 
    // To be invoked to clear everything except auth state - for development purposes only
    resetDev () async {
+      store = {};
       var prefs = await SharedPreferences.getInstance ();
       var keys = await prefs.getKeys ().toList ();
       for (var k in keys) {

@@ -407,9 +407,10 @@ class _GridState extends State<Grid> {
                   var pivHeight = (MediaQuery.of(context).size.width - 1) / 2;
                   var pivRowIndex =
                       max(0, (state.metrics.pixels / pivHeight).floor() * 2);
-                  // TODO: highlight the proper month
                   if (!itemList.isEmpty) {
-                    debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
+                     // TODO: highlight the proper month
+                    // debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
+
                   }
                   return true;
                 },

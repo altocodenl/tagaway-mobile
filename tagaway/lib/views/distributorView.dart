@@ -33,7 +33,6 @@ class _DistributorState extends State<Distributor> {
       // If user has no cookie...
       var recurringUser =
           await StoreService.instance.getBeforeLoad('recurringUser');
-      debug(['No cookie, recurring user?', recurringUser == true]);
       // If user is recurring, send to login; otherwise, send to signup.
       return Navigator.pushReplacementNamed(
           context, recurringUser == true ? 'login' : 'signup');
@@ -42,7 +41,6 @@ class _DistributorState extends State<Distributor> {
     var permissionStatus = await checkPermission();
     // TODO: remove hardcoding
     // permissionStatus = 'granted';
-    debug(['Cookie present, permission level:', permissionStatus]);
     // If user has granted complete or partial permissions, go to the main part of the app.
     if (permissionStatus == 'granted' || permissionStatus == 'limited')
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');

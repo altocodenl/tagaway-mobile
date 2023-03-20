@@ -146,13 +146,13 @@ class _UploadGridState extends State<UploadGrid> {
     cancelListener = StoreService.instance.listen([
       'queryTags',
     ], (queryTags) {
-      queryPivs(queryTags);
+      if (queryTags != '') queryPivs(queryTags);
     });
   }
 
   queryPivs(queryTags) async {
     await TagService.instance.queryPivs(queryTags).then((value) {
-      if (value == 403) Navigator.pushReplacementNamed(context, 'distributor');
+      if (value == 403) return Navigator.pushReplacementNamed(context, 'distributor');
       setState(() {
         pivIds = value['pivIds'];
         videoIds = value['videoIds'];
@@ -221,7 +221,7 @@ class _TopRowState extends State<TopRow> {
     cancelListener = StoreService.instance.listen([
       'queryTags',
     ], (QueryTags) {
-      if (queryTags != '') setState(() => queryTags = QueryTags);
+      if (QueryTags != '') setState(() => queryTags = QueryTags);
     });
   }
 
