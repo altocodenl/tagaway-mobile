@@ -169,8 +169,8 @@ class TagService {
           pivIds.add (v ['id']);
           if (v ['vid'] != null) videoIds.add (v ['id']);
        });
-       return {'pivIds': pivIds, 'videoIds': videoIds};
+       return {'code': 200, 'body': {'pivIds': pivIds, 'videoIds': videoIds}};
     }
-    else return response ['code'];
+    return {'code': response ['code'], 'error': response ['body']};
   }
 }

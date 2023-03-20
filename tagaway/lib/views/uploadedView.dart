@@ -152,10 +152,11 @@ class _UploadGridState extends State<UploadGrid> {
 
   queryPivs(queryTags) async {
     await TagService.instance.queryPivs(queryTags).then((value) {
-      if (value == 403) return Navigator.pushReplacementNamed(context, 'distributor');
-      setState(() {
-        pivIds = value['pivIds'];
-        videoIds = value['videoIds'];
+      if (value ['code'] == 403) return Navigator.pushReplacementNamed(context, 'distributor');
+      // TODO: HANDLE NON-403, NON-200
+      if (value ['code'] == 200) setState(() {
+        pivIds = value['body']['pivIds'];
+        videoIds = value['body']['videoIds'];
       });
     });
   }
