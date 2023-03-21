@@ -135,8 +135,7 @@ class UploadGrid extends StatefulWidget {
 
 class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
-  dynamic pivIds = [];
-  dynamic videoIds = [];
+  dynamic query = {'pivs': [], 'total': 0};
   dynamic selectedList = [];
 
   @override
@@ -155,8 +154,7 @@ class _UploadGridState extends State<UploadGrid> {
       if (value ['code'] == 403) return Navigator.pushReplacementNamed(context, 'distributor');
       // TODO: HANDLE NON-403, NON-200
       if (value ['code'] == 200) setState(() {
-        pivIds = value['body']['pivIds'];
-        videoIds = value['body']['videoIds'];
+        query = value['body'];
       });
     });
   }
@@ -183,20 +181,13 @@ class _UploadGridState extends State<UploadGrid> {
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
-              itemCount: pivIds.length,
+              itemCount: query ['pivs'].length,
               itemBuilder: (BuildContext context, index) {
                 return UploadedGridItem(
-                  pivIds: pivIds,
-                  videoIds: videoIds,
-                  item: pivIds[index],
-                  isVideo: videoIds.contains(pivIds[index]),
-                  // isSelected: (bool value) {
-                  //   if (value) {
-                  //     selectedList.add(pivIds [index]);
-                  //   } else {
-                  //     selectedList.remove(pivIds [index]);
-                  //   }
-                  // }
+                  pivIds: query ['pivs'],
+                  videoIds: query ['videoIds'],
+                  item: query ['pivs'][index]['id'],
+                  isVideo: query['videoIds'].contains(query['pivs'][index] ['id']),
                 );
               }),
         ),
