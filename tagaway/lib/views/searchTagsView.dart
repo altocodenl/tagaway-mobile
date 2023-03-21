@@ -15,24 +15,24 @@ class SearchTagsView extends StatefulWidget {
 
 class _SearchTagsViewState extends State<SearchTagsView> {
   dynamic cancelListener;
-  List hometags = [];
+  List queryTags = [];
   List tags = [];
-  List potentialHometags = [];
+  List showTags = [];
 
   @override
   void initState() {
     super.initState();
     cancelListener =
-        StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
+        StoreService.instance.listen(['queryTags', 'tags'], (v1, v2) {
       setState(() {
-        hometags = v1;
+        queryTags = v1;
         tags = v2;
-        List PotentialHometags = [];
+        List ShowTags = [];
         tags.forEach((tag) {
           if (RegExp('^[a-z]::').hasMatch(tag)) return;
-          if (!hometags.contains(tag)) PotentialHometags.add(tag);
+          if (!queryTags.contains(tag)) ShowTags.add(tag);
         });
-        potentialHometags = PotentialHometags;
+        showTags = ShowTags;
       });
     });
   }
@@ -63,7 +63,7 @@ class _SearchTagsViewState extends State<SearchTagsView> {
             onTap: () {
               showSearch(
                 context: context,
-                delegate: TagSearchClass(potentialHometags),
+                delegate: TagSearchClass(showTags),
               );
             },
             child: Container(
@@ -111,7 +111,7 @@ class _SearchTagsViewState extends State<SearchTagsView> {
             padding: const EdgeInsets.only(left: 12, right: 12, top: 5),
             child: ListView(
               children: [
-                for (var v in potentialHometags)
+                for (var v in showTags)
                   TagListElement(
                       tagColor: tagColor(v),
                       tagName: v,
@@ -119,9 +119,10 @@ class _SearchTagsViewState extends State<SearchTagsView> {
                         // For some reason, any code we put outside of the function below will be invoked on widget draw.
                         // Returning the desired behavior in a function solves the problem.
                         return () {
-                          TagService.instance.editHometags(v, true);
-                          Navigator.pushReplacementNamed(
-                              context, 'bottomNavigation');
+                          var updatedTags = StoreService.instance.get ('queryTags');
+                          updatedTags.add (v);
+                          StoreService.instance.set ('queryTags', updatedTags, true);
+                          Navigator.pushReplacementNamed(context, 'bottomNavigation');
                         };
                       })
               ],
@@ -134,10 +135,10 @@ class _SearchTagsViewState extends State<SearchTagsView> {
 }
 
 class TagSearchClass extends SearchDelegate {
-  dynamic potentialHometags = [];
+  dynamic tags = [];
 
-  TagSearchClass(dynamic potentialHometags)
-      : this.potentialHometags = potentialHometags;
+  TagSearchClass(dynamic tags)
+      : this.tags = tags;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -162,7 +163,7 @@ class TagSearchClass extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in potentialHometags) {
+    for (var tag in tags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
@@ -181,7 +182,7 @@ class TagSearchClass extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in potentialHometags) {
+    for (var tag in tags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
@@ -196,7 +197,9 @@ class TagSearchClass extends SearchDelegate {
             onTap: () {
               // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
               return () {
-                TagService.instance.editHometags(result, true);
+                var updatedTags = StoreService.instance.get ('queryTags');
+                updatedTags.add (result);
+                StoreService.instance.set ('queryTags', updatedTags, true);
                 Navigator.pushReplacementNamed(context, 'bottomNavigation');
               };
             });

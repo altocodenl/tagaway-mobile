@@ -137,12 +137,12 @@ class _UploadGridState extends State<UploadGrid> {
   @override
   void initState() {
     super.initState();
-    queryPivs([]);
     cancelListener = StoreService.instance.listen([
       'queryTags',
     ], (queryTags) {
       if (queryTags != '') queryPivs(queryTags);
     });
+    if (StoreService.instance.get ('queryTags') == '') StoreService.instance.set ('queryTags', [], true);
   }
 
   queryPivs(queryTags) async {
@@ -212,6 +212,12 @@ class _TopRowState extends State<TopRow> {
     ], (QueryTags) {
       if (QueryTags != '') setState(() => queryTags = QueryTags);
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
