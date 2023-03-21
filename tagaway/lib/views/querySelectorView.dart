@@ -5,7 +5,7 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
 
 class QuerySelectorView extends StatefulWidget {
-  static const String id = 'query_selector_view';
+  static const String id = 'querySelector';
 
   const QuerySelectorView({Key? key}) : super(key: key);
 

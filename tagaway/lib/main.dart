@@ -14,8 +14,10 @@ import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
+import 'package:tagaway/views/searchTagsView.dart';
 import 'package:tagaway/views/signUpFormView.dart';
 import 'package:tagaway/views/signupView.dart';
+import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
@@ -59,6 +61,7 @@ class Tagaway extends StatelessWidget {
         SignUpFormView.id: (context) => const SignUpFormView(),
         SignUpView.id: (context) => const SignUpView(),
         Distributor.id: (context) => const Distributor(),
+        UploadedView.id: (context) => const UploadedView(),
         LoginView.id: (context) => const LoginView(),
         HomeView.id: (context) => const HomeView(),
         DeleteAccount.id: (context) => const DeleteAccount(),
@@ -68,6 +71,7 @@ class Tagaway extends StatelessWidget {
         ChangePasswordView.id: (context) => const ChangePasswordView(),
         RecoverPasswordView.id: (context) => const RecoverPasswordView(),
         QuerySelectorView.id: (context) => const QuerySelectorView(),
+        SearchTagsView.id: (context) => const SearchTagsView(),
         BottomNavigationView.id: (context) => const BottomNavigationView(),
         RequestPermissionView.id: (context) => const RequestPermissionView(),
         LocalView.id: (context) => const LocalView(),

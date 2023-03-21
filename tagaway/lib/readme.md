@@ -15,9 +15,6 @@
 - Sidebar
    - Dynamize usage (get account & display usage) (Mono)
 
-- Home tags
-   - When clicking on hometag, send to uploaded with that tag in the query (Mono)
-
 - Local
    - Time header
       - On scroll, change active month (Mono)
@@ -25,7 +22,6 @@
    - When closing and re-opening phone, revive uploads that were not finished (Mono)
 
 - Uploaded
-   - Search view (copy the other one) (Tom) => I'll do it after finishing 'Add Tags' tasks, since most of that work will impact this view.
    - Dynamize *everything* (Mono)
 
 - General
