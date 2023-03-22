@@ -163,15 +163,6 @@ class TagService {
       'from': 1,
       'to': 10000,
     });
-    if (response ['code'] == 200) {
-       var pivIds = [], videoIds = [];
-       response ['body'] ['pivs'].forEach ((v) {
-          pivIds.add (v ['id']);
-          if (v ['vid'] != null) videoIds.add (v ['id']);
-       });
-       response ['body'] ['videoIds'] = videoIds;
-       return {'code': 200, 'body': response ['body']};
-    }
-    return {'code': response ['code'], 'error': response ['body']};
+    return {'code': response ['code'], 'body': response ['body']};
   }
 }

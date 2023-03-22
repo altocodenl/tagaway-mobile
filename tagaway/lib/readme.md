@@ -23,6 +23,15 @@
 
 - Uploaded
    - Dynamize *everything* (Mono)
+      - Refresh uploaded when local uploads something
+      - Tagging
+         - Swipe & list
+         - Add tag
+         - Mark pivs as tagged or not
+         - Counter
+      - Filter
+      - Time header
+
 
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short

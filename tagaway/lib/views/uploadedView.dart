@@ -131,27 +131,30 @@ class UploadGrid extends StatefulWidget {
 
 class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
-  dynamic query = {'pivs': [], 'total': 0};
+  dynamic cancelListener2;
+  dynamic queryResult = {'pivs': [], 'total': 0};
   dynamic selectedList = [];
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
-      'queryTags',
-    ], (queryTags) {
-      if (queryTags != '') queryPivs(queryTags);
-    });
     if (StoreService.instance.get ('queryTags') == '') StoreService.instance.set ('queryTags', [], true);
-  }
-
-  queryPivs(queryTags) async {
-    await TagService.instance.queryPivs(queryTags).then((value) {
-      if (value['code'] == 403)
-        return Navigator.pushReplacementNamed(context, 'distributor');
+    cancelListener = StoreService.instance.listen([
+      'queryTags'
+    ], (v1) {
+      if (v1 == '') v1 = [];
+      TagService.instance.queryPivs(v1).then((value) {
+        StoreService.instance.set ('queryResult', value, true);
+      });
+    });
+    cancelListener2 = StoreService.instance.listen([
+      'queryResult',
+    ], (v1) {
+      if (v1 == '') return 0;
+      if (v1['code'] == 403) return Navigator.pushReplacementNamed(context, 'distributor');
       // TODO: HANDLE NON-403, NON-200
-      if (value ['code'] == 200) setState(() {
-        query = value['body'];
+      if (v1 ['code'] == 200) setState(() {
+        queryResult = v1['body'];
       });
     });
   }
@@ -160,6 +163,7 @@ class _UploadGridState extends State<UploadGrid> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
   }
 
   @override
@@ -178,13 +182,11 @@ class _UploadGridState extends State<UploadGrid> {
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
-              itemCount: query ['pivs'].length,
+              itemCount: queryResult ['pivs'].length,
               itemBuilder: (BuildContext context, index) {
                 return UploadedGridItem(
-                  pivIds: query ['pivs'],
-                  videoIds: query ['videoIds'],
-                  item: query ['pivs'][index]['id'],
-                  isVideo: query['videoIds'].contains(query['pivs'][index] ['id']),
+                  item: queryResult ['pivs'][index],
+                  pivs: queryResult ['pivs']
                 );
               }),
         ),
@@ -203,14 +205,19 @@ class TopRow extends StatefulWidget {
 class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
   dynamic queryTags = [];
+  dynamic queryResult = {'total': 0};
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
       'queryTags',
-    ], (QueryTags) {
-      if (QueryTags != '') setState(() => queryTags = QueryTags);
+      'queryResult'
+    ], (v1, v2) {
+      setState(() {
+        if (v1 != '') queryTags = v1;
+        if (v2 != '') queryResult = v2['body'];
+      });
     });
   }
 
@@ -384,7 +391,7 @@ class _TopRowState extends State<TopRow> {
               if (queryTags.length > 2) output.add(GridSeeMoreElement());
               output.add(Expanded(
                 child: Text(
-                  '4,444',
+                  queryResult['total'].toString (),
                   textAlign: TextAlign.right,
                   style: kUploadedAmountOfPivs,
                 ),

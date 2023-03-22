@@ -596,9 +596,9 @@ class QuerySelectionTagElement extends StatelessWidget {
 class VideoPlayerWidget extends StatefulWidget {
   const VideoPlayerWidget({
     Key? key,
-    required this.item,
+    required this.pivId,
   }) : super(key: key);
-  final String item;
+  final String pivId;
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -622,7 +622,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   _initVideo() async {
     _controller = VideoPlayerController.network(
-      (kTagawayVideoURL) + (widget.item),
+      (kTagawayVideoURL) + (widget.pivId),
       httpHeaders: {
         'cookie': StoreService.instance.get('cookie'),
         // This line turns off cache. Cache in video_player seems to be broken.

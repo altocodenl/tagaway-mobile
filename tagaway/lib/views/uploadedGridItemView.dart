@@ -10,20 +10,13 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class UploadedGridItem extends StatelessWidget {
-  final String item;
-  final bool isVideo;
-  final List pivIds;
-  final List videoIds;
-
-  // final ValueChanged<bool> isSelected;
+  final dynamic item;
+  final dynamic pivs;
 
   const UploadedGridItem({
     Key? key,
     required this.item,
-    required this.isVideo,
-    required this.pivIds,
-    required this.videoIds,
-    // required this.isSelected
+    required this.pivs
   }) : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
@@ -37,7 +30,7 @@ class UploadedGridItem extends StatelessWidget {
     return Stack(
       children: [
         CachedNetworkImage(
-            imageUrl: (kTagawayThumbSURL) + (item),
+            imageUrl: (kTagawayThumbSURL) + (item['id']),
             httpHeaders: {'cookie': StoreService.instance.get('cookie')},
             placeholder: (context, url) => const Center(
                     child: CircularProgressIndicator(
@@ -48,7 +41,7 @@ class UploadedGridItem extends StatelessWidget {
                       image: DecorationImage(
                           fit: BoxFit.cover, image: imageProvider)),
                 )),
-        isVideo
+        item['vid'] != null
             ? const Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
@@ -68,10 +61,8 @@ class UploadedGridItem extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (_) {
                 return CarrouselView(
-                  item: item,
-                  isVideo: isVideo,
-                  pivIds: pivIds,
-                  videoIds: videoIds,
+                  initialPiv: pivs.indexOf(item),
+                  pivs: pivs
                 );
               }),
             );
@@ -102,16 +93,13 @@ class UploadedGridItem extends StatelessWidget {
 class CarrouselView extends StatefulWidget {
   const CarrouselView(
       {Key? key,
-      required this.item,
-      required this.isVideo,
-      required this.pivIds,
-      required this.videoIds})
+      required this.initialPiv,
+      required this.pivs
+      })
       : super(key: key);
 
-  final String item;
-  final bool isVideo;
-  final List pivIds;
-  final List videoIds;
+  final dynamic initialPiv;
+  final dynamic pivs;
 
   @override
   State<CarrouselView> createState() => _CarrouselViewState();
@@ -124,12 +112,13 @@ class _CarrouselViewState extends State<CarrouselView> {
       reverse: true,
       physics: const BouncingScrollPhysics(),
       controller: PageController(
-        initialPage: widget.pivIds.indexOf(widget.item),
+        initialPage: widget.initialPiv,
         keepPage: false,
       ),
       // pageSnapping: true,
-      itemCount: widget.pivIds.length,
+      itemCount: widget.pivs.length,
       itemBuilder: (context, index) {
+        var piv = widget.pivs [index];
         return Scaffold(
           appBar: AppBar(
             iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
@@ -142,17 +131,14 @@ class _CarrouselViewState extends State<CarrouselView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('$index'),
-                  Text(widget.videoIds
-                      .contains(widget.pivIds[index])
-                      .toString()),
-                  // Text(widget.item.createDateTime.day.toString(),
+                  // Text(piv.createDateTime.day.toString(),
                   //     style: kDarkBackgroundBigTitle),
                   // const Text(
                   //   '/',
                   //   style: kDarkBackgroundBigTitle,
                   // ),
                   // Text(
-                  //   widget.item.createDateTime.month.toString(),
+                  //   piv.createDateTime.month.toString(),
                   //   style: kDarkBackgroundBigTitle,
                   // ),
                   // const Text(
@@ -160,7 +146,7 @@ class _CarrouselViewState extends State<CarrouselView> {
                   //   style: kDarkBackgroundBigTitle,
                   // ),
                   // Text(
-                  //   widget.item.createDateTime.year.toString(),
+                  //   piv.createDateTime.year.toString(),
                   //   style: kDarkBackgroundBigTitle,
                   // ),
                 ],
@@ -169,9 +155,9 @@ class _CarrouselViewState extends State<CarrouselView> {
           ),
           body: Stack(children: [
             Visibility(
-                visible: !widget.videoIds.contains(widget.pivIds[index]),
+                visible: piv['vid'] == null,
                 child: CachedNetworkImage(
-                    imageUrl: (kTagawayThumbMURL) + (widget.pivIds[index]),
+                    imageUrl: (kTagawayThumbMURL) + (piv['id']),
                     httpHeaders: {
                       'cookie': StoreService.instance.get('cookie')
                     },
@@ -188,7 +174,7 @@ class _CarrouselViewState extends State<CarrouselView> {
                                   image: imageProvider)),
                         )),
                 replacement: VideoPlayerWidget(
-                  item: widget.pivIds[index],
+                  pivId: piv['id'],
                 )),
             Align(
               alignment: Alignment.bottomCenter,
@@ -203,14 +189,12 @@ class _CarrouselViewState extends State<CarrouselView> {
                       Expanded(
                         child: IconButton(
                           onPressed: () async {
-                            if (widget.videoIds
-                                    .contains(widget.pivIds[index]) ==
-                                false) {
+                            if (piv['vid'] == null) {
                               WhiteSnackBar.buildSnackBar(context,
                                   'Preparing your image for sharing...');
                               final response = await http.get(
                                   Uri.parse((kTagawayThumbMURL) +
-                                      (widget.pivIds[index])),
+                                      (piv['id'])),
                                   headers: {
                                     'cookie':
                                         StoreService.instance.get('cookie')
@@ -220,14 +204,12 @@ class _CarrouselViewState extends State<CarrouselView> {
                               final path = '${temp.path}/image.jpg';
                               File(path).writeAsBytesSync(bytes);
                               await Share.shareXFiles([XFile(path)]);
-                            } else if (widget.videoIds
-                                    .contains(widget.pivIds[index]) ==
-                                true) {
+                            } else if (piv['vid'] != null) {
                               WhiteSnackBar.buildSnackBar(context,
                                   'Preparing your video for sharing...');
                               final response = await http.get(
                                   Uri.parse((kTagawayVideoURL) +
-                                      (widget.pivIds[index])),
+                                      (piv['id'])),
                                   headers: {
                                     'cookie':
                                         StoreService.instance.get('cookie')

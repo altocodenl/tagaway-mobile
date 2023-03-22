@@ -25,7 +25,7 @@ class _SearchTagsViewState extends State<SearchTagsView> {
     cancelListener =
         StoreService.instance.listen(['queryTags', 'tags'], (v1, v2) {
       setState(() {
-        queryTags = v1;
+        if (v1 != '') queryTags = v1;
         tags = v2;
         List ShowTags = [];
         tags.forEach((tag) {
