@@ -35,7 +35,6 @@ class _LocalViewState extends State<LocalView> {
 
   @override
   void initState() {
-    // PhotoManager.requestPermissionExtend();
     super.initState();
     cancelListener = StoreService.instance.listen([
       'usertags',
@@ -51,8 +50,10 @@ class _LocalViewState extends State<LocalView> {
         if (v3 != '') swiped = v3;
         newTag = v4;
         startTaggingModal = v5;
-        if (swiped == false && initialChildSize == 0.77)
+        if (swiped == false && initialChildSize > 0.07)
           initialChildSize = 0.07;
+        if (swiped == true && initialChildSize < 0.77)
+          initialChildSize = 0.77;
       });
     });
   }
@@ -95,6 +96,7 @@ class _LocalViewState extends State<LocalView> {
                     StoreService.instance.set('swiped', false, true);
                   if (state.extent > 0.7699)
                     StoreService.instance.set('swiped', true, true);
+                    StoreService.instance.set ('startTaggingModal', false, true);
                   return true;
                 },
                 child: DraggableScrollableSheet(
@@ -337,7 +339,6 @@ class _LocalViewState extends State<LocalView> {
                               StoreService.instance.set('swiped', true, true);
                               StoreService.instance
                                   .set('startTaggingModal', false, true);
-                              initialChildSize = 0.77;
                             }))
                   ],
                 ),

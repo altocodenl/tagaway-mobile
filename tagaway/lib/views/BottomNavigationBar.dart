@@ -29,6 +29,11 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen(['currentIndex'], (v) {
+      // Reset state variables that are used by both Local and Uploaded
+      StoreService.instance.set ('currentlyTagging', '', true);
+      StoreService.instance.set ('swiped', false, true);
+      StoreService.instance.set ('newTag', '', true);
+      StoreService.instance.set ('startTaggingModal', false, true);
       setState(() => currentIndex = v == '' ? 0 : v);
     });
   }
