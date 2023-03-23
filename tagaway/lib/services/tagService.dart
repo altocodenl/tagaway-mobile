@@ -78,6 +78,10 @@ class TagService {
     // TODO: add error handling
   }
 
+  toggleUploadedPiv (dynamic piv, String tag) async {
+    debug (['toggle uploaded piv', piv, tag]);
+  }
+
   getTaggedPivs (String tag) async {
     var response = await ajax('post', 'query', {
       'tags': [tag],

@@ -50,10 +50,8 @@ class _LocalViewState extends State<LocalView> {
         if (v3 != '') swiped = v3;
         newTag = v4;
         startTaggingModal = v5;
-        if (swiped == false && initialChildSize > 0.07)
-          initialChildSize = 0.07;
-        if (swiped == true && initialChildSize < 0.77)
-          initialChildSize = 0.77;
+        if (swiped == false && initialChildSize > 0.07) initialChildSize = 0.07;
+        if (swiped == true && initialChildSize < 0.77) initialChildSize = 0.77;
       });
     });
   }
@@ -96,7 +94,7 @@ class _LocalViewState extends State<LocalView> {
                     StoreService.instance.set('swiped', false, true);
                   if (state.extent > 0.7699)
                     StoreService.instance.set('swiped', true, true);
-                    StoreService.instance.set ('startTaggingModal', false, true);
+                  StoreService.instance.set('startTaggingModal', false, true);
                   return true;
                 },
                 child: DraggableScrollableSheet(
@@ -182,17 +180,26 @@ class _LocalViewState extends State<LocalView> {
                                       ),
                                     ),
                                   )),
-                              for (var v in usertags)
-                                TagListElement(
-                                    tagColor: tagColor(v),
-                                    tagName: v,
-                                    onTap: () {
-                                      // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                      return () {
-                                        StoreService.instance
-                                            .set('currentlyTagging', v, true);
-                                      };
-                                    })
+                              ListView.builder(
+                                  itemCount: usertags.length,
+                                  padding: EdgeInsets.zero,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var tag = usertags[index];
+                                    return TagListElement(
+                                      tagColor: tagColor(tag),
+                                      tagName: tag,
+                                      onTap: () {
+                                        // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                                        return () {
+                                          StoreService.instance.set(
+                                              'currentlyTagging', tag, true);
+                                        };
+                                      },
+                                    );
+                                  })
                             ],
                           ),
                         ),
@@ -409,9 +416,8 @@ class _GridState extends State<Grid> {
                   var pivRowIndex =
                       max(0, (state.metrics.pixels / pivHeight).floor() * 2);
                   if (!itemList.isEmpty) {
-                     // TODO: highlight the proper month
+                    // TODO: highlight the proper month
                     // debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
-
                   }
                   return true;
                 },
@@ -557,8 +563,7 @@ class _TopRowState extends State<TopRow> {
                                       });
                                     return output;
                                   })());
-                            })
-                        ))
+                            })))
               ],
             ),
           ),

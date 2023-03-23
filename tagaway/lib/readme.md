@@ -25,10 +25,9 @@
    - Dynamize *everything* (Mono)
       - Refresh uploaded when local uploads something
       - Tagging
-         - Swipe & list
-         - Add tag
-         - Mark pivs as tagged or not
-         - Counter
+         - Service fn to tag/untag
+         - Show tag count
+         - Show green/gray icon on pivs
       - Filter
       - Time header
 

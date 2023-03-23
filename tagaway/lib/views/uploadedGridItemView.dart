@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -13,11 +14,8 @@ class UploadedGridItem extends StatelessWidget {
   final dynamic item;
   final dynamic pivs;
 
-  const UploadedGridItem({
-    Key? key,
-    required this.item,
-    required this.pivs
-  }) : super(key: key);
+  const UploadedGridItem({Key? key, required this.item, required this.pivs})
+      : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
   //   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -57,15 +55,17 @@ class UploadedGridItem extends StatelessWidget {
 
         GestureDetector(
           onTap: () {
-            Navigator.push(
+            var currentlyTagging =
+                StoreService.instance.get('currentlyTagging');
+            if (currentlyTagging == '') Navigator.push(
               context,
               MaterialPageRoute(builder: (_) {
                 return CarrouselView(
-                  initialPiv: pivs.indexOf(item),
-                  pivs: pivs
-                );
+                    initialPiv: pivs.indexOf(item), pivs: pivs);
               }),
             );
+            else
+              TagService.instance.toggleUploadedPiv(item, currentlyTagging);
           },
         )
         // Align(
@@ -91,11 +91,7 @@ class UploadedGridItem extends StatelessWidget {
 }
 
 class CarrouselView extends StatefulWidget {
-  const CarrouselView(
-      {Key? key,
-      required this.initialPiv,
-      required this.pivs
-      })
+  const CarrouselView({Key? key, required this.initialPiv, required this.pivs})
       : super(key: key);
 
   final dynamic initialPiv;
@@ -118,7 +114,7 @@ class _CarrouselViewState extends State<CarrouselView> {
       // pageSnapping: true,
       itemCount: widget.pivs.length,
       itemBuilder: (context, index) {
-        var piv = widget.pivs [index];
+        var piv = widget.pivs[index];
         return Scaffold(
           appBar: AppBar(
             iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
@@ -193,8 +189,7 @@ class _CarrouselViewState extends State<CarrouselView> {
                               WhiteSnackBar.buildSnackBar(context,
                                   'Preparing your image for sharing...');
                               final response = await http.get(
-                                  Uri.parse((kTagawayThumbMURL) +
-                                      (piv['id'])),
+                                  Uri.parse((kTagawayThumbMURL) + (piv['id'])),
                                   headers: {
                                     'cookie':
                                         StoreService.instance.get('cookie')
@@ -208,8 +203,7 @@ class _CarrouselViewState extends State<CarrouselView> {
                               WhiteSnackBar.buildSnackBar(context,
                                   'Preparing your video for sharing...');
                               final response = await http.get(
-                                  Uri.parse((kTagawayVideoURL) +
-                                      (piv['id'])),
+                                  Uri.parse((kTagawayVideoURL) + (piv['id'])),
                                   headers: {
                                     'cookie':
                                         StoreService.instance.get('cookie')
