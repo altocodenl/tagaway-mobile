@@ -34,7 +34,7 @@ class LocalGridItem extends StatelessWidget {
               var currentlyTagging =
                   StoreService.instance.get('currentlyTagging');
               if (currentlyTagging == '')
-                StoreService.instance.set('startTaggingModal', true, true);
+                StoreService.instance.set('startTaggingModal', true);
               else
                 TagService.instance.tagLocalPiv(asset, currentlyTagging);
             },

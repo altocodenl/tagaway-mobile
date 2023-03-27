@@ -42,8 +42,8 @@ class UploadService {
       }, file.path);
 
       if (response ['code'] == 200) {
-         StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
-         StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+         StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id'], 'disk');
+         StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id, 'disk');
          TagService.instance.getLocalTimeHeader ();
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
@@ -52,7 +52,7 @@ class UploadService {
                TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
             }
          }
-         StoreService.instance.remove ('pendingTags:' + piv.id);
+         StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
       }
       return response;
    }

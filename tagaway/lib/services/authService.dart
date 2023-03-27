@@ -13,9 +13,9 @@ class AuthService {
    Future <int> login (String username, String password, int timezone) async {
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
       if (response ['code'] == 200) {
-         StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!);
-         StoreService.instance.set ('csrf',   response ['body']    ['csrf']);
-         StoreService.instance.set ('recurringUser', true);
+         StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
+         StoreService.instance.set ('csrf',   response ['body']    ['csrf'], 'disk');
+         StoreService.instance.set ('recurringUser', true, 'disk');
       }
       // Error code 1 signifies that the user must verify their email
       if (response ['code'] == 403 && response ['body'] ['error'] == 'verify') return 1;
@@ -30,8 +30,8 @@ class AuthService {
    Future <int> logout () async {
       var response = await ajax ('post', 'auth/logout', {});
       if (response ['code'] == 200) {
-         await StoreService.instance.set ('cookie', '');
-         await StoreService.instance.set ('csrf',   '');
+         await StoreService.instance.set ('cookie', '', 'disk');
+         await StoreService.instance.set ('csrf',   '', 'disk');
       }
       return response ['code'];
    }

@@ -121,7 +121,7 @@ class _SearchTagsViewState extends State<SearchTagsView> {
                         return () {
                           var updatedTags = StoreService.instance.get ('queryTags');
                           updatedTags.add (v);
-                          StoreService.instance.set ('queryTags', updatedTags, true);
+                          StoreService.instance.set ('queryTags', updatedTags);
                           Navigator.pushReplacementNamed(context, 'bottomNavigation');
                         };
                       })
@@ -199,7 +199,7 @@ class TagSearchClass extends SearchDelegate {
               return () {
                 var updatedTags = StoreService.instance.get ('queryTags');
                 updatedTags.add (result);
-                StoreService.instance.set ('queryTags', updatedTags, true);
+                StoreService.instance.set ('queryTags', updatedTags);
                 Navigator.pushReplacementNamed(context, 'bottomNavigation');
               };
             });

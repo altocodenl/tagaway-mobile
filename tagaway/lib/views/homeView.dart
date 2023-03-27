@@ -172,7 +172,7 @@ class _HomeViewState extends State<HomeView> {
                                 onPressed: () {
                                   if (tags.isEmpty)
                                     StoreService.instance
-                                        .set('currentIndex', 1, true);
+                                        .set('currentIndex', 1);
                                   else
                                     Navigator.pushReplacementNamed(
                                         context, AddHometagsView.id);
@@ -191,8 +191,8 @@ class _HomeViewState extends State<HomeView> {
                         children: [
                           for (var v in hometags) GestureDetector(
                             onTap: () {
-                              StoreService.instance.set ('queryTags', [v], true);
-                              StoreService.instance.set ('currentIndex', 2, true);
+                              StoreService.instance.set ('queryTags', [v]);
+                              StoreService.instance.set ('currentIndex', 2);
                             },
                             child: HomeCard(color: tagColor(v), title: v)
                          )

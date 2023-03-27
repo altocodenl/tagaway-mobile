@@ -11,13 +11,13 @@ class TagService {
   getTags() async {
     var response = await ajax('get', 'tags');
     if (response['code'] == 200) {
-      StoreService.instance.set('hometags', response['body']['hometags'], true);
-      StoreService.instance.set('tags', response['body']['tags'], true);
+      StoreService.instance.set('hometags', response['body']['hometags']);
+      StoreService.instance.set('tags', response['body']['tags']);
       var usertags = [];
       response['body']['tags'].forEach((tag) {
         if (!RegExp('^[a-z]::').hasMatch(tag)) usertags.add(tag);
       });
-      StoreService.instance.set('usertags', usertags, true);
+      StoreService.instance.set('usertags', usertags);
     }
     // TODO: handle errors
     return response['code'];
@@ -53,8 +53,8 @@ class TagService {
   tagLocalPiv (dynamic piv, String tag) async {
     String pivId = StoreService.instance.get ('pivMap:' + piv.id);
     bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
-    StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true, true);
-    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1), true);
+    StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
+    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
 
     // If we have an entry for the piv:
     if (pivId != '') {
@@ -62,8 +62,8 @@ class TagService {
       // If piv exists, we are done. Otherwise, we need to upload it.
       if (code == 200) return;
       if (code == 404) {
-         StoreService.instance.remove ('pivMap:' + piv.id);
-         StoreService.instance.remove ('rpivMap:' + pivId);
+         StoreService.instance.remove ('pivMap:' + piv.id, 'disk');
+         StoreService.instance.remove ('rpivMap:' + pivId, 'disk');
       }
       // TODO: add error handling for non 200, non 404
     }
@@ -72,7 +72,7 @@ class TagService {
      if (pendingTags == '') pendingTags = [];
      if (del) pendingTags.remove (tag);
      else     pendingTags.add    (tag);
-     StoreService.instance.set ('pendingTags:' + piv.id, pendingTags);
+     StoreService.instance.set ('pendingTags:' + piv.id, pendingTags, 'disk');
     // TODO: add error handling
   }
 
@@ -80,7 +80,7 @@ class TagService {
     var del = piv ['tags'].contains (tag);
     if (del) piv ['tags'].add (tag);
     else     piv ['tags'].remove (tag);
-    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1), true);
+    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
 
     var code = await tagPivById(piv['id'], tag, del);
     return code;
@@ -95,20 +95,20 @@ class TagService {
       'to': 10000,
       'idsOnly': true
     });
-    await StoreService.instance.remove ('tagMap:*', true);
+    await StoreService.instance.remove ('tagMap:*');
     int count = 0;
     response ['body'].forEach ((v) {
       var id = StoreService.instance.get ('rpivMap:' + v);
       if (id == '') return;
-      StoreService.instance.set ('tagMap:' + id, true, true);
+      StoreService.instance.set ('tagMap:' + id, true);
       count += 1;
     });
-    StoreService.instance.set ('taggedPivCount', count, true);
+    StoreService.instance.set ('taggedPivCount', count);
   }
 
   getUploadedTaggedPivs (String tag) async {
     var count = StoreService.instance.get ('queryResult') ['body'] ['tags'] [tag];
-    StoreService.instance.set ('taggedPivCount', count, true);
+    StoreService.instance.set ('taggedPivCount', count);
   }
 
    getLocalTimeHeader () {
@@ -167,7 +167,7 @@ class TagService {
          else semesters.add ([month]);
       });
 
-      StoreService.instance.set ('timeHeader', semesters, true);
+      StoreService.instance.set ('timeHeader', semesters);
    }
 
    queryPivs (dynamic tags) async {

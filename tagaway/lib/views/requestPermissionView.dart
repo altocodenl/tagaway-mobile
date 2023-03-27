@@ -50,7 +50,7 @@ class RequestPermissionView extends StatelessWidget {
                     colour: kAltoBlue,
                     onPressed: () async {
                       await StoreService.instance
-                          .set('userWasAskedPermission', true);
+                          .set('userWasAskedPermission', true, 'disk');
                       final permitted =
                           await PhotoManager.requestPermissionExtend();
                       Navigator.pushReplacementNamed(

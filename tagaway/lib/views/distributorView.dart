@@ -23,11 +23,6 @@ class _DistributorState extends State<Distributor> {
   }
 
   distributor() async {
-    /* DEBUG MODE */
-    // await Future.delayed(const Duration(milliseconds: 150));
-    // await StoreService.instance.set('cookie', '');
-    // await StoreService.instance.set('recurringUser', true);
-
     var cookie = await StoreService.instance.getBeforeLoad('cookie');
     if (cookie == '') {
       // If user has no cookie...
@@ -39,8 +34,6 @@ class _DistributorState extends State<Distributor> {
     }
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
     var permissionStatus = await checkPermission();
-    // TODO: remove hardcoding
-    // permissionStatus = 'granted';
     // If user has granted complete or partial permissions, go to the main part of the app.
     if (permissionStatus == 'granted' || permissionStatus == 'limited')
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');

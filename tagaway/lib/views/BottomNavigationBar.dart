@@ -30,11 +30,11 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
     super.initState();
     cancelListener = StoreService.instance.listen(['currentIndex'], (v) {
       // When the view changes, reset state variables that are used by both Local and Uploaded
-      StoreService.instance.set ('currentlyTagging', '', true);
-      StoreService.instance.set ('swiped', false, true);
-      StoreService.instance.set ('newTag', '', true);
-      StoreService.instance.set ('startTaggingModal', false, true);
-      StoreService.instance.set ('taggedPivCount', '', true);
+      StoreService.instance.set ('currentlyTagging', '');
+      StoreService.instance.set ('swiped', false);
+      StoreService.instance.set ('newTag', '');
+      StoreService.instance.set ('startTaggingModal', false);
+      StoreService.instance.set ('taggedPivCount', '');
       setState(() => currentIndex = v == '' ? 0 : v);
     });
   }
@@ -59,7 +59,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
           unselectedLabelStyle: kBottomNavigationText,
           selectedLabelStyle: kBottomNavigationText,
           onTap: (index) {
-            StoreService.instance.set('currentIndex', index, true);
+            StoreService.instance.set('currentIndex', index);
           },
           items: const [
             BottomNavigationBarItem(

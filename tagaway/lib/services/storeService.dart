@@ -51,7 +51,8 @@ class StoreService {
       var keys = await prefs.getKeys ().toList ();
       for (var k in keys) {
         if (k == 'cookie' || k == 'csrf') return;
-        await remove (k);
+        // Remove all keys from disk as well
+        await remove (k, 'disk');
       }
     }
 
@@ -70,12 +71,13 @@ class StoreService {
    }
 
    // This function need not be awaited for setting the in-memory key, only if you want to await until the key is persisted to disk
-   set (String key, dynamic value, [bool memoryOnly = false]) async {
-      if (showLogs) debug (['STORE SET', memoryOnly ? 'MEMONLY' : 'MEM&DISK', key, jsonEncode (value)]);
+   // It takes 'disk' as a third argument if you want the value to also be persisted to disk
+   set (String key, dynamic value, [String disk = '']) async {
+      if (showLogs) debug (['STORE SET', disk == 'disk' ? 'MEM & DISK' : 'MEM', key, jsonEncode (value)]);
       store [key] = value;
       updateStream.add (key);
       // Some fields should not be stored, we want these to be in-memory only
-      if (! memoryOnly) await prefs.setString (key, jsonEncode (value));
+      if (disk == 'disk') await prefs.setString (key, jsonEncode (value));
    }
 
    get (String key) {
@@ -98,17 +100,17 @@ class StoreService {
       return value;
    }
 
-   remove (String key, [bool memoryOnly = false]) async {
+   remove (String key, [String disk = '']) async {
       if (RegExp ('^[^:]+:\\*').hasMatch (key)) {
          for (var k in store.keys) {
-            if (RegExp (key.split (':') [0]).hasMatch (k)) await remove (k, memoryOnly);
+            if (RegExp (key.split (':') [0]).hasMatch (k)) await remove (k, disk);
          }
          return;
       }
       if (showLogs) debug (['STORE REMOVE', key]);
       store [key] = '';
       updateStream.add (key);
-      if (! memoryOnly) await prefs.remove (key);
+      if (disk == 'disk') await prefs.remove (key);
    }
 
 }

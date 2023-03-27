@@ -42,15 +42,19 @@ class _UploadedViewState extends State<UploadedView> {
       'newTag',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
-      if (v2 != '') TagService.instance.getUploadedTaggedPivs(v2);
+      var currentView = StoreService.instance.get ('currentIndex');
+      // Invoke the service only if local is not the current view
+      if (v2 != '' && currentView != 1) TagService.instance.getUploadedTaggedPivs(v2);
       setState(() {
         if (v1 != '') usertags = v1;
-        currentlyTagging = v2;
-        if (v3 != '') swiped = v3;
-        newTag = v4;
-        startTaggingModal = v5;
-        if (swiped == false && initialChildSize > 0.07) initialChildSize = 0.07;
-        if (swiped == true && initialChildSize < 0.77) initialChildSize = 0.77;
+        if (currentView != 1) {
+           currentlyTagging = v2;
+           if (v3 != '') swiped = v3;
+           newTag = v4;
+           startTaggingModal = v5;
+           if (swiped == false && initialChildSize > 0.07) initialChildSize = 0.07;
+           if (swiped == true && initialChildSize < 0.77) initialChildSize = 0.77;
+        }
       });
     });
   }
@@ -73,8 +77,8 @@ class _UploadedViewState extends State<UploadedView> {
                 alignment: const Alignment(0.8, .9),
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    StoreService.instance.set('swiped', false, true);
-                    StoreService.instance.set('currentlyTagging', '', true);
+                    StoreService.instance.set('swiped', false);
+                    StoreService.instance.set('currentlyTagging', '');
                     // We update the tag list in case we just created a new one.
                     TagService.instance.getTags();
                   },
@@ -90,11 +94,11 @@ class _UploadedViewState extends State<UploadedView> {
                 child: NotificationListener<DraggableScrollableNotification>(
                     onNotification: (state) {
                       if (state.extent < 0.0701)
-                        StoreService.instance.set('swiped', false, true);
+                        StoreService.instance.set('swiped', false);
                       if (state.extent > 0.7699)
-                        StoreService.instance.set('swiped', true, true);
+                        StoreService.instance.set('swiped', true);
                       StoreService.instance
-                          .set('startTaggingModal', false, true);
+                          .set('startTaggingModal', false);
                       return true;
                     },
                     child: DraggableScrollableSheet(
@@ -198,8 +202,7 @@ class _UploadedViewState extends State<UploadedView> {
                                             return () {
                                               StoreService.instance.set(
                                                   'currentlyTagging',
-                                                  tag,
-                                                  true);
+                                                  tag);
                                             };
                                           },
                                         );
@@ -268,7 +271,7 @@ class _UploadedViewState extends State<UploadedView> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              StoreService.instance.set('newTag', '', true);
+                              StoreService.instance.set('newTag', '');
                               newTagName.clear();
                             },
                             child: const Padding(
@@ -287,9 +290,9 @@ class _UploadedViewState extends State<UploadedView> {
                             onTap: () {
                               var text = newTagName.text;
                               if (text == '') return;
-                              StoreService.instance.set('newTag', '', true);
+                              StoreService.instance.set('newTag', '');
                               StoreService.instance
-                                  .set('currentlyTagging', text, true);
+                                  .set('currentlyTagging', text);
                               newTagName.clear();
                             },
                             child: const Text(
@@ -314,7 +317,7 @@ class _UploadedViewState extends State<UploadedView> {
               alignment: const Alignment(0, .9),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  StoreService.instance.set('newTag', true, true);
+                  StoreService.instance.set('newTag', true);
                 },
                 backgroundColor: kAltoBlue,
                 label: const Text('Create tag', style: kSelectAllButton),
@@ -342,11 +345,11 @@ class _UploadGridState extends State<UploadGrid> {
   void initState() {
     super.initState();
     if (StoreService.instance.get('queryTags') == '')
-      StoreService.instance.set('queryTags', [], true);
+      StoreService.instance.set('queryTags', []);
     cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
       if (v1 == '') v1 = [];
       TagService.instance.queryPivs(v1).then((value) {
-        StoreService.instance.set('queryResult', value, true);
+        StoreService.instance.set('queryResult', value);
       });
     });
     cancelListener2 = StoreService.instance.listen([
