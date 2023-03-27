@@ -167,7 +167,7 @@ class TagService {
          else semesters.add ([month]);
       });
 
-      StoreService.instance.set ('timeHeader', semesters);
+      StoreService.instance.set ('localTimeHeader', semesters);
    }
 
    queryPivs (dynamic tags) async {

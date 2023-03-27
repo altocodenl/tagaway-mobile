@@ -25,6 +25,9 @@
    - Dynamize *everything* (Mono)
       - Refresh uploaded when local uploads something
       - Tagging
+         - Mark as tagged when tagging always
+         - Mark as untagged when removing last tag that is not `o::`
+         - Local pivs should be gray if untagged
          - Show green/gray icon on pivs (toggle itself).
          - Requery after done.
       - Time header

@@ -463,7 +463,7 @@ class _TopRowState extends State<TopRow> {
     PhotoManager.requestPermissionExtend();
     super.initState();
     cancelListener = StoreService.instance.listen(
-        ['currentlyTagging', 'taggedPivCount', 'timeHeader'], (v1, v2, v3) {
+        ['currentlyTagging', 'taggedPivCount', 'localTimeHeader'], (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
