@@ -14,7 +14,7 @@ class UploadedGridItem extends StatelessWidget {
   final dynamic item;
   final dynamic pivs;
 
-  const UploadedGridItem({Key? key, required this.item, required this.pivs})
+  UploadedGridItem({Key? key, required this.item, required this.pivs})
       : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
@@ -22,6 +22,7 @@ class UploadedGridItem extends StatelessWidget {
   //   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
   //   return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
   // }
+  bool selected = true;
 
   @override
   Widget build(BuildContext context) {
@@ -65,24 +66,22 @@ class UploadedGridItem extends StatelessWidget {
               }),
             );
             else
-              TagService.instance.toggleUploadedPiv(item, currentlyTagging);
+              TagService.instance.tagUploadedPiv(item, currentlyTagging);
           },
-        )
-        // Align(
-        //     alignment: const Alignment(0.9, -.9),
-        //     child: Container(
-        //       decoration: BoxDecoration(
-        //           color: Colors.white,
-        //           borderRadius: BorderRadius.circular(100),
-        //           border: Border.all(color: Colors.white, width: 2)),
-        //       child: const Icon(
-        //         // kSolidCircleIcon,
-        //         // color: kGreyDarker,
-        //         kCircleCheckIcon,
-        //         color: kAltoOrganized,
-        //         size: 25,
-        //       ),
-        //     )),
+        ),
+        Align(
+            alignment: const Alignment(0.9, -.9),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
+                  border: Border.all(color: Colors.white, width: 2)),
+              child: Icon(
+                selected ? kCircleCheckIcon : kSolidCircleIcon,
+                color: selected ? kAltoOrganized : kGreyDarker,
+                size: 25,
+              ),
+            )),
       ],
     );
     //   },

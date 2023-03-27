@@ -43,7 +43,8 @@ class _LocalViewState extends State<LocalView> {
       'newTag',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
-      if (v2 != '') TagService.instance.getTaggedPivs(v2);
+      // Invoke the service only if uploaded is not the current view
+      if (v2 != '' && StoreService.instance.get ('currentIndex') != 2) TagService.instance.getLocalTaggedPivs(v2);
       setState(() {
         if (v1 != '') usertags = v1;
         currentlyTagging = v2;

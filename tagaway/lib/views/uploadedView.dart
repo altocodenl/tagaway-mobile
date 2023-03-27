@@ -42,6 +42,7 @@ class _UploadedViewState extends State<UploadedView> {
       'newTag',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
+      if (v2 != '') TagService.instance.getUploadedTaggedPivs(v2);
       setState(() {
         if (v1 != '') usertags = v1;
         currentlyTagging = v2;
@@ -409,19 +410,18 @@ class _TopRowState extends State<TopRow> {
   String currentlyTagging = '';
   dynamic queryTags = [];
   dynamic queryResult = {'total': 0};
-  // TODO: dynamize taggedPivCount
   dynamic taggedPivCount = '';
-
 
   @override
   void initState() {
     super.initState();
     cancelListener =
-        StoreService.instance.listen(['queryTags', 'queryResult', 'currentlyTagging'], (v1, v2, v3) {
+        StoreService.instance.listen(['queryTags', 'queryResult', 'currentlyTagging', 'taggedPivCount'], (v1, v2, v3, v4) {
       setState(() {
         if (v1 != '') queryTags = v1;
         if (v2 != '') queryResult = v2['body'];
         currentlyTagging = v3;
+        taggedPivCount = v4;
       });
     });
   }

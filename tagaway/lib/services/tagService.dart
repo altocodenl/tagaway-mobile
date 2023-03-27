@@ -40,6 +40,8 @@ class TagService {
   }
 
   tagPivById(String id, String tag, bool del) async {
+    var hometags = StoreService.instance.get ('hometags');
+    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
     var response = await ajax('post', 'tag', {
       'tag': tag,
       'ids': [id],
@@ -48,15 +50,11 @@ class TagService {
     return response['code'];
   }
 
-  togglePiv (dynamic piv, String tag) async {
+  tagLocalPiv (dynamic piv, String tag) async {
     String pivId = StoreService.instance.get ('pivMap:' + piv.id);
     bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
     StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true, true);
     StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1), true);
-
-    // If there are no hometags yet, add one if this is a tagging operation.
-    var hometags = StoreService.instance.get ('hometags');
-    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
 
     // If we have an entry for the piv:
     if (pivId != '') {
@@ -78,11 +76,18 @@ class TagService {
     // TODO: add error handling
   }
 
-  toggleUploadedPiv (dynamic piv, String tag) async {
-    debug (['toggle uploaded piv', piv, tag]);
+  tagUploadedPiv (dynamic piv, String tag) async {
+    var del = piv ['tags'].contains (tag);
+    if (del) piv ['tags'].add (tag);
+    else     piv ['tags'].remove (tag);
+    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1), true);
+
+    var code = await tagPivById(piv['id'], tag, del);
+    return code;
+    // TODO: add error handling
   }
 
-  getTaggedPivs (String tag) async {
+  getLocalTaggedPivs (String tag) async {
     var response = await ajax('post', 'query', {
       'tags': [tag],
       'sort': 'newest',
@@ -98,7 +103,12 @@ class TagService {
       StoreService.instance.set ('tagMap:' + id, true, true);
       count += 1;
     });
-    StoreService.instance.set ('taggedPivCount', count);
+    StoreService.instance.set ('taggedPivCount', count, true);
+  }
+
+  getUploadedTaggedPivs (String tag) async {
+    var count = StoreService.instance.get ('queryResult') ['body'] ['tags'] [tag];
+    StoreService.instance.set ('taggedPivCount', count, true);
   }
 
    getLocalTimeHeader () {

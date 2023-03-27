@@ -25,12 +25,10 @@
    - Dynamize *everything* (Mono)
       - Refresh uploaded when local uploads something
       - Tagging
-         - Service fn to tag/untag
-         - Show tag count
-         - Show green/gray icon on pivs
-      - Filter
+         - Show green/gray icon on pivs (toggle itself).
+         - Requery after done.
       - Time header
-
+      - Filter
 
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
