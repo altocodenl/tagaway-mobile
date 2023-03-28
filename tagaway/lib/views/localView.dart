@@ -314,6 +314,7 @@ class _LocalViewState extends State<LocalView> {
               alignment: const Alignment(0, .9),
               child: FloatingActionButton.extended(
                 onPressed: () {
+                  // We store `newTag` to `true` simply to enable visibility of the new tag modal
                   StoreService.instance.set('newTag', true);
                 },
                 backgroundColor: kAltoBlue,

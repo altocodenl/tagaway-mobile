@@ -30,8 +30,8 @@ class AuthService {
    Future <int> logout () async {
       var response = await ajax ('post', 'auth/logout', {});
       if (response ['code'] == 200) {
-         await StoreService.instance.set ('cookie', '', 'disk');
-         await StoreService.instance.set ('csrf',   '', 'disk');
+         await StoreService.instance.remove ('cookie', 'disk');
+         await StoreService.instance.remove ('csrf',   'disk');
       }
       return response ['code'];
    }

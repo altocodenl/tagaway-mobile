@@ -36,27 +36,6 @@ class Tagaway extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const Distributor(),
-      // home: const BottomNavigationView(),
-      // home: const PhotoAccessNeededView(),
-
-      // AUTH VIEWS
-      // home: const SignUpView(),
-      // home: const LoginView(),
-      // home: const ChangePasswordView(),
-      // home: const DeleteAccountView (),
-      // home: const RecoverPasswordView(),
-      // HOME VIEWS
-      // home: const HomeView (),
-      // home: const YourHometagsView (),
-      // home: const AddHometagsView (),
-      // home: const EditHometagsView (),
-
-      // LOCAL VIEW
-      // home: const LocalView(),
-
-      // OTHER VIEWS
-      // home: const RequestPermissionView(),
-
       routes: {
         SignUpFormView.id: (context) => const SignUpFormView(),
         SignUpView.id: (context) => const SignUpView(),

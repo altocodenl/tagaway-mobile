@@ -107,7 +107,7 @@ class TagService {
   }
 
   getUploadedTaggedPivs (String tag) async {
-    var count = StoreService.instance.get ('queryResult') ['body'] ['tags'] [tag];
+    var count = StoreService.instance.get ('queryResult') ['tags'] [tag];
     StoreService.instance.set ('taggedPivCount', count);
   }
 
@@ -170,6 +170,15 @@ class TagService {
       StoreService.instance.set ('localTimeHeader', semesters);
    }
 
+   getUploadedTimeHeader () {
+      var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var localCount  = {};
+      var remoteCount = {};
+      var lastPivInMonth = {};
+      var output      = [];
+      var min = now (), max = 0;
+   }
+
    queryPivs (dynamic tags) async {
     var response = await ajax('post', 'query', {
       'tags': tags,
@@ -177,6 +186,10 @@ class TagService {
       'from': 1,
       'to': 10000,
     });
+    if (response ['code'] == 200) {
+      StoreService.instance.set('queryResult', response ['body']);
+    }
+    // HANDLE ERRORS
     return {'code': response ['code'], 'body': response ['body']};
   }
 }

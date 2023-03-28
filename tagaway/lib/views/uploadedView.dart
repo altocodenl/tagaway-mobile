@@ -317,6 +317,7 @@ class _UploadedViewState extends State<UploadedView> {
               alignment: const Alignment(0, .9),
               child: FloatingActionButton.extended(
                 onPressed: () {
+                  // We store `newTag` to `true` simply to enable visibility of the new tag modal
                   StoreService.instance.set('newTag', true);
                 },
                 backgroundColor: kAltoBlue,
@@ -348,20 +349,14 @@ class _UploadGridState extends State<UploadGrid> {
       StoreService.instance.set('queryTags', []);
     cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
       if (v1 == '') v1 = [];
-      TagService.instance.queryPivs(v1).then((value) {
-        StoreService.instance.set('queryResult', value);
-      });
+      TagService.instance.queryPivs(v1);
     });
     cancelListener2 = StoreService.instance.listen([
       'queryResult',
     ], (v1) {
-      if (v1 == '') return 0;
-      if (v1['code'] == 403)
-        return Navigator.pushReplacementNamed(context, 'distributor');
-      // TODO: HANDLE NON-403, NON-200
-      if (v1['code'] == 200)
+      if (v1 != '')
         setState(() {
-          queryResult = v1['body'];
+          queryResult = v1;
         });
     });
   }
@@ -422,7 +417,7 @@ class _TopRowState extends State<TopRow> {
         StoreService.instance.listen(['queryTags', 'queryResult', 'currentlyTagging', 'taggedPivCount'], (v1, v2, v3, v4) {
       setState(() {
         if (v1 != '') queryTags = v1;
-        if (v2 != '') queryResult = v2['body'];
+        if (v2 != '') queryResult = v2;
         currentlyTagging = v3;
         taggedPivCount = v4;
       });
