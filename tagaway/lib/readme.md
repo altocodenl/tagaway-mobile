@@ -51,11 +51,11 @@
 - newTag <str>: name of new tag being created in LocalView & UploadedView
 - pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
-- pivMap:<assetId> <str> [DISK]: id of uploaded piv that corresponds to local piv
+- pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - queryResult {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags [<string>, ...]: list of tags of the current query
-- rpivMap:<pivId> <str> [DISK]: id of local piv that corresponds to uploaded piv
+- rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart
 - startTaggingModal (boolean): used to determine blue popup to start tagging on LocalView
 - swiped (boolean): controls the swipable tag list on LocalView & UploadedView
 - taggedPivCount (int): shows how many pivs are tagged with the current tag on LocalView & UploadedView
