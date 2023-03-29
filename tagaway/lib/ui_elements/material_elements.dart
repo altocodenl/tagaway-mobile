@@ -689,3 +689,54 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           ));
   }
 }
+
+class GridItemSelection extends StatefulWidget {
+  final String id;
+  final String type;
+
+  const GridItemSelection(this.id, this.type);
+
+  @override
+  State<GridItemSelection> createState() =>
+      _GridItemSelectionState(this.id, this.type);
+}
+
+class _GridItemSelectionState extends State<GridItemSelection> {
+  dynamic cancelListener;
+  final String id;
+  final String type;
+  bool selected = false;
+
+  _GridItemSelectionState(this.id, this.type);
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen(
+        [(type == 'local' ? 'pivMap:' : 'orgMap:') + id, 'tagMap:' + id, 'currentlyTagging'],
+        (v1, v2, v3) {
+      setState(() {
+        if (v3 == '')
+          selected = v1 != '';
+        else
+          selected = v2 != '';
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      selected ? kCircleCheckIcon : kSolidCircleIcon,
+      color: selected ? kAltoOrganized : kGreyDarker,
+      size: 25,
+    );
+  }
+}
+

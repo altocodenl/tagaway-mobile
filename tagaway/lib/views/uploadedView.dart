@@ -42,18 +42,23 @@ class _UploadedViewState extends State<UploadedView> {
       'newTag',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
-      var currentView = StoreService.instance.get ('currentIndex');
+      var currentView = StoreService.instance.get('currentIndex');
+      // If on this view and just finished tagging, refresh the query
+      if (currentView == 2 && v2 == '' && currentlyTagging != '') TagService.instance.queryPivs(StoreService.instance.get ('queryTags'));
       // Invoke the service only if local is not the current view
-      if (v2 != '' && currentView != 1) TagService.instance.getUploadedTaggedPivs(v2);
+      if (v2 != '' && currentView != 1)
+        TagService.instance.getTaggedPivs(v2, 'uploaded');
       setState(() {
         if (v1 != '') usertags = v1;
         if (currentView != 1) {
-           currentlyTagging = v2;
-           if (v3 != '') swiped = v3;
-           newTag = v4;
-           startTaggingModal = v5;
-           if (swiped == false && initialChildSize > 0.07) initialChildSize = 0.07;
-           if (swiped == true && initialChildSize < 0.77) initialChildSize = 0.77;
+          currentlyTagging = v2;
+          if (v3 != '') swiped = v3;
+          newTag = v4;
+          startTaggingModal = v5;
+          if (swiped == false && initialChildSize > 0.07)
+            initialChildSize = 0.07;
+          if (swiped == true && initialChildSize < 0.77)
+            initialChildSize = 0.77;
         }
       });
     });
@@ -97,8 +102,7 @@ class _UploadedViewState extends State<UploadedView> {
                         StoreService.instance.set('swiped', false);
                       if (state.extent > 0.7699)
                         StoreService.instance.set('swiped', true);
-                      StoreService.instance
-                          .set('startTaggingModal', false);
+                      StoreService.instance.set('startTaggingModal', false);
                       return true;
                     },
                     child: DraggableScrollableSheet(
@@ -200,9 +204,8 @@ class _UploadedViewState extends State<UploadedView> {
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
-                                              StoreService.instance.set(
-                                                  'currentlyTagging',
-                                                  tag);
+                                              StoreService.instance
+                                                  .set('currentlyTagging', tag);
                                             };
                                           },
                                         );
@@ -387,8 +390,7 @@ class _UploadGridState extends State<UploadGrid> {
               itemCount: queryResult['pivs'].length,
               itemBuilder: (BuildContext context, index) {
                 return UploadedGridItem(
-                    item: queryResult['pivs'][index],
-                    pivs: queryResult['pivs']);
+                    piv: queryResult['pivs'][index], pivs: queryResult['pivs']);
               }),
         ),
       ),
@@ -405,21 +407,29 @@ class TopRow extends StatefulWidget {
 
 class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
+
   String currentlyTagging = '';
+  dynamic taggedPivCount = '';
+  dynamic timeHeader = [];
   dynamic queryTags = [];
   dynamic queryResult = {'total': 0};
-  dynamic taggedPivCount = '';
 
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['queryTags', 'queryResult', 'currentlyTagging', 'taggedPivCount'], (v1, v2, v3, v4) {
+    cancelListener = StoreService.instance.listen([
+      'currentlyTagging',
+      'taggedPivCount',
+      'uploadedTimeHeader',
+      'queryTags',
+      'queryResult'
+    ], (v1, v2, v3, v4, v5) {
       setState(() {
-        if (v1 != '') queryTags = v1;
-        if (v2 != '') queryResult = v2;
-        currentlyTagging = v3;
-        taggedPivCount = v4;
+        currentlyTagging = v1;
+        taggedPivCount = v2;
+        timeHeader = v3 == '' ? [] : v3;
+        if (v4 != '') queryTags = v4;
+        if (v5 != '') queryResult = v5;
       });
     });
   }
@@ -444,11 +454,13 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 12.0, right: 12),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Align(
                           alignment: Alignment(0.29, .9),
                           child: Text(
-                            '2022',
+                            timeHeader.isEmpty
+                                ? ''
+                                : timeHeader.last[0][0].toString(),
                             textAlign: TextAlign.center,
                             style: kLocalYear,
                           ),
@@ -487,60 +499,49 @@ class _TopRowState extends State<TopRow> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: SizedBox(
-                    height: 80,
-                    child: ListView(
-                      reverse: true,
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        GridView.count(
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 1,
-                          crossAxisSpacing: 0,
-                          shrinkWrap: true,
+                      height: 80,
+                      child: ListView.builder(
+                          itemCount: timeHeader.length,
+                          reverse: true,
                           scrollDirection: Axis.horizontal,
-                          childAspectRatio: 1.11,
-                          children: [
-                            GridMonthElement(
-                                roundedIcon: kSolidCircleIcon,
-                                roundedIconColor: kGreyDarker,
-                                month: 'Jul',
-                                whiteOrAltoBlueDashIcon: Colors.white,
-                                onTap: () {}),
-                            GridMonthElement(
-                                roundedIcon: kCircleCheckIcon,
-                                roundedIconColor: kAltoOrganized,
-                                month: 'Aug',
-                                whiteOrAltoBlueDashIcon: Colors.white,
-                                onTap: () {}),
-                            GridMonthElement(
-                                roundedIcon: kEmptyCircle,
-                                roundedIconColor: kGreyDarker,
-                                month: 'Sep',
-                                whiteOrAltoBlueDashIcon: Colors.white,
-                                onTap: () {}),
-                            GridMonthElement(
-                                roundedIcon: kCircleCheckIcon,
-                                roundedIconColor: kAltoOrganized,
-                                month: 'Oct',
-                                whiteOrAltoBlueDashIcon: Colors.white,
-                                onTap: () {}),
-                            GridMonthElement(
-                                roundedIcon: kSolidCircleIcon,
-                                roundedIconColor: kGreyDarker,
-                                month: 'Nov',
-                                whiteOrAltoBlueDashIcon: Colors.white,
-                                onTap: () {}),
-                            GridMonthElement(
-                                roundedIcon: FontAwesomeIcons.solidCircleCheck,
-                                roundedIconColor: kAltoOrganized,
-                                month: 'Dec',
-                                whiteOrAltoBlueDashIcon: kAltoBlue,
-                                onTap: () {}),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                          itemBuilder:
+                              (BuildContext context, int semesterIndex) {
+                            return GridView.count(
+                                physics: const NeverScrollableScrollPhysics(),
+                                crossAxisCount: 1,
+                                crossAxisSpacing: 0,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                childAspectRatio: 1.11,
+                                children: (() {
+                                  List<Widget> output = [];
+                                  if (timeHeader.isEmpty)
+                                    output.add(Container());
+                                  else
+                                    timeHeader[semesterIndex].forEach((month) {
+                                      output.add(GridMonthElement(
+                                          roundedIcon: month[2] == 'green'
+                                              ? kCircleCheckIcon
+                                              : (month[2] == 'gray'
+                                                  ? kSolidCircleIcon
+                                                  : kEmptyCircle),
+                                          roundedIconColor: month[2] == 'green'
+                                              ? kAltoOrganized
+                                              : kGreyDarker,
+                                          month: month[1],
+                                          // TODO: selected
+                                          //whiteOrAltoBlueDashIcon: Colors.white,
+                                          whiteOrAltoBlueDashIcon: kAltoBlue,
+                                          onTap: () {
+                                            // TODO: add method to jump to proper piv
+                                            if (month[2] != 'white')
+                                              return debug(
+                                                  ['TODO JUMP TO', month[3]]);
+                                          }));
+                                    });
+                                  return output;
+                                })());
+                          })),
                 )
               ],
             ),
@@ -583,64 +584,66 @@ class _TopRowState extends State<TopRow> {
                 ),
               )
             : Container(),
-        currentlyTagging == '' ?
-        Container(
-          height: 60,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(width: 1, color: kGreyLighter)),
-            color: Colors.white,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12),
-            child: Row(children: (() {
-              List<Widget> output = [];
-              queryTags.forEach((tag) {
-                // Show first two tags only
-                if (output.length > 2) return;
-                // DATE TAG
-                if (RegExp('^d::').hasMatch(tag))
-                  return output.add(GridTagElement(
-                      gridTagElementIcon: kClockIcon,
-                      iconColor: kGreyDarker,
-                      gridTagName: tag.slice(3)));
-                // GEO TAG
-                if (RegExp('^g::').hasMatch(tag))
-                  return output.add(GridTagElement(
-                      gridTagElementIcon: kLocationDotIcon,
-                      iconColor: kGreyDarker,
-                      gridTagName: tag.slice(3)));
-                // NORMAL TAG (TODO: FIX STYLES)
-                output.add(GridTagElement(
-                    gridTagElementIcon: kLocationDotIcon,
-                    iconColor: kGreyDarker,
-                    gridTagName: tag));
-              });
-              if (queryTags.isEmpty) {
-                output.add(Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    'You’re looking at',
-                    style: kLookingAtText,
-                  ),
-                ));
-                output.add(GridTagElement(
-                    gridTagElementIcon: kCameraIcon,
-                    iconColor: kGreyDarker,
-                    gridTagName: 'Everything'));
-              }
-              if (queryTags.length > 2) output.add(GridSeeMoreElement());
-              output.add(Expanded(
-                child: Text(
-                  queryResult['total'].toString(),
-                  textAlign: TextAlign.right,
-                  style: kUploadedAmountOfPivs,
+        currentlyTagging == ''
+            ? Container(
+                height: 60,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  border:
+                      Border(top: BorderSide(width: 1, color: kGreyLighter)),
+                  color: Colors.white,
                 ),
-              ));
-              return output;
-            })()),
-          ),
-        ) : Container (),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: Row(children: (() {
+                    List<Widget> output = [];
+                    queryTags.forEach((tag) {
+                      // Show first two tags only
+                      if (output.length > 2) return;
+                      // DATE TAG
+                      if (RegExp('^d::').hasMatch(tag))
+                        return output.add(GridTagElement(
+                            gridTagElementIcon: kClockIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: tag.slice(3)));
+                      // GEO TAG
+                      if (RegExp('^g::').hasMatch(tag))
+                        return output.add(GridTagElement(
+                            gridTagElementIcon: kLocationDotIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: tag.slice(3)));
+                      // NORMAL TAG (TODO: FIX STYLES)
+                      output.add(GridTagElement(
+                          gridTagElementIcon: kLocationDotIcon,
+                          iconColor: kGreyDarker,
+                          gridTagName: tag));
+                    });
+                    if (queryTags.isEmpty) {
+                      output.add(Padding(
+                        padding: EdgeInsets.only(right: 8.0),
+                        child: Text(
+                          'You’re looking at',
+                          style: kLookingAtText,
+                        ),
+                      ));
+                      output.add(GridTagElement(
+                          gridTagElementIcon: kCameraIcon,
+                          iconColor: kGreyDarker,
+                          gridTagName: 'Everything'));
+                    }
+                    if (queryTags.length > 2) output.add(GridSeeMoreElement());
+                    output.add(Expanded(
+                      child: Text(
+                        queryResult['total'].toString(),
+                        textAlign: TextAlign.right,
+                        style: kUploadedAmountOfPivs,
+                      ),
+                    ));
+                    return output;
+                  })()),
+                ),
+              )
+            : Container(),
       ],
     );
   }

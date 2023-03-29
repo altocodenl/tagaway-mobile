@@ -45,7 +45,7 @@ class _LocalViewState extends State<LocalView> {
     ], (v1, v2, v3, v4, v5) {
       var currentView = StoreService.instance.get ('currentIndex');
       // Invoke the service only if uploaded is not the current view
-      if (v2 != '' && currentView != 2) TagService.instance.getLocalTaggedPivs(v2);
+      if (v2 != '' && currentView != 2) TagService.instance.getTaggedPivs(v2, 'local');
       setState(() {
         if (v1 != '') usertags = v1;
         if (currentView != 2) {

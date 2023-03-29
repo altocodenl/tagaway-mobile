@@ -42,38 +42,43 @@ class TagService {
   tagPivById(String id, String tag, bool del) async {
     var hometags = StoreService.instance.get ('hometags');
     if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
-    var response = await ajax('post', 'tag', {
-      'tag': tag,
-      'ids': [id],
-      'del': del
-    });
+    // TODO: REMOVE DEBUG
+    debug ([del ? 'UNTAGGING': 'TAGGING', id, tag]);
+    // TODO: implement `unorganize`
+    //var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'unorganize': true});
+    var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del});
+    if (! del && response ['code'] == 200) {
+      response = await ajax('post', 'tag', {'tag': 'o::', 'ids': [id], 'del': del});
+    }
     return response['code'];
   }
 
-  tagLocalPiv (dynamic piv, String tag) async {
-    String pivId = StoreService.instance.get ('pivMap:' + piv.id);
-    bool   del   = StoreService.instance.get ('tagMap:' + piv.id) != '';
-    StoreService.instance.set ('tagMap:' + piv.id, del ? '' : true);
+  tagPiv (dynamic assetOrPiv, String tag, String type) async {
+    String id = type == 'uploaded' ? assetOrPiv['id'] : assetOrPiv.id;
+    String pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
+    bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
+    StoreService.instance.set ('tagMap:' + id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
+
+    var code = await tagPivById(pivId, tag, del);
+    if (type == 'uploaded') return code;
+    // TODO: add error handling for non 200 (with exception to 404 for local, which is handled below)
 
     // If we have an entry for the piv:
     if (pivId != '') {
-      var code = await tagPivById(pivId, tag, del);
       // If piv exists, we are done. Otherwise, we need to upload it.
       if (code == 200) return;
       if (code == 404) {
-         StoreService.instance.remove ('pivMap:' + piv.id, 'disk');
+         StoreService.instance.remove ('pivMap:' + id, 'disk');
          StoreService.instance.remove ('rpivMap:' + pivId, 'disk');
       }
-      // TODO: add error handling for non 200, non 404
     }
-     UploadService.instance.queuePiv (piv);
-     var pendingTags = StoreService.instance.get ('pending:' + piv.id);
-     if (pendingTags == '') pendingTags = [];
-     if (del) pendingTags.remove (tag);
-     else     pendingTags.add    (tag);
-     StoreService.instance.set ('pendingTags:' + piv.id, pendingTags, 'disk');
-    // TODO: add error handling
+    UploadService.instance.queuePiv (assetOrPiv);
+    var pendingTags = StoreService.instance.get ('pending:' + id);
+    if (pendingTags == '') pendingTags = [];
+    if (del) pendingTags.remove (tag);
+    else     pendingTags.add    (tag);
+    StoreService.instance.set ('pendingTags:' + id, pendingTags, 'disk');
   }
 
   tagUploadedPiv (dynamic piv, String tag) async {
@@ -87,7 +92,7 @@ class TagService {
     // TODO: add error handling
   }
 
-  getLocalTaggedPivs (String tag) async {
+  getTaggedPivs (String tag, String type) async {
     var response = await ajax('post', 'query', {
       'tags': [tag],
       'sort': 'newest',
@@ -97,17 +102,20 @@ class TagService {
     });
     await StoreService.instance.remove ('tagMap:*');
     int count = 0;
+    var queryIds;
+    if (type == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
     response ['body'].forEach ((v) {
+      if (type == 'uploaded') {
+         if (! queryIds.contains (v)) return;
+         count += 1;
+         return StoreService.instance.set ('tagMap:' + v, true);
+      }
+
       var id = StoreService.instance.get ('rpivMap:' + v);
       if (id == '') return;
       StoreService.instance.set ('tagMap:' + id, true);
       count += 1;
     });
-    StoreService.instance.set ('taggedPivCount', count);
-  }
-
-  getUploadedTaggedPivs (String tag) async {
-    var count = StoreService.instance.get ('queryResult') ['tags'] [tag];
     StoreService.instance.set ('taggedPivCount', count);
   }
 
@@ -176,7 +184,36 @@ class TagService {
       var remoteCount = {};
       var lastPivInMonth = {};
       var output      = [];
-      var min = now (), max = 0;
+      var min, max;
+      var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
+      timeHeader.keys.forEach ((v) {
+         var dates = v.split (':');
+         dates = [int.parse (dates [0]), int.parse (dates [1])];
+         // Round down to the beginning of the semester
+         if (dates [1] < 7) dates [1] = 1;
+         else               dates [1] = 7;
+         if (min == null) return min = dates;
+         if (max == null) return max = dates;
+         if (dates [0] <= min [0] && dates [1] <= min [1]) min = dates;
+         if (dates [0] >= max [0] && dates [1] >= max [1]) max = dates;
+      });
+      for (var year = min [0]; year <= max [0]; year++) {
+         for (var month = (year == min [0] ? min [1] : 1); month <= (year == max [0] ? max [1] : 12); month++) {
+           var dateKey = year.toString () + ':' + month.toString ();
+           if (timeHeader [dateKey] == null)       output.add ([year, monthNames [month - 1], 'white']);
+           // TODO: add last piv in month or figure out alternative way to jump
+           else if (timeHeader [dateKey] == false) output.add ([year, monthNames [month - 1], 'gray']);
+           else                                    output.add ([year, monthNames [month - 1], 'green']);
+         }
+      }
+      var semesters = [[]];
+      output.forEach ((month) {
+         var lastSemester = semesters [semesters.length - 1];
+         if (lastSemester.length < 6) lastSemester.add (month);
+         else semesters.add ([month]);
+      });
+
+      StoreService.instance.set ('uploadedTimeHeader', semesters);
    }
 
    queryPivs (dynamic tags) async {
@@ -185,11 +222,27 @@ class TagService {
       'sort': 'newest',
       'from': 1,
       'to': 10000,
+      'timeHeader': true
     });
     if (response ['code'] == 200) {
       StoreService.instance.set('queryResult', response ['body']);
+      getUploadedTimeHeader();
+      response = await ajax('post', 'query', {
+        'tags': [...tags]..addAll (['o::']),
+        'sort': 'newest',
+        'from': 1,
+        'to': 10000,
+        'idsOnly': true
+      });
+      await StoreService.instance.remove ('orgMap:*');
+      if (response ['code'] == 200) {
+        response ['body'].forEach ((v) {
+           StoreService.instance.set('orgMap:' + v, true);
+        });
+      }
     }
     // HANDLE ERRORS
     return {'code': response ['code'], 'body': response ['body']};
   }
+
 }

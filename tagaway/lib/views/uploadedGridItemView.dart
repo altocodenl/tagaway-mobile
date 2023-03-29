@@ -11,10 +11,10 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class UploadedGridItem extends StatelessWidget {
-  final dynamic item;
+  final dynamic piv;
   final dynamic pivs;
 
-  UploadedGridItem({Key? key, required this.item, required this.pivs})
+  UploadedGridItem({Key? key, required this.piv, required this.pivs})
       : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
@@ -29,7 +29,7 @@ class UploadedGridItem extends StatelessWidget {
     return Stack(
       children: [
         CachedNetworkImage(
-            imageUrl: (kTagawayThumbSURL) + (item['id']),
+            imageUrl: (kTagawayThumbSURL) + (piv['id']),
             httpHeaders: {'cookie': StoreService.instance.get('cookie')},
             placeholder: (context, url) => const Center(
                     child: CircularProgressIndicator(
@@ -40,7 +40,7 @@ class UploadedGridItem extends StatelessWidget {
                       image: DecorationImage(
                           fit: BoxFit.cover, image: imageProvider)),
                 )),
-        item['vid'] != null
+        piv['vid'] != null
             ? const Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
@@ -62,11 +62,11 @@ class UploadedGridItem extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (_) {
                 return CarrouselView(
-                    initialPiv: pivs.indexOf(item), pivs: pivs);
+                    initialPiv: pivs.indexOf(piv), pivs: pivs);
               }),
             );
             else
-              TagService.instance.tagUploadedPiv(item, currentlyTagging);
+              TagService.instance.tagPiv(piv, currentlyTagging, 'uploaded');
           },
         ),
         Align(
@@ -76,16 +76,9 @@ class UploadedGridItem extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(100),
                   border: Border.all(color: Colors.white, width: 2)),
-              child: Icon(
-                selected ? kCircleCheckIcon : kSolidCircleIcon,
-                color: selected ? kAltoOrganized : kGreyDarker,
-                size: 25,
-              ),
-            )),
+              child: GridItemSelection(piv['id'], 'uploaded'))),
       ],
     );
-    //   },
-    // );
   }
 }
 
