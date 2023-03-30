@@ -16,7 +16,7 @@ class StoreService {
   }
   static final StoreService instance = StoreService._privateConstructor ();
 
-  bool showLogs = false;
+  bool showLogs = true;
   bool loaded   = false;
 
   var updateStream = StreamController<String>.broadcast ();
