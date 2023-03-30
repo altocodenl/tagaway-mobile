@@ -58,13 +58,10 @@ class StoreService {
 
    // This function is called by main.dart to recreate the in-memory store
    load ([var resetKeys]) async {
-      if (resetKeys != null) {
-         return await resetDev ();
-      }
+      if (resetKeys != null) await resetDev ();
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
       var keys = await prefs.getKeys ().toList ();
-      debug (['LOADING KEYS', keys]);
       keys.sort ();
       for (var k in keys) {
          store [k] = await jsonDecode (prefs.getString (k) ?? '""');
