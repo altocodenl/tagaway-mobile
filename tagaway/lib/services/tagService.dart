@@ -44,12 +44,14 @@ class TagService {
     if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
     // TODO: REMOVE DEBUG
     debug ([del ? 'UNTAGGING': 'TAGGING', id, tag]);
-    // TODO: implement `unorganize`
-    //var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'unorganize': true});
     var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del});
+    // TODO autoorganize
+    // var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+    // TODO: remove after implementing autoorganize
     if (! del && response ['code'] == 200) {
       response = await ajax('post', 'tag', {'tag': 'o::', 'ids': [id], 'del': del});
     }
+    await queryPivs (StoreService.instance.get ('queryTags'));
     return response['code'];
   }
 

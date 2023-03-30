@@ -23,12 +23,16 @@
 - When closing and re-opening phone, revive uploads that were not finished (Mono)
 
 - When untagging last tag of a piv, mark it as unorganized (also LocalView)
+- Maintain state in localView and uploadedView (rename variables)
+
 
 - Uploaded filter (Mono)
 
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
+
+- When loading local pivs, check for existence and remove stale entries from pivMap
 
 ## Store structure
 

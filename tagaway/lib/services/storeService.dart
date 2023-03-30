@@ -49,6 +49,7 @@ class StoreService {
    load ([var resetKeys]) async {
       if (resetKeys != null) {
          await reset ();
+         // Wait a full second until changes are flushed to disk
          await Future.delayed(Duration(seconds: 1));
       }
       // We load prefs directly to have them already available.
