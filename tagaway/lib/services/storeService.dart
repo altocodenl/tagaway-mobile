@@ -48,24 +48,18 @@ class StoreService {
    // This function is called by main.dart to recreate the in-memory store
    load ([var resetKeys]) async {
       if (resetKeys != null) {
-         debug (['CRAZY PILLS 1']);
          await reset ();
-         debug (['CRAZY PILLS 2']);
          await Future.delayed(Duration(seconds: 1));
-         debug (['CRAZY PILLS 3']);
       }
-      debug (['CRAZY PILLS 4']);
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
-      debug (['CRAZY PILLS 5']);
       var keys = await prefs.getKeys ().toList ();
-      debug (['CRAZY PILLS 6']);
       keys.sort ();
       for (var k in keys) {
          store [k] = await jsonDecode (prefs.getString (k) ?? '""');
       };
-      debug (['CRAZY PILLS 7']);
       if (showLogs) keys.forEach ((k) => debug (['STORE LOAD', k, jsonEncode (store [k])]));
+      if (showLogs) debug (['STORE LOAD COMPLETE']);
       loaded = true;
    }
 
