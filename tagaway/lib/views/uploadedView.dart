@@ -37,9 +37,9 @@ class _UploadedViewState extends State<UploadedView> {
     super.initState();
     cancelListener = StoreService.instance.listen([
       'usertags',
-      'currentlyTagging',
-      'swiped',
-      'newTag',
+      'currentlyTaggingUploaded',
+      'swipedUploaded',
+      'newTagUploaded',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
       var currentView = StoreService.instance.get('currentIndex');
@@ -82,8 +82,8 @@ class _UploadedViewState extends State<UploadedView> {
                 alignment: const Alignment(0.8, .9),
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    StoreService.instance.set('swiped', false);
-                    StoreService.instance.set('currentlyTagging', '');
+                    StoreService.instance.set('swipedUploaded', false);
+                    StoreService.instance.set('currentlyTaggingUploaded', '');
                     // We update the tag list in case we just created a new one.
                     TagService.instance.getTags();
                   },
@@ -99,9 +99,9 @@ class _UploadedViewState extends State<UploadedView> {
                 child: NotificationListener<DraggableScrollableNotification>(
                     onNotification: (state) {
                       if (state.extent < 0.0701)
-                        StoreService.instance.set('swiped', false);
+                        StoreService.instance.set('swipedUploaded', false);
                       if (state.extent > 0.7699)
-                        StoreService.instance.set('swiped', true);
+                        StoreService.instance.set('swipedUploaded', true);
                       StoreService.instance.set('startTaggingModal', false);
                       return true;
                     },
@@ -205,7 +205,7 @@ class _UploadedViewState extends State<UploadedView> {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
                                               StoreService.instance
-                                                  .set('currentlyTagging', tag);
+                                                  .set('currentlyTaggingUploaded', tag);
                                             };
                                           },
                                         );
@@ -274,7 +274,7 @@ class _UploadedViewState extends State<UploadedView> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              StoreService.instance.set('newTag', '');
+                              StoreService.instance.set('newTagUploaded', '');
                               newTagName.clear();
                             },
                             child: const Padding(
@@ -293,9 +293,9 @@ class _UploadedViewState extends State<UploadedView> {
                             onTap: () {
                               var text = newTagName.text;
                               if (text == '') return;
-                              StoreService.instance.set('newTag', '');
+                              StoreService.instance.set('newTagUploaded', '');
                               StoreService.instance
-                                  .set('currentlyTagging', text);
+                                  .set('currentlyTaggingUploaded', text);
                               newTagName.clear();
                             },
                             child: const Text(
@@ -321,7 +321,7 @@ class _UploadedViewState extends State<UploadedView> {
               child: FloatingActionButton.extended(
                 onPressed: () {
                   // We store `newTag` to `true` simply to enable visibility of the new tag modal
-                  StoreService.instance.set('newTag', true);
+                  StoreService.instance.set('newTagUploaded', true);
                 },
                 backgroundColor: kAltoBlue,
                 label: const Text('Create tag', style: kSelectAllButton),
@@ -418,8 +418,8 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
-      'currentlyTagging',
-      'taggedPivCount',
+      'currentlyTaggingUploaded',
+      'taggedPivCountUploaded',
       'uploadedTimeHeader',
       'queryTags',
       'queryResult'

@@ -33,7 +33,7 @@ class LocalGridItem extends StatelessWidget {
         return GestureDetector(
             onTap: () {
               var currentlyTagging =
-                  StoreService.instance.get('currentlyTagging');
+                  StoreService.instance.get('currentlyTaggingLocal');
               if (currentlyTagging == '')
                 StoreService.instance.set('startTaggingModal', true);
               else

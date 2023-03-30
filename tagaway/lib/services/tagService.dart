@@ -60,7 +60,7 @@ class TagService {
     String pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
     bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
     StoreService.instance.set ('tagMap:' + id, del ? '' : true);
-    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
+    StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
 
     var code = await tagPivById(pivId, tag, del);
     if (type == 'uploaded') return code;
@@ -81,17 +81,6 @@ class TagService {
     if (del) pendingTags.remove (tag);
     else     pendingTags.add    (tag);
     StoreService.instance.set ('pendingTags:' + id, pendingTags, 'disk');
-  }
-
-  tagUploadedPiv (dynamic piv, String tag) async {
-    var del = piv ['tags'].contains (tag);
-    if (del) piv ['tags'].add (tag);
-    else     piv ['tags'].remove (tag);
-    StoreService.instance.set ('taggedPivCount', StoreService.instance.get ('taggedPivCount') + (del ? -1 : 1));
-
-    var code = await tagPivById(piv['id'], tag, del);
-    return code;
-    // TODO: add error handling
   }
 
   getTaggedPivs (String tag, String type) async {
@@ -118,7 +107,7 @@ class TagService {
       StoreService.instance.set ('tagMap:' + id, true);
       count += 1;
     });
-    StoreService.instance.set ('taggedPivCount', count);
+    StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), count);
   }
 
    getLocalTimeHeader () {

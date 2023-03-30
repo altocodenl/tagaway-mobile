@@ -57,7 +57,7 @@ class UploadedGridItem extends StatelessWidget {
         GestureDetector(
           onTap: () {
             var currentlyTagging =
-                StoreService.instance.get('currentlyTagging');
+                StoreService.instance.get('currentlyTaggingUploaded');
             if (currentlyTagging == '') Navigator.push(
               context,
               MaterialPageRoute(builder: (_) {

@@ -38,9 +38,9 @@ class _LocalViewState extends State<LocalView> {
     super.initState();
     cancelListener = StoreService.instance.listen([
       'usertags',
-      'currentlyTagging',
-      'swiped',
-      'newTag',
+      'currentlyTaggingLocal',
+      'swipedLocal',
+      'newTagLocal',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
       var currentView = StoreService.instance.get ('currentIndex');
@@ -78,8 +78,8 @@ class _LocalViewState extends State<LocalView> {
                 alignment: const Alignment(0.8, .9),
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    StoreService.instance.set('swiped', false);
-                    StoreService.instance.set('currentlyTagging', '');
+                    StoreService.instance.set('swipedLocal', false);
+                    StoreService.instance.set('currentlyTaggingLocal', '');
                     // We update the tag list in case we just created a new one.
                     TagService.instance.getTags();
                   },
@@ -95,9 +95,9 @@ class _LocalViewState extends State<LocalView> {
                   child: NotificationListener<DraggableScrollableNotification>(
                 onNotification: (state) {
                   if (state.extent < 0.0701)
-                    StoreService.instance.set('swiped', false);
+                    StoreService.instance.set('swipedLocal', false);
                   if (state.extent > 0.7699)
-                    StoreService.instance.set('swiped', true);
+                    StoreService.instance.set('swipedLocal', true);
                   StoreService.instance.set('startTaggingModal', false);
                   return true;
                 },
@@ -199,7 +199,7 @@ class _LocalViewState extends State<LocalView> {
                                         // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                         return () {
                                           StoreService.instance.set(
-                                              'currentlyTagging', tag);
+                                              'currentlyTaggingLocal', tag);
                                         };
                                       },
                                     );
@@ -268,7 +268,7 @@ class _LocalViewState extends State<LocalView> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              StoreService.instance.set('newTag', '');
+                              StoreService.instance.set('newTagLocal', '');
                               newTagName.clear();
                             },
                             child: const Padding(
@@ -287,9 +287,9 @@ class _LocalViewState extends State<LocalView> {
                             onTap: () {
                               var text = newTagName.text;
                               if (text == '') return;
-                              StoreService.instance.set('newTag', '');
+                              StoreService.instance.set('newTagLocal', '');
                               StoreService.instance
-                                  .set('currentlyTagging', text);
+                                  .set('currentlyTaggingLocal', text);
                               newTagName.clear();
                             },
                             child: const Text(
@@ -315,7 +315,7 @@ class _LocalViewState extends State<LocalView> {
               child: FloatingActionButton.extended(
                 onPressed: () {
                   // We store `newTag` to `true` simply to enable visibility of the new tag modal
-                  StoreService.instance.set('newTag', true);
+                  StoreService.instance.set('newTagLocal', true);
                 },
                 backgroundColor: kAltoBlue,
                 label: const Text('Create tag', style: kSelectAllButton),
@@ -348,7 +348,7 @@ class _LocalViewState extends State<LocalView> {
                         child: WhiteRoundedButton(
                             title: 'Start tagging',
                             onPressed: () {
-                              StoreService.instance.set('swiped', true);
+                              StoreService.instance.set('swipedLocal', true);
                               StoreService.instance
                                   .set('startTaggingModal', false);
                             }))
@@ -464,7 +464,7 @@ class _TopRowState extends State<TopRow> {
     PhotoManager.requestPermissionExtend();
     super.initState();
     cancelListener = StoreService.instance.listen(
-        ['currentlyTagging', 'taggedPivCount', 'localTimeHeader'], (v1, v2, v3) {
+        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader'], (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
