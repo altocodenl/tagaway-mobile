@@ -81,8 +81,9 @@ class StoreService {
          // We load prefs directly to have them already available.
          var prefs = await SharedPreferences.getInstance ();
          var value = await prefs.getString (key);
-         if (showLogs) debug (['STORE GET', key, jsonDecode (value)]);
-         return value == null ? '' : jsonDecode (value);
+         value = value == null ? '' : value;
+         if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
+         return value;
       }
       var value = store [key] == null ? '' : store [key];
       if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
