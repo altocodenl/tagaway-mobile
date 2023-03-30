@@ -40,25 +40,14 @@ class StoreService {
    reset () async {
      store = {};
      // We load prefs directly to have them already available.
+     if (showLogs) debug (['STORE RESET']);
      var prefs = await SharedPreferences.getInstance ();
      await prefs.clear ();
    }
 
-   // To be invoked to clear everything except auth state - for development purposes only
-   resetDev () async {
-      store = {};
-      var prefs = await SharedPreferences.getInstance ();
-      var keys = await prefs.getKeys ().toList ();
-      for (var k in keys) {
-        if (k == 'cookie' || k == 'csrf') return;
-        // Remove all keys from disk as well
-        await remove (k, 'disk');
-      }
-    }
-
    // This function is called by main.dart to recreate the in-memory store
    load ([var resetKeys]) async {
-      if (resetKeys != null) await resetDev ();
+      if (resetKeys != null) await reset ();
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
       var keys = await prefs.getKeys ().toList ();
@@ -92,7 +81,7 @@ class StoreService {
          // We load prefs directly to have them already available.
          var prefs = await SharedPreferences.getInstance ();
          var value = await prefs.getString (key);
-         if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
+         if (showLogs) debug (['STORE GET', key, jsonDecode (value)]);
          return value == null ? '' : jsonDecode (value);
       }
       var value = store [key] == null ? '' : store [key];
