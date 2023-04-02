@@ -2,8 +2,7 @@
 
 ## TODO
 
-- When untagging last tag of a piv, mark it as unorganized
-- Uploaded filter (Mono)
+- Query selector view (Mono)
 - Show date when opening piv
 - Time header (both LocalView & UploadedView)
    - Change year as you scroll

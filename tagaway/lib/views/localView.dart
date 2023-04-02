@@ -43,18 +43,21 @@ class _LocalViewState extends State<LocalView> {
       'newTagLocal',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
-      var currentView = StoreService.instance.get ('currentIndex');
+      var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
-      if (v2 != '' && currentView != 2) TagService.instance.getTaggedPivs(v2, 'local');
+      if (v2 != '' && currentView != 2)
+        TagService.instance.getTaggedPivs(v2, 'local');
       setState(() {
         if (v1 != '') usertags = v1;
         if (currentView != 2) {
-           currentlyTagging = v2;
-           if (v3 != '') swiped = v3;
-           newTag = v4;
-           startTaggingModal = v5;
-           if (swiped == false && initialChildSize > 0.07) initialChildSize = 0.07;
-           if (swiped == true && initialChildSize < 0.77) initialChildSize = 0.77;
+          currentlyTagging = v2;
+          if (v3 != '') swiped = v3;
+          newTag = v4;
+          startTaggingModal = v5;
+          if (swiped == false && initialChildSize > 0.07)
+            initialChildSize = 0.07;
+          if (swiped == true && initialChildSize < 0.77)
+            initialChildSize = 0.77;
         }
       });
     });
@@ -399,8 +402,8 @@ class _GridState extends State<Grid> {
     );
 
     for (var asset in recentAssets) {
-      StoreService.instance.set('pivDate:' + asset.id,
-          asset.createDateTime.millisecondsSinceEpoch);
+      StoreService.instance.set(
+          'pivDate:' + asset.id, asset.createDateTime.millisecondsSinceEpoch);
     }
     TagService.instance.getLocalTimeHeader();
 
@@ -464,7 +467,8 @@ class _TopRowState extends State<TopRow> {
     PhotoManager.requestPermissionExtend();
     super.initState();
     cancelListener = StoreService.instance.listen(
-        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader'], (v1, v2, v3) {
+        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader'],
+        (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;

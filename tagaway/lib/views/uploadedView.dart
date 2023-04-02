@@ -343,13 +343,13 @@ class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
   dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
-  dynamic selectedList = [];
 
   @override
   void initState() {
     super.initState();
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
+    // The listeners are separated because we don't want to query pivs again once queryResult is updated.
     cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
       if (v1 == '') v1 = [];
       TagService.instance.queryPivs(v1);
@@ -605,13 +605,13 @@ class _TopRowState extends State<TopRow> {
                         return output.add(GridTagElement(
                             gridTagElementIcon: kClockIcon,
                             iconColor: kGreyDarker,
-                            gridTagName: tag.slice(3)));
+                            gridTagName: tag.substring(3)));
                       // GEO TAG
                       if (RegExp('^g::').hasMatch(tag))
                         return output.add(GridTagElement(
                             gridTagElementIcon: kLocationDotIcon,
                             iconColor: kGreyDarker,
-                            gridTagName: tag.slice(3)));
+                            gridTagName: tag.substring(3)));
                       // NORMAL TAG (TODO: FIX STYLES)
                       output.add(GridTagElement(
                           gridTagElementIcon: kLocationDotIcon,

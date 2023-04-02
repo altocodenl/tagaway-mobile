@@ -42,16 +42,8 @@ class TagService {
   tagPivById(String id, String tag, bool del) async {
     var hometags = StoreService.instance.get ('hometags');
     if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
-    // TODO: REMOVE DEBUG
-    debug ([del ? 'UNTAGGING': 'TAGGING', id, tag]);
-    var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del});
-    // TODO autoorganize
-    // var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
-    // TODO: remove after implementing autoorganize
-    if (! del && response ['code'] == 200) {
-      response = await ajax('post', 'tag', {'tag': 'o::', 'ids': [id], 'del': del});
-    }
-    await queryPivs (StoreService.instance.get ('queryTags'));
+    var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+    if (response['code'] == 200) await queryPivs (StoreService.instance.get ('queryTags'));
     return response['code'];
   }
 
@@ -183,13 +175,13 @@ class TagService {
          // Round down to the beginning of the semester
          if (dates [1] < 7) dates [1] = 1;
          else               dates [1] = 7;
-         if (min == null) return min = dates;
-         if (max == null) return max = dates;
+         if (min == null) min = dates;
+         if (max == null) max = dates;
          if (dates [0] <= min [0] && dates [1] <= min [1]) min = dates;
          if (dates [0] >= max [0] && dates [1] >= max [1]) max = dates;
       });
       for (var year = min [0]; year <= max [0]; year++) {
-         for (var month = (year == min [0] ? min [1] : 1); month <= (year == max [0] ? max [1] : 12); month++) {
+         for (var month = (year == min [0] ? min [1] : 1); month <= (max [1] == 1 ? 7 : 12); month++) {
            var dateKey = year.toString () + ':' + month.toString ();
            if (timeHeader [dateKey] == null)       output.add ([year, monthNames [month - 1], 'white']);
            // TODO: add last piv in month or figure out alternative way to jump
@@ -234,6 +226,14 @@ class TagService {
     }
     // HANDLE ERRORS
     return {'code': response ['code'], 'body': response ['body']};
+  }
+
+  toggleQueryTag (String tag) {
+    var queryTags = StoreService.instance.get ('queryTags');
+    if (queryTags.contains (tag)) queryTags.remove (tag);
+    else                          queryTags.add (tag);
+    debug (['toggled', queryTags]);
+    StoreService.instance.set ('queryTags', queryTags);
   }
 
 }

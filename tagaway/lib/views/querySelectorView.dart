@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 
 class QuerySelectorView extends StatefulWidget {
   static const String id = 'querySelector';
@@ -14,6 +16,34 @@ class QuerySelectorView extends StatefulWidget {
 }
 
 class _QuerySelectorViewState extends State<QuerySelectorView> {
+  dynamic cancelListener;
+
+  dynamic queryTags = [];
+  dynamic queryResult = {'total': 0, 'tags': {}};
+  dynamic years = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener =
+        StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
+      setState(() {
+        if (v1 != '') queryTags = v1;
+        if (v2 != '') {
+           queryResult = v2;
+           years = queryResult['tags'].keys.where((tag) => RegExp('^d::[0-9]').hasMatch(tag)).toList ();
+           years.sort ();
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,40 +79,42 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              shrinkWrap: true,
-              childAspectRatio: 4,
-              children: [
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kTagIcon,
-                  iconColor: kGrey,
-                  tagTitle: 'Untagged',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kBoxArchiveIcon,
-                  iconColor: kGrey,
-                  tagTitle: 'To Organize',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kCircleCheckIcon,
-                  iconColor: kAltoOrganized,
-                  tagTitle: 'Organized',
-                ),
-              ],
-            ),
-          ),
+          Visibility(
+              // TODO: why does this conditional work when it's the other way around? Visibility should be on != null
+              visible: queryResult['tags']['u::'] == null,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: GridView.count(
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    shrinkWrap: true,
+                    childAspectRatio: 4,
+                    children: [
+                      QuerySelectionTagElement(
+                        onTap: () {},
+                        elementColor: kGreyLighter,
+                        icon: kTagIcon,
+                        iconColor: kGrey,
+                        tagTitle: 'Untagged',
+                      ),
+                      QuerySelectionTagElement(
+                        onTap: () {},
+                        elementColor: kGreyLighter,
+                        icon: kBoxArchiveIcon,
+                        iconColor: kGrey,
+                        tagTitle: 'To Organize',
+                      ),
+                      QuerySelectionTagElement(
+                        onTap: () {},
+                        elementColor: kGreyLighter,
+                        icon: kCircleCheckIcon,
+                        iconColor: kAltoOrganized,
+                        tagTitle: 'Organized',
+                      ),
+                    ]),
+              )),
           const Text('Years',
               style: TextStyle(
                 fontFamily: 'Montserrat',
@@ -95,7 +127,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: 4,
+                itemCount: years.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 8,
@@ -103,12 +135,15 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   childAspectRatio: 4,
                 ),
                 itemBuilder: (BuildContext context, index) {
+                  var year = years [index];
                   return QuerySelectionTagElement(
-                    onTap: () {},
+                    onTap: () {
+                       TagService.instance.toggleQueryTag (year);
+                    },
                     elementColor: kGreyLighter,
                     icon: kClockIcon,
                     iconColor: kGreyDarker,
-                    tagTitle: '2019',
+                    tagTitle: year.substring(3)
                   );
                 }),
           ),
