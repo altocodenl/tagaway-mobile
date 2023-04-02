@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 class SnackBarGlobal {
@@ -712,9 +713,11 @@ class _GridItemSelectionState extends State<GridItemSelection> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
-        [(type == 'local' ? 'pivMap:' : 'orgMap:') + id, 'tagMap:' + id, 'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded')],
-        (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen([
+      (type == 'local' ? 'pivMap:' : 'orgMap:') + id,
+      'tagMap:' + id,
+      'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded')
+    ], (v1, v2, v3) {
       setState(() {
         if (v3 == '')
           selected = v1 != '';
@@ -740,3 +743,41 @@ class _GridItemSelectionState extends State<GridItemSelection> {
   }
 }
 
+class AltocodeCommit extends StatelessWidget {
+  const AltocodeCommit({
+    Key? key,
+  }) : super(key: key);
+
+  launchAltocodeHome() async {
+    if (!await launchUrl(Uri.parse(kAltoURL),
+        mode: LaunchMode.externalApplication)) {
+      throw "cannot launch url";
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: TextButton(
+        onPressed: () {
+          launchAltocodeHome();
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Text(
+              'altocode',
+              style: kBlueAltocodeSubtitle,
+            ),
+            Text(
+              'Commit to the future',
+              style: kTaglineText,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

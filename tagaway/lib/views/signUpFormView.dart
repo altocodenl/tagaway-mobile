@@ -5,7 +5,6 @@ import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/loginView.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SignUpFormView extends StatefulWidget {
   static const String id = 'sign_up_form_view';
@@ -36,13 +35,6 @@ class _SignUpFormViewState extends State<SignUpFormView> {
   void dispose() {
     pageController.dispose();
     super.dispose();
-  }
-
-  launchAltocodeHome() async {
-    if (!await launchUrl(Uri.parse(kAltoURL),
-        mode: LaunchMode.externalApplication)) {
-      throw "cannot launch url";
-    }
   }
 
   @override
@@ -381,23 +373,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                     ),
                   ],
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: TextButton(
-                    onPressed: () {
-                      launchAltocodeHome();
-                    },
-                    child: const Text(
-                      'altocode',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: kAltoBlue,
-                      ),
-                    ),
-                  ),
-                )
+                const AltocodeCommit(),
               ],
             ),
           ),

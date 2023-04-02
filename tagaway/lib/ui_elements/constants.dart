@@ -111,6 +111,13 @@ const kWhiteSubtitle = TextStyle(
     fontSize: 20,
     color: Colors.white);
 
+const kBlueAltocodeSubtitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 20,
+  color: kAltoBlue,
+);
+
 const kPlainText = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 16,
@@ -143,19 +150,6 @@ const kWhiteButtonText = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoBlue,
-);
-
-const kGridBottomRowText = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 12,
-  fontWeight: FontWeight.bold,
-  color: kGreyDarkest,
-);
-
-const kBottomNavigationText = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 12,
-  fontWeight: FontWeight.bold,
 );
 
 const kSelectAllButton = TextStyle(
@@ -260,6 +254,25 @@ const kUploadedAmountOfPivs = TextStyle(
   color: kGreyDarker,
 );
 
+const kGridBottomRowText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 12,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarkest,
+);
+
+const kBottomNavigationText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 12,
+  fontWeight: FontWeight.bold,
+);
+
+const kTaglineText = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 12,
+  color: kGreyDarker,
+);
+
 int now() {
   return DateTime.now().millisecondsSinceEpoch;
 }
@@ -299,7 +312,9 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
       response = await http.get(Uri.parse(kAltoPicAppURL + '/' + path),
           headers: {'cookie': cookie});
     else {
-      if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover')
+      if (path != 'auth/login' &&
+          path != 'auth/signup' &&
+          path != 'auth/recover')
         body['csrf'] = await StoreService.instance.get('csrf');
       response = await http.post(Uri.parse(kAltoPicAppURL + '/' + path),
           headers: {
@@ -322,8 +337,8 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
 
     // If we get a 403, it should be because the cookie is invalid. We delete it locally.
     if (response.statusCode == 403) {
-      await StoreService.instance.remove ('cookie', 'disk');
-      await StoreService.instance.remove ('csrf', 'disk');
+      await StoreService.instance.remove('cookie', 'disk');
+      await StoreService.instance.remove('csrf', 'disk');
     }
 
     return {

@@ -7,7 +7,6 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/signupView.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -37,13 +36,6 @@ class _LoginViewState extends State<LoginView> {
   void dispose() {
     inviteResponse.close();
     super.dispose();
-  }
-
-  launchAltocodeHome() async {
-    if (!await launchUrl(Uri.parse(kAltoURL),
-        mode: LaunchMode.externalApplication)) {
-      throw "cannot launch url";
-    }
   }
 
   materialBannerDisplay() {
@@ -254,23 +246,7 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: TextButton(
-                    onPressed: () {
-                      launchAltocodeHome();
-                    },
-                    child: const Text(
-                      'altocode',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: kAltoBlue,
-                      ),
-                    ),
-                  ),
-                )
+                const AltocodeCommit(),
               ],
             ))),
       ),
