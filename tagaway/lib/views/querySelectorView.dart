@@ -17,24 +17,62 @@ class QuerySelectorView extends StatefulWidget {
 
 class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic cancelListener;
+  dynamic cancelListener2;
 
   dynamic queryTags = [];
   dynamic queryResult = {'total': 0, 'tags': {}};
   dynamic years = [];
+  dynamic months = [];
+  dynamic countries = [];
+  dynamic cities = [];
+  dynamic usertags = [];
 
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
+    if (StoreService.instance.get('queryTags') == '')
+      StoreService.instance.set('queryTags', []);
+    // The listeners are separated because we don't want to query pivs again once queryResult is updated.
+    cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
+      if (v1 == '') v1 = [];
+      TagService.instance.queryPivs(v1);
       setState(() {
-        if (v1 != '') queryTags = v1;
-        if (v2 != '') {
-           queryResult = v2;
-           years = queryResult['tags'].keys.where((tag) => RegExp('^d::[0-9]').hasMatch(tag)).toList ();
-           years.sort ();
-        }
+        queryTags = v1;
       });
+    });
+    cancelListener2 = StoreService.instance.listen([
+      'queryResult',
+    ], (v1) {
+      if (v1 != '')
+        setState(() {
+          queryResult = v1;
+          years = queryResult['tags']
+              .keys
+              .where((tag) => RegExp('^d::[0-9]').hasMatch(tag))
+              .toList();
+          years.sort();
+          months = queryResult['tags']
+              .keys
+              .where((tag) => RegExp('^d::M').hasMatch(tag))
+              .toList();
+          months.sort();
+          countries = queryResult['tags']
+              .keys
+              .where((tag) => RegExp('^g::[A-Z]{2}').hasMatch(tag))
+              .toList();
+          countries.sort();
+          cities = queryResult['tags']
+              .keys
+              .where((tag) =>
+                  RegExp('^g::').hasMatch(tag) && !countries.contains(tag))
+              .toList();
+          cities.sort();
+          usertags = queryResult['tags']
+              .keys
+              .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+              .toList();
+          usertags.sort();
+        });
     });
   }
 
@@ -42,6 +80,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
   }
 
   @override
@@ -135,16 +174,17 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   childAspectRatio: 4,
                 ),
                 itemBuilder: (BuildContext context, index) {
-                  var year = years [index];
+                  var year = years[index];
                   return QuerySelectionTagElement(
-                    onTap: () {
-                       TagService.instance.toggleQueryTag (year);
-                    },
-                    elementColor: kGreyLighter,
-                    icon: kClockIcon,
-                    iconColor: kGreyDarker,
-                    tagTitle: year.substring(3)
-                  );
+                      onTap: () {
+                        TagService.instance.toggleQueryTag(year);
+                      },
+                      elementColor: queryTags.contains(year)
+                          ? kSelectedTag
+                          : kGreyLighter,
+                      icon: kClockIcon,
+                      iconColor: kGreyDarker,
+                      tagTitle: year.substring(3));
                 }),
           ),
           const Text('See more years',
@@ -166,100 +206,45 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 20, bottom: 10),
-            child: GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              shrinkWrap: true,
-              childAspectRatio: 4,
-              children: [
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Jan',
+            child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: months.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 4,
                 ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Feb',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kSelectedTag,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Mar',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Apr',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'May',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Jun',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Jul',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Aug',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Sep',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Oct',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Nov',
-                ),
-                QuerySelectionTagElement(
-                  onTap: () {},
-                  elementColor: kGreyLighter,
-                  icon: kClockIcon,
-                  iconColor: kGreyDarker,
-                  tagTitle: 'Dec',
-                ),
-              ],
-            ),
+                itemBuilder: (BuildContext context, index) {
+                  var month = months[index];
+                  var monthNames = [
+                    'Jan',
+                    'Feb',
+                    'Mar',
+                    'Apr',
+                    'May',
+                    'Jun',
+                    'Jul',
+                    'Aug',
+                    'Sep',
+                    'Oct',
+                    'Nov',
+                    'Dec'
+                  ];
+                  var displayName =
+                      monthNames[int.parse(month.substring(4)) - 1];
+                  return QuerySelectionTagElement(
+                    onTap: () {
+                      TagService.instance.toggleQueryTag(month);
+                    },
+                    elementColor:
+                        queryTags.contains(month) ? kSelectedTag : kGreyLighter,
+                    icon: kClockIcon,
+                    iconColor: kGreyDarker,
+                    tagTitle: displayName,
+                  );
+                }),
           ),
           const Padding(
             padding: EdgeInsets.only(top: 20),
@@ -276,7 +261,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: 4,
+                itemCount: countries.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 8,
@@ -284,13 +269,17 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   childAspectRatio: 4,
                 ),
                 itemBuilder: (BuildContext context, index) {
+                  var country = countries[index];
                   return QuerySelectionTagElement(
-                    onTap: () {},
-                    elementColor: kGreyLighter,
-                    icon: kLocationDotIcon,
-                    iconColor: kGreyDarker,
-                    tagTitle: 'AR',
-                  );
+                      onTap: () {
+                        TagService.instance.toggleQueryTag(country);
+                      },
+                      elementColor: queryTags.contains(country)
+                          ? kSelectedTag
+                          : kGreyLighter,
+                      icon: kLocationDotIcon,
+                      iconColor: kGreyDarker,
+                      tagTitle: country.substring(3));
                 }),
           ),
           const Text('See more countries',
@@ -315,7 +304,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             child: GridView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                itemCount: 4,
+                itemCount: cities.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 8,
@@ -323,13 +312,17 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   childAspectRatio: 4,
                 ),
                 itemBuilder: (BuildContext context, index) {
+                  var city = cities[index];
                   return QuerySelectionTagElement(
-                    onTap: () {},
-                    elementColor: kGreyLighter,
-                    icon: kLocationPinIcon,
-                    iconColor: kGreyDarker,
-                    tagTitle: 'Ayacucho',
-                  );
+                      onTap: () {
+                        TagService.instance.toggleQueryTag(city);
+                      },
+                      elementColor: queryTags.contains(city)
+                          ? kSelectedTag
+                          : kGreyLighter,
+                      icon: kLocationPinIcon,
+                      iconColor: kGreyDarker,
+                      tagTitle: city.substring(3));
                 }),
           ),
           const Padding(
@@ -353,15 +346,18 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   crossAxisSpacing: 8,
                   childAspectRatio: 4,
                 ),
-                itemCount: 12,
+                itemCount: usertags.length,
                 itemBuilder: (BuildContext context, index) {
+                  var tag = usertags[index];
                   return QuerySelectionTagElement(
-                    onTap: () {},
-                    elementColor: kGreyLighter,
-                    icon: kTagIcon,
-                    iconColor: kTagColor1,
-                    tagTitle: 'Lorem ipsum dolor',
-                  );
+                      onTap: () {
+                        TagService.instance.toggleQueryTag(tag);
+                      },
+                      elementColor:
+                          queryTags.contains(tag) ? kSelectedTag : kGreyLighter,
+                      icon: kTagIcon,
+                      iconColor: kTagColor1,
+                      tagTitle: tag);
                 }),
           ),
         ],
@@ -371,7 +367,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
         child: FloatingActionButton.extended(
           onPressed: () {},
           backgroundColor: kAltoBlue,
-          label: const Text('See XXX results', style: kSelectAllButton),
+          label: Text('See ' + queryResult['total'].toString() + ' results',
+              style: kSelectAllButton),
         ),
       ),
     );

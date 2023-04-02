@@ -232,7 +232,6 @@ class TagService {
     var queryTags = StoreService.instance.get ('queryTags');
     if (queryTags.contains (tag)) queryTags.remove (tag);
     else                          queryTags.add (tag);
-    debug (['toggled', queryTags]);
     StoreService.instance.set ('queryTags', queryTags);
   }
 
