@@ -116,16 +116,13 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
         actions: [
           Padding(
             padding: EdgeInsets.only(top: 18, right: 20),
-              child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                       StoreService.instance.set ('queryTags', []);
-                    });
-                  },
-                  child: Text(
-              'Reset',
-              style: kPlainTextBold)
-            ),
+            child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    StoreService.instance.set('queryTags', []);
+                  });
+                },
+                child: Text('Reset', style: kPlainTextBold)),
           ),
           // IconButton(icon: const Icon(Icons.add), onPressed: () {}),
         ],
@@ -222,17 +219,20 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               child: GestureDetector(
                   onTap: () {
                     setState(() {
-                       expandYears = !expandYears ;
-                       filteredYears = (expandYears || years.length < 4) ? years : years.sublist(years.length - 4, years.length);
+                      expandYears = !expandYears;
+                      filteredYears = (expandYears || years.length < 4)
+                          ? years
+                          : years.sublist(years.length - 4, years.length);
                     });
                   },
-                  child: Text('See ' + (expandYears ? 'less' : 'more') + ' years',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: kGrey,
-                      )))),
+                  child:
+                      Text('See ' + (expandYears ? 'less' : 'more') + ' years',
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: kGrey,
+                          )))),
           Visibility(
               visible: queryTags
                       .where((tag) => RegExp('^d::').hasMatch(tag))
@@ -345,17 +345,24 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               child: GestureDetector(
                   onTap: () {
                     setState(() {
-                       expandCountries = !expandCountries;
-                       filteredCountries = (expandCountries || countries.length < 2) ? countries : countries.sublist(countries.length - 2, countries.length);
+                      expandCountries = !expandCountries;
+                      filteredCountries =
+                          (expandCountries || countries.length < 2)
+                              ? countries
+                              : countries.sublist(
+                                  countries.length - 2, countries.length);
                     });
                   },
-                  child: Text('See ' + (expandCountries ? 'less' : 'more') + ' countries',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: kGrey,
-                  )))),
+                  child: Text(
+                      'See ' +
+                          (expandCountries ? 'less' : 'more') +
+                          ' countries',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: kGrey,
+                      )))),
           Visibility(
               visible: queryTags
                       .where((tag) => RegExp('^g::').hasMatch(tag))
