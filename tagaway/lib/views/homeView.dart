@@ -51,7 +51,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _launchUrl() async {
-    if (!await launchUrl(Uri.parse(kTagawayHomeURL),
+    if (!await launchUrl(Uri.parse(kTagawayURL),
         mode: LaunchMode.externalApplication)) {
       throw "cannot launch url";
     }

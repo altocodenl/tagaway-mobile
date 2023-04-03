@@ -3,10 +3,7 @@
 ## TODO
 
 - Query selector view (Mono)
-   - hide geo/on tags
-   - grayed out, unselectable months
-   - sort months properly
-   - expand/shrink years/geo?
+   - grayed out, unselectable months?
 - Show date when opening piv
 - Time header (both LocalView & UploadedView)
    - Change year as you scroll

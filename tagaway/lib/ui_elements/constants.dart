@@ -7,11 +7,11 @@ import 'package:http/http.dart' as http;
 import 'package:tagaway/services/storeService.dart';
 
 const kAltoURL = 'https://altocode.nl/dev';
-const kAltoPicAppURL = kAltoURL + '/pic/app';
-const kTagawayThumbSURL = kAltoURL + '/pic/app/thumb/S/';
-const kTagawayThumbMURL = kAltoURL + '/pic/app/thumb/M/';
-const kTagawayVideoURL = kAltoURL + '/pic/app/piv/';
-const kTagawayHomeURL = kAltoURL + '/pic';
+const kTagawayURL = 'https://tagaway.nl/dev/';
+const kAltoPicAppURL = kTagawayURL + 'app';
+const kTagawayThumbSURL = kTagawayURL + 'app/thumb/S/';
+const kTagawayThumbMURL = kTagawayURL + 'app/thumb/M/';
+const kTagawayVideoURL = kTagawayURL + 'app/piv/';
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGreen = Color(0xFF04E762);
 const kAltoOrganized = Color(0xFF00992b);
