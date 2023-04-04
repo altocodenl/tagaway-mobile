@@ -649,19 +649,19 @@ class _TopRowState extends State<TopRow> {
                             gridTagElementIcon: kClockIcon,
                             iconColor: kGreyDarker,
                             gridTagName: [
-                        'Jan',
-                        'Feb',
-                        'Mar',
-                        'Apr',
-                        'May',
-                        'Jun',
-                        'Jul',
-                        'Aug',
-                        'Sep',
-                        'Oct',
-                        'Nov',
-                        'Dec'
-                      ] [int.parse (tag.substring(4)) - 1]));
+                              'Jan',
+                              'Feb',
+                              'Mar',
+                              'Apr',
+                              'May',
+                              'Jun',
+                              'Jul',
+                              'Aug',
+                              'Sep',
+                              'Oct',
+                              'Nov',
+                              'Dec'
+                            ][int.parse(tag.substring(4)) - 1]));
                       if (RegExp('^d::').hasMatch(tag))
                         return output.add(GridTagElement(
                             gridTagElementIcon: kClockIcon,
