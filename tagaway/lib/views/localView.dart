@@ -9,6 +9,40 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
 
+class LocalYear extends StatefulWidget {
+  const LocalYear({Key? key}) : super(key: key);
+
+  @override
+  State<LocalYear> createState() => _LocalYearState();
+}
+
+class _LocalYearState extends State<LocalYear> {
+  dynamic cancelListener;
+  dynamic year = '';
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'localYear',
+    ], (v1) {
+      setState(() => year = v1);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(year.toString(),
+        textAlign: TextAlign.center, style: kLocalYear);
+  }
+}
+
 class LocalView extends StatefulWidget {
   static const String id = 'local';
 
@@ -462,6 +496,8 @@ class _TopRowState extends State<TopRow> {
   dynamic taggedPivCount = '';
   dynamic timeHeader = [];
 
+  final PageController pageController = PageController();
+
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
@@ -473,6 +509,9 @@ class _TopRowState extends State<TopRow> {
         currentlyTagging = v1;
         taggedPivCount = v2;
         timeHeader = v3 == '' ? [] : v3;
+        if (timeHeader.length > 0)
+          StoreService.instance
+              .set('localYear', timeHeader.last[0][0].toString());
       });
     });
   }
@@ -499,15 +538,8 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       Expanded(
                         child: Align(
-                          alignment: const Alignment(0.29, .9),
-                          child: Text(
-                            timeHeader.isEmpty
-                                ? ''
-                                : timeHeader.last[0][0].toString(),
-                            textAlign: TextAlign.center,
-                            style: kLocalYear,
-                          ),
-                        ),
+                            alignment: const Alignment(0.29, .9),
+                            child: LocalYear()),
                       ),
                       const Icon(
                         kSearchIcon,
@@ -529,10 +561,18 @@ class _TopRowState extends State<TopRow> {
                     padding: const EdgeInsets.only(top: 20.0),
                     child: SizedBox(
                         height: 80,
-                        child: ListView.builder(
+                        child: PageView.builder(
                             itemCount: timeHeader.length,
                             reverse: true,
                             scrollDirection: Axis.horizontal,
+                            controller: pageController,
+                            onPageChanged: (int index) {
+                              StoreService.instance.set(
+                                  'localYear',
+                                  timeHeader[timeHeader.length - index - 1][0]
+                                          [0]
+                                      .toString());
+                            },
                             itemBuilder:
                                 (BuildContext context, int semesterIndex) {
                               return GridView.count(
@@ -547,7 +587,9 @@ class _TopRowState extends State<TopRow> {
                                     if (timeHeader.isEmpty)
                                       output.add(Container());
                                     else
-                                      timeHeader[semesterIndex]
+                                      timeHeader[timeHeader.length -
+                                              semesterIndex -
+                                              1]
                                           .forEach((month) {
                                         output.add(GridMonthElement(
                                             roundedIcon: month[2] == 'green'

@@ -158,6 +158,15 @@ class TagService {
          else semesters.add ([month]);
       });
 
+      // Filter out ronin semesters
+      semesters = semesters.where ((semester) {
+         var nonWhite = 0;
+         semester.forEach ((month) {
+            if (month [2] != 'white') nonWhite++;
+         });
+         return nonWhite > 0;
+      }).toList ();
+
       StoreService.instance.set ('localTimeHeader', semesters);
    }
 
@@ -195,6 +204,15 @@ class TagService {
          if (lastSemester.length < 6) lastSemester.add (month);
          else semesters.add ([month]);
       });
+
+      // Filter out ronin semesters
+      semesters = semesters.where ((semester) {
+         var nonWhite = 0;
+         semester.forEach ((month) {
+            if (month [2] != 'white') nonWhite++;
+         });
+         return nonWhite > 0;
+      }).toList ();
 
       StoreService.instance.set ('uploadedTimeHeader', semesters);
    }

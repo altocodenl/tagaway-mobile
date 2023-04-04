@@ -107,6 +107,8 @@ class _CarrouselViewState extends State<CarrouselView> {
       itemCount: widget.pivs.length,
       itemBuilder: (context, index) {
         var piv = widget.pivs[index];
+        var date = DateTime.fromMillisecondsSinceEpoch(piv ['date']);
+        var pad = (n) => n < 10 ? '0' + n.toString () : n.toString ();
         return Scaffold(
           appBar: AppBar(
             iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
@@ -118,25 +120,23 @@ class _CarrouselViewState extends State<CarrouselView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('$index'),
-                  // Text(piv.createDateTime.day.toString(),
-                  //     style: kDarkBackgroundBigTitle),
-                  // const Text(
-                  //   '/',
-                  //   style: kDarkBackgroundBigTitle,
-                  // ),
-                  // Text(
-                  //   piv.createDateTime.month.toString(),
-                  //   style: kDarkBackgroundBigTitle,
-                  // ),
-                  // const Text(
-                  //   '/',
-                  //   style: kDarkBackgroundBigTitle,
-                  // ),
-                  // Text(
-                  //   piv.createDateTime.year.toString(),
-                  //   style: kDarkBackgroundBigTitle,
-                  // ),
+                  Text(pad (date.day), style: kDarkBackgroundBigTitle),
+                  const Text(
+                    '/',
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  Text(
+                    pad (date.month),
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  const Text(
+                    '/',
+                    style: kDarkBackgroundBigTitle,
+                  ),
+                  Text(
+                    date.year.toString(),
+                    style: kDarkBackgroundBigTitle,
+                  ),
                 ],
               ),
             ),

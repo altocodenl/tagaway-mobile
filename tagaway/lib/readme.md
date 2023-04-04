@@ -2,14 +2,14 @@
 
 ## TODO
 
-- Query selector view (Mono)
-   - grayed out, unselectable months?
-- Show date when opening piv
+- Properly show/hide top three tags
+- Name months properly in top header
 - Time header (both LocalView & UploadedView)
-   - Change year as you scroll
-   - On scroll, change active month (Mono)
+   - On scroll, change selected months in header (Mono)
    - When clicking on month, jump to relevant scroll position (Mono)
 ----------
+- Dynamize you're looking at
+- Fix local & uploaded grid so that you can see the top of the top piv without the top bars getting in the way
 - Signup
    - Tighten up client-side validations for inputs (Mono)
    - Handle errors with snackbar (Tom)
@@ -35,6 +35,7 @@
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
 - hometags [<str>, ...]: list of hometags, brought from the server
+- localYear <str>: displayed year in LocalView time header
 - localTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
@@ -55,6 +56,7 @@
 - uploadedTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
+- uploadedYear <str>: displayed year in UploadedView time header
 - usertags [<string>, ...]: list of user tags, computed from the tags bruog
 - userWasAskedPermission (boolean) [DISK]: whether the user was already asked for piv access permission once
 ```

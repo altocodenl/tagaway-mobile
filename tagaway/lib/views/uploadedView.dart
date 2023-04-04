@@ -8,6 +8,40 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
 
+class UploadedYear extends StatefulWidget {
+  const UploadedYear({Key? key}) : super(key: key);
+
+  @override
+  State<UploadedYear> createState() => _UploadedYearState();
+}
+
+class _UploadedYearState extends State<UploadedYear> {
+  dynamic cancelListener;
+  dynamic year = '';
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'uploadedYear',
+    ], (v1) {
+      setState(() => year = v1);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(year.toString(),
+        textAlign: TextAlign.center, style: kLocalYear);
+  }
+}
+
 class UploadedView extends StatefulWidget {
   static const String id = 'uploaded';
 
@@ -44,7 +78,8 @@ class _UploadedViewState extends State<UploadedView> {
     ], (v1, v2, v3, v4, v5) {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
-      if (currentView == 2 && v2 == '' && currentlyTagging != '') TagService.instance.queryPivs(StoreService.instance.get ('queryTags'));
+      if (currentView == 2 && v2 == '' && currentlyTagging != '')
+        TagService.instance.queryPivs(StoreService.instance.get('queryTags'));
       // Invoke the service only if local is not the current view
       if (v2 != '' && currentView != 1)
         TagService.instance.getTaggedPivs(v2, 'uploaded');
@@ -204,8 +239,9 @@ class _UploadedViewState extends State<UploadedView> {
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
-                                              StoreService.instance
-                                                  .set('currentlyTaggingUploaded', tag);
+                                              StoreService.instance.set(
+                                                  'currentlyTaggingUploaded',
+                                                  tag);
                                             };
                                           },
                                         );
@@ -413,6 +449,7 @@ class _TopRowState extends State<TopRow> {
   dynamic timeHeader = [];
   dynamic queryTags = [];
   dynamic queryResult = {'total': 0};
+  final PageController pageController = PageController();
 
   @override
   void initState() {
@@ -430,6 +467,9 @@ class _TopRowState extends State<TopRow> {
         timeHeader = v3 == '' ? [] : v3;
         if (v4 != '') queryTags = v4;
         if (v5 != '') queryResult = v5;
+        if (timeHeader.length > 0)
+          StoreService.instance
+              .set('uploadedYear', timeHeader.last[0][0].toString());
       });
     });
   }
@@ -456,15 +496,8 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       Expanded(
                         child: Align(
-                          alignment: Alignment(0.29, .9),
-                          child: Text(
-                            timeHeader.isEmpty
-                                ? ''
-                                : timeHeader.last[0][0].toString(),
-                            textAlign: TextAlign.center,
-                            style: kLocalYear,
-                          ),
-                        ),
+                            alignment: Alignment(0.29, .9),
+                            child: UploadedYear()),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -500,10 +533,17 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(top: 20.0),
                   child: SizedBox(
                       height: 80,
-                      child: ListView.builder(
+                      child: PageView.builder(
                           itemCount: timeHeader.length,
                           reverse: true,
                           scrollDirection: Axis.horizontal,
+                          controller: pageController,
+                          onPageChanged: (int index) {
+                            StoreService.instance.set(
+                                'uploadedYear',
+                                timeHeader[timeHeader.length - index - 1][0][0]
+                                    .toString());
+                          },
                           itemBuilder:
                               (BuildContext context, int semesterIndex) {
                             return GridView.count(
@@ -518,7 +558,10 @@ class _TopRowState extends State<TopRow> {
                                   if (timeHeader.isEmpty)
                                     output.add(Container());
                                   else
-                                    timeHeader[semesterIndex].forEach((month) {
+                                    timeHeader[timeHeader.length -
+                                            1 -
+                                            semesterIndex]
+                                        .forEach((month) {
                                       output.add(GridMonthElement(
                                           roundedIcon: month[2] == 'green'
                                               ? kCircleCheckIcon
