@@ -448,7 +448,7 @@ class _GridState extends State<Grid> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 0.0),
+      padding: const EdgeInsets.only(bottom: 20.0, top: 180),
       child: SizedBox.expand(
         child: Directionality(
             textDirection: TextDirection.rtl,

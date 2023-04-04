@@ -7,7 +7,6 @@
    - When clicking on month, jump to relevant scroll position (Mono)
 ----------
 - Dynamize you're looking at
-- Fix local & uploaded grid so that you can see the top of the top piv without the top bars getting in the way
 - Signup
    - Tighten up client-side validations for inputs (Mono)
    - Handle errors with snackbar (Tom)
