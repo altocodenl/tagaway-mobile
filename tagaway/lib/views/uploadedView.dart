@@ -644,6 +644,24 @@ class _TopRowState extends State<TopRow> {
                       // Show first two tags only
                       if (output.length > 2) return;
                       // DATE TAG
+                      if (RegExp('^d::M').hasMatch(tag))
+                        return output.add(GridTagElement(
+                            gridTagElementIcon: kClockIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: [
+                        'Jan',
+                        'Feb',
+                        'Mar',
+                        'Apr',
+                        'May',
+                        'Jun',
+                        'Jul',
+                        'Aug',
+                        'Sep',
+                        'Oct',
+                        'Nov',
+                        'Dec'
+                      ] [int.parse (tag.substring(4)) - 1]));
                       if (RegExp('^d::').hasMatch(tag))
                         return output.add(GridTagElement(
                             gridTagElementIcon: kClockIcon,

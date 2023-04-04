@@ -135,7 +135,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
         shrinkWrap: true,
         children: [
           Visibility(
-              visible: queryResult['tags']['u::'] != null,
+              visible: true,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: GridView.count(
@@ -145,7 +145,9 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     mainAxisSpacing: 8,
                     shrinkWrap: true,
                     childAspectRatio: 4,
-                    children: [
+                    children: (() {
+                      List<Widget> output = [];
+                      if (queryResult['tags']['u::'] > 0) output.add (
                       QuerySelectionTagElement(
                         onTap: () {
                           TagService.instance.toggleQueryTag('u::');
@@ -156,7 +158,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         icon: kTagIcon,
                         iconColor: kGrey,
                         tagTitle: 'Untagged',
-                      ),
+                      ));
+                      if (queryResult['tags']['t::'] > 0) output.add (
                       QuerySelectionTagElement(
                         onTap: () {
                           TagService.instance.toggleQueryTag('t::');
@@ -167,7 +170,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         icon: kBoxArchiveIcon,
                         iconColor: kGrey,
                         tagTitle: 'To Organize',
-                      ),
+                      ));
+                      if (queryResult['tags']['o::'] > 0) output.add (
                       QuerySelectionTagElement(
                         onTap: () {
                           TagService.instance.toggleQueryTag('o::');
@@ -178,8 +182,9 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         icon: kCircleCheckIcon,
                         iconColor: kAltoOrganized,
                         tagTitle: 'Organized',
-                      ),
-                    ]),
+                      ));
+                      return output;
+                    })())
               )),
           const Text('Years',
               style: TextStyle(

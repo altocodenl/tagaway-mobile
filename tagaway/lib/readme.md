@@ -2,8 +2,6 @@
 
 ## TODO
 
-- Properly show/hide top three tags
-- Name months properly in top header
 - Time header (both LocalView & UploadedView)
    - On scroll, change selected months in header (Mono)
    - When clicking on month, jump to relevant scroll position (Mono)
