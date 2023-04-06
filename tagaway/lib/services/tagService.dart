@@ -227,6 +227,7 @@ class TagService {
     });
     if (response ['code'] == 200) {
       StoreService.instance.set('queryResult', response ['body']);
+      debug (['QUERYPIVS', response['body']]);
       getUploadedTimeHeader();
       response = await ajax('post', 'query', {
         'tags': [...tags]..addAll (['o::']),
