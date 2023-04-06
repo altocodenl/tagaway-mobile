@@ -1,8 +1,8 @@
 # Tagaway Mobile
 
 ## TODO
+
 - On scroll, change selected months in header
-----------
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - Dynamize you're looking at (more than two tags)
 - When clicking on month, jump to relevant scroll position (Mono)

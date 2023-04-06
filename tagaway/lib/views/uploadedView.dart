@@ -573,8 +573,8 @@ class _TopRowState extends State<TopRow> {
                                               : kGreyDarker,
                                           month: month[1],
                                           // TODO: selected
-                                          //whiteOrAltoBlueDashIcon: Colors.white,
-                                          whiteOrAltoBlueDashIcon: kAltoBlue,
+                                          whiteOrAltoBlueDashIcon: Colors.white,
+                                          //whiteOrAltoBlueDashIcon: kAltoBlue,
                                           onTap: () {
                                             // TODO: add method to jump to proper piv
                                             if (month[2] != 'white')
