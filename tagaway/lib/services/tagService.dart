@@ -132,6 +132,9 @@ class TagService {
         }
       });
 
+      // No local pivs, return empty list.
+      if (max == 0) return [];
+
       var fromYear  = DateTime.fromMillisecondsSinceEpoch (min).year;
       var toYear    = DateTime.fromMillisecondsSinceEpoch (max).year;
       var fromMonth = DateTime.fromMillisecondsSinceEpoch (min).month;
@@ -178,6 +181,8 @@ class TagService {
       var output      = [];
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
+      // No uploaded pivs, return empty list.
+      if (timeHeader.keys.length == 0) return [];
       timeHeader.keys.forEach ((v) {
          var dates = v.split (':');
          dates = [int.parse (dates [0]), int.parse (dates [1])];
@@ -227,7 +232,6 @@ class TagService {
     });
     if (response ['code'] == 200) {
       StoreService.instance.set('queryResult', response ['body']);
-      debug (['QUERYPIVS', response['body']]);
       getUploadedTimeHeader();
       response = await ajax('post', 'query', {
         'tags': [...tags]..addAll (['o::']),
