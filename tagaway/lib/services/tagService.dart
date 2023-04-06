@@ -132,10 +132,12 @@ class TagService {
         }
       });
 
+      var empty = false;
       // No local pivs, show current semester as empty.
       if (max == 0) {
          max = now ();
          min = now ();
+         empty = true;
       }
 
       var fromYear  = DateTime.fromMillisecondsSinceEpoch (min).year;
@@ -164,14 +166,16 @@ class TagService {
          else semesters.add ([month]);
       });
 
-      // Filter out ronin semesters
-      semesters = semesters.where ((semester) {
-         var nonWhite = 0;
-         semester.forEach ((month) {
-            if (month [2] != 'white') nonWhite++;
-         });
-         return nonWhite > 0;
-      }).toList ();
+      // Filter out ronin semesters if we have pivs
+      if (! empty) {
+         semesters = semesters.where ((semester) {
+            var nonWhite = 0;
+            semester.forEach ((month) {
+               if (month [2] != 'white') nonWhite++;
+            });
+            return nonWhite > 0;
+         }).toList ();
+      }
 
       StoreService.instance.set ('localTimeHeader', semesters);
    }
@@ -185,10 +189,6 @@ class TagService {
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
       // No uploaded pivs, return current semester as empty.
-      if (timeHeader.keys.length == 0) {
-         max = now ();
-         min = now ();
-      }
       timeHeader.keys.forEach ((v) {
          var dates = v.split (':');
          dates = [int.parse (dates [0]), int.parse (dates [1])];
@@ -200,8 +200,12 @@ class TagService {
          if (dates [0] <= min [0] && dates [1] <= min [1]) min = dates;
          if (dates [0] >= max [0] && dates [1] >= max [1]) max = dates;
       });
+      if (timeHeader.keys.length == 0) {
+        max = [DateTime.now().year, DateTime.now ().month > 6 ? 12 : 6];
+        min = [DateTime.now().year, DateTime.now ().month < 7 ? 1 : 7];
+      }
       for (var year = min [0]; year <= max [0]; year++) {
-         for (var month = (year == min [0] ? min [1] : 1); month <= (max [1] == 1 ? 7 : 12); month++) {
+         for (var month = 1; month <= 12; month++) {
            var dateKey = year.toString () + ':' + month.toString ();
            if (timeHeader [dateKey] == null)       output.add ([year, monthNames [month - 1], 'white']);
            // TODO: add last piv in month or figure out alternative way to jump
@@ -216,14 +220,17 @@ class TagService {
          else semesters.add ([month]);
       });
 
-      // Filter out ronin semesters
-      semesters = semesters.where ((semester) {
-         var nonWhite = 0;
-         semester.forEach ((month) {
-            if (month [2] != 'white') nonWhite++;
-         });
-         return nonWhite > 0;
-      }).toList ();
+      // Filter out ronin semesters if we have pivs
+      if (timeHeader.keys.length > 0) {
+         semesters = semesters.where ((semester) {
+            var nonWhite = 0;
+            semester.forEach ((month) {
+               if (month [2] != 'white') nonWhite++;
+            });
+            return nonWhite > 0;
+         }).toList ();
+      }
+
 
       StoreService.instance.set ('uploadedTimeHeader', semesters);
    }
