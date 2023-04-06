@@ -37,7 +37,7 @@ class UploadedGridItem extends StatelessWidget {
                   color: kAltoBlue,
                 )),
             imageBuilder: (context, imageProvider) => Transform.rotate(
-                  angle: 90 * math.pi / 180.0,
+                  angle: (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
                   child: Container(
                     decoration: BoxDecoration(
                         image: DecorationImage(
@@ -158,7 +158,7 @@ class _CarrouselViewState extends State<CarrouselView> {
                           color: kAltoBlue,
                         )),
                     imageBuilder: (context, imageProvider) => Transform.rotate(
-                          angle: 90 * math.pi / 180.0,
+                          angle: (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
                           child: Container(
                             decoration: BoxDecoration(
                                 color: kGreyDarkest,
