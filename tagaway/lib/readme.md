@@ -6,11 +6,10 @@
    - On scroll, change selected months in header (Mono)
    - When clicking on month, jump to relevant scroll position (Mono)
 ## BUGS
-- In uploaded top bar, when making query, manual tags have the location icon instead of tag icon
 - (Not urgent) when deleting all pivs from account (from web), in mobile app there's always 1 hometag remaining.
-- When going from hometags to query, on pivs that were uploaded from device, on uploaded pivs have grey circle. After scrolling up, they change to green (the correct color). On local happens as well. 
+- When going from hometags to query, on pivs that were uploaded from device, on uploaded pivs have grey circle. After scrolling up, they change to green (the correct color). On local happens as well.
 ----------
-- Dynamize you're looking at
+- Dynamize you're looking at (more than two tags)
 - Signup
    - Tighten up client-side validations for inputs (Mono)
    - Handle errors with snackbar (Tom)

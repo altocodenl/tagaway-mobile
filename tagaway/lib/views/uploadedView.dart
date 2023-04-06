@@ -643,6 +643,21 @@ class _TopRowState extends State<TopRow> {
                     queryTags.forEach((tag) {
                       // Show first two tags only
                       if (output.length > 2) return;
+                      if (tag == 'u::') return output.add (GridTagElement(
+                         gridTagElementIcon: kTagIcon,
+                        iconColor: kGrey,
+                        gridTagName: 'Untagged',
+                      ));
+                      if (tag == 't::') return output.add (GridTagElement(
+                         gridTagElementIcon: kBoxArchiveIcon,
+                        iconColor: kGrey,
+                        gridTagName: 'To Organize',
+                      ));
+                      if (tag == 'o::') return output.add (GridTagElement(
+                         gridTagElementIcon: kCircleCheckIcon,
+                        iconColor: kAltoOrganized,
+                        gridTagName: 'Organized',
+                      ));
                       // DATE TAG
                       if (RegExp('^d::M').hasMatch(tag))
                         return output.add(GridTagElement(
@@ -673,10 +688,10 @@ class _TopRowState extends State<TopRow> {
                             gridTagElementIcon: kLocationDotIcon,
                             iconColor: kGreyDarker,
                             gridTagName: tag.substring(3)));
-                      // NORMAL TAG (TODO: FIX STYLES)
+                      // NORMAL TAG
                       output.add(GridTagElement(
-                          gridTagElementIcon: kLocationDotIcon,
-                          iconColor: kGreyDarker,
+                          gridTagElementIcon: kTagIcon,
+                          iconColor: tagColor (tag),
                           gridTagName: tag));
                     });
                     if (queryTags.isEmpty) {

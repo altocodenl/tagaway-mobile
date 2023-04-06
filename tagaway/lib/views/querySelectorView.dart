@@ -448,7 +448,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                       elementColor:
                           queryTags.contains(tag) ? kSelectedTag : kGreyLighter,
                       icon: kTagIcon,
-                      iconColor: kTagColor1,
+                      iconColor:tagColor (tag),
                       tagTitle: shorten(tag));
                 }),
           ),
