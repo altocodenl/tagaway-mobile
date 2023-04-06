@@ -1,12 +1,11 @@
 # Tagaway Mobile
 
 ## TODO
-- Username to match log in username
-- Time header (both LocalView & UploadedView)
-   - On scroll, change selected months in header (Mono)
-   - When clicking on month, jump to relevant scroll position (Mono)
+- On scroll, change selected months in header
 ----------
+- When loading local pivs, check for existence and remove stale entries from pivMap
 - Dynamize you're looking at (more than two tags)
+- When clicking on month, jump to relevant scroll position (Mono)
 - Signup
    - Tighten up client-side validations for inputs (Mono)
    - Handle errors with snackbar (Tom)
@@ -22,7 +21,6 @@
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
-- When loading local pivs, check for existence and remove stale entries from pivMap
 
 ## Store structure
 
