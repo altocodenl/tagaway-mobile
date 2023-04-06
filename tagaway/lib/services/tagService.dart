@@ -132,8 +132,11 @@ class TagService {
         }
       });
 
-      // No local pivs, return empty list.
-      if (max == 0) return [];
+      // No local pivs, show current semester as empty.
+      if (max == 0) {
+         max = now ();
+         min = now ();
+      }
 
       var fromYear  = DateTime.fromMillisecondsSinceEpoch (min).year;
       var toYear    = DateTime.fromMillisecondsSinceEpoch (max).year;
@@ -181,8 +184,11 @@ class TagService {
       var output      = [];
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
-      // No uploaded pivs, return empty list.
-      if (timeHeader.keys.length == 0) return [];
+      // No uploaded pivs, return current semester as empty.
+      if (timeHeader.keys.length == 0) {
+         max = now ();
+         min = now ();
+      }
       timeHeader.keys.forEach ((v) {
          var dates = v.split (':');
          dates = [int.parse (dates [0]), int.parse (dates [1])];
