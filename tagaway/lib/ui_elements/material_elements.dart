@@ -695,7 +695,7 @@ class GridItemSelection extends StatefulWidget {
   final String id;
   final String type;
 
-  const GridItemSelection(this.id, this.type);
+  const GridItemSelection(this.id, this.type, {Key? key}) : super(key: key);
 
   @override
   State<GridItemSelection> createState() =>

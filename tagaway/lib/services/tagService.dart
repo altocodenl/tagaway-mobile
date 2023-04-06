@@ -256,7 +256,6 @@ class TagService {
       await StoreService.instance.remove ('orgMap:*');
       if (response ['code'] == 200) {
         response ['body'].forEach ((v) {
-           debug (['SETTING ORGMAP', v]);
            StoreService.instance.set('orgMap:' + v, true);
         });
       }
