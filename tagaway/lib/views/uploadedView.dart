@@ -494,7 +494,7 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 12.0, right: 12),
                   child: Row(
                     children: [
-                      Expanded(
+                      const Expanded(
                         child: Align(
                             alignment: Alignment(0.29, .9),
                             child: UploadedYear()),

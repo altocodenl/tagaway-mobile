@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +36,13 @@ class UploadedGridItem extends StatelessWidget {
                     child: CircularProgressIndicator(
                   color: kAltoBlue,
                 )),
-            imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          fit: BoxFit.cover, image: imageProvider)),
+            imageBuilder: (context, imageProvider) => Transform.rotate(
+                  angle: 90 * math.pi / 180.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.cover, image: imageProvider)),
+                  ),
                 )),
         piv['vid'] != null
             ? const Align(
@@ -53,18 +57,18 @@ class UploadedGridItem extends StatelessWidget {
                 ),
               )
             : Container(),
-
         GestureDetector(
           onTap: () {
             var currentlyTagging =
                 StoreService.instance.get('currentlyTaggingUploaded');
-            if (currentlyTagging == '') Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) {
-                return CarrouselView(
-                    initialPiv: pivs.indexOf(piv), pivs: pivs);
-              }),
-            );
+            if (currentlyTagging == '')
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) {
+                  return CarrouselView(
+                      initialPiv: pivs.indexOf(piv), pivs: pivs);
+                }),
+              );
             else
               TagService.instance.tagPiv(piv, currentlyTagging, 'uploaded');
           },
@@ -72,11 +76,11 @@ class UploadedGridItem extends StatelessWidget {
         Align(
             alignment: const Alignment(0.9, -.9),
             child: Container(
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(100),
-                  border: Border.all(color: Colors.white, width: 2)),
-              child: GridItemSelection(piv['id'], 'uploaded'))),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: GridItemSelection(piv['id'], 'uploaded'))),
       ],
     );
   }
@@ -107,8 +111,8 @@ class _CarrouselViewState extends State<CarrouselView> {
       itemCount: widget.pivs.length,
       itemBuilder: (context, index) {
         var piv = widget.pivs[index];
-        var date = DateTime.fromMillisecondsSinceEpoch(piv ['date']);
-        var pad = (n) => n < 10 ? '0' + n.toString () : n.toString ();
+        var date = DateTime.fromMillisecondsSinceEpoch(piv['date']);
+        var pad = (n) => n < 10 ? '0' + n.toString() : n.toString();
         return Scaffold(
           appBar: AppBar(
             iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
@@ -120,13 +124,13 @@ class _CarrouselViewState extends State<CarrouselView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(pad (date.day), style: kDarkBackgroundBigTitle),
+                  Text(pad(date.day), style: kDarkBackgroundBigTitle),
                   const Text(
                     '/',
                     style: kDarkBackgroundBigTitle,
                   ),
                   Text(
-                    pad (date.month),
+                    pad(date.month),
                     style: kDarkBackgroundBigTitle,
                   ),
                   const Text(
@@ -153,13 +157,16 @@ class _CarrouselViewState extends State<CarrouselView> {
                             child: CircularProgressIndicator(
                           color: kAltoBlue,
                         )),
-                    imageBuilder: (context, imageProvider) => Container(
-                          decoration: BoxDecoration(
-                              color: kGreyDarkest,
-                              image: DecorationImage(
-                                  alignment: Alignment.center,
-                                  fit: BoxFit.none,
-                                  image: imageProvider)),
+                    imageBuilder: (context, imageProvider) => Transform.rotate(
+                          angle: 90 * math.pi / 180.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: kGreyDarkest,
+                                image: DecorationImage(
+                                    alignment: Alignment.center,
+                                    fit: BoxFit.none,
+                                    image: imageProvider)),
+                          ),
                         )),
                 replacement: VideoPlayerWidget(
                   pivId: piv['id'],
