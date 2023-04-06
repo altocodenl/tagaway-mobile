@@ -5,8 +5,6 @@
 - Time header (both LocalView & UploadedView)
    - On scroll, change selected months in header (Mono)
    - When clicking on month, jump to relevant scroll position (Mono)
-## BUGS
-- When going from hometags to query, on pivs that were uploaded from device, on uploaded pivs have grey circle. After scrolling up, they change to green (the correct color). On local happens as well.
 ----------
 - Dynamize you're looking at (more than two tags)
 - Signup
@@ -29,6 +27,7 @@
 ## Store structure
 
 ```
+- account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED , geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - cookie <str> [DISK]: cookie of current session, brought from server
 - csrf <str> [DISK]: csrf token of current session, brought from server
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
@@ -44,8 +43,8 @@
 - pivDate:<assetId> <int>: date of each local piv
 - pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
-- queryResult {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
-- queryTags [<string>, ...]: list of tags of the current query
+- queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
+- queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart
 - startTaggingModal (boolean): used to determine blue popup to start tagging on LocalView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView

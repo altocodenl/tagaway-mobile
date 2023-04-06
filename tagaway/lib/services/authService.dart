@@ -48,4 +48,13 @@ class AuthService {
       return response ['code'];
    }
 
+   Future <int> getAccount () async {
+      var response = await ajax ('get', 'account', {});
+      if (response ['code'] == 200) {
+         StoreService.instance.set ('account', response ['body']);
+      }
+      return response ['code'];
+   }
+
+
 }

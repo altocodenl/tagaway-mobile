@@ -26,18 +26,21 @@ class _HomeViewState extends State<HomeView> {
 
   dynamic hometags = '';
   dynamic tags = '';
+  dynamic account = {'username': '', 'usage': {'byfs': 0}};
 
   @override
   void initState() {
     super.initState();
     cancelListener =
-        StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
+        StoreService.instance.listen(['hometags', 'tags', 'account'], (v1, v2, v3) {
       setState(() {
         hometags = v1;
         tags = v2;
+        if (v3 != '') account = v3;
       });
     });
 
+    AuthService.instance.getAccount ();
     TagService.instance.getTags().then((statusCode) {
       if (statusCode == 403)
         Navigator.pushReplacementNamed(context, 'distributor');
@@ -69,12 +72,12 @@ class _HomeViewState extends State<HomeView> {
           scale: 8,
         ),
         title: Row(
-          children: const [
+          children: [
             Expanded(flex: 2, child: Text('tagaway', style: kAcpicMain)),
             Padding(
               padding: EdgeInsets.only(top: 1.0),
               child: Text(
-                'username',
+                account ['username'],
                 style: kPlainText,
               ),
             ),
@@ -87,14 +90,14 @@ class _HomeViewState extends State<HomeView> {
           child: ListView(
         // padding: const EdgeInsets.all(8),
         children: <Widget>[
-          const SizedBox(
+          SizedBox(
             height: 64,
             child: DrawerHeader(
-              child: Text('Username', style: kSubPageAppBarTitle),
+              child: Text(account ['username'], style: kSubPageAppBarTitle),
             ),
           ),
-          const UserMenuElementTransparent(
-              textOnElement: 'Your usage: 4GB of your free 5GB'),
+          UserMenuElementTransparent(
+              textOnElement: 'Your usage: ' + (account['usage']['byfs'] / (1000 * 1000 * 1000)).round ().toString () + 'GB of your free 5GB'),
           UserMenuElementLightGrey(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
