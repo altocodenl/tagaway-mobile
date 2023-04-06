@@ -32,6 +32,7 @@ class AuthService {
       if (response ['code'] == 200) {
          await StoreService.instance.remove ('cookie', 'disk');
          await StoreService.instance.remove ('csrf',   'disk');
+         StoreService.instance.store = {};
       }
       return response ['code'];
    }
