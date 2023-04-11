@@ -41,7 +41,7 @@ class UploadedGridItem extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            fit: BoxFit.contain, image: imageProvider)),
+                            fit: BoxFit.cover, image: imageProvider)),
                   ),
                 )),
         piv['vid'] != null
