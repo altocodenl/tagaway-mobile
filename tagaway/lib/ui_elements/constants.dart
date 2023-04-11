@@ -6,8 +6,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:tagaway/services/storeService.dart';
 
-const kAltoURL = 'https://altocode.nl/dev';
-const kTagawayURL = 'https://tagaway.nl/dev/';
+//const ENV = 'dev';
+const ENV = 'prod';
+
+const kAltoURL = 'https://altocode.nl/' + (ENV == 'dev' ? 'dev' : '');
+const kTagawayURL = 'https://tagaway.nl/' + (ENV == 'dev' ? 'dev/' : '');
 const kAltoPicAppURL = kTagawayURL + 'app';
 const kTagawayThumbSURL = kTagawayURL + 'app/thumb/S/';
 const kTagawayThumbMURL = kTagawayURL + 'app/thumb/M/';

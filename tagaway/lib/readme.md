@@ -2,10 +2,11 @@
 
 ## TODO
 
-- On scroll, change selected months in header
+- Fix how carrousel looks when an image is rotated.
+- On scroll, change selected months in time header
 - When loading local pivs, check for existence and remove stale entries from pivMap
-- Dynamize you're looking at (more than two tags)
-- When clicking on month, jump to relevant scroll position (Mono)
+- Dynamize "you're looking at" (more than two tags)
+- When clicking on month on time header, jump to relevant scroll position (Mono)
 - Signup
    - Tighten up client-side validations for inputs (Mono)
    - Handle errors with snackbar (Tom)
