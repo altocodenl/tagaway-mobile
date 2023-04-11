@@ -41,7 +41,7 @@ class UploadedGridItem extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                         image: DecorationImage(
-                            fit: BoxFit.cover, image: imageProvider)),
+                            fit: BoxFit.contain, image: imageProvider)),
                   ),
                 )),
         piv['vid'] != null
@@ -165,7 +165,7 @@ class _CarrouselViewState extends State<CarrouselView> {
                                 color: kGreyDarkest,
                                 image: DecorationImage(
                                     alignment: Alignment.center,
-                                    fit: BoxFit.none,
+                                    fit: BoxFit.contain,
                                     image: imageProvider)),
                           ),
                         )),
