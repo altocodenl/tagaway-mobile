@@ -80,7 +80,7 @@ class TagService {
       'tags': [tag],
       'sort': 'newest',
       'from': 1,
-      'to': 10000,
+      'to': 1000,
       'idsOnly': true
     });
     await StoreService.instance.remove ('tagMap:*');
@@ -240,7 +240,7 @@ class TagService {
       'tags': tags,
       'sort': 'newest',
       'from': 1,
-      'to': 10000,
+      'to': 1000,
       'timeHeader': true
     });
     if (response ['code'] == 200) {
@@ -250,7 +250,7 @@ class TagService {
         'tags': [...tags]..addAll (['o::']),
         'sort': 'newest',
         'from': 1,
-        'to': 10000,
+        'to': 1000,
         'idsOnly': true
       });
       await StoreService.instance.remove ('orgMap:*');

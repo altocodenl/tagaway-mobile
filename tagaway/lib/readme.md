@@ -2,26 +2,41 @@
 
 ## TODO
 
-- Fix how carrousel looks when an image is rotated.
+- **Fix 404s when tagging with piv with no id**
+- Delete single piv from carrousel
+- Delete piv mode (uploaded)
+- Delete piv mode (local): if deleting something being uploaded, defer the deletion.
+- Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway
+- Fix 400 when querying with o:: double
+- Fix how carrousel looks when an image is rotated
+- Carrousel: when zooming into image, make the image take the entire screen (Tom)
+- Fix ronin queries after untagging/deleting
+
+- Calculate viewport dynamically and make views use its proportions
+- Fix amount of tags shown on top bar of uploaded, based on tag length
+- Show number of pivs to be still uploaded
+- Performance
+   - Lower amount of pivs
+   - Do not default to "everything"
+   - Test hoop from US
+- Publish to both stores
 - On scroll, change selected months in time header
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - Dynamize "you're looking at" (more than two tags)
-- When clicking on month on time header, jump to relevant scroll position (Mono)
+- When clicking on month on time header, jump to relevant scroll position
+- When closing and re-opening phone, revive uploads that were not finished
 - Signup
-   - Tighten up client-side validations for inputs (Mono)
-   - Handle errors with snackbar (Tom)
-        - Errors (Tom's Notes):
-          - usernames are too short or invalid for any other reason => NOT FINISHED
-          - password is too short or is invalid for any other reason => NOT FINISHED
-          - username already exists => 403 {error: 'username'}
-          - email already registered => 403 {error: 'email'}
-          - we have too many users. => ?
-- Sidebar
-   - Dynamize usage (get account & display usage) (Mono)
-- When closing and re-opening phone, revive uploads that were not finished (Mono)
+   - Tighten up client-side validations for inputs
+   - Handle errors with snackbar
+       - usernames are too short or invalid for any other reason => NOT FINISHED
+       - password is too short or is invalid for any other reason => NOT FINISHED
+       - username already exists => 403 {error: 'username'}
+       - email already registered => 403 {error: 'email'}
+       - we have too many users. => ?
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
+- Add login flow with Google and Facebook
 
 ## Store structure
 
