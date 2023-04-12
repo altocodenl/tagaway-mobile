@@ -6,8 +6,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:tagaway/services/storeService.dart';
 
-//const ENV = 'dev';
-const ENV = 'prod';
+const ENV = 'dev';
+// const ENV = 'prod';
 
 const kAltoURL = 'https://altocode.nl/' + (ENV == 'dev' ? 'dev' : '');
 const kTagawayURL = 'https://tagaway.nl/' + (ENV == 'dev' ? 'dev/' : '');

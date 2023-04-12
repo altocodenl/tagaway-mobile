@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -27,6 +28,7 @@ class UploadedGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return Stack(
       children: [
         CachedNetworkImage(
@@ -37,7 +39,8 @@ class UploadedGridItem extends StatelessWidget {
                   color: kAltoBlue,
                 )),
             imageBuilder: (context, imageProvider) => Transform.rotate(
-                  angle: (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
+                  angle:
+                      (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
                   child: Container(
                     decoration: BoxDecoration(
                         image: DecorationImage(
@@ -80,8 +83,9 @@ class UploadedGridItem extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(100),
                     border: Border.all(color: Colors.white, width: 2)),
-                    // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
-                child: GridItemSelection(piv['id'], 'uploaded', key: Key(piv['id'])))),
+                // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
+                child: GridItemSelection(piv['id'], 'uploaded',
+                    key: Key(piv['id'])))),
       ],
     );
   }
@@ -101,6 +105,12 @@ class CarrouselView extends StatefulWidget {
 class _CarrouselViewState extends State<CarrouselView> {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight
+    ]);
     return PageView.builder(
       reverse: true,
       physics: const BouncingScrollPhysics(),
@@ -159,7 +169,9 @@ class _CarrouselViewState extends State<CarrouselView> {
                           color: kAltoBlue,
                         )),
                     imageBuilder: (context, imageProvider) => Transform.rotate(
-                          angle: (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
+                          angle: (piv['deg'] == null ? 0 : piv['deg']) *
+                              math.pi /
+                              180.0,
                           child: Container(
                             decoration: BoxDecoration(
                                 color: kGreyDarkest,

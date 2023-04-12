@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -105,6 +106,7 @@ class _LocalViewState extends State<LocalView> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return Stack(
       children: [
         const Grid(),
@@ -603,7 +605,8 @@ class _TopRowState extends State<TopRow> {
                                                     : kGreyDarker,
                                             month: month[1],
                                             // TODO: selected
-                                            whiteOrAltoBlueDashIcon: Colors.white,
+                                            whiteOrAltoBlueDashIcon:
+                                                Colors.white,
                                             //whiteOrAltoBlueDashIcon: kAltoBlue,
                                             onTap: () {
                                               // TODO: add method to jump to proper piv

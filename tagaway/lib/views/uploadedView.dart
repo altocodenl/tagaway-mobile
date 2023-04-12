@@ -69,6 +69,7 @@ class _UploadedViewState extends State<UploadedView> {
   @override
   void initState() {
     super.initState();
+    print('hello');
     cancelListener = StoreService.instance.listen([
       'usertags',
       'currentlyTaggingUploaded',
@@ -643,21 +644,24 @@ class _TopRowState extends State<TopRow> {
                     queryTags.forEach((tag) {
                       // Show first two tags only
                       if (output.length > 2) return;
-                      if (tag == 'u::') return output.add (GridTagElement(
-                         gridTagElementIcon: kTagIcon,
-                        iconColor: kGrey,
-                        gridTagName: 'Untagged',
-                      ));
-                      if (tag == 't::') return output.add (GridTagElement(
-                         gridTagElementIcon: kBoxArchiveIcon,
-                        iconColor: kGrey,
-                        gridTagName: 'To Organize',
-                      ));
-                      if (tag == 'o::') return output.add (GridTagElement(
-                         gridTagElementIcon: kCircleCheckIcon,
-                        iconColor: kAltoOrganized,
-                        gridTagName: 'Organized',
-                      ));
+                      if (tag == 'u::')
+                        return output.add(GridTagElement(
+                          gridTagElementIcon: kTagIcon,
+                          iconColor: kGrey,
+                          gridTagName: 'Untagged',
+                        ));
+                      if (tag == 't::')
+                        return output.add(GridTagElement(
+                          gridTagElementIcon: kBoxArchiveIcon,
+                          iconColor: kGrey,
+                          gridTagName: 'To Organize',
+                        ));
+                      if (tag == 'o::')
+                        return output.add(GridTagElement(
+                          gridTagElementIcon: kCircleCheckIcon,
+                          iconColor: kAltoOrganized,
+                          gridTagName: 'Organized',
+                        ));
                       // DATE TAG
                       if (RegExp('^d::M').hasMatch(tag))
                         return output.add(GridTagElement(
@@ -691,7 +695,7 @@ class _TopRowState extends State<TopRow> {
                       // NORMAL TAG
                       output.add(GridTagElement(
                           gridTagElementIcon: kTagIcon,
-                          iconColor: tagColor (tag),
+                          iconColor: tagColor(tag),
                           gridTagName: tag));
                     });
                     if (queryTags.isEmpty) {
