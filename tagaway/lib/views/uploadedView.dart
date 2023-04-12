@@ -69,7 +69,6 @@ class _UploadedViewState extends State<UploadedView> {
   @override
   void initState() {
     super.initState();
-    print('hello');
     cancelListener = StoreService.instance.listen([
       'usertags',
       'currentlyTaggingUploaded',
