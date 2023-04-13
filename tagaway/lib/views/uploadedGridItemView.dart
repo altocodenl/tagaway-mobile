@@ -107,6 +107,7 @@ class _CarrouselViewState extends State<CarrouselView>
   late TransformationController controller;
   late AnimationController animationController;
   Animation<Matrix4>? animation;
+  OverlayEntry? entry;
 
   @override
   void initState() {
@@ -115,7 +116,18 @@ class _CarrouselViewState extends State<CarrouselView>
     animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
-    )..addListener(() => controller.value = animation!.value);
+    )
+      ..addListener(() => controller.value = animation!.value)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          removeOverlay();
+        }
+      });
+  }
+
+  void removeOverlay() {
+    entry?.remove();
+    entry = null;
   }
 
   @override
@@ -195,32 +207,45 @@ class _CarrouselViewState extends State<CarrouselView>
                     httpHeaders: {
                       'cookie': StoreService.instance.get('cookie')
                     },
+                    filterQuality: FilterQuality.high,
                     placeholder: (context, url) => const Center(
                             child: CircularProgressIndicator(
                           color: kAltoBlue,
                         )),
-                    imageBuilder: (context, imageProvider) => Transform.rotate(
-                          angle: (piv['deg'] == null ? 0 : piv['deg']) *
-                              math.pi /
-                              180.0,
-                          child: InteractiveViewer(
-                            transformationController: controller,
-                            clipBehavior: Clip.none,
-                            minScale: 1,
-                            maxScale: 8,
-                            onInteractionEnd: (details) {
-                              resetAnimation();
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  color: kGreyDarkest,
-                                  image: DecorationImage(
-                                      alignment: Alignment.center,
-                                      fit: BoxFit.contain,
-                                      image: imageProvider)),
+                    imageBuilder: (context, imageProvider) {
+                      return InteractiveViewer(
+                        transformationController: controller,
+                        clipBehavior: Clip.none,
+                        minScale: 1,
+                        maxScale: 8,
+                        onInteractionEnd: (details) {
+                          resetAnimation();
+                        },
+                        child: Container(
+                          color: kGreyDarkest,
+                          height: double.infinity,
+                          width: double.infinity,
+                          // decoration: BoxDecoration(
+                          //     color: kGreyDarkest,
+                          //     image: DecorationImage(
+                          //         alignment: Alignment.center,
+                          //         fit: BoxFit.contain,
+                          //         image: imageProvider)),
+                          child: Transform.rotate(
+                            angle: (piv['deg'] == null ? 0 : piv['deg']) *
+                                math.pi /
+                                180.0,
+                            child: Image(
+                              alignment: Alignment.center,
+                              fit: BoxFit.contain,
+                              image: imageProvider,
                             ),
                           ),
-                        )),
+                        ),
+                      );
+                      // child: buildImage(imageProvider),
+                      // );
+                    }),
                 replacement: VideoPlayerWidget(
                   pivId: piv['id'],
                 )),
@@ -295,4 +320,50 @@ class _CarrouselViewState extends State<CarrouselView>
       },
     );
   }
+
+  // Widget buildImage(ImageProvider<Object> imageProvider) {
+  //   return Builder(builder: (context) {
+  //     return InteractiveViewer(
+  //       transformationController: controller,
+  //       clipBehavior: Clip.none,
+  //       minScale: 1,
+  //       maxScale: 8,
+  //       onInteractionStart: (details) {
+  //         if (details.pointerCount < 2) return;
+  //         // showOverlay(context);
+  //         final size = MediaQuery.of(context).size;
+  //         final renderBox = context.findRenderObject()! as RenderBox;
+  //         final offset = renderBox.localToGlobal(Offset.zero);
+  //         entry = OverlayEntry(builder: (context) {
+  //           return Positioned(
+  //               width: size.width,
+  //               left: offset.dx,
+  //               top: offset.dy,
+  //               child: buildImage(imageProvider));
+  //         });
+  //         final overlay = Overlay.of(context)!;
+  //         overlay.insert(entry!);
+  //       },
+  //       onInteractionEnd: (details) {
+  //         resetAnimation();
+  //       },
+  //       child: Container(
+  //         decoration: BoxDecoration(
+  //             color: kGreyDarkest,
+  //             image: DecorationImage(
+  //                 alignment: Alignment.center,
+  //                 fit: BoxFit.contain,
+  //                 image: imageProvider)),
+  //         child: Transform.rotate(
+  //           angle: (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
+  //           child: Image(
+  //             image: imageProvider,
+  //             alignment: Alignment.center,
+  //             fit: BoxFit.contain,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   });
+  // }
 }
