@@ -4,7 +4,6 @@
 
 - **Fix utf8 encoding for non-ascii tags**
 - **Fix 404s when tagging with piv with no id**
-- **Fix 400 when querying with o:: double**
 - **Delete single piv from carrousel**
 - Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway
 - Fix ronin queries after untagging/deleting

@@ -246,19 +246,28 @@ class TagService {
     if (response ['code'] == 200) {
       StoreService.instance.set('queryResult', response ['body']);
       getUploadedTimeHeader();
-      response = await ajax('post', 'query', {
-        'tags': [...tags]..addAll (['o::']),
-        'sort': 'newest',
-        'from': 1,
-        'to': 1000,
-        'idsOnly': true
-      });
       await StoreService.instance.remove ('orgMap:*');
-      if (response ['code'] == 200) {
-        response ['body'].forEach ((v) {
-           StoreService.instance.set('orgMap:' + v, true);
-        });
+
+      var orgIds;
+
+      if (! tags.contains ('o::')) {
+         response = await ajax('post', 'query', {
+           'tags': [...tags]..addAll (['o::']),
+           'sort': 'newest',
+           'from': 1,
+           'to': 1000,
+           'idsOnly': true
+         });
+         if (response ['code'] == 200) {
+            orgIds = response['body'];
+         }
+         else orgIds = [];
       }
+      else orgIds = response ['body'] ['pivs'].map ((v) => v['id']);
+
+      orgIds.forEach ((v) {
+         StoreService.instance.set('orgMap:' + v, true);
+      });
     }
     // HANDLE ERRORS
     return {'code': response ['code'], 'body': response ['body']};
