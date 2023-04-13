@@ -2,16 +2,17 @@
 
 ## TODO
 
+- **Fix utf8 encoding for non-ascii tags**
 - **Fix 404s when tagging with piv with no id**
-- Delete single piv from carrousel
+- **Fix 400 when querying with o:: double**
+- **Delete single piv from carrousel**
+- Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway
+- Fix ronin queries after untagging/deleting
+- Fix how carrousel looks when an image is rotated (Tom)
+- Carrousel: when zooming into image, make the image take the entire screen (Tom)
+
 - Delete piv mode (uploaded)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion.
-- Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway
-- Fix 400 when querying with o:: double
-- Fix how carrousel looks when an image is rotated
-- Carrousel: when zooming into image, make the image take the entire screen (Tom)
-- Fix ronin queries after untagging/deleting
-
 - Calculate viewport dynamically and make views use its proportions
 - Fix amount of tags shown on top bar of uploaded, based on tag length
 - Show number of pivs to be still uploaded
