@@ -335,7 +335,7 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
         (now() - start).toString() + 'ms',
         response.statusCode,
         response.headers,
-        jsonDecode(response.body == '' ? '{}' : response.body)
+        jsonDecode(response.body == '' ? '{}' : utf8.decode (response.bodyBytes))
       ]);
 
     // If we get a 403, it should be because the cookie is invalid. We delete it locally.
@@ -347,7 +347,7 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
     return {
       'code': response.statusCode,
       'headers': response.headers,
-      'body': jsonDecode(response.body == '' ? '{}' : response.body)
+      'body': jsonDecode(response.body == '' ? '{}' : utf8.decode (response.bodyBytes))
     };
   } on SocketException catch (_) {
     return {'code': 0};
