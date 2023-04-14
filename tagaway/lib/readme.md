@@ -2,11 +2,12 @@
 
 ## TODO
 
-- **Fix 404s when tagging with piv with no id**
-- **Delete single piv from carrousel**
 - Fix ronin queries after untagging/deleting
 - Fix how carrousel looks when an image is rotated
 - Dynamize "you're looking at" (more than two tags)
+- When loading local pivs, check for existence and remove stale entries from pivMap
+- On scroll, change selected months in time header
+- When clicking on month on time header, jump to relevant scroll position
 
 - Calculate viewport dynamically and make views use its proportions (Tom)
 - Show number of pivs to be still uploaded (Tom)
@@ -19,9 +20,6 @@
    - Do not default to "everything"
    - Test hoop from US
 - Publish to both stores
-- On scroll, change selected months in time header
-- When loading local pivs, check for existence and remove stale entries from pivMap
-- When clicking on month on time header, jump to relevant scroll position
 - When closing and re-opening phone, revive uploads that were not finished
 - Signup
    - Tighten up client-side validations for inputs

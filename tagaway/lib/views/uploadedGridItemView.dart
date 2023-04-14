@@ -303,7 +303,10 @@ class _CarrouselViewState extends State<CarrouselView>
                       ),
                       Expanded(
                         child: IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                             TagService.instance.deletePiv (piv['id']);
+                             Navigator.pop(context);
+                          },
                           icon: const Icon(
                             kTrashCanIcon,
                             size: 25,

@@ -280,7 +280,13 @@ class TagService {
   }
 
   deletePiv (String id) async {
-    var response = await ajax('post', 'delete', {'ids': [id]});
+    // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
+    var response = await ajax('post', 'delete', {'ids': [id], 'csrf': 'foo'});
+    var localPivId = StoreService.instance.get ('rpivMap:' + id);
+    if (localPivId != '') {
+      StoreService.instance.remove ('pivMap:' + localPivId, 'disk');
+      StoreService.instance.remove ('rpivMap:' + id, 'disk');
+    }
     if (response['code'] == 200) await queryPivs (StoreService.instance.get ('queryTags'));
     return response['code'];
   }
