@@ -23,10 +23,10 @@ class _SearchTagsViewState extends State<SearchTagsView> {
   void initState() {
     super.initState();
     cancelListener =
-        StoreService.instance.listen(['queryTags', 'tags'], (v1, v2) {
+        StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
       setState(() {
         if (v1 != '') queryTags = v1;
-        tags = v2;
+        if (v2 != '') tags = v2['tags'].keys.toList ();;
         List ShowTags = [];
         tags.forEach((tag) {
           if (RegExp('^[a-z]::').hasMatch(tag)) return;
