@@ -54,13 +54,12 @@ class TagService {
     StoreService.instance.set ('tagMap:' + id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
 
-    var code = await tagPivById(pivId, tag, del);
-    if (type == 'uploaded') return code;
-    // TODO: add error handling for non 200 (with exception to 404 for local, which is handled below)
-
-    // If we have an entry for the piv:
     if (pivId != '') {
-      // If piv exists, we are done. Otherwise, we need to upload it.
+      var code = await tagPivById(pivId, tag, del);
+      if (type == 'uploaded') return;
+      // TODO: add error handling for non 200 (with exception to 404 for local, which is handled below)
+
+      // If piv still exists, we are done. Otherwise, we need to re-upload it.
       if (code == 200) return;
       if (code == 404) {
          StoreService.instance.remove ('pivMap:' + id, 'disk');
