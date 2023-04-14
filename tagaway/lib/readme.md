@@ -2,19 +2,18 @@
 
 ## TODO
 
-- **Fix utf8 encoding for non-ascii tags**
 - **Fix 404s when tagging with piv with no id**
 - **Delete single piv from carrousel**
-- Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway
 - Fix ronin queries after untagging/deleting
-- Fix how carrousel looks when an image is rotated (Tom)
-- Carrousel: when zooming into image, make the image take the entire screen (Tom)
+- Fix how carrousel looks when an image is rotated
+- Dynamize "you're looking at" (more than two tags)
 
-- Delete piv mode (uploaded)
-- Delete piv mode (local): if deleting something being uploaded, defer the deletion.
-- Calculate viewport dynamically and make views use its proportions
-- Fix amount of tags shown on top bar of uploaded, based on tag length
-- Show number of pivs to be still uploaded
+- Calculate viewport dynamically and make views use its proportions (Tom)
+- Show number of pivs to be still uploaded (Tom)
+- Fix amount of tags shown on top bar of uploaded, based on tag length (Tom)
+- Delete piv mode (uploaded) (Tom)
+- Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
+- Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway (Tom)
 - Performance
    - Lower amount of pivs
    - Do not default to "everything"
@@ -22,7 +21,6 @@
 - Publish to both stores
 - On scroll, change selected months in time header
 - When loading local pivs, check for existence and remove stale entries from pivMap
-- Dynamize "you're looking at" (more than two tags)
 - When clicking on month on time header, jump to relevant scroll position
 - When closing and re-opening phone, revive uploads that were not finished
 - Signup

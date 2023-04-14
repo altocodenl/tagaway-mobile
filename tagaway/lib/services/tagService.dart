@@ -280,4 +280,10 @@ class TagService {
     StoreService.instance.set ('queryTags', queryTags);
   }
 
+  deletePiv (String id) async {
+    var response = await ajax('post', 'delete', {'ids': [id]});
+    if (response['code'] == 200) await queryPivs (StoreService.instance.get ('queryTags'));
+    return response['code'];
+  }
+
 }

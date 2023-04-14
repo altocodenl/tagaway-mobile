@@ -246,6 +246,7 @@ class _CarrouselViewState extends State<CarrouselView>
                       // child: buildImage(imageProvider),
                       // );
                     }),
+                    // TODO: place cases for piv['vid'] == 'pending' and piv['vid'] == 'error'
                 replacement: VideoPlayerWidget(
                   pivId: piv['id'],
                 )),
