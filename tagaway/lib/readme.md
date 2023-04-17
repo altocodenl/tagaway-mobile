@@ -2,12 +2,17 @@
 
 ## TODO
 
+- Discuss
+   - No separate modal for new tag, just create or select
+   - Show last n tags on top
+
 - Fix ronin queries after untagging/deleting
 - Fix how carrousel looks when an image is rotated
 - Dynamize "you're looking at" (more than two tags)
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
 - When clicking on month on time header, jump to relevant scroll position
+- Check whether videos are being streamed
 
 - Calculate viewport dynamically and make views use its proportions (Tom)
 - Show number of pivs to be still uploaded (Tom)
@@ -15,6 +20,10 @@
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway (Tom)
+- Check delay in loading Local view in Android (Tom)
+- Investigate why sometimes local items that are uploaded are not being shown as organized (is it lack of a pivMap entry? Or is it not being displayed?)
+
+
 - Performance
    - Lower amount of pivs
    - Do not default to "everything"
