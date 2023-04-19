@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Fix how carrousel looks when an image is rotated
 - Fix ronin queries after untagging/deleting
 - Dynamize "you're looking at" (more than two tags)
 - When loading local pivs, check for existence and remove stale entries from pivMap
