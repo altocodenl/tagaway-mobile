@@ -27,18 +27,18 @@
    - Move utility functions from constants to toolsService
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
 
-- Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
-- No separate modal for new tag, just create or select (Tom)
+- Check delay in loading Local view in Android (Tom)
 - Calculate viewport dynamically and make views use its proportions (Tom)
-- Show number of pivs to be still uploaded (Tom)
 - Fix amount of tags shown on top bar of uploaded, based on tag length (Tom)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway (Tom)
-- Check delay in loading Local view in Android (Tom)
+- Show number of pivs to be still uploaded (Tom)
+- No separate modal for new tag, just create or select (Tom)
+- Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
 - Investigate why sometimes local items that are uploaded are not being shown as organized (is it lack of a pivMap entry? Or is it not being displayed?) (Tom)
 - Publish to both stores (Tom)
-- Add login flow with Google and Facebook (Tom)
+- Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
 
