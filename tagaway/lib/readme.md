@@ -7,9 +7,8 @@
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
 - When clicking on month on time header, jump to relevant scroll position
-- Check whether videos are being streamed
 - Performance
-   - Lower amount of pivs
+   - Load pivs incrementally
    - Do not default to "everything"
    - Test hoop from US
 - When closing and re-opening phone, revive uploads that were not finished
@@ -26,7 +25,6 @@
    - Move utility functions from constants to toolsService
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
 
-- Check delay in loading Local view in Android (Tom)
 - Calculate viewport dynamically and make views use its proportions (Tom)
 - Fix amount of tags shown on top bar of uploaded, based on tag length (Tom)
 - Delete piv mode (uploaded) (Tom)
