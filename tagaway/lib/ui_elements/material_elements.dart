@@ -628,7 +628,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       httpHeaders: {
         'cookie': StoreService.instance.get('cookie'),
         // This line turns off cache. Cache in video_player seems to be broken.
-        'if-none-match': 'foo'
+        'if-none-match': 'foo',
+        'Range': 'bytes=0',
       },
     );
     // Play the video again when it ends
