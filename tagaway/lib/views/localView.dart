@@ -446,43 +446,54 @@ class _GridState extends State<Grid> {
 
     // Update the state and notify UI
     setState(() {
-       itemList = recentAssets;
-       loadedPivs = true;
+      itemList = recentAssets;
+      loadedPivs = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0, top: 180),
-      child: SizedBox.expand(
-        child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: NotificationListener<ScrollMetricsNotification>(
-                onNotification: (state) {
-                  var pivHeight = (MediaQuery.of(context).size.width - 1) / 2;
-                  var pivRowIndex =
-                      max(0, (state.metrics.pixels / pivHeight).floor() * 2);
-                  if (!itemList.isEmpty) {
-                    // TODO: highlight the proper month
-                    // debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
-                  }
-                  return true;
-                },
-                child: GridView.builder(
-                    reverse: true,
-                    shrinkWrap: true,
-                    cacheExtent: 50,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 1,
-                      crossAxisSpacing: 1,
-                    ),
-                    itemCount: itemList.length,
-                    itemBuilder: (BuildContext context, index) {
-                      return LocalGridItem(itemList[index]);
-                    }))),
+    return Visibility(
+      visible: loadedPivs,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0, top: 180),
+        child: SizedBox.expand(
+          child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: NotificationListener<ScrollMetricsNotification>(
+                  onNotification: (state) {
+                    var pivHeight = (MediaQuery.of(context).size.width - 1) / 2;
+                    var pivRowIndex =
+                        max(0, (state.metrics.pixels / pivHeight).floor() * 2);
+                    if (!itemList.isEmpty) {
+                      // TODO: highlight the proper month
+                      // debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
+                    }
+                    return true;
+                  },
+                  child: GridView.builder(
+                      reverse: true,
+                      shrinkWrap: true,
+                      cacheExtent: 50,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 1,
+                        crossAxisSpacing: 1,
+                      ),
+                      itemCount: itemList.length,
+                      itemBuilder: (BuildContext context, index) {
+                        return LocalGridItem(itemList[index]);
+                      }))),
+        ),
+      ),
+      replacement: Center(
+        child: Expanded(
+            child: Container(
+                color: Colors.grey[50],
+                child: const CircularProgressIndicator(
+                  color: kAltoBlue,
+                ))),
       ),
     );
   }

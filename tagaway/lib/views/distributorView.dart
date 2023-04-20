@@ -34,7 +34,6 @@ class _DistributorState extends State<Distributor> {
     }
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
     var permissionStatus = await checkPermission();
-    print(permissionStatus.toString());
     // If user has granted complete or partial permissions, go to the main part of the app.
     if (permissionStatus == 'granted' || permissionStatus == 'limited')
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');
