@@ -488,12 +488,11 @@ class _GridState extends State<Grid> {
         ),
       ),
       replacement: Center(
-        child: Expanded(
-            child: Container(
-                color: Colors.grey[50],
-                child: const CircularProgressIndicator(
-                  color: kAltoBlue,
-                ))),
+        child: Container(
+            color: Colors.grey[50],
+            child: const CircularProgressIndicator(
+              color: kAltoBlue,
+            )),
       ),
     );
   }
