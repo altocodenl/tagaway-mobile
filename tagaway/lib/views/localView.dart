@@ -552,10 +552,17 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 12.0, right: 12),
                   child: Row(
                     children: [
-                      Expanded(
+                      GestureDetector(
+                        onTap: () {},
+                        child: const Icon(
+                          kTrashCanIcon,
+                          color: kGreyDarker,
+                          size: 25,
+                        ),
+                      ),
+                      const Expanded(
                         child: Align(
-                            alignment: const Alignment(0.29, .9),
-                            child: LocalYear()),
+                            alignment: Alignment(0.29, .9), child: LocalYear()),
                       ),
                       const Icon(
                         kSearchIcon,
