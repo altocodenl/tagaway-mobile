@@ -409,6 +409,7 @@ class Grid extends StatefulWidget {
 
 class _GridState extends State<Grid> {
   List<AssetEntity> itemList = [];
+  bool loadedPivs = false;
 
   @override
   void initState() {
@@ -444,7 +445,10 @@ class _GridState extends State<Grid> {
     TagService.instance.getLocalTimeHeader();
 
     // Update the state and notify UI
-    setState(() => itemList = recentAssets);
+    setState(() {
+       itemList = recentAssets;
+       loadedPivs = true;
+    });
   }
 
   @override
