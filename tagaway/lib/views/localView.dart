@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -142,8 +143,11 @@ class _LocalViewState extends State<LocalView> {
                 },
                 child: DraggableScrollableSheet(
                     snap: true,
-                    initialChildSize: initialChildSize,
-                    minChildSize: 0.07,
+                    // initialChildSize: initialChildSize,
+                    initialChildSize: SizeService.instance
+                        .draggableScrollableSheetInitialChildSize(context),
+                    minChildSize: SizeService.instance
+                        .draggableScrollableSheetInitialChildSize(context),
                     maxChildSize: 0.77,
                     builder: (BuildContext context,
                         ScrollController scrollController) {
@@ -540,6 +544,7 @@ class _TopRowState extends State<TopRow> {
 
   @override
   Widget build(BuildContext context) {
+    print(SizeService.instance.screenWidth(context));
     return Column(
       children: [
         Container(
@@ -604,7 +609,8 @@ class _TopRowState extends State<TopRow> {
                                   crossAxisSpacing: 0,
                                   shrinkWrap: true,
                                   scrollDirection: Axis.horizontal,
-                                  childAspectRatio: 1.11,
+                                  childAspectRatio: SizeService.instance
+                                      .timeHeaderChildAspectRatio(context),
                                   children: (() {
                                     List<Widget> output = [];
                                     if (timeHeader.isEmpty)

@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -576,7 +577,10 @@ class QuerySelectionTagElement extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(right: 12.0),
+                padding: EdgeInsets.only(
+                    right: SizeService.instance.screenWidth(context) < 380
+                        ? 8
+                        : 12.0),
                 child: FaIcon(
                   icon,
                   color: iconColor,
