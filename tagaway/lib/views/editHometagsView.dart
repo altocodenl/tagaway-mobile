@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -49,6 +50,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
           backgroundColor: Colors.grey[50],
           iconTheme: const IconThemeData(color: kAltoBlue),
           leadingWidth: 70,
+          centerTitle: true,
           leading: Padding(
             padding: const EdgeInsets.only(top: 18, left: 12),
             child: GestureDetector(
@@ -57,7 +59,10 @@ class _EditHometagsViewState extends State<EditHometagsView> {
                 },
                 child: const Text('Done', style: kDoneEditText)),
           ),
-          title: const Text('Edit your home tags', style: kSubPageAppBarTitle),
+          title: Text('Edit your home tags',
+              style: SizeService.instance.screenWidth(context) < 380
+                  ? kTagListElementText
+                  : kSubPageAppBarTitle),
           actions: [
             IconButton(
                 icon: const Icon(Icons.add),

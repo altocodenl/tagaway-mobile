@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 
 class QuerySelectorView extends StatefulWidget {
   static const String id = 'querySelector';
@@ -102,6 +103,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: kAltoBlue),
+        centerTitle: true,
         leadingWidth: 70,
         leading: IconButton(
             icon: const FaIcon(
@@ -112,7 +114,10 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             onPressed: () {
               Navigator.pushReplacementNamed(context, 'bottomNavigation');
             }),
-        title: const Text('Filter', style: kSubPageAppBarTitle),
+        title: Text('Filter',
+            style: SizeService.instance.screenWidth(context) < 380
+                ? kTagListElementText
+                : kSubPageAppBarTitle),
         actions: [
           Padding(
             padding: EdgeInsets.only(top: 18, right: 20),
@@ -137,55 +142,54 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           Visibility(
               visible: true,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: GridView.count(
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    shrinkWrap: true,
-                    childAspectRatio: 4,
-                    children: (() {
-                      List<Widget> output = [];
-                      if (queryResult['tags']['u::'] > 0) output.add (
-                      QuerySelectionTagElement(
-                        onTap: () {
-                          TagService.instance.toggleQueryTag('u::');
-                        },
-                        elementColor: queryTags.contains('u::')
-                            ? kSelectedTag
-                            : kGreyLighter,
-                        icon: kTagIcon,
-                        iconColor: kGrey,
-                        tagTitle: 'Untagged',
-                      ));
-                      if (queryResult['tags']['t::'] > 0) output.add (
-                      QuerySelectionTagElement(
-                        onTap: () {
-                          TagService.instance.toggleQueryTag('t::');
-                        },
-                        elementColor: queryTags.contains('t::')
-                            ? kSelectedTag
-                            : kGreyLighter,
-                        icon: kBoxArchiveIcon,
-                        iconColor: kGrey,
-                        tagTitle: 'To Organize',
-                      ));
-                      if (queryResult['tags']['o::'] > 0) output.add (
-                      QuerySelectionTagElement(
-                        onTap: () {
-                          TagService.instance.toggleQueryTag('o::');
-                        },
-                        elementColor: queryTags.contains('o::')
-                            ? kSelectedTag
-                            : kGreyLighter,
-                        icon: kCircleCheckIcon,
-                        iconColor: kAltoOrganized,
-                        tagTitle: 'Organized',
-                      ));
-                      return output;
-                    })())
-              )),
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: GridView.count(
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      shrinkWrap: true,
+                      childAspectRatio: 4,
+                      children: (() {
+                        List<Widget> output = [];
+                        if (queryResult['tags']['u::'] > 0)
+                          output.add(QuerySelectionTagElement(
+                            onTap: () {
+                              TagService.instance.toggleQueryTag('u::');
+                            },
+                            elementColor: queryTags.contains('u::')
+                                ? kSelectedTag
+                                : kGreyLighter,
+                            icon: kTagIcon,
+                            iconColor: kGrey,
+                            tagTitle: 'Untagged',
+                          ));
+                        if (queryResult['tags']['t::'] > 0)
+                          output.add(QuerySelectionTagElement(
+                            onTap: () {
+                              TagService.instance.toggleQueryTag('t::');
+                            },
+                            elementColor: queryTags.contains('t::')
+                                ? kSelectedTag
+                                : kGreyLighter,
+                            icon: kBoxArchiveIcon,
+                            iconColor: kGrey,
+                            tagTitle: 'To Organize',
+                          ));
+                        if (queryResult['tags']['o::'] > 0)
+                          output.add(QuerySelectionTagElement(
+                            onTap: () {
+                              TagService.instance.toggleQueryTag('o::');
+                            },
+                            elementColor: queryTags.contains('o::')
+                                ? kSelectedTag
+                                : kGreyLighter,
+                            icon: kCircleCheckIcon,
+                            iconColor: kAltoOrganized,
+                            tagTitle: 'Organized',
+                          ));
+                        return output;
+                      })()))),
           const Text('Years',
               style: TextStyle(
                 fontFamily: 'Montserrat',
@@ -448,7 +452,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                       elementColor:
                           queryTags.contains(tag) ? kSelectedTag : kGreyLighter,
                       icon: kTagIcon,
-                      iconColor:tagColor (tag),
+                      iconColor: tagColor(tag),
                       tagTitle: shorten(tag));
                 }),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -57,7 +58,11 @@ class _YourHometagsViewState extends State<YourHometagsView> {
               child: const Text('Edit', style: kDoneEditText),
             ),
           ),
-          title: const Text('Your home tags', style: kSubPageAppBarTitle),
+          centerTitle: true,
+          title: Text('Your home tags',
+              style: SizeService.instance.screenWidth(context) < 380
+                  ? kTagListElementText
+                  : kSubPageAppBarTitle),
           actions: [
             IconButton(
                 icon: const Icon(Icons.add),

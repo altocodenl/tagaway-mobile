@@ -14,19 +14,23 @@
    - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
 - When closing and re-opening phone, revive uploads that were not finished
 - Signup
-   - Tighten up client-side validations for inputs
-   - Handle errors with snackbar
-       - usernames are too short or invalid for any other reason => NOT FINISHED
-       - password is too short or is invalid for any other reason => NOT FINISHED
-       - username already exists => 403 {error: 'username'}
-       - email already registered => 403 {error: 'email'}
-       - we have too many users. => ?
+  - Check email flow says 'Tagaway'
+  - Tighten up client-side validations for inputs
+  - Handle errors with snackbar
+      - usernames are too short or invalid for any other reason => NOT FINISHED
+      - password is too short or is invalid for any other reason => NOT FINISHED
+      - username already exists => 403 {error: 'username'}
+      - email already registered => 403 {error: 'email'}
+      - we have too many users. => ?
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
 
 - Calculate viewport dynamically and make views use its proportions (Tom)
+  - Local > DraggableScrollableSheet
+  - Uploaded > DraggableScrollableSheet
+  - Carrousel > Photo display
 - Fix amount of tags shown on top bar of uploaded, based on tag length (Tom)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)

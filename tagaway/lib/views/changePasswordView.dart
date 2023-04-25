@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/offlineView.dart';
@@ -22,6 +23,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    print(SizeService.instance.screenWidth(context));
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -30,7 +32,10 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
           iconTheme: const IconThemeData(color: kGreyDarker, size: 30),
           backgroundColor: Colors.grey[50],
           centerTitle: true,
-          title: const Text('Change your password', style: kSubPageAppBarTitle),
+          title: Text('Change your password',
+              style: SizeService.instance.screenWidth(context) < 380
+                  ? kTagListElementText
+                  : kSubPageAppBarTitle),
         ),
         body: SafeArea(
             child: Center(
