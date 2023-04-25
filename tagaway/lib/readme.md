@@ -7,10 +7,11 @@
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
 - When clicking on month on time header, jump to relevant scroll position
+
 - Performance
-   - Load pivs incrementally
+   - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
    - Do not default to "everything"
-   - Test hoop from US
+   - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
 - When closing and re-opening phone, revive uploads that were not finished
 - Signup
   - Check email flow says 'Tagaway'
@@ -74,3 +75,17 @@
 - usertags [<string>, ...]: list of user tags, computed from the tags bruog
 - userWasAskedPermission (boolean) [DISK]: whether the user was already asked for piv access permission once
 ```
+
+### Creating a build
+
+- In Android Studio:
+- Go to the menu File -> Open
+- Open the `android` folder in a new window.
+- The first time it can take a while to load
+- Go to the menu Build -> generate signed bundle/apk
+- Select APK + next
+- Create new key/use existing
+- Check on box for remember password
+- Use release & create
+- When it's done, it will appear in Android folder
+- Build will be in android + app + release
