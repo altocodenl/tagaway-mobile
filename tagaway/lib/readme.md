@@ -30,7 +30,6 @@
   - Local > DraggableScrollableSheet
   - Uploaded > DraggableScrollableSheet
   - Carrousel > Photo display
-- Fix amount of tags shown on top bar of uploaded, based on tag length (Tom)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway (Tom)

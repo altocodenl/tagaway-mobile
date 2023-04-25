@@ -544,7 +544,6 @@ class _TopRowState extends State<TopRow> {
 
   @override
   Widget build(BuildContext context) {
-    print(SizeService.instance.screenWidth(context));
     return Column(
       children: [
         Container(

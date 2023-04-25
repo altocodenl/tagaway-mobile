@@ -651,28 +651,28 @@ class _TopRowState extends State<TopRow> {
                     List<Widget> output = [];
                     queryTags.forEach((tag) {
                       // Show first two tags only
-                      if (output.length > 2) return;
+                      if (output.length > 1) return;
                       if (tag == 'u::')
-                        return output.add(GridTagElement(
+                        return output.add(GridTagUploadedQueryElement(
                           gridTagElementIcon: kTagIcon,
                           iconColor: kGrey,
                           gridTagName: 'Untagged',
                         ));
                       if (tag == 't::')
-                        return output.add(GridTagElement(
+                        return output.add(GridTagUploadedQueryElement(
                           gridTagElementIcon: kBoxArchiveIcon,
                           iconColor: kGrey,
                           gridTagName: 'To Organize',
                         ));
                       if (tag == 'o::')
-                        return output.add(GridTagElement(
+                        return output.add(GridTagUploadedQueryElement(
                           gridTagElementIcon: kCircleCheckIcon,
                           iconColor: kAltoOrganized,
                           gridTagName: 'Organized',
                         ));
                       // DATE TAG
                       if (RegExp('^d::M').hasMatch(tag))
-                        return output.add(GridTagElement(
+                        return output.add(GridTagUploadedQueryElement(
                             gridTagElementIcon: kClockIcon,
                             iconColor: kGreyDarker,
                             gridTagName: [
@@ -690,18 +690,18 @@ class _TopRowState extends State<TopRow> {
                               'Dec'
                             ][int.parse(tag.substring(4)) - 1]));
                       if (RegExp('^d::').hasMatch(tag))
-                        return output.add(GridTagElement(
+                        return output.add(GridTagUploadedQueryElement(
                             gridTagElementIcon: kClockIcon,
                             iconColor: kGreyDarker,
                             gridTagName: tag.substring(3)));
                       // GEO TAG
                       if (RegExp('^g::').hasMatch(tag))
-                        return output.add(GridTagElement(
+                        return output.add(GridTagUploadedQueryElement(
                             gridTagElementIcon: kLocationDotIcon,
                             iconColor: kGreyDarker,
                             gridTagName: tag.substring(3)));
                       // NORMAL TAG
-                      output.add(GridTagElement(
+                      output.add(GridTagUploadedQueryElement(
                           gridTagElementIcon: kTagIcon,
                           iconColor: tagColor(tag),
                           gridTagName: tag));
@@ -719,7 +719,7 @@ class _TopRowState extends State<TopRow> {
                           iconColor: kGreyDarker,
                           gridTagName: 'Everything'));
                     }
-                    if (queryTags.length > 2) output.add(GridSeeMoreElement());
+                    if (queryTags.length > 1) output.add(GridSeeMoreElement());
                     output.add(Expanded(
                       child: Text(
                         queryResult['total'].toString(),

@@ -189,7 +189,6 @@ class TagListElement extends StatelessWidget {
         padding: const EdgeInsets.only(top: 5),
         child: Container(
           height: 70,
-          width: 1000,
           decoration: const BoxDecoration(
               color: kGreyLighter,
               borderRadius: BorderRadius.all(Radius.circular(10))),
@@ -204,9 +203,17 @@ class TagListElement extends StatelessWidget {
                     color: tagColor,
                   ),
                 ),
-                Text(
-                  tagName,
-                  style: kTagListElementText,
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth: SizeService.instance.screenWidth(context) * .8,
+                  ),
+                  child: Text(
+                    tagName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: kTagListElementText,
+                  ),
                 ),
               ],
             ),
@@ -325,7 +332,67 @@ class GridTagElement extends StatelessWidget {
                 size: 20,
               ),
             ),
-            Text(gridTagName, style: kGridTagListElement),
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: SizeService.instance
+                    .gridTagElementMaxWidthCalculator(context),
+              ),
+              child: Text(gridTagName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: kGridTagListElement),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GridTagUploadedQueryElement extends StatelessWidget {
+  const GridTagUploadedQueryElement({
+    Key? key,
+    required this.gridTagElementIcon,
+    required this.iconColor,
+    required this.gridTagName,
+  }) : super(key: key);
+
+  final IconData gridTagElementIcon;
+  final Color iconColor;
+  final String gridTagName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.only(left: 12, right: 12),
+        decoration: const BoxDecoration(
+            color: kGreyLighter,
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 12.0),
+              child: FaIcon(
+                gridTagElementIcon,
+                color: iconColor,
+                size: 20,
+              ),
+            ),
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: SizeService.instance
+                    .gridTagUploadedQueryElementMaxWidthCalculator(context),
+              ),
+              child: Text(gridTagName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: kGridTagListElement),
+            ),
           ],
         ),
       ),
