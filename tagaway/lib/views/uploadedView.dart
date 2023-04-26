@@ -144,8 +144,8 @@ class _UploadedViewState extends State<UploadedView> {
                     },
                     child: DraggableScrollableSheet(
                         snap: true,
-                        initialChildSize: initialScrollableSize,
-                        minChildSize: initialScrollableSize,
+                        initialChildSize: initialChildSize,
+                        minChildSize: initialChildSize,
                         maxChildSize: 0.77,
                         builder: (BuildContext context,
                             ScrollController scrollController) {
