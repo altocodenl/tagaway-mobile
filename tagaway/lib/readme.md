@@ -28,8 +28,6 @@
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
 
 - Calculate viewport dynamically and make views use its proportions (Tom)
-  - Local > DraggableScrollableSheet
-  - Uploaded > DraggableScrollableSheet
   - Carrousel > Photo display
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
@@ -50,6 +48,7 @@
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
 - hometags [<str>, ...]: list of hometags, brought from the server
+- initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - localYear <str>: displayed year in LocalView time header
 - localTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]

@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/permissionService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -49,6 +50,8 @@ class _DistributorState extends State<Distributor> {
 
   @override
   Widget build(BuildContext context) {
+    // Quite a hack, but we need to set this somewhere where we have context.
+    StoreService.instance.set ('initialScrollableSize', SizeService.instance.draggableScrollableSheetInitialChildSize(context));
     return Container(
       color: Colors.grey[50],
       child: const Center(

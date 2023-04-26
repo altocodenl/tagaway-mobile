@@ -67,7 +67,8 @@ class _LocalViewState extends State<LocalView> {
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `initialChildSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
-  double initialChildSize = 0.07;
+  double initialScrollableSize = StoreService.instance.get ('initialScrollableSize');
+  double initialChildSize = StoreService.instance.get ('initialScrollableSize');
 
   @override
   void initState() {
@@ -90,8 +91,8 @@ class _LocalViewState extends State<LocalView> {
           if (v3 != '') swiped = v3;
           newTag = v4;
           startTaggingModal = v5;
-          if (swiped == false && initialChildSize > 0.07)
-            initialChildSize = 0.07;
+          if (swiped == false && initialChildSize > initialScrollableSize)
+            initialChildSize = initialScrollableSize;
           if (swiped == true && initialChildSize < 0.77)
             initialChildSize = 0.77;
         }
@@ -134,20 +135,17 @@ class _LocalViewState extends State<LocalView> {
               child: SizedBox.expand(
                   child: NotificationListener<DraggableScrollableNotification>(
                 onNotification: (state) {
-                  if (state.extent < 0.0701)
+                  if (state.extent < initialScrollableSize + 0.001)
                     StoreService.instance.set('swipedLocal', false);
-                  if (state.extent > 0.7699)
+                  if (state.extent > 0.77 - 0.001)
                     StoreService.instance.set('swipedLocal', true);
                   StoreService.instance.set('startTaggingModal', false);
                   return true;
                 },
                 child: DraggableScrollableSheet(
                     snap: true,
-                    // initialChildSize: initialChildSize,
-                    initialChildSize: SizeService.instance
-                        .draggableScrollableSheetInitialChildSize(context),
-                    minChildSize: SizeService.instance
-                        .draggableScrollableSheetInitialChildSize(context),
+                    initialChildSize: initialScrollableSize,
+                    minChildSize: initialScrollableSize,
                     maxChildSize: 0.77,
                     builder: (BuildContext context,
                         ScrollController scrollController) {
