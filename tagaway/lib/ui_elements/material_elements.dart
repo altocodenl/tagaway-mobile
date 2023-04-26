@@ -852,3 +852,43 @@ class AltocodeCommit extends StatelessWidget {
     );
   }
 }
+
+class UploadingNumber extends StatefulWidget {
+  const UploadingNumber({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<UploadingNumber> createState() => _UploadingNumberState();
+}
+
+class _UploadingNumberState extends State<UploadingNumber> {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: SizeService.instance.screenWidth(context) * .08,
+      top: 2,
+      child: Container(
+        width: 25,
+        height: 25,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(color: kAltoBlue, width: 2)),
+        child: const Center(
+          child: Text(
+            '99',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+            style: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: kAltoBlue),
+          ),
+        ),
+      ),
+    );
+  }
+}
