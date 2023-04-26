@@ -65,7 +65,7 @@ class SizeService {
   double gridTagUploadedQueryElementMaxWidthCalculator(context) {
     var screenWidth = MediaQuery.of(context).size.width;
     var numberOfTags = StoreService.instance.get('queryTags');
-    if (numberOfTags == null || numberOfTags == '') {
+    if (numberOfTags == '') {
       numberOfTags = 0;
     } else {
       numberOfTags = numberOfTags.length;
@@ -83,33 +83,32 @@ class SizeService {
     } else if (screenWidth <= 375 && numberOfTags > 1) {
       print('.18');
       return screenWidth * .18;
-    } else if (screenWidth > 376 && screenWidth < 390 && numberOfTags <= 1) {
+    } else if (screenWidth < 390 && numberOfTags <= 1) {
       print('.65');
       return screenWidth * .65;
-    } else if (screenWidth > 376 && screenWidth < 390 && numberOfTags > 1) {
+    } else if (screenWidth < 390 && numberOfTags > 1) {
       print('.18');
       return screenWidth * .18;
-    } else if (screenWidth >= 390 && screenWidth < 410 && numberOfTags <= 1) {
+    } else if (screenWidth < 410 && numberOfTags <= 1) {
       print('.7');
       return screenWidth * .7;
-    } else if (screenWidth >= 390 && screenWidth < 410 && numberOfTags > 1) {
+    } else if (screenWidth < 410 && numberOfTags > 1) {
       print('.2');
       return screenWidth * .2;
-    } else if (screenWidth >= 410 && screenWidth < 415 && numberOfTags <= 1) {
+    } else if (screenWidth < 415 && numberOfTags <= 1) {
       print('.7');
       return screenWidth * .7;
-    } else if (screenWidth >= 410 && screenWidth < 415 && numberOfTags > 1) {
+    } else if (screenWidth < 415 && numberOfTags > 1) {
       print('.25');
       return screenWidth * .25;
-    } else if (screenWidth > 415 && numberOfTags <= 1) {
+    } else if (screenWidth >= 415 && numberOfTags <= 1) {
       print('.7');
       return screenWidth * .7;
-    } else if (screenWidth > 415 && numberOfTags > 1) {
+    } else if (screenWidth >= 415 && numberOfTags > 1) {
       print('.28');
       return screenWidth * .28;
     } else {
-      print('.5');
-      return screenWidth * .5;
+      return 0;
     }
   }
 }
