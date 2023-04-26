@@ -135,9 +135,9 @@ class _UploadedViewState extends State<UploadedView> {
               child: SizedBox.expand(
                 child: NotificationListener<DraggableScrollableNotification>(
                     onNotification: (state) {
-                      if (state.extent < initialScrollableSize + 0.001)
+                      if (state.extent < (initialScrollableSize + 0.0001))
                         StoreService.instance.set('swipedUploaded', false);
-                      if (state.extent > 0.77 - 0.001)
+                      if (state.extent > (0.77 - 0.0001))
                         StoreService.instance.set('swipedUploaded', true);
                       StoreService.instance.set('startTaggingModal', false);
                       return true;
@@ -145,7 +145,7 @@ class _UploadedViewState extends State<UploadedView> {
                     child: DraggableScrollableSheet(
                         snap: true,
                         initialChildSize: initialChildSize,
-                        minChildSize: initialChildSize,
+                        minChildSize: initialScrollableSize,
                         maxChildSize: 0.77,
                         builder: (BuildContext context,
                             ScrollController scrollController) {
