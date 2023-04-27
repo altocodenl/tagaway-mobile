@@ -12,7 +12,9 @@
    - Do not default to "everything"
    - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
 - Signup
-  - Check email flow says 'Tagaway'
+  - Email validation process.
+  - Welcome email and communication with user
+  - Make sure it says tagaway in all emails to user
   - Tighten up client-side validations for inputs
   - Handle errors with snackbar
       - usernames are too short or invalid for any other reason => NOT FINISHED
