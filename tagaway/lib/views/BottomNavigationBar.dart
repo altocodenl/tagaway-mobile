@@ -1,14 +1,13 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:tagaway/services/storeService.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/uploadedView.dart';
-
-import 'package:tagaway/services/storeService.dart';
 
 class BottomNavigationView extends StatefulWidget {
   static const String id = 'bottomNavigation';
@@ -45,24 +44,30 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
           index: currentIndex,
           children: screens,
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: kAltoBlue,
-          unselectedItemColor: kGreyDarker,
-          iconSize: 30,
-          currentIndex: currentIndex,
-          unselectedLabelStyle: kBottomNavigationText,
-          selectedLabelStyle: kBottomNavigationText,
-          onTap: (index) {
-            StoreService.instance.set('currentIndex', index);
-          },
-          items: const [
-            BottomNavigationBarItem(
-                icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
-            BottomNavigationBarItem(
-                icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                label: 'Local'),
-            BottomNavigationBarItem(
-                icon: FaIcon(FontAwesomeIcons.cloudArrowUp), label: 'Uploaded'),
+        bottomNavigationBar: Stack(
+          children: [
+            BottomNavigationBar(
+              selectedItemColor: kAltoBlue,
+              unselectedItemColor: kGreyDarker,
+              iconSize: 30,
+              currentIndex: currentIndex,
+              unselectedLabelStyle: kBottomNavigationText,
+              selectedLabelStyle: kBottomNavigationText,
+              onTap: (index) {
+                StoreService.instance.set('currentIndex', index);
+              },
+              items: const [
+                BottomNavigationBarItem(
+                    icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
+                BottomNavigationBarItem(
+                    icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
+                    label: 'Local'),
+                BottomNavigationBarItem(
+                    icon: FaIcon(FontAwesomeIcons.cloudArrowUp),
+                    label: 'Uploaded'),
+              ],
+            ),
+            const UploadingNumber()
           ],
         ),
       );

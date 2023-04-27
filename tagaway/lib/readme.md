@@ -30,7 +30,6 @@
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - Check if piv.vid is 'pending' or 'error' and warn the user, rather than trying to load the video anyway (Tom)
-- Show number of pivs to be still uploaded (Tom)
 - No separate modal for new tag, just create or select (Tom)
 - Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
 - Investigate why sometimes local items that are uploaded are not being shown as organized (is it lack of a pivMap entry? Or is it not being displayed?) (Tom)
