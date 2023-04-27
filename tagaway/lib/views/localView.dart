@@ -67,8 +67,9 @@ class _LocalViewState extends State<LocalView> {
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `initialChildSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
-  double initialScrollableSize = StoreService.instance.get ('initialScrollableSize');
-  double initialChildSize = StoreService.instance.get ('initialScrollableSize');
+  double initialScrollableSize =
+      StoreService.instance.get('initialScrollableSize');
+  double initialChildSize = StoreService.instance.get('initialScrollableSize');
 
   @override
   void initState() {
@@ -558,7 +559,7 @@ class _TopRowState extends State<TopRow> {
                         onTap: () {},
                         child: const Icon(
                           kTrashCanIcon,
-                          color: kGreyDarker,
+                          color: Colors.transparent,
                           size: 25,
                         ),
                       ),
@@ -568,14 +569,14 @@ class _TopRowState extends State<TopRow> {
                       ),
                       const Icon(
                         kSearchIcon,
-                        color: Colors.white,
+                        color: Colors.transparent,
                         size: 25,
                       ),
                       const Padding(
                         padding: EdgeInsets.only(left: 20.0),
                         child: Icon(
                           kSlidersIcon,
-                          color: Colors.white,
+                          color: Colors.transparent,
                           size: 25,
                         ),
                       )
