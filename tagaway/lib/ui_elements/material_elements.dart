@@ -860,8 +860,27 @@ class UploadingNumber extends StatefulWidget {
 }
 
 class _UploadingNumberState extends State<UploadingNumber> {
+  dynamic cancelListener;
+  int numeroli = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'uploadQueue'
+    ], (v1) {
+      if (v1 != '') setState (() => numeroli = v1.length);
+    });
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (numeroli == 0) return Text ('');
     return Positioned(
       right: SizeService.instance.screenWidth(context) * .08,
       top: 2,
@@ -872,9 +891,9 @@ class _UploadingNumberState extends State<UploadingNumber> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(100),
             border: Border.all(color: kAltoBlue, width: 2)),
-        child: const Center(
+        child: Center(
           child: Text(
-            '99',
+            numeroli.toString(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
