@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -57,34 +58,90 @@ class UploadService {
       return response;
    }
 
-   // Calls with piv are come from the view or another service
-   // Calls with no piv are recursive to keep the ball rolling
-   // Because there can only be a single upload going, a return is no guarantee of the action being done. Alas.
-   // So the state must be checked periodically to see which uploads have completed.
+   updateUploadQueue () async {
+      var dryUploadQueue = [];
+      uploadQueue.forEach ((v) => dryUploadQueue.add (v.id));
+      StoreService.instance.set ('uploadQueue', dryUploadQueue, 'disk');
+   }
+
+   // Calls with piv argument come from another service
+   // Calls with no piv argument are recursive to keep the ball rolling
+   // Recursive calls do not get blocked by the `uploading` flag.
    // TODO: add logic to revive uploads that haven't been completed if the application is restarted
    queuePiv (dynamic piv) async {
       if (piv != null) {
          uploadQueue.add (piv);
+         updateUploadQueue ();
+
          if (uploading) return;
          uploading = true;
       }
 
       var nextPiv = uploadQueue [0];
-      uploadQueue.removeAt (0);
       // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now.
       if (StoreService.instance.get ('pivMap:' + nextPiv.id) == '') {
-         // If upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
-         var result = await uploadPiv (nextPiv);
-         // TODO: report & stop if 409 no capacity
-         // TODO: report & stop if any other errors
+         // If an upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
+         var result= await uploadPiv (nextPiv);
+         if (result ['code'] == 200) {
+            // Success, remove from queue and keep on going.
+            uploadQueue.removeAt (0);
+            updateUploadQueue ();
+         }
+         else if (result ['code'] > 400) {
+            // Invalid piv, remove from queue and keep on going
+            uploadQueue.removeAt (0);
+            updateUploadQueue ();
+            // TODO: report error
+         }
+         else if (result ['code'] == 409) {
+            if (result ['body'] ['error'] == 'capacity') {
+                // No space left, stop uploading all pivs and clear the queue
+               uploadQueue = [];
+               updateUploadQueue ();
+               return uploading = false;
+               // TODO: report
+            }
+            else {
+               // Issue with the upload group, reinitialize the upload object and retry this piv
+               upload ['time'] = null;
+               return queuePiv (null);
+            }
+         }
+         else {
+           // Server error, connection error or unexpected error. Stop all uploads but do not clear the queue.
+           return uploading = false;
+           // TODO: report
+         }
       }
 
       if (uploadQueue.length == 0) {
-         await completeUpload ();
          // TODO: handle error in completeUpload
+         await completeUpload ();
          return uploading = false;
       }
 
-      return queuePiv (null);
+      // Recursive call to keep the ball rolling since we have further pivs in the queue
+      queuePiv (null);
+   }
+
+   reviveUploads () async {
+      var queue = await StoreService.instance.getBeforeLoad ('uploadQueue');
+      if (queue == '' || queue.length == 0) return;
+
+      final albums = await PhotoManager.getAssetPathList(onlyAll: true);
+      final recentAlbum = albums.first;
+
+      // Now that we got the album, fetch all the assets it contains
+      final recentAssets = await recentAlbum.getAssetListRange(
+        start: 0, // start at index 0
+        end: 1000000, // end at a very big index (to get all the assets)
+      );
+
+      recentAssets.forEach ((v) {
+         if (queue.contains (v.id)) uploadQueue.add (v);
+      });
+
+
+      queuePiv (null);
    }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/changePasswordView.dart';
@@ -22,7 +23,10 @@ import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
   runApp(const Tagaway());
+  // Reload store
   StoreService.instance.load();
+  // Check if we have uploads we should revive
+  UploadService.instance.reviveUploads();
 }
 
 class Tagaway extends StatelessWidget {

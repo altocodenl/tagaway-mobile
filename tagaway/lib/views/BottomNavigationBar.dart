@@ -67,7 +67,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                     label: 'Uploaded'),
               ],
             ),
-            const UploadingNumber()
+            UploadingNumber()
           ],
         ),
       );

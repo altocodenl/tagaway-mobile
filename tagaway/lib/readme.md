@@ -7,12 +7,10 @@
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
 - When clicking on month on time header, jump to relevant scroll position
-
 - Performance
    - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
    - Do not default to "everything"
    - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
-- When closing and re-opening phone, revive uploads that were not finished
 - Signup
   - Check email flow says 'Tagaway'
   - Tighten up client-side validations for inputs
@@ -65,6 +63,7 @@
 - taggedPivCount(Local|Uploaded) (int): shows how many pivs are tagged with the current tag on LocalView/UploadedView
 - tagMap:<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the current tag
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
+- uploadQueue [<string>, ...] [DISK]: list of ids of pivs that are going to be uploaded.
 - uploadedTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
