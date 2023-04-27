@@ -257,10 +257,13 @@ class _CarrouselViewState extends State<CarrouselView>
                         ]),
                       );
                     }),
-                // TODO: place cases for piv['vid'] == 'pending' and piv['vid'] == 'error'
-                replacement: VideoPlayerWidget(
-                  pivId: piv['id'],
-                )),
+                replacement: piv['vid'] == 'pending'
+                    ? const VideoPending()
+                    : (piv['vid'] == 'error'
+                        ? const VideoError()
+                        : VideoPlayerWidget(
+                            pivId: piv['id'],
+                          ))),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(

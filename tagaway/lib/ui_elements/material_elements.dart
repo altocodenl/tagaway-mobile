@@ -759,6 +759,88 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 }
 
+class VideoPending extends StatelessWidget {
+  const VideoPending({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: 12.0,
+          right: 12,
+          bottom: SizeService.instance.screenHeight(context) * .1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Image.asset(
+              'images/tag blue with white - 400x400.png',
+              scale: 4,
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: Text(
+              'Your video is currently being converted in our servers.',
+              textAlign: TextAlign.center,
+              style: kBigTitle,
+            ),
+          ),
+          const Text(
+            'Please try again in a few seconds.',
+            textAlign: TextAlign.center,
+            style: kPlainText,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class VideoError extends StatelessWidget {
+  const VideoError({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: 12.0,
+          right: 12,
+          bottom: SizeService.instance.screenHeight(context) * .1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Image.asset(
+              'images/tag blue with white - 400x400.png',
+              scale: 4,
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: Text(
+              'There\'s an error with your video.',
+              textAlign: TextAlign.center,
+              style: kBigTitle,
+            ),
+          ),
+          const Text(
+            'The problem is on our side. Sorry.',
+            textAlign: TextAlign.center,
+            style: kPlainText,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class GridItemSelection extends StatefulWidget {
   final String id;
   final String type;
