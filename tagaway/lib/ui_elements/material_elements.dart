@@ -667,10 +667,7 @@ class QuerySelectionTagElement extends StatelessWidget {
 }
 
 class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({
-    Key? key,
-    required this.pivId,
-  }) : super(key: key);
+  const VideoPlayerWidget({Key? key, required this.pivId}) : super(key: key);
   final String pivId;
 
   @override

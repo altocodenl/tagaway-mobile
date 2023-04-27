@@ -34,15 +34,13 @@ class UploadedGridItem extends StatelessWidget {
         CachedNetworkImage(
             imageUrl: (kTagawayThumbSURL) + (piv['id']),
             httpHeaders: {'cookie': StoreService.instance.get('cookie')},
-            placeholder: (context, url) =>
-            const Center(
-                child: CircularProgressIndicator(
+            placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(
                   color: kAltoBlue,
                 )),
-            imageBuilder: (context, imageProvider) =>
-                Transform.rotate(
+            imageBuilder: (context, imageProvider) => Transform.rotate(
                   angle:
-                  (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
+                      (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
                   child: Container(
                     decoration: BoxDecoration(
                         image: DecorationImage(
@@ -51,22 +49,22 @@ class UploadedGridItem extends StatelessWidget {
                 )),
         piv['vid'] != null
             ? const Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: EdgeInsets.only(right: 10.0, bottom: 5),
-            child: Icon(
-              kVideoIcon,
-              color: Colors.white,
-              size: 15,
-            ),
-          ),
-        )
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 10.0, bottom: 5),
+                  child: Icon(
+                    kVideoIcon,
+                    color: Colors.white,
+                    size: 15,
+                  ),
+                ),
+              )
             : Container(),
         GestureDetector(
           onTap: () {
             var currentlyTagging =
-            StoreService.instance.get('currentlyTaggingUploaded');
-            if (currentlyTagging == '')
+                StoreService.instance.get('currentlyTaggingUploaded');
+            if (currentlyTagging == '') {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) {
@@ -74,8 +72,9 @@ class UploadedGridItem extends StatelessWidget {
                       initialPiv: pivs.indexOf(piv), pivs: pivs);
                 }),
               );
-            else
+            } else {
               TagService.instance.tagPiv(piv, currentlyTagging, 'uploaded');
+            }
           },
         ),
         Align(
@@ -210,28 +209,23 @@ class _CarrouselViewState extends State<CarrouselView>
                       'cookie': StoreService.instance.get('cookie')
                     },
                     filterQuality: FilterQuality.high,
-                    placeholder: (context, url) =>
-                    const Center(
-                        child: CircularProgressIndicator(
+                    placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
                           color: kAltoBlue,
                         )),
                     imageBuilder: (context, imageProvider) {
-                      final screenWidth = MediaQuery
-                          .of(context)
-                          .size
-                          .width;
+                      final screenWidth = MediaQuery.of(context).size.width;
                       final screenHeight =
-                          MediaQuery
-                              .of(context)
-                              .size
-                              .height - 100;
+                          MediaQuery.of(context).size.height - 100;
                       final askance = piv['deg'] == 90 || piv['deg'] == -90;
                       final height = askance ? screenWidth : screenHeight;
                       final width = askance ? screenHeight : screenWidth;
 
-                      var left = (askance ? - (width - height) / 2 : 0).toDouble();
+                      var left =
+                          (askance ? -(width - height) / 2 : 0).toDouble();
                       // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
-                      var top = (askance ? - (height - width + 50) / 2 : 0).toDouble();
+                      var top =
+                          (askance ? -(height - width + 50) / 2 : 0).toDouble();
 
                       return InteractiveViewer(
                         transformationController: controller,
@@ -242,25 +236,25 @@ class _CarrouselViewState extends State<CarrouselView>
                           resetAnimation();
                         },
                         child: Stack(children: [
-                            Positioned(
-                            left: left,
-                            top: top,
-                            child: Transform.rotate(
-                              angle: (piv['deg'] == null ? 0 : piv['deg']) *
-                                  math.pi /
-                                  180.0,
-                              child: Container(
-                                color: kGreyDarkest,
-                                height: height,
-                                width: width,
-                                child: Image(
-                                  alignment: Alignment.center,
-                                  fit: BoxFit.contain,
-                                  image: imageProvider,
+                          Positioned(
+                              left: left,
+                              top: top,
+                              child: Transform.rotate(
+                                angle: (piv['deg'] == null ? 0 : piv['deg']) *
+                                    math.pi /
+                                    180.0,
+                                child: Container(
+                                  color: kGreyDarkest,
+                                  height: height,
+                                  width: width,
+                                  child: Image(
+                                    alignment: Alignment.center,
+                                    fit: BoxFit.contain,
+                                    image: imageProvider,
+                                  ),
                                 ),
-                              ),
-                            ))
-                            ]),
+                              ))
+                        ]),
                       );
                     }),
                 // TODO: place cases for piv['vid'] == 'pending' and piv['vid'] == 'error'
@@ -287,7 +281,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                   Uri.parse((kTagawayThumbMURL) + (piv['id'])),
                                   headers: {
                                     'cookie':
-                                    StoreService.instance.get('cookie')
+                                        StoreService.instance.get('cookie')
                                   });
                               final bytes = response.bodyBytes;
                               final temp = await getTemporaryDirectory();
@@ -301,7 +295,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                   Uri.parse((kTagawayVideoURL) + (piv['id'])),
                                   headers: {
                                     'cookie':
-                                    StoreService.instance.get('cookie')
+                                        StoreService.instance.get('cookie')
                                   });
 
                               final bytes = response.bodyBytes;
@@ -341,50 +335,4 @@ class _CarrouselViewState extends State<CarrouselView>
       },
     );
   }
-
-// Widget buildImage(ImageProvider<Object> imageProvider) {
-//   return Builder(builder: (context) {
-//     return InteractiveViewer(
-//       transformationController: controller,
-//       clipBehavior: Clip.none,
-//       minScale: 1,
-//       maxScale: 8,
-//       onInteractionStart: (details) {
-//         if (details.pointerCount < 2) return;
-//         // showOverlay(context);
-//         final size = MediaQuery.of(context).size;
-//         final renderBox = context.findRenderObject()! as RenderBox;
-//         final offset = renderBox.localToGlobal(Offset.zero);
-//         entry = OverlayEntry(builder: (context) {
-//           return Positioned(
-//               width: size.width,
-//               left: offset.dx,
-//               top: offset.dy,
-//               child: buildImage(imageProvider));
-//         });
-//         final overlay = Overlay.of(context)!;
-//         overlay.insert(entry!);
-//       },
-//       onInteractionEnd: (details) {
-//         resetAnimation();
-//       },
-//       child: Container(
-//         decoration: BoxDecoration(
-//             color: kGreyDarkest,
-//             image: DecorationImage(
-//                 alignment: Alignment.center,
-//                 fit: BoxFit.contain,
-//                 image: imageProvider)),
-//         child: Transform.rotate(
-//           angle: (piv['deg'] == null ? 0 : piv['deg']) * math.pi / 180.0,
-//           child: Image(
-//             image: imageProvider,
-//             alignment: Alignment.center,
-//             fit: BoxFit.contain,
-//           ),
-//         ),
-//       ),
-//     );
-//   });
-// }
 }
