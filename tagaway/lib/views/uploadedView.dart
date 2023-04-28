@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -383,6 +384,12 @@ class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
 
+  dynamic visibleItems = [];
+
+  toggleVisibility (index, visible) {
+     // debug (['visible?', visible, index]);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -428,8 +435,13 @@ class _UploadGridState extends State<UploadGrid> {
               ),
               itemCount: queryResult['pivs'].length,
               itemBuilder: (BuildContext context, index) {
-                return UploadedGridItem(
-                    piv: queryResult['pivs'][index], pivs: queryResult['pivs']);
+               return VisibilityDetector(
+                  key: Key("uploaded-" + index.toString()),
+                  onVisibilityChanged: (VisibilityInfo info) {
+                    toggleVisibility (queryResult['pivs'][index], info.visibleFraction > 0);
+                  },
+                  child: UploadedGridItem(
+                    piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
               }),
         ),
       ),

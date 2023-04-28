@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
@@ -463,18 +464,7 @@ class _GridState extends State<Grid> {
         child: SizedBox.expand(
           child: Directionality(
               textDirection: TextDirection.rtl,
-              child: NotificationListener<ScrollMetricsNotification>(
-                  onNotification: (state) {
-                    var pivHeight = (MediaQuery.of(context).size.width - 1) / 2;
-                    var pivRowIndex =
-                        max(0, (state.metrics.pixels / pivHeight).floor() * 2);
-                    if (!itemList.isEmpty) {
-                      // TODO: highlight the proper month
-                      // debug(['HIGHLIGHTED PIV INDEX', itemList[pivRowIndex]]);
-                    }
-                    return true;
-                  },
-                  child: GridView.builder(
+              child: GridView.builder(
                       reverse: true,
                       shrinkWrap: true,
                       cacheExtent: 50,
@@ -486,8 +476,14 @@ class _GridState extends State<Grid> {
                       ),
                       itemCount: itemList.length,
                       itemBuilder: (BuildContext context, index) {
-                        return LocalGridItem(itemList[index]);
-                      }))),
+                        return VisibilityDetector(
+                            key: Key("local-" + index.toString()),
+                            onVisibilityChanged: (VisibilityInfo info) {
+                              // TODO: dynamize
+                              // if (info.visibleFraction > 0) debug (['VISIBLE', itemList [index]]);
+                            },
+                            child: LocalGridItem(itemList[index]));
+                      })),
         ),
       ),
       replacement: Center(
