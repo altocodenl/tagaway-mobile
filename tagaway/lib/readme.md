@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Dynamize "you're looking at" (more than two tags)
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
 - When clicking on month on time header, jump to relevant scroll position
@@ -26,8 +25,6 @@
    - Move utility functions from constants to toolsService
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
 
-- Calculate viewport dynamically and make views use its proportions (Tom)
-  - Carrousel > Photo display
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - No separate modal for new tag, just create or select (Tom)

@@ -400,10 +400,35 @@ class GridTagUploadedQueryElement extends StatelessWidget {
   }
 }
 
-class GridSeeMoreElement extends StatelessWidget {
-  const GridSeeMoreElement({
-    Key? key,
-  }) : super(key: key);
+class GridSeeMoreElement extends StatefulWidget {
+  const GridSeeMoreElement({ Key? key }) : super(key: key);
+
+  @override
+  State<GridSeeMoreElement> createState() => _GridSeeMoreElementState();
+}
+
+class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
+  dynamic cancelListener;
+
+  dynamic queryTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'queryTags',
+    ], (v1) {
+      setState(() {
+        if (v1 != '') queryTags = v1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -440,7 +465,7 @@ class GridSeeMoreElement extends StatelessWidget {
                       GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          itemCount: 24,
+                          itemCount: queryTags.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
@@ -449,10 +474,60 @@ class GridSeeMoreElement extends StatelessWidget {
                             childAspectRatio: 4,
                           ),
                           itemBuilder: (BuildContext context, index) {
-                            return const GridTagElement(
-                                gridTagElementIcon: kTagIcon,
-                                iconColor: kTagColor1,
-                                gridTagName: 'Vacations');
+                             var tag = queryTags[index];
+                      if (tag == 'u::')
+                        return GridTagElement(
+                          gridTagElementIcon: kTagIcon,
+                          iconColor: kGrey,
+                          gridTagName: 'Untagged',
+                        );
+                      if (tag == 't::')
+                        return GridTagElement(
+                          gridTagElementIcon: kBoxArchiveIcon,
+                          iconColor: kGrey,
+                          gridTagName: 'To Organize',
+                        );
+                      if (tag == 'o::')
+                        return GridTagElement(
+                          gridTagElementIcon: kCircleCheckIcon,
+                          iconColor: kAltoOrganized,
+                          gridTagName: 'Organized',
+                        );
+                      // DATE TAG
+                      if (RegExp('^d::M').hasMatch(tag))
+                        return GridTagElement(
+                            gridTagElementIcon: kClockIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: [
+                              'Jan',
+                              'Feb',
+                              'Mar',
+                              'Apr',
+                              'May',
+                              'Jun',
+                              'Jul',
+                              'Aug',
+                              'Sep',
+                              'Oct',
+                              'Nov',
+                              'Dec'
+                            ][int.parse(tag.substring(4)) - 1]);
+                      if (RegExp('^d::').hasMatch(tag))
+                        return GridTagElement(
+                            gridTagElementIcon: kClockIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: tag.substring(3));
+                      // GEO TAG
+                      if (RegExp('^g::').hasMatch(tag))
+                        return GridTagElement(
+                            gridTagElementIcon: kLocationDotIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: tag.substring(3));
+                      // NORMAL TAG
+                      return GridTagElement(
+                          gridTagElementIcon: kTagIcon,
+                          iconColor: tagColor(tag),
+                          gridTagName: tag);
                           })
                     ],
                   ));
