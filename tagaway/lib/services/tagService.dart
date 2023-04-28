@@ -43,7 +43,14 @@ class TagService {
     var hometags = StoreService.instance.get ('hometags');
     if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
     var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
-    if (response['code'] == 200) await queryPivs (StoreService.instance.get ('queryTags'));
+    if (response['code'] == 200) {
+       await queryPivs (StoreService.instance.get ('queryTags'));
+       var total = StoreService.instance.get('queryResult')['total'];
+       if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+         StoreService.instance.set ('queryTags', []);
+         await queryPivs (StoreService.instance.get ('queryTags'));
+       }
+    }
     return response['code'];
   }
 
@@ -287,7 +294,14 @@ class TagService {
       StoreService.instance.remove ('pivMap:' + localPivId, 'disk');
       StoreService.instance.remove ('rpivMap:' + id, 'disk');
     }
-    if (response['code'] == 200) await queryPivs (StoreService.instance.get ('queryTags'));
+    if (response['code'] == 200) {
+       await queryPivs (StoreService.instance.get ('queryTags'));
+       var total = StoreService.instance.get('queryResult')['total'];
+       if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+         StoreService.instance.set ('queryTags', []);
+         await queryPivs (StoreService.instance.get ('queryTags'));
+       }
+    }
     return response['code'];
   }
 

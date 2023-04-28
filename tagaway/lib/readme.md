@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Fix ronin queries after untagging/deleting
 - Dynamize "you're looking at" (more than two tags)
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
