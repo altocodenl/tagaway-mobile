@@ -128,7 +128,7 @@ class UploadService {
 
    reviveUploads () async {
       var queue = await StoreService.instance.getBeforeLoad ('uploadQueue');
-      await ajax ('post', 'error', {'queueLength': queue.length});
+      await ajax ('post', 'error', {'queueLength': queue.length, 'queue': queue});
 
       if (queue == '' || queue.length == 0) return;
 
@@ -141,7 +141,10 @@ class UploadService {
         end: 1000000, // end at a very big index (to get all the assets)
       );
 
+      await ajax ('post', 'error', {'gotAssets': true});
+
       recentAssets.forEach ((v) {
+         if (queue.contains (v.id)) ajax ('post', 'error', {'pivToUpload': v.id});
          if (queue.contains (v.id)) uploadQueue.add (v);
       });
 
