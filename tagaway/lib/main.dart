@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
@@ -22,6 +23,9 @@ import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    ajax ('post', 'error', {'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()});
+  };
   runApp(const Tagaway());
   // Reload store
   StoreService.instance.load();
