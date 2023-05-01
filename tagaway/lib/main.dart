@@ -24,6 +24,8 @@ import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
+    // Ignore this annoying dev error.
+    if (details.exception.toString ().contains ('A KeyUpEvent is dispatched, but the state shows that the physical key is not pressed.')) return;
     ajax ('post', 'error', {'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()});
   };
   runApp(const Tagaway());
