@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Fix issue with Everything query not showing properly time header for last semester
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - On scroll, change selected months in time header
 - When clicking on month on time header, jump to relevant scroll position

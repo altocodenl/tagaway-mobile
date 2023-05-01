@@ -113,6 +113,10 @@ class UploadService {
            // TODO: report
          }
       }
+      else {
+         uploadQueue.removeAt (0);
+         updateUploadQueue ();
+      }
 
       if (uploadQueue.length == 0) {
          // TODO: handle error in completeUpload
