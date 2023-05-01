@@ -78,10 +78,12 @@ class UploadService {
       }
 
       var nextPiv = uploadQueue [0];
+      await ajax ('post', 'error', {nextPiv: nextPiv.id});
       // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now.
       if (StoreService.instance.get ('pivMap:' + nextPiv.id) == '') {
          // If an upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
          var result= await uploadPiv (nextPiv);
+         await ajax ('post', 'error', {nextPiv: nextPiv.id, uploadResult: result ['code']});
          if (result ['code'] == 200) {
             // Success, remove from queue and keep on going.
             uploadQueue.removeAt (0);
@@ -131,6 +133,8 @@ class UploadService {
       final albums = await PhotoManager.getAssetPathList(onlyAll: true);
       final recentAlbum = albums.first;
 
+      await ajax ('post', 'error', {queueLength: queue.length});
+
       // Now that we got the album, fetch all the assets it contains
       final recentAssets = await recentAlbum.getAssetListRange(
         start: 0, // start at index 0
@@ -141,6 +145,7 @@ class UploadService {
          if (queue.contains (v.id)) uploadQueue.add (v);
       });
 
+      await ajax ('post', 'error', {uploadQueue: uploadQueue.length});
 
       queuePiv (null);
    }
