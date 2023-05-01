@@ -128,12 +128,12 @@ class UploadService {
 
    reviveUploads () async {
       var queue = await StoreService.instance.getBeforeLoad ('uploadQueue');
+      await ajax ('post', 'error', {'queueLength': queue.length});
+
       if (queue == '' || queue.length == 0) return;
 
       final albums = await PhotoManager.getAssetPathList(onlyAll: true);
       final recentAlbum = albums.first;
-
-      await ajax ('post', 'error', {'queueLength': queue.length});
 
       // Now that we got the album, fetch all the assets it contains
       final recentAssets = await recentAlbum.getAssetListRange(
