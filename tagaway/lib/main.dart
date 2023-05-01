@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -24,13 +26,17 @@ import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
+    final errorLog = File('tagaway_error.txt');
+    errorLog.writeAsStringSync(jsonEncode ({'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()}), mode: FileMode.write);
     // Ignore this annoying dev error.
     if (details.exception.toString ().contains ('A KeyUpEvent is dispatched, but the state shows that the physical key is not pressed.')) return;
     ajax ('post', 'error', {'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()});
+
   };
   runApp(const Tagaway());
   // Reload store
   StoreService.instance.load();
+  StoreService.instance.reportPreviousError();
   // Check if we have uploads we should revive
   UploadService.instance.reviveUploads();
 }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -107,5 +108,14 @@ class StoreService {
       updateStream.add (key);
       if (disk == 'disk') await prefs.remove (key);
    }
+
+   reportPreviousError () async {
+    final file = File('tagaway_error.txt');
+    if (await file.exists()) {
+      final error = await file.readAsString();
+      await file.delete();
+      ajax ('post', 'error', jsonDecode (error));
+    }
+  }
 
 }
