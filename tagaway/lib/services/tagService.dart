@@ -203,8 +203,8 @@ class TagService {
          else               dates [1] = 7;
          if (min == null) min = dates;
          if (max == null) max = dates;
-         if (dates [0] <= min [0] && dates [1] <= min [1]) min = dates;
-         if (dates [0] >= max [0] && dates [1] >= max [1]) max = dates;
+         if (dates [0] < min [0] || (dates [0] == min [0] && dates [1] < min [1])) min = dates;
+         if (dates [0] > max [0] || (dates [0] == max [0] && dates [1] < max [1])) max = dates;
       });
       if (timeHeader.keys.length == 0) {
         max = [DateTime.now().year, DateTime.now ().month > 6 ? 12 : 6];
@@ -236,7 +236,6 @@ class TagService {
             return nonWhite > 0;
          }).toList ();
       }
-
 
       StoreService.instance.set ('uploadedTimeHeader', semesters);
    }
