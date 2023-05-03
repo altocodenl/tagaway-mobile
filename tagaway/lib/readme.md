@@ -9,7 +9,6 @@
    - email already registered => 403 {error: 'email'}
    - we have too many users. => ?
 -------
-- When clicking on month on time header, jump to relevant scroll position.
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - Performance
    - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
