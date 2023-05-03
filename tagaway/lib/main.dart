@@ -26,18 +26,20 @@ import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
-    debug (['ERROR', details]);
-    return;
-    final errorLog = File('tagaway_error.txt');
-    errorLog.writeAsStringSync(jsonEncode ({'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()}), mode: FileMode.write);
     // Ignore this annoying dev error.
     if (details.exception.toString ().contains ('A KeyUpEvent is dispatched, but the state shows that the physical key is not pressed.')) return;
-    ajax ('post', 'error', {'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()});
 
+    var error = {'errorTime': now (), 'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()};
+    debug (['CAUGHT ERROR', error]);
+    // Save the error to disk in case we lose connectivity
+    StoreService.instance.set ('previousError', error, 'disk');
+    // Submit the error to the server
+    ajax ('post', 'error', error);
   };
   runApp(const Tagaway());
   // Reload store
   StoreService.instance.load();
+  // Submit previous error if any
   StoreService.instance.reportPreviousError();
   // Check if we have uploads we should revive
   UploadService.instance.reviveUploads();

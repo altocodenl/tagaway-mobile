@@ -8,7 +8,7 @@
    - username already exists => 403 {error: 'username'}
    - email already registered => 403 {error: 'email'}
    - we have too many users. => ?
--------
+- When clicking on month on time header, jump to relevant scroll position
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - Performance
    - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
@@ -52,6 +52,7 @@
 - pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
 - pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart
+- previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query

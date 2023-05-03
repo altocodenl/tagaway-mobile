@@ -110,11 +110,10 @@ class StoreService {
    }
 
    reportPreviousError () async {
-    final file = File('tagaway_error.txt');
-    if (await file.exists()) {
-      final error = await file.readAsString();
-      await file.delete();
-      ajax ('post', 'error', jsonDecode (error));
+    var previousError = await getBeforeLoad ('previousError');
+    if (previousError != '') {
+      ajax ('post', 'error', previousError);
+      remove ('previousError', 'disk');
     }
   }
 
