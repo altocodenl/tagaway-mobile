@@ -26,6 +26,8 @@ import 'package:tagaway/views/yourHometagsView.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
+    debug (['ERROR', details]);
+    return;
     final errorLog = File('tagaway_error.txt');
     errorLog.writeAsStringSync(jsonEncode ({'exception': details.exception.toString(), 'stackTrace': details.stack.toString(), 'library': details.library, 'context': details.context.toString()}), mode: FileMode.write);
     // Ignore this annoying dev error.
