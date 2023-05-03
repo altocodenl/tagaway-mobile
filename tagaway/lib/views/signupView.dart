@@ -44,7 +44,7 @@ class SignUpView extends StatelessWidget {
                     const Padding(
                       padding: EdgeInsets.only(bottom: 30),
                       child: Text(
-                        'A home for your pictures',
+                        'Your life’s journey, organized.',
                         style: kSubtitle,
                       ),
                     ),
