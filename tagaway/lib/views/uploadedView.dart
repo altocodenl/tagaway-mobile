@@ -386,10 +386,6 @@ class _UploadGridState extends State<UploadGrid> {
 
   dynamic visibleItems = [];
 
-  toggleVisibility (index, visible) {
-     // debug (['visible?', visible, index]);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -436,9 +432,9 @@ class _UploadGridState extends State<UploadGrid> {
               itemCount: queryResult['pivs'].length,
               itemBuilder: (BuildContext context, index) {
                return VisibilityDetector(
-                  key: Key("uploaded-" + index.toString()),
+                  key: Key('uploaded-' + index.toString()),
                   onVisibilityChanged: (VisibilityInfo info) {
-                    toggleVisibility (queryResult['pivs'][index], info.visibleFraction > 0);
+                     TagService.instance.toggleVisibility ('uploaded', queryResult ['pivs'] [index], info.visibleFraction > 0.2);
                   },
                   child: UploadedGridItem(
                     piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
@@ -469,6 +465,8 @@ class _TopRowState extends State<TopRow> {
   @override
   void initState() {
     super.initState();
+    StoreService.instance.set ('uploadedTimeHeaderController', pageController);
+    StoreService.instance.set ('uploadedTimeHeaderPage', 0);
     cancelListener = StoreService.instance.listen([
       'currentlyTaggingUploaded',
       'taggedPivCountUploaded',
@@ -493,6 +491,7 @@ class _TopRowState extends State<TopRow> {
   void dispose() {
     super.dispose();
     cancelListener();
+    pageController.dispose();
   }
 
   @override
@@ -561,6 +560,7 @@ class _TopRowState extends State<TopRow> {
                           scrollDirection: Axis.horizontal,
                           controller: pageController,
                           onPageChanged: (int index) {
+                            StoreService.instance.set ('uploadedTimeHeaderPage', index);
                             StoreService.instance.set(
                                 'uploadedYear',
                                 timeHeader[timeHeader.length - index - 1][0][0]
@@ -595,14 +595,15 @@ class _TopRowState extends State<TopRow> {
                                               ? kAltoOrganized
                                               : kGreyDarker,
                                           month: month[1],
-                                          // TODO: selected
-                                          whiteOrAltoBlueDashIcon: Colors.white,
-                                          //whiteOrAltoBlueDashIcon: kAltoBlue,
+                                          whiteOrAltoBlueDashIcon:
+                                              month[3] ? kAltoBlue : Colors.white,
                                           onTap: () {
                                             // TODO: add method to jump to proper piv
+                                            /*
                                             if (month[2] != 'white')
                                               return debug(
-                                                  ['TODO JUMP TO', month[3]]);
+                                                  ['TODO JUMP TO', month[4]]);
+                                              */
                                           }));
                                     });
                                   return output;

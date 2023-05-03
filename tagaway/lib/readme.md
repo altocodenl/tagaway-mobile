@@ -2,8 +2,14 @@
 
 ## TODO
 
-- On scroll, change selected months in time header
-- When clicking on month on time header, jump to relevant scroll position
+- Handle errors with snackbar
+   - usernames are too short or invalid for any other reason => NOT FINISHED
+   - password is too short or is invalid for any other reason => NOT FINISHED
+   - username already exists => 403 {error: 'username'}
+   - email already registered => 403 {error: 'email'}
+   - we have too many users. => ?
+-------
+- When clicking on month on time header, jump to relevant scroll position.
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - Performance
    - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
@@ -13,18 +19,11 @@
   - Welcome email and communication with user
   - Make sure it says tagaway in all emails to user
   - Tighten up client-side validations for inputs
-  - Handle errors with snackbar
-      - usernames are too short or invalid for any other reason => NOT FINISHED
-      - password is too short or is invalid for any other reason => NOT FINISHED
-      - username already exists => 403 {error: 'username'}
-      - email already registered => 403 {error: 'email'}
-      - we have too many users. => ?
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
 
-- Snackbar service (Tom & Mono)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - No separate modal for new tag, just create or select (Tom)
@@ -47,6 +46,8 @@
 - localTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
+- localTimeHeaderController <page controller>: controller that drives the localTimeHeader
+- localTimeHeaderPage <int>: page in localTimeHeader currently displayed.
 - newTag(Local|Uploaded) <str>: name of new tag being created in LocalView/UploadedView
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
@@ -65,6 +66,8 @@
 - uploadedTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
+- uploadedTimeHeaderController <page controller>: controller that drives the uploadedTimeHeader
+- uploadedTimeHeaderPage <int>: page in uploadedTimeHeader currently displayed.
 - uploadedYear <str>: displayed year in UploadedView time header
 - usertags [<string>, ...]: list of user tags, computed from the tags bruog
 - userWasAskedPermission (boolean) [DISK]: whether the user was already asked for piv access permission once

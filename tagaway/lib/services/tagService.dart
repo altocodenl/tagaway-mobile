@@ -1,4 +1,7 @@
+import 'dart:core';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/uploadService.dart';
@@ -7,6 +10,10 @@ import 'package:tagaway/ui_elements/constants.dart';
 class TagService {
   TagService._privateConstructor();
   static final TagService instance = TagService._privateConstructor();
+
+  var localVisible = [];
+  var uploadedVisible = [];
+  var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   getTags() async {
     var response = await ajax('get', 'tags');
@@ -109,7 +116,6 @@ class TagService {
   }
 
    getLocalTimeHeader () {
-      var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       var localCount  = {};
       var remoteCount = {};
       var lastPivInMonth = {};
@@ -159,9 +165,9 @@ class TagService {
             if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
             if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
 
-            if (localCount [dateKey] == 0)                         output.add ([year, monthNames [month - 1], 'white']);
-            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, monthNames [month - 1], 'gray', lastPivInMonth [dateKey] ['id']]);
-            else                                                   output.add ([year, monthNames [month - 1], 'green', lastPivInMonth [dateKey] ['id']]);
+            if (localCount [dateKey] == 0)                         output.add ([year, monthNames [month - 1], 'white', false]);
+            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, monthNames [month - 1], 'gray', false, lastPivInMonth [dateKey] ['id']]);
+            else                                                   output.add ([year, monthNames [month - 1], 'green', false, lastPivInMonth [dateKey] ['id']]);
          }
       };
 
@@ -187,7 +193,6 @@ class TagService {
    }
 
    getUploadedTimeHeader () {
-      var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       var localCount  = {};
       var remoteCount = {};
       var lastPivInMonth = {};
@@ -213,10 +218,10 @@ class TagService {
       for (var year = min [0]; year <= max [0]; year++) {
          for (var month = 1; month <= 12; month++) {
            var dateKey = year.toString () + ':' + month.toString ();
-           if (timeHeader [dateKey] == null)       output.add ([year, monthNames [month - 1], 'white']);
+           if (timeHeader [dateKey] == null)       output.add ([year, monthNames [month - 1], 'white', false]);
            // TODO: add last piv in month or figure out alternative way to jump
-           else if (timeHeader [dateKey] == false) output.add ([year, monthNames [month - 1], 'gray']);
-           else                                    output.add ([year, monthNames [month - 1], 'green']);
+           else if (timeHeader [dateKey] == false) output.add ([year, monthNames [month - 1], 'gray', false]);
+           else                                    output.add ([year, monthNames [month - 1], 'green', false]);
          }
       }
       var semesters = [[]];
@@ -302,6 +307,79 @@ class TagService {
        }
     }
     return response['code'];
+  }
+
+  toggleVisibility (String view, dynamic piv, bool visible) async {
+
+     filter (dynamic list, String id, int date, bool visible) {
+        var existing;
+        list.forEach ((v) {
+           if (v['id'] == id) existing = v;
+        });
+        if (visible && existing == null)   list.add ({'id': id, 'date': date});
+        if (! visible && existing != null) list.remove (existing);
+     }
+
+     getDates (dynamic list) {
+       var dates = [];
+       list.forEach ((v) {
+         var date    = new DateTime.fromMillisecondsSinceEpoch (v['date']);
+         var dateKey = date.year.toString () + ':' + date.month.toString ();
+         if (! dates.contains (dateKey)) dates.add (dateKey);
+        });
+        dates.sort ();
+
+        return dates;
+     }
+
+     var activePages = [];
+
+     updateHeader (dynamic newDates) {
+        var header = StoreService.instance.get (view == 'local' ? 'localTimeHeader' : 'uploadedTimeHeader');
+        header.asMap ().forEach ((k, semester) {
+          semester.forEach ((month) {
+             var monthKey = month [0].toString () + ':' + (monthNames.indexOf (month [1]) + 1).toString ();
+             month [3] = newDates.contains (monthKey);
+             if (newDates.contains (monthKey)) {
+               // Pages are inverted, that's why we use this index and not `k` itself.
+               var page = header.length - k - 1;
+               if (! activePages.contains (page)) activePages.add (page);
+             }
+
+          });
+        });
+        StoreService.instance.set (view == 'local' ? 'localTimeHeader' : 'uploadedTimeHeader', header);
+     }
+
+     activePages.sort ();
+
+     if (view == 'local') {
+        var oldDates = getDates (localVisible);
+        filter (localVisible, piv.id, piv.createDateTime.millisecondsSinceEpoch, visible);
+        var newDates = getDates (localVisible);
+        if (ListEquality().equals (oldDates, newDates)) return;
+        updateHeader (newDates);
+        var currentPage = StoreService.instance.get ('localTimeHeaderPage');
+        if (activePages.length > 0 && ! activePages.contains (currentPage)) {
+           var pageController = StoreService.instance.get ('localTimeHeaderController');
+           pageController.animateToPage(activePages [activePages.length - 1], duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+        }
+     }
+
+     if (view == 'uploaded') {
+        var oldDates = getDates (uploadedVisible);
+        filter (uploadedVisible, piv['id'], piv['date'], visible);
+        var newDates = getDates (uploadedVisible);
+        if (ListEquality().equals (oldDates, newDates)) return;
+        updateHeader (newDates);
+        var currentPage = StoreService.instance.get ('uploadedTimeHeaderPage');
+        if (activePages.length > 0 && ! activePages.contains (currentPage)) {
+           var pageController = StoreService.instance.get ('uploadedTimeHeaderController');
+           pageController.animateToPage(activePages [activePages.length - 1], duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+        }
+     }
+
+
   }
 
 }

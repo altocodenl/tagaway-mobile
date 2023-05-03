@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -477,10 +475,9 @@ class _GridState extends State<Grid> {
                       itemCount: itemList.length,
                       itemBuilder: (BuildContext context, index) {
                         return VisibilityDetector(
-                            key: Key("local-" + index.toString()),
+                            key: Key('local-' + index.toString()),
                             onVisibilityChanged: (VisibilityInfo info) {
-                              // TODO: dynamize
-                              // if (info.visibleFraction > 0) debug (['VISIBLE', itemList [index]]);
+                              TagService.instance.toggleVisibility ('local', itemList [index], info.visibleFraction > 0.2);
                             },
                             child: LocalGridItem(itemList[index]));
                       })),
@@ -517,6 +514,8 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
+    StoreService.instance.set ('localTimeHeaderController', pageController);
+    StoreService.instance.set ('localTimeHeaderPage', 0);
     cancelListener = StoreService.instance.listen(
         ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader'],
         (v1, v2, v3) {
@@ -535,6 +534,7 @@ class _TopRowState extends State<TopRow> {
   void dispose() {
     super.dispose();
     cancelListener();
+    pageController.dispose();
   }
 
   @override
@@ -589,6 +589,7 @@ class _TopRowState extends State<TopRow> {
                             scrollDirection: Axis.horizontal,
                             controller: pageController,
                             onPageChanged: (int index) {
+                              StoreService.instance.set ('localTimeHeaderPage', index);
                               StoreService.instance.set(
                                   'localYear',
                                   timeHeader[timeHeader.length - index - 1][0]
@@ -625,15 +626,15 @@ class _TopRowState extends State<TopRow> {
                                                     ? kAltoOrganized
                                                     : kGreyDarker,
                                             month: month[1],
-                                            // TODO: selected
                                             whiteOrAltoBlueDashIcon:
-                                                Colors.white,
-                                            //whiteOrAltoBlueDashIcon: kAltoBlue,
+                                                month[3] ? kAltoBlue : Colors.white,
                                             onTap: () {
                                               // TODO: add method to jump to proper piv
+                                              /*
                                               if (month[2] != 'white')
                                                 return debug(
-                                                    ['TODO JUMP TO', month[3]]);
+                                                    ['TODO JUMP TO', month[4]]);
+                                                */
                                             }));
                                       });
                                     return output;
