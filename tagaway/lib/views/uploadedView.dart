@@ -480,7 +480,7 @@ class _TopRowState extends State<TopRow> {
         timeHeader = v3 == '' ? [] : v3;
         if (v4 != '') queryTags = v4;
         if (v5 != '') queryResult = v5;
-        if (timeHeader.length > 0)
+        if (timeHeader.length > 0 && StoreService.instance.get ('uploadedYear') == '')
           StoreService.instance
               .set('uploadedYear', timeHeader.last[0][0].toString());
       });
