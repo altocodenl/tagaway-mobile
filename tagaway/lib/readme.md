@@ -8,6 +8,7 @@
    - username already exists => 403 {error: 'username'}
    - email already registered => 403 {error: 'email'}
    - we have too many users. => ?
+- Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
 - When clicking on month on time header, jump to relevant scroll position
 - When loading local pivs, check for existence and remove stale entries from pivMap
 - Performance

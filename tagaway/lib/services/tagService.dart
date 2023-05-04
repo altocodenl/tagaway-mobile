@@ -244,6 +244,8 @@ class TagService {
       }
 
       StoreService.instance.set ('uploadedTimeHeader', semesters);
+      // The line below is a hack. A redraw we don't understand well yet is sometimes recalculating the uploaded time header, causing the selected months to be erased. By recomputing visibility, we overcome the problem.
+      toggleVisibility ('update', null, false);
       StoreService.instance.set('uploadedYear', semesters[semesters.length - 1][0][0]);
    }
 
@@ -381,6 +383,11 @@ class TagService {
         }
      }
 
+     // This enables the hack of recalculating month visibility when computing the uploaded time header.
+     if (view == 'update') {
+       var newDates = getDates (uploadedVisible);
+       updateHeader (newDates);
+     }
 
   }
 
