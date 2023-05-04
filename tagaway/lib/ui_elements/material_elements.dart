@@ -780,8 +780,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
           initialized = true;
           _controller.play();
         }));
-
-    // _controller.play();}
   }
 
   @override

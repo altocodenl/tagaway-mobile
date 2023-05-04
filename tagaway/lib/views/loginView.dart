@@ -17,8 +17,6 @@ class LoginView extends StatefulWidget {
   _LoginViewState createState() => _LoginViewState();
 }
 
-// TODO: remove this once we restore the proper permission level check code
-
 class _LoginViewState extends State<LoginView> {
   late Timer materialBannerDelayer;
   bool recurringUserLocal = false;
@@ -194,7 +192,6 @@ class _LoginViewState extends State<LoginView> {
                                 return Navigator.pushReplacementNamed(
                                     context, 'distributor');
                               }
-                              // THIS IS SOMETHING I DID IN UPLOADER. on SocketException catch (_) {return 0;}
                               if (value == 0) {
                                 Navigator.pushReplacementNamed(
                                     context, 'offline');
