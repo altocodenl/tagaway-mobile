@@ -190,6 +190,7 @@ class TagService {
       }
 
       StoreService.instance.set ('localTimeHeader', semesters);
+      StoreService.instance.set ('localYear', semesters[semesters.length - 1][0][0]);
    }
 
    getUploadedTimeHeader () {
@@ -243,6 +244,7 @@ class TagService {
       }
 
       StoreService.instance.set ('uploadedTimeHeader', semesters);
+      StoreService.instance.set('uploadedYear', semesters[semesters.length - 1][0][0]);
    }
 
    queryPivs (dynamic tags) async {

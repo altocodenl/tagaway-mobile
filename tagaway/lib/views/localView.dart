@@ -523,9 +523,6 @@ class _TopRowState extends State<TopRow> {
         currentlyTagging = v1;
         taggedPivCount = v2;
         timeHeader = v3 == '' ? [] : v3;
-        if (timeHeader.length > 0 && StoreService.instance.get ('localYear') == '')
-          StoreService.instance
-              .set('localYear', timeHeader.last[0][0].toString());
       });
     });
   }
