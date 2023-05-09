@@ -2,15 +2,17 @@
 
 ## TODO
 
+- In local, show intermediate state for pivs (tagged but still uploading)
+- In local, make counter remember which local pivs have already been tagged with this tag
 - Handle errors with snackbar
    - usernames are too short or invalid for any other reason => NOT FINISHED
    - password is too short or is invalid for any other reason => NOT FINISHED
    - username already exists => 403 {error: 'username'}
    - email already registered => 403 {error: 'email'}
    - we have too many users. => ?
+- Replicate & fix bug with time header in uploaded, where wrong semester is shown.
 - Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
 - When clicking on month on time header, jump to relevant scroll position
-- When loading local pivs, check for existence and remove stale entries from pivMap
 - Performance
    - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
    - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
@@ -23,13 +25,16 @@
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
 - Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
+- When loading local pivs, check for existence and remove stale entries from pivMap
 
+- On tap on a top bar tag in Uploaded, open query selector (Tom)
+- Find a colorscheme to distinguish Local from Uploaded (Tom)
+- Think about a way to delete tags (Tom)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - No separate modal for new tag, just create or select (Tom)
 - Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
 - Investigate why sometimes local items that are uploaded are not being shown as organized (is it lack of a pivMap entry? Or is it not being displayed?) (Tom)
-- Publish to both stores (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
