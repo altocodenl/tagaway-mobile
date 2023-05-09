@@ -14,7 +14,7 @@
 - Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
 - When clicking on month on time header, jump to relevant scroll position
 - Performance
-   - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index.
+   - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index. Also avoid flickering when updating orgMap
    - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
 - Signup
   - Email validation process.
