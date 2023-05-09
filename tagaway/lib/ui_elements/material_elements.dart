@@ -430,6 +430,9 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
     cancelListener();
   }
 
+  Function shorten =
+      (tag) => tag.length < 15 ? tag : tag.substring(0, 15) + '...';
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -527,7 +530,7 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                             return GridTagElement(
                                 gridTagElementIcon: kTagIcon,
                                 iconColor: tagColor(tag),
-                                gridTagName: tag);
+                                gridTagName: shorten(tag));
                           })
                     ],
                   ));
