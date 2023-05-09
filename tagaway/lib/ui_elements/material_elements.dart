@@ -401,7 +401,7 @@ class GridTagUploadedQueryElement extends StatelessWidget {
 }
 
 class GridSeeMoreElement extends StatefulWidget {
-  const GridSeeMoreElement({ Key? key }) : super(key: key);
+  const GridSeeMoreElement({Key? key}) : super(key: key);
 
   @override
   State<GridSeeMoreElement> createState() => _GridSeeMoreElementState();
@@ -474,60 +474,60 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                             childAspectRatio: 4,
                           ),
                           itemBuilder: (BuildContext context, index) {
-                             var tag = queryTags[index];
-                      if (tag == 'u::')
-                        return GridTagElement(
-                          gridTagElementIcon: kTagIcon,
-                          iconColor: kGrey,
-                          gridTagName: 'Untagged',
-                        );
-                      if (tag == 't::')
-                        return GridTagElement(
-                          gridTagElementIcon: kBoxArchiveIcon,
-                          iconColor: kGrey,
-                          gridTagName: 'To Organize',
-                        );
-                      if (tag == 'o::')
-                        return GridTagElement(
-                          gridTagElementIcon: kCircleCheckIcon,
-                          iconColor: kAltoOrganized,
-                          gridTagName: 'Organized',
-                        );
-                      // DATE TAG
-                      if (RegExp('^d::M').hasMatch(tag))
-                        return GridTagElement(
-                            gridTagElementIcon: kClockIcon,
-                            iconColor: kGreyDarker,
-                            gridTagName: [
-                              'Jan',
-                              'Feb',
-                              'Mar',
-                              'Apr',
-                              'May',
-                              'Jun',
-                              'Jul',
-                              'Aug',
-                              'Sep',
-                              'Oct',
-                              'Nov',
-                              'Dec'
-                            ][int.parse(tag.substring(4)) - 1]);
-                      if (RegExp('^d::').hasMatch(tag))
-                        return GridTagElement(
-                            gridTagElementIcon: kClockIcon,
-                            iconColor: kGreyDarker,
-                            gridTagName: tag.substring(3));
-                      // GEO TAG
-                      if (RegExp('^g::').hasMatch(tag))
-                        return GridTagElement(
-                            gridTagElementIcon: kLocationDotIcon,
-                            iconColor: kGreyDarker,
-                            gridTagName: tag.substring(3));
-                      // NORMAL TAG
-                      return GridTagElement(
-                          gridTagElementIcon: kTagIcon,
-                          iconColor: tagColor(tag),
-                          gridTagName: tag);
+                            var tag = queryTags[index];
+                            if (tag == 'u::')
+                              return GridTagElement(
+                                gridTagElementIcon: kTagIcon,
+                                iconColor: kGrey,
+                                gridTagName: 'Untagged',
+                              );
+                            if (tag == 't::')
+                              return GridTagElement(
+                                gridTagElementIcon: kBoxArchiveIcon,
+                                iconColor: kGrey,
+                                gridTagName: 'To Organize',
+                              );
+                            if (tag == 'o::')
+                              return GridTagElement(
+                                gridTagElementIcon: kCircleCheckIcon,
+                                iconColor: kAltoOrganized,
+                                gridTagName: 'Organized',
+                              );
+                            // DATE TAG
+                            if (RegExp('^d::M').hasMatch(tag))
+                              return GridTagElement(
+                                  gridTagElementIcon: kClockIcon,
+                                  iconColor: kGreyDarker,
+                                  gridTagName: [
+                                    'Jan',
+                                    'Feb',
+                                    'Mar',
+                                    'Apr',
+                                    'May',
+                                    'Jun',
+                                    'Jul',
+                                    'Aug',
+                                    'Sep',
+                                    'Oct',
+                                    'Nov',
+                                    'Dec'
+                                  ][int.parse(tag.substring(4)) - 1]);
+                            if (RegExp('^d::').hasMatch(tag))
+                              return GridTagElement(
+                                  gridTagElementIcon: kClockIcon,
+                                  iconColor: kGreyDarker,
+                                  gridTagName: tag.substring(3));
+                            // GEO TAG
+                            if (RegExp('^g::').hasMatch(tag))
+                              return GridTagElement(
+                                  gridTagElementIcon: kLocationDotIcon,
+                                  iconColor: kGreyDarker,
+                                  gridTagName: tag.substring(3));
+                            // NORMAL TAG
+                            return GridTagElement(
+                                gridTagElementIcon: kTagIcon,
+                                iconColor: tagColor(tag),
+                                gridTagName: tag);
                           })
                     ],
                   ));
@@ -1021,12 +1021,11 @@ class _UploadingNumberState extends State<UploadingNumber> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
-      'uploadQueue'
-    ], (v1) {
-      if (v1 != '') setState (() => numeroli = v1.length);
+    cancelListener = StoreService.instance.listen(['uploadQueue'], (v1) {
+      if (v1 != '') setState(() => numeroli = v1.length);
     });
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -1035,7 +1034,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
 
   @override
   Widget build(BuildContext context) {
-    if (numeroli == 0) return Text ('');
+    if (numeroli == 0) return Text('');
     return Positioned(
       right: SizeService.instance.screenWidth(context) * .08,
       top: 2,

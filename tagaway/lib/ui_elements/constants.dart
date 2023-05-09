@@ -54,6 +54,7 @@ const kTrashCanIcon = FontAwesomeIcons.trashCan;
 const kVideoIcon = FontAwesomeIcons.video;
 const kAlert = FontAwesomeIcons.triangleExclamation;
 const kEmailValidation = FontAwesomeIcons.envelopeCircleCheck;
+const kPinIcon = FontAwesomeIcons.thumbtack;
 
 const tagColors = [
   kTagColor1,
