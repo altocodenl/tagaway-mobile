@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
@@ -9,6 +8,7 @@ import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class LocalYear extends StatefulWidget {
   const LocalYear({Key? key}) : super(key: key);
@@ -56,6 +56,7 @@ class LocalView extends StatefulWidget {
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
   final TextEditingController newTagName = TextEditingController();
+  final TextEditingController searchTagController = TextEditingController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
@@ -105,6 +106,8 @@ class _LocalViewState extends State<LocalView> {
     super.dispose();
     cancelListener();
   }
+
+  void searchTag(String query) {}
 
   @override
   Widget build(BuildContext context) {
@@ -212,19 +215,59 @@ class _LocalViewState extends State<LocalView> {
                                       ),
                                     ),
                                   )),
-                              Visibility(
-                                  visible: swiped,
-                                  child: const Center(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.only(top: 8.0, bottom: 8),
-                                      child: Text(
-                                        'Choose a tag and select the pics & videos you want!',
-                                        textAlign: TextAlign.center,
-                                        style: kPlainTextBold,
+                              // Visibility(
+                              //     visible: swiped,
+                              //     child: const Center(
+                              //       child: Padding(
+                              //         padding:
+                              //             EdgeInsets.only(top: 8.0, bottom: 8),
+                              //         child: Text(
+                              //           'Choose a tag and select the pics & videos you want!',
+                              //           textAlign: TextAlign.center,
+                              //           style: kPlainTextBold,
+                              //         ),
+                              //       ),
+                              //     )),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: SizedBox(
+                                  height: 50,
+                                  // color: kGreyLightest,
+                                  // decoration: BoxDecoration(
+                                  //     color: kGreyLightest,
+                                  // border: Border.all(color: kGreyDarker),
+                                  // borderRadius: BorderRadius.circular(10)
+                                  // ),
+                                  child: TextField(
+                                    controller: searchTagController,
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 10.0, horizontal: 20.0),
+                                      fillColor: kGreyLightest,
+                                      hintText: 'Create or search a tag',
+                                      hintMaxLines: 1,
+                                      hintStyle: kPlainTextBold,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                              color: kGreyDarker)),
+                                      prefixIcon: const Padding(
+                                        padding: EdgeInsets.only(
+                                            right: 12, left: 12, top: 15),
+                                        child: FaIcon(
+                                          kSearchIcon,
+                                          size: 16,
+                                          color: kGreyDarker,
+                                        ),
                                       ),
                                     ),
-                                  )),
+                                    onChanged: searchTag,
+                                  ),
+                                  // ),
+                                ),
+                              ),
                               ListView.builder(
                                   itemCount: usertags.length,
                                   padding: EdgeInsets.zero,
@@ -349,19 +392,19 @@ class _LocalViewState extends State<LocalView> {
                 ),
               ),
             ))),
-        Visibility(
-            visible: newTag == '' && swiped == true && currentlyTagging == '',
-            child: Align(
-              alignment: const Alignment(0, .9),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  // We store `newTag` to `true` simply to enable visibility of the new tag modal
-                  StoreService.instance.set('newTagLocal', true);
-                },
-                backgroundColor: kAltoBlue,
-                label: const Text('Create tag', style: kSelectAllButton),
-              ),
-            )),
+        // Visibility(
+        //     visible: newTag == '' && swiped == true && currentlyTagging == '',
+        //     child: Align(
+        //       alignment: const Alignment(0, .9),
+        //       child: FloatingActionButton.extended(
+        //         onPressed: () {
+        //           // We store `newTag` to `true` simply to enable visibility of the new tag modal
+        //           StoreService.instance.set('newTagLocal', true);
+        //         },
+        //         backgroundColor: kAltoBlue,
+        //         label: const Text('Create tag', style: kSelectAllButton),
+        //       ),
+        //     )),
         Visibility(
             visible: startTaggingModal == true,
             child: Center(
@@ -463,24 +506,24 @@ class _GridState extends State<Grid> {
           child: Directionality(
               textDirection: TextDirection.rtl,
               child: GridView.builder(
-                      reverse: true,
-                      shrinkWrap: true,
-                      cacheExtent: 50,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 1,
-                        crossAxisSpacing: 1,
-                      ),
-                      itemCount: itemList.length,
-                      itemBuilder: (BuildContext context, index) {
-                        return VisibilityDetector(
-                            key: Key('local-' + index.toString()),
-                            onVisibilityChanged: (VisibilityInfo info) {
-                              TagService.instance.toggleVisibility ('local', itemList [index], info.visibleFraction > 0.2);
-                            },
-                            child: LocalGridItem(itemList[index]));
-                      })),
+                  reverse: true,
+                  shrinkWrap: true,
+                  cacheExtent: 50,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 1,
+                    crossAxisSpacing: 1,
+                  ),
+                  itemCount: itemList.length,
+                  itemBuilder: (BuildContext context, index) {
+                    return VisibilityDetector(
+                        key: Key('local-' + index.toString()),
+                        onVisibilityChanged: (VisibilityInfo info) {
+                          TagService.instance.toggleVisibility('local',
+                              itemList[index], info.visibleFraction > 0.2);
+                        },
+                        child: LocalGridItem(itemList[index]));
+                  })),
         ),
       ),
       replacement: Center(
@@ -514,8 +557,8 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    StoreService.instance.set ('localTimeHeaderController', pageController);
-    StoreService.instance.set ('localTimeHeaderPage', 0);
+    StoreService.instance.set('localTimeHeaderController', pageController);
+    StoreService.instance.set('localTimeHeaderPage', 0);
     cancelListener = StoreService.instance.listen(
         ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader'],
         (v1, v2, v3) {
@@ -586,7 +629,8 @@ class _TopRowState extends State<TopRow> {
                             scrollDirection: Axis.horizontal,
                             controller: pageController,
                             onPageChanged: (int index) {
-                              StoreService.instance.set ('localTimeHeaderPage', index);
+                              StoreService.instance
+                                  .set('localTimeHeaderPage', index);
                               StoreService.instance.set(
                                   'localYear',
                                   timeHeader[timeHeader.length - index - 1][0]
@@ -623,8 +667,9 @@ class _TopRowState extends State<TopRow> {
                                                     ? kAltoOrganized
                                                     : kGreyDarker,
                                             month: month[1],
-                                            whiteOrAltoBlueDashIcon:
-                                                month[3] ? kAltoBlue : Colors.white,
+                                            whiteOrAltoBlueDashIcon: month[3]
+                                                ? kAltoBlue
+                                                : Colors.white,
                                             onTap: () {
                                               // TODO: add method to jump to proper piv
                                               /*
