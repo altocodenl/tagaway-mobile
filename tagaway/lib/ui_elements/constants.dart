@@ -297,6 +297,7 @@ Color tagColor(String tag) {
 }
 
 bool showLogs = false;
+bool miniLogs = true;
 
 Future<dynamic> ajax(String method, String path, [dynamic body]) async {
   // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
@@ -327,6 +328,7 @@ Future<dynamic> ajax(String method, String path, [dynamic body]) async {
           },
           body: jsonEncode(body));
     }
+    if (miniLogs) debug ([method, '/' + path, (now() - start).toString() + 'ms', response.statusCode, ((response.body == '' ? '{}' : utf8.decode(response.bodyBytes)).length / 1000).round ().toString () + 'kb']);
     if (showLogs)
       debug([
         'AJAX RES:' + start.toString(),

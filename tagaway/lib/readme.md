@@ -5,16 +5,18 @@
 - In local, show intermediate state for pivs (tagged but still uploading)
 - In local, make counter remember which local pivs have already been tagged with this tag
 - Handle errors with snackbar
-   - usernames are too short or invalid for any other reason => NOT FINISHED
-   - password is too short or is invalid for any other reason => NOT FINISHED
-   - username already exists => 403 {error: 'username'}
-   - email already registered => 403 {error: 'email'}
-   - we have too many users. => ?
+   - signup
+      - usernames are too short or invalid for any other reason => NOT FINISHED
+      - password is too short or is invalid for any other reason => NOT FINISHED
+      - username already exists => 403 {error: 'username'}
+      - email already registered => 403 {error: 'email'}
+      - we have too many users. => ?
+   - Go through other services and notify with snackbar when there's an error
 - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
-- Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
 - When clicking on month on time header, jump to relevant scroll position
 - Performance
    - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index. Also avoid flickering when updating orgMap
+   - Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
    - Test hoop from US: check latency, then check if we can do HTTPS with two IPs to the same domain. Also check whether that IP would be normally preferred on the Americas.
 - Signup
   - Email validation process.
