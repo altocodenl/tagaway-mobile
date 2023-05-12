@@ -13,11 +13,10 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class UploadedGridItem extends StatelessWidget {
-  final dynamic piv;
-  final dynamic pivs;
+  dynamic pivIndex;
+  dynamic pivs;
 
-  UploadedGridItem({Key? key, required this.piv, required this.pivs})
-      : super(key: key);
+  UploadedGridItem({Key? key, required this.pivIndex}) : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
   //   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -29,6 +28,8 @@ class UploadedGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    var piv = StoreService.instance.get ('queryResult') ['pivs'] [pivIndex];
+    pivs = StoreService.instance.get ('queryResult') ['pivs'];
     return Stack(
       children: [
         CachedNetworkImage(

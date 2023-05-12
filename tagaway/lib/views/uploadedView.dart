@@ -429,7 +429,7 @@ class _UploadGridState extends State<UploadGrid> {
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
-              itemCount: queryResult['pivs'].length,
+              itemCount: queryResult['total'],
               itemBuilder: (BuildContext context, index) {
                return VisibilityDetector(
                   key: Key('uploaded-' + index.toString()),
@@ -439,7 +439,8 @@ class _UploadGridState extends State<UploadGrid> {
                      TagService.instance.toggleVisibility ('uploaded', queryResult ['pivs'] [index], info.visibleFraction > 0.2);
                   },
                   child: UploadedGridItem(
-                    piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
+                    //piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
+                    pivIndex: index));
               }),
         ),
       ),

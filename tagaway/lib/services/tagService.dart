@@ -250,41 +250,92 @@ class TagService {
    }
 
    queryPivs (dynamic tags) async {
-    var response = await ajax('post', 'query', {
-      'tags': tags,
-      'sort': 'newest',
-      'from': 1,
-      'to': 1000,
-      'timeHeader': true
-    });
-    if (response ['code'] == 200) {
-      StoreService.instance.set('queryResult', response ['body']);
-      getUploadedTimeHeader();
-      await StoreService.instance.remove ('orgMap:*');
+      var firstLoadSize = 20;
+      var response = await ajax ('post', 'query', {
+         'tags': tags,
+         'sort': 'newest',
+         'from': 1,
+         'to': firstLoadSize,
+         'timeHeader': true
+      });
+
+      // TODO: NOTIFY ERRORS
+      if (response ['code'] != 200) return;
+
+      var queryResult = response ['body'];
+
+      if (queryResult ['total'] > firstLoadSize) {
+        // We create n empty entries as placeholders for those pivs we haven't loaded yet
+        queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['total'] - firstLoadSize, (v) => {})];
+      }
+
+      StoreService.instance.set ('queryResult', queryResult);
+      getUploadedTimeHeader ();
 
       var orgIds;
-
-      if (! tags.contains ('o::')) {
+      if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
+      else {
          response = await ajax('post', 'query', {
-           'tags': [...tags]..addAll (['o::']),
-           'sort': 'newest',
-           'from': 1,
-           'to': 1000,
-           'idsOnly': true
+            'tags': [...tags]..addAll (['o::']),
+            'sort': 'newest',
+            'from': 1,
+            'to': firstLoadSize,
+            'idsOnly': true
          });
-         if (response ['code'] == 200) {
-            orgIds = response['body'];
-         }
-         else orgIds = [];
+         // TODO: NOTIFY ERRORS
+         if (response ['code'] != 200) return;
+         orgIds = response['body'];
       }
-      else orgIds = response ['body'] ['pivs'].map ((v) => v['id']);
 
-      orgIds.forEach ((v) {
-         StoreService.instance.set('orgMap:' + v, true);
+      // Iterate only returned pivs, since only those will be shown initially
+      queryResult ['pivs'].forEach ((piv) {
+         // Ignore the empty entries
+         if (piv ['id'] == null) return;
+         var wasOrganized = StoreService.instance.get ('orgMap:' + piv ['id']) != '';
+         var isOrganized = orgIds.contains (piv ['id']);
+         if (! wasOrganized && isOrganized) StoreService.instance.set ('orgMap:' + piv ['id'], true);
+         if (wasOrganized && ! isOrganized) StoreService.instance.remove ('orgMap:' + piv ['id']);
       });
-    }
-    // HANDLE ERRORS
-    return {'code': response ['code'], 'body': response ['body']};
+
+      if (queryResult ['total'] > firstLoadSize) {
+         response = await ajax ('post', 'query', {
+            'tags': tags,
+            'sort': 'newest',
+            'from': 1,
+            // Load all pivs in the query, no time header needed
+            'to': 100000
+         });
+
+         // TODO: NOTIFY ERRORS
+         if (response ['code'] != 200) return;
+
+         queryResult = response ['body'];
+
+         StoreService.instance.set ('queryResult', queryResult, '', 'mute');
+
+         if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
+         else {
+            response = await ajax('post', 'query', {
+               'tags': [...tags]..addAll (['o::']),
+               'sort': 'newest',
+               'from': 1,
+               'to': 100000,
+               'idsOnly': true
+            });
+            // TODO: NOTIFY ERRORS
+            if (response ['code'] != 200) return;
+            orgIds = response['body'];
+
+            // Iterate all pivs now, since only those will be shown initially
+            queryResult ['pivs'].forEach ((piv) {
+               var wasOrganized = StoreService.instance.get ('orgMap:' + piv ['id']) != '';
+               var isOrganized = orgIds.contains (piv ['id']);
+               if (! wasOrganized && isOrganized) StoreService.instance.set ('orgMap:' + piv ['id'], true);
+               if (wasOrganized && ! isOrganized) StoreService.instance.remove ('orgMap:' + piv ['id']);
+            });
+         }
+      }
+      return {'code': response ['code'], 'body': response ['body']};
   }
 
   toggleQueryTag (String tag) {
