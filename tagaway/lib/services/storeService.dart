@@ -67,10 +67,10 @@ class StoreService {
 
    // This function need not be awaited for setting the in-memory key, only if you want to await until the key is persisted to disk
    // It takes 'disk' as a third argument if you want the value to also be persisted to disk
-   set (String key, dynamic value, [String disk = '']) async {
+   set (String key, dynamic value, [String disk = '', String mute = '']) async {
       if (showLogs) debug (['STORE SET', disk == 'disk' ? 'MEM & DISK' : 'MEM', key, jsonEncode (value)]);
       store [key] = value;
-      updateStream.add (key);
+      if (mute != 'mute') updateStream.add (key);
       // Some fields should not be stored, we want these to be in-memory only
       if (disk == 'disk') await prefs.setString (key, jsonEncode (value));
    }
