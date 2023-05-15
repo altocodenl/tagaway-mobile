@@ -40,6 +40,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        resizeToAvoidBottomInset: false,
         body: IndexedStack(
           index: currentIndex,
           children: screens,

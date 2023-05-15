@@ -48,9 +48,9 @@ class TagService {
 
   tagPivById(String id, String tag, bool del) async {
     var hometags = StoreService.instance.get ('hometags');
-    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
     var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
     if (response['code'] == 200) {
+       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
        await queryPivs (StoreService.instance.get ('queryTags'));
        var total = StoreService.instance.get('queryResult')['total'];
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
