@@ -423,6 +423,8 @@ class TagService {
 
      if (view == 'uploaded') {
         var oldDates = getDates (uploadedVisible);
+        // In the case of uploaded, `piv` is an index.
+        piv = StoreService.instance.get('queryResult')['pivs'] [piv];
         filter (uploadedVisible, piv['id'], piv['date'], visible);
         var newDates = getDates (uploadedVisible);
         if (ListEquality().equals (oldDates, newDates)) return;

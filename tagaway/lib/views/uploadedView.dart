@@ -436,7 +436,7 @@ class _UploadGridState extends State<UploadGrid> {
                   onVisibilityChanged: (VisibilityInfo info) {
                      // If we're redrawing, we might try to get a piv that is out of range, so we prevent this by doing this check.
                      if (queryResult ['pivs'].length - 1 < index) return;
-                     TagService.instance.toggleVisibility ('uploaded', queryResult ['pivs'] [index], info.visibleFraction > 0.2);
+                     TagService.instance.toggleVisibility ('uploaded', index, info.visibleFraction > 0.2);
                   },
                   child: UploadedGridItem(
                     //piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
