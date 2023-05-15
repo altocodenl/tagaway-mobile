@@ -15,7 +15,6 @@
 - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
 - When clicking on month on time header, jump to relevant scroll position
 - Performance
-   - Load pivs incrementally: to get all uploaded pivs in the query without having to get them all at the beginning: get the first 100. Put an array with N empty objects on the store key. Then get the rest of the pivs and implement a mute update that doesn't redraw the view. Then let the builder reference the piv itself by index. Also avoid flickering when updating orgMap
    - Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
 - Signup
   - Email validation process.
