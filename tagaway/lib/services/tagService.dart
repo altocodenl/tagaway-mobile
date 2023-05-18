@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -13,6 +14,8 @@ class TagService {
 
   var localVisible = [];
   var uploadedVisible = [];
+  // We use this to see whether queryTags has changed and based on that, query pivs again or use the last result.
+  dynamic queryTags = '';
   var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   getTags() async {
@@ -51,7 +54,7 @@ class TagService {
     var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
     if (response['code'] == 200) {
        if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
-       await queryPivs (StoreService.instance.get ('queryTags'));
+       await queryPivs (StoreService.instance.get ('queryTags'), true);
        var total = StoreService.instance.get('queryResult')['total'];
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
          StoreService.instance.set ('queryTags', []);
@@ -249,8 +252,14 @@ class TagService {
       StoreService.instance.set('uploadedYear', semesters[semesters.length - 1][0][0]);
    }
 
-   queryPivs (dynamic tags) async {
-      var firstLoadSize = 20;
+   queryPivs (dynamic tags, [refresh = false]) async {
+      tags.sort ();
+      if (refresh == false && queryTags != '') {
+        // If query tags have not changed and we're not getting the `refresh` parameters, do not query again since we already have that result.
+        if (listEquals (tags, queryTags)) return;
+      }
+      queryTags = List.from (tags);
+      var firstLoadSize = 100;
       var response = await ajax ('post', 'query', {
          'tags': tags,
          'sort': 'newest',
@@ -354,7 +363,7 @@ class TagService {
       StoreService.instance.remove ('rpivMap:' + id, 'disk');
     }
     if (response['code'] == 200) {
-       await queryPivs (StoreService.instance.get ('queryTags'));
+       await queryPivs (StoreService.instance.get ('queryTags'), true);
        var total = StoreService.instance.get('queryResult')['total'];
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
          StoreService.instance.set ('queryTags', []);

@@ -2,6 +2,7 @@
 
 ## TODO
 
+- No separate modal for new tag, just create or select
 - In local, show intermediate state for pivs (tagged but still uploading)
 - In local, make counter remember which local pivs have already been tagged with this tag
 - Handle errors with snackbar
@@ -14,8 +15,6 @@
    - Go through other services and notify with snackbar when there's an error
 - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
 - When clicking on month on time header, jump to relevant scroll position
-- Performance
-   - Eliminate double query when selecting tags in query view and then coming back to uploaded grid.
 - Signup
   - Email validation process.
   - Welcome email and communication with user
@@ -32,7 +31,6 @@
 - Think about a way to delete tags (Tom)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
-- No separate modal for new tag, just create or select (Tom)
 - Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
 - Investigate why sometimes local items that are uploaded are not being shown as organized (is it lack of a pivMap entry? Or is it not being displayed?) (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
