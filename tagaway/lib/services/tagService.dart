@@ -9,8 +9,8 @@ import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class TagService {
-  TagService._privateConstructor();
-  static final TagService instance = TagService._privateConstructor();
+  TagService._privateConstructor ();
+  static final TagService instance = TagService._privateConstructor ();
 
   var localVisible = [];
   var uploadedVisible = [];
@@ -18,44 +18,44 @@ class TagService {
   dynamic queryTags = '';
   var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  getTags() async {
-    var response = await ajax('get', 'tags');
+  getTags () async {
+    var response = await ajax ('get', 'tags');
     if (response['code'] == 200) {
-      StoreService.instance.set('hometags', response['body']['hometags']);
-      StoreService.instance.set('tags', response['body']['tags']);
+      StoreService.instance.set ('hometags', response['body']['hometags']);
+      StoreService.instance.set ('tags', response['body']['tags']);
       var usertags = [];
-      response['body']['tags'].forEach((tag) {
-        if (!RegExp('^[a-z]::').hasMatch(tag)) usertags.add(tag);
+      response['body']['tags'].forEach ((tag) {
+        if (!RegExp ('^[a-z]::').hasMatch (tag)) usertags.add (tag);
       });
-      StoreService.instance.set('usertags', usertags);
+      StoreService.instance.set ('usertags', usertags);
     }
     // TODO: handle errors
     return response['code'];
   }
 
-  editHometags(String tag, bool add) async {
+  editHometags (String tag, bool add) async {
     // Refresh hometag list first in case it was updated in another client
     await getTags ();
-    var hometags = StoreService.instance.get('hometags');
+    var hometags = StoreService.instance.get ('hometags');
     if (hometags == '') hometags = [];
-    if ((add && hometags.contains(tag)) || (!add && !hometags.contains(tag)))
+    if ((add && hometags.contains (tag)) || (!add && !hometags.contains (tag)))
       return;
-    add ? hometags.add(tag) : hometags.remove(tag);
-    var response = await ajax('post', 'hometags', {'hometags': hometags});
+    add ? hometags.add (tag) : hometags.remove (tag);
+    var response = await ajax ('post', 'hometags', {'hometags': hometags});
     if (response['code'] == 200) {
-      await getTags();
+      await getTags ();
     }
     // TODO: handle errors
     return response['code'];
   }
 
-  tagPivById(String id, String tag, bool del) async {
+  tagPivById (String id, String tag, bool del) async {
     var hometags = StoreService.instance.get ('hometags');
-    var response = await ajax('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+    var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
     if (response['code'] == 200) {
        if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
        await queryPivs (StoreService.instance.get ('queryTags'), true);
-       var total = StoreService.instance.get('queryResult')['total'];
+       var total = StoreService.instance.get ('queryResult')['total'];
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
          StoreService.instance.set ('queryTags', []);
          await queryPivs (StoreService.instance.get ('queryTags'));
@@ -72,7 +72,7 @@ class TagService {
     StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
 
     if (pivId != '') {
-      var code = await tagPivById(pivId, tag, del);
+      var code = await tagPivById (pivId, tag, del);
       if (type == 'uploaded') return;
       // TODO: add error handling for non 200 (with exception to 404 for local, which is handled below)
 
@@ -92,7 +92,7 @@ class TagService {
   }
 
   getTaggedPivs (String tag, String type) async {
-    var response = await ajax('post', 'query', {
+    var response = await ajax ('post', 'query', {
       'tags': [tag],
       'sort': 'newest',
       'from': 1,
@@ -216,8 +216,8 @@ class TagService {
          if (dates [0] > max [0] || (dates [0] == max [0] && dates [1] < max [1])) max = dates;
       });
       if (timeHeader.keys.length == 0) {
-        max = [DateTime.now().year, DateTime.now ().month > 6 ? 12 : 6];
-        min = [DateTime.now().year, DateTime.now ().month < 7 ? 1 : 7];
+        max = [DateTime.now ().year, DateTime.now ().month > 6 ? 12 : 6];
+        min = [DateTime.now ().year, DateTime.now ().month < 7 ? 1 : 7];
       }
       for (var year = min [0]; year <= max [0]; year++) {
          for (var month = 1; month <= 12; month++) {
@@ -249,7 +249,7 @@ class TagService {
       StoreService.instance.set ('uploadedTimeHeader', semesters);
       // The line below is a hack. A redraw we don't understand well yet is sometimes recalculating the uploaded time header, causing the selected months to be erased. By recomputing visibility, we overcome the problem.
       toggleVisibility ('update', null, false);
-      StoreService.instance.set('uploadedYear', semesters[semesters.length - 1][0][0]);
+      StoreService.instance.set ('uploadedYear', semesters[semesters.length - 1][0][0]);
    }
 
    queryPivs (dynamic tags, [refresh = false]) async {
@@ -284,7 +284,7 @@ class TagService {
       var orgIds;
       if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
       else {
-         response = await ajax('post', 'query', {
+         response = await ajax ('post', 'query', {
             'tags': [...tags]..addAll (['o::']),
             'sort': 'newest',
             'from': 1,
@@ -324,7 +324,7 @@ class TagService {
 
          if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
          else {
-            response = await ajax('post', 'query', {
+            response = await ajax ('post', 'query', {
                'tags': [...tags]..addAll (['o::']),
                'sort': 'newest',
                'from': 1,
@@ -356,7 +356,7 @@ class TagService {
 
   deletePiv (String id) async {
     // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
-    var response = await ajax('post', 'delete', {'ids': [id], 'csrf': 'foo'});
+    var response = await ajax ('post', 'delete', {'ids': [id], 'csrf': 'foo'});
     var localPivId = StoreService.instance.get ('rpivMap:' + id);
     if (localPivId != '') {
       StoreService.instance.remove ('pivMap:' + localPivId, 'disk');
@@ -364,7 +364,7 @@ class TagService {
     }
     if (response['code'] == 200) {
        await queryPivs (StoreService.instance.get ('queryTags'), true);
-       var total = StoreService.instance.get('queryResult')['total'];
+       var total = StoreService.instance.get ('queryResult')['total'];
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
          StoreService.instance.set ('queryTags', []);
          await queryPivs (StoreService.instance.get ('queryTags'));
@@ -421,27 +421,27 @@ class TagService {
         var oldDates = getDates (localVisible);
         filter (localVisible, piv.id, piv.createDateTime.millisecondsSinceEpoch, visible);
         var newDates = getDates (localVisible);
-        if (ListEquality().equals (oldDates, newDates)) return;
+        if (ListEquality ().equals (oldDates, newDates)) return;
         updateHeader (newDates);
         var currentPage = StoreService.instance.get ('localTimeHeaderPage');
         if (activePages.length > 0 && ! activePages.contains (currentPage)) {
            var pageController = StoreService.instance.get ('localTimeHeaderController');
-           pageController.animateToPage(activePages [activePages.length - 1], duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+           pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
         }
      }
 
      if (view == 'uploaded') {
         var oldDates = getDates (uploadedVisible);
         // In the case of uploaded, `piv` is an index.
-        piv = StoreService.instance.get('queryResult')['pivs'] [piv];
+        piv = StoreService.instance.get ('queryResult')['pivs'] [piv];
         filter (uploadedVisible, piv['id'], piv['date'], visible);
         var newDates = getDates (uploadedVisible);
-        if (ListEquality().equals (oldDates, newDates)) return;
+        if (ListEquality ().equals (oldDates, newDates)) return;
         updateHeader (newDates);
         var currentPage = StoreService.instance.get ('uploadedTimeHeaderPage');
         if (activePages.length > 0 && ! activePages.contains (currentPage)) {
            var pageController = StoreService.instance.get ('uploadedTimeHeaderController');
-           pageController.animateToPage(activePages [activePages.length - 1], duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+           pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
         }
      }
 

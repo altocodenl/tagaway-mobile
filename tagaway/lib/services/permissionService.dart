@@ -4,9 +4,9 @@ import 'dart:io' show Platform;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future checkPermission() async {
+Future checkPermission () async {
   var androidInfo;
-  if (Platform.isAndroid) androidInfo = await DeviceInfoPlugin().androidInfo;
+  if (Platform.isAndroid) androidInfo = await DeviceInfoPlugin ().androidInfo;
   PermissionStatus serviceStatus = Platform.isIOS
       ? await Permission.photos.status
       : androidInfo.version.sdkInt <= 32
@@ -28,5 +28,5 @@ Future checkPermission() async {
 class PermissionLevelFlag {
   final String permissionLevel;
 
-  PermissionLevelFlag({required this.permissionLevel});
+  PermissionLevelFlag ({required this.permissionLevel});
 }

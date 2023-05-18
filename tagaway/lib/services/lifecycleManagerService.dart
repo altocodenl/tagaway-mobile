@@ -7,10 +7,10 @@ import 'package:tagaway/services/permissionService.dart';
 class LifeCycleManager extends StatefulWidget {
   final Widget child;
 
-  const LifeCycleManager({Key? key, required this.child}) : super(key: key);
+  const LifeCycleManager ({Key? key, required this.child}) : super (key: key);
 
   @override
-  _LifeCycleManagerState createState() => _LifeCycleManagerState();
+  _LifeCycleManagerState createState () => _LifeCycleManagerState ();
 }
 
 class _LifeCycleManagerState extends State<LifeCycleManager>
@@ -18,43 +18,43 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
   bool resumed = false;
 
   @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    super.initState();
+  void initState () {
+    WidgetsBinding.instance.addObserver (this);
+    super.initState ();
   }
 
   @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  void dispose () {
+    WidgetsBinding.instance.removeObserver (this);
+    super.dispose ();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('state = $state');
+  void didChangeAppLifecycleState (AppLifecycleState state) {
+    print ('state = $state');
     if (state == AppLifecycleState.resumed) {
-      setState(() {
+      setState (() {
         resumed = true;
       });
-      checkPermission().then((value) {
+      checkPermission ().then ((value) {
         if (resumed == true && value == 'granted') {
-          Navigator.pushReplacementNamed(context, 'bottomNavigation');
+          Navigator.pushReplacementNamed (context, 'bottomNavigation');
         } else if (resumed == true && value == 'denied' ||
             value == 'permanent') {
           return;
-          // Navigator.pushReplacementNamed(context, 'distributor');
-          // arguments: PermissionLevelFlag(permissionLevel: value));
+          // Navigator.pushReplacementNamed (context, 'distributor');
+          // arguments: PermissionLevelFlag (permissionLevel: value));
         }
       });
-      print('resumed $resumed');
+      print ('resumed $resumed');
     } else {
       resumed = false;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build (BuildContext context) {
+    return Container (
       child: widget.child,
     );
   }

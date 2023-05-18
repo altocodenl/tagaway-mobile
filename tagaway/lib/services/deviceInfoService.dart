@@ -2,22 +2,22 @@
 import 'package:device_info_plus/device_info_plus.dart';
 
 class DeviceInfoService {
-  DeviceInfoService._privateConstructor();
+  DeviceInfoService._privateConstructor ();
 
   static final DeviceInfoService instance =
-      DeviceInfoService._privateConstructor();
+      DeviceInfoService._privateConstructor ();
 
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin ();
 
-  Future<String> androidInfo() async {
+  Future<String> androidInfo () async {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    // print(androidInfo.model);
+    // print (androidInfo.model);
     return androidInfo.model;
   }
 
-  Future<String?> iOSInfo() async {
+  Future<String?> iOSInfo () async {
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    // print(iosInfo.utsname.machine);
+    // print (iosInfo.utsname.machine);
     return iosInfo.utsname.machine;
   }
 }

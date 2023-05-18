@@ -51,7 +51,7 @@ class StoreService {
       if (resetKeys != null) {
          await reset ();
          // Wait a full second until changes are flushed to disk
-         await Future.delayed(Duration(seconds: 1));
+         await Future.delayed (Duration (seconds: 1));
       }
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
