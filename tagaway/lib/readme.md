@@ -3,6 +3,8 @@
 ## TODO
 
 - No separate modal for new tag, just create or select
+- When a piv being uploaded is tagged with tag X, show it in green if you switch back to tagging with tag X.
+- Discuss: button that toggles: show O, show X, show O X.
 - In local, show intermediate state for pivs (tagged but still uploading)
 - In local, make counter remember which local pivs have already been tagged with this tag
 - Handle errors with snackbar
@@ -51,7 +53,6 @@
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
 - localTimeHeaderController <page controller>: controller that drives the localTimeHeader
 - localTimeHeaderPage <int>: page in localTimeHeader currently displayed.
-- newTag(Local|Uploaded) <str>: name of new tag being created in LocalView/UploadedView
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
@@ -63,6 +64,7 @@
 - rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart
 - startTaggingModal (boolean): used to determine blue popup to start tagging on LocalView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
+- tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
 - taggedPivCount(Local|Uploaded) (int): shows how many pivs are tagged with the current tag on LocalView/UploadedView
 - tagMap:<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the current tag
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
