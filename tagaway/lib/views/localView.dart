@@ -55,13 +55,11 @@ class LocalView extends StatefulWidget {
 
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
-  final TextEditingController newTagName = TextEditingController();
   final TextEditingController searchTagController = TextEditingController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
-  dynamic newTag = '';
   dynamic startTaggingModal = '';
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
@@ -78,7 +76,7 @@ class _LocalViewState extends State<LocalView> {
       'usertags',
       'currentlyTaggingLocal',
       'swipedLocal',
-      'newTagLocal',
+      'tagFilterLocal',
       'startTaggingModal'
     ], (v1, v2, v3, v4, v5) {
       var currentView = StoreService.instance.get('currentIndex');
@@ -86,16 +84,23 @@ class _LocalViewState extends State<LocalView> {
       if (v2 != '' && currentView != 2)
         TagService.instance.getTaggedPivs(v2, 'local');
       setState(() {
-        if (v1 != '') usertags = v1;
+        if (v1 != '') {
+          var filter = v4;
+          usertags = v1
+              .where(
+                  (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
+              .toList();
+          if (filter != '' && !usertags.contains(filter))
+            usertags.insert(0, filter + ' (new tag)');
+        }
         if (currentView != 2) {
           currentlyTagging = v2;
           if (v3 != '') swiped = v3;
-          newTag = v4;
-          startTaggingModal = v5;
           if (swiped == false && initialChildSize > initialScrollableSize)
             initialChildSize = initialScrollableSize;
           if (swiped == true && initialChildSize < 0.77)
             initialChildSize = 0.77;
+          startTaggingModal = v5;
         }
       });
     });
@@ -107,7 +112,10 @@ class _LocalViewState extends State<LocalView> {
     cancelListener();
   }
 
-  void searchTag(String query) {}
+  bool searchTag(String query) {
+    StoreService.instance.set('tagFilterLocal', query);
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,29 +223,10 @@ class _LocalViewState extends State<LocalView> {
                                       ),
                                     ),
                                   )),
-                              // Visibility(
-                              //     visible: swiped,
-                              //     child: const Center(
-                              //       child: Padding(
-                              //         padding:
-                              //             EdgeInsets.only(top: 8.0, bottom: 8),
-                              //         child: Text(
-                              //           'Choose a tag and select the pics & videos you want!',
-                              //           textAlign: TextAlign.center,
-                              //           style: kPlainTextBold,
-                              //         ),
-                              //       ),
-                              //     )),
                               Padding(
                                 padding: const EdgeInsets.only(top: 8.0),
                                 child: SizedBox(
                                   height: 50,
-                                  // color: kGreyLightest,
-                                  // decoration: BoxDecoration(
-                                  //     color: kGreyLightest,
-                                  // border: Border.all(color: kGreyDarker),
-                                  // borderRadius: BorderRadius.circular(10)
-                                  // ),
                                   child: TextField(
                                     controller: searchTagController,
                                     decoration: InputDecoration(
@@ -265,7 +254,6 @@ class _LocalViewState extends State<LocalView> {
                                     ),
                                     onChanged: searchTag,
                                   ),
-                                  // ),
                                 ),
                               ),
                               ListView.builder(
@@ -276,14 +264,22 @@ class _LocalViewState extends State<LocalView> {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     var tag = usertags[index];
+                                    var actualTag = tag;
+                                    if (index == 0 &&
+                                        RegExp(' \\(new tag\\)\$')
+                                            .hasMatch(tag)) {
+                                      actualTag = tag.replaceFirst(
+                                          RegExp(' \\(new tag\\)\$'), '');
+                                    }
                                     return TagListElement(
-                                      tagColor: tagColor(tag),
+                                      tagColor: tagColor(actualTag),
                                       tagName: tag,
                                       onTap: () {
                                         // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                         return () {
                                           StoreService.instance.set(
-                                              'currentlyTaggingLocal', tag);
+                                              'currentlyTaggingLocal',
+                                              actualTag);
                                         };
                                       },
                                     );
@@ -295,116 +291,6 @@ class _LocalViewState extends State<LocalView> {
                     }),
               )),
             )),
-        Visibility(
-            visible: newTag != '',
-            child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: kAltoBlue.withOpacity(.8),
-            )),
-        Visibility(
-            visible: newTag != '',
-            child: Center(
-                child: Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12),
-              child: Container(
-                height: 200,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-                child: Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: Text(
-                        'Create a new tag',
-                        style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: kAltoBlue),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 12, right: 12, top: 20),
-                      child: TextField(
-                        controller: newTagName,
-                        autofocus: true,
-                        textAlign: TextAlign.center,
-                        enableSuggestions: true,
-                        decoration: const InputDecoration(
-                          hintText: 'Insert the name of your new tag here…',
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 10.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 30.0, right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              StoreService.instance.set('newTagLocal', '');
-                              newTagName.clear();
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.only(right: 30.0),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: kAltoBlue),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              var text = newTagName.text;
-                              if (text == '') return;
-                              StoreService.instance.set('newTagLocal', '');
-                              StoreService.instance
-                                  .set('currentlyTaggingLocal', text);
-                              newTagName.clear();
-                            },
-                            child: const Text(
-                              'Create',
-                              style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: kAltoBlue),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ))),
-        // Visibility(
-        //     visible: newTag == '' && swiped == true && currentlyTagging == '',
-        //     child: Align(
-        //       alignment: const Alignment(0, .9),
-        //       child: FloatingActionButton.extended(
-        //         onPressed: () {
-        //           // We store `newTag` to `true` simply to enable visibility of the new tag modal
-        //           StoreService.instance.set('newTagLocal', true);
-        //         },
-        //         backgroundColor: kAltoBlue,
-        //         label: const Text('Create tag', style: kSelectAllButton),
-        //       ),
-        //     )),
         Visibility(
             visible: startTaggingModal == true,
             child: Center(

@@ -55,13 +55,11 @@ class UploadedView extends StatefulWidget {
 
 class _UploadedViewState extends State<UploadedView> {
   dynamic cancelListener;
-  final TextEditingController newTagName = TextEditingController();
+  final TextEditingController searchTagController = TextEditingController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
-  dynamic newTag = '';
-  dynamic startTaggingModal = '';
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `initialChildSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -77,9 +75,8 @@ class _UploadedViewState extends State<UploadedView> {
       'usertags',
       'currentlyTaggingUploaded',
       'swipedUploaded',
-      'newTagUploaded',
-      'startTaggingModal'
-    ], (v1, v2, v3, v4, v5) {
+      'tagFilterUploaded',
+    ], (v1, v2, v3, v4) {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
       if (currentView == 2 && v2 == '' && currentlyTagging != '')
@@ -88,12 +85,18 @@ class _UploadedViewState extends State<UploadedView> {
       if (v2 != '' && currentView != 1)
         TagService.instance.getTaggedPivs(v2, 'uploaded');
       setState(() {
-        if (v1 != '') usertags = v1;
+        if (v1 != '') {
+          var filter = v4;
+          usertags = v1
+              .where(
+                  (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
+              .toList();
+          if (filter != '' && !usertags.contains(filter))
+            usertags.insert(0, filter + ' (new tag)');
+        }
         if (currentView != 1) {
           currentlyTagging = v2;
           if (v3 != '') swiped = v3;
-          newTag = v4;
-          startTaggingModal = v5;
           if (swiped == false && initialChildSize > initialScrollableSize)
             initialChildSize = initialScrollableSize;
           if (swiped == true && initialChildSize < 0.77)
@@ -107,6 +110,11 @@ class _UploadedViewState extends State<UploadedView> {
   void dispose() {
     super.dispose();
     cancelListener();
+  }
+
+  bool searchTag(String query) {
+    StoreService.instance.set('tagFilterUploaded', query);
+    return true;
   }
 
   @override
@@ -141,7 +149,6 @@ class _UploadedViewState extends State<UploadedView> {
                         StoreService.instance.set('swipedUploaded', false);
                       if (state.extent > (0.77 - 0.0001))
                         StoreService.instance.set('swipedUploaded', true);
-                      StoreService.instance.set('startTaggingModal', false);
                       return true;
                     },
                     child: DraggableScrollableSheet(
@@ -215,6 +222,68 @@ class _UploadedViewState extends State<UploadedView> {
                                           ),
                                         ),
                                       )),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: SizedBox(
+                                  height: 50,
+                                  child: TextField(
+                                    controller: searchTagController,
+                                    decoration: InputDecoration(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              vertical: 10.0, horizontal: 20.0),
+                                      fillColor: kGreyLightest,
+                                      hintText: 'Create or search a tag',
+                                      hintMaxLines: 1,
+                                      hintStyle: kPlainTextBold,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: const BorderSide(
+                                              color: kGreyDarker)),
+                                      prefixIcon: const Padding(
+                                        padding: EdgeInsets.only(
+                                            right: 12, left: 12, top: 15),
+                                        child: FaIcon(
+                                          kSearchIcon,
+                                          size: 16,
+                                          color: kGreyDarker,
+                                        ),
+                                      ),
+                                    ),
+                                    onChanged: searchTag,
+                                  ),
+                                ),
+                              ),
+                              ListView.builder(
+                                  itemCount: usertags.length,
+                                  padding: EdgeInsets.zero,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var tag = usertags[index];
+                                    var actualTag = tag;
+                                    if (index == 0 &&
+                                        RegExp(' \\(new tag\\)\$')
+                                            .hasMatch(tag)) {
+                                      actualTag = tag.replaceFirst(
+                                          RegExp(' \\(new tag\\)\$'), '');
+                                    }
+                                    return TagListElement(
+                                      tagColor: tagColor(actualTag),
+                                      tagName: tag,
+                                      onTap: () {
+                                        // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                                        return () {
+                                          StoreService.instance.set(
+                                              'currentlyTaggingUploaded',
+                                              actualTag);
+                                        };
+                                      },
+                                    );
+                                  })
+                                      /*
                                   Visibility(
                                       visible: swiped,
                                       child: const Center(
@@ -250,121 +319,12 @@ class _UploadedViewState extends State<UploadedView> {
                                           },
                                         );
                                       })
+                                  */
                                 ],
                               ),
                             ),
                           );
                         })),
-              ),
-            )),
-        Visibility(
-            visible: newTag != '',
-            child: Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: kAltoBlue.withOpacity(.8),
-            )),
-        Visibility(
-            visible: newTag != '',
-            child: Center(
-                child: Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12),
-              child: Container(
-                height: 200,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-                child: Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                      child: Text(
-                        'Create a new tag',
-                        style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: kAltoBlue),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 12, right: 12, top: 20),
-                      child: TextField(
-                        controller: newTagName,
-                        autofocus: true,
-                        textAlign: TextAlign.center,
-                        enableSuggestions: true,
-                        decoration: const InputDecoration(
-                          hintText: 'Insert the name of your new tag here…',
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 10.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 30.0, right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              StoreService.instance.set('newTagUploaded', '');
-                              newTagName.clear();
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.only(right: 30.0),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: kAltoBlue),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              var text = newTagName.text;
-                              if (text == '') return;
-                              StoreService.instance.set('newTagUploaded', '');
-                              StoreService.instance
-                                  .set('currentlyTaggingUploaded', text);
-                              newTagName.clear();
-                            },
-                            child: const Text(
-                              'Create',
-                              style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: kAltoBlue),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ))),
-        Visibility(
-            visible: newTag == '' && swiped == true && currentlyTagging == '',
-            child: Align(
-              alignment: const Alignment(0, .9),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  // We store `newTag` to `true` simply to enable visibility of the new tag modal
-                  StoreService.instance.set('newTagUploaded', true);
-                },
-                backgroundColor: kAltoBlue,
-                label: const Text('Create tag', style: kSelectAllButton),
               ),
             )),
       ],
