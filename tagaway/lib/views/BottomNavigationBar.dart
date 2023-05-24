@@ -62,10 +62,10 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                     icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
                 BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                    label: 'Local'),
+                    label: 'Phone'),
                 BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.cloudArrowUp),
-                    label: 'Uploaded'),
+                    label: 'Cloud'),
               ],
             ),
             UploadingNumber()

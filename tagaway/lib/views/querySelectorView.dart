@@ -127,7 +127,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     StoreService.instance.set('queryTags', []);
                   });
                 },
-                child: Text('Reset', style: kPlainTextBold)),
+                child: Text('Clear', style: kPlainTextBold)),
           ),
           // IconButton(icon: const Icon(Icons.add), onPressed: () {}),
         ],
@@ -465,7 +465,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             Navigator.pushReplacementNamed(context, 'bottomNavigation');
           },
           backgroundColor: kAltoBlue,
-          label: Text('See ' + queryResult['total'].toString() + ' results',
+          label: Text('See ' + queryResult['total'].toString() + ' pivs',
               style: kSelectAllButton),
         ),
       ),

@@ -91,32 +91,44 @@ class TagService {
     StoreService.instance.set ('pendingTags:' + id, pendingTags, 'disk');
   }
 
-  getTaggedPivs (String tag, String type) async {
-    var response = await ajax ('post', 'query', {
-      'tags': [tag],
-      'sort': 'newest',
-      'from': 1,
-      'to': 1000,
-      'idsOnly': true
-    });
-    await StoreService.instance.remove ('tagMap:*');
-    int count = 0;
-    var queryIds;
-    if (type == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
-    response ['body'].forEach ((v) {
-      if (type == 'uploaded') {
-         if (! queryIds.contains (v)) return;
-         count += 1;
-         return StoreService.instance.set ('tagMap:' + v, true);
-      }
+   getTaggedPivs (String tag, String type) async {
+      var existing = [], New = [];
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
+         if (type == 'local') {
+            if (RegExp ('^pendingTags:').hasMatch (k)) {
+               if (StoreService.instance.get (k).contains (tag)) New.add (k.split (':') [1]);
+            }
+         }
+      });
+      var response = await ajax ('post', 'query', {
+         'tags':    [tag],
+         'sort':    'newest',
+         'from':    1,
+         'to':      100000,
+         'idsOnly': true
+      });
+      var queryIds;
+      if (type == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
+      response ['body'].forEach ((v) {
+         if (type == 'uploaded') {
+            if (queryIds.contains (v)) New.add (v);
+         }
+         else {
+            var id = StoreService.instance.get ('rpivMap:' + v);
+            if (id != '') New.add (id);
+         }
+      });
+      New.forEach ((id) {
+        if (! existing.contains (id)) StoreService.instance.set ('tagMap:' + id, true);
+        else existing.remove (id);
+      });
+      existing.forEach ((id) {
+        StoreService.instance.set ('tagMap:' + id, '');
+      });
 
-      var id = StoreService.instance.get ('rpivMap:' + v);
-      if (id == '') return;
-      StoreService.instance.set ('tagMap:' + id, true);
-      count += 1;
-    });
-    StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), count);
-  }
+      StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), New.length);
+   }
 
    getLocalTimeHeader () {
       var localCount  = {};
@@ -298,7 +310,7 @@ class TagService {
 
       // Iterate only returned pivs, since only those will be shown initially
       queryResult ['pivs'].forEach ((piv) {
-         // Ignore the empty entries
+         // Ignore the empty entries created by our array with empty objects as placeholders for what's not loaded yet
          if (piv ['id'] == null) return;
          var wasOrganized = StoreService.instance.get ('orgMap:' + piv ['id']) != '';
          var isOrganized = orgIds.contains (piv ['id']);

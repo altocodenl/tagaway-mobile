@@ -2,11 +2,19 @@
 
 ## TODO
 
-- No separate modal for new tag, just create or select
 - When a piv being uploaded is tagged with tag X, show it in green if you switch back to tagging with tag X.
-- Discuss: button that toggles: show O, show X, show O X.
-- In local, show intermediate state for pivs (tagged but still uploading)
-- In local, make counter remember which local pivs have already been tagged with this tag
+
+- Time header
+   - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
+   - When clicking on month on time header, jump to relevant scroll position.
+- Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
+- When loading local pivs, check for existence and remove stale entries from pivMap
+
+- Signup
+  - Email validation process.
+  - Welcome email and communication with user
+  - Make sure it says tagaway in all emails to user
+  - Tighten up client-side validations for inputs
 - Handle errors with snackbar
    - signup
       - usernames are too short or invalid for any other reason => NOT FINISHED
@@ -15,26 +23,23 @@
       - email already registered => 403 {error: 'email'}
       - we have too many users. => ?
    - Go through other services and notify with snackbar when there's an error
-- Replicate & fix bug with time header in uploaded, where wrong semester is shown.
-- When clicking on month on time header, jump to relevant scroll position
-- Signup
-  - Email validation process.
-  - Welcome email and communication with user
-  - Make sure it says tagaway in all emails to user
-  - Tighten up client-side validations for inputs
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
-- Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
-- When loading local pivs, check for existence and remove stale entries from pivMap
 
+- Discuss/design:
+   - Distinctive icon for app
+   - Show score on top bar of Local (total unorganized vs total organized)
+   - Hide pivs that are organized in Local
+   - Colorful and wider filter button
+   - Unify search & filter in Uploaded, make button wider
+   - Tutorial?
 - On tap on a top bar tag in Uploaded, open query selector (Tom)
 - Find a colorscheme to distinguish Local from Uploaded (Tom)
 - Think about a way to delete tags (Tom)
 - Delete piv mode (uploaded) (Tom)
 - Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
 - Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
-- Investigate why sometimes local items that are uploaded are not being shown as organized (is it lack of a pivMap entry? Or is it not being displayed?) (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
@@ -79,7 +84,7 @@
 - userWasAskedPermission (boolean) [DISK]: whether the user was already asked for piv access permission once
 ```
 
-### Creating a build
+## Creating a build
 
 - In Android Studio:
 - Go to the menu File -> Open
@@ -92,3 +97,54 @@
 - Use release & create
 - When it's done, it will appear in Android folder
 - Build will be in android + app + release
+
+## Annotated source code
+
+For now, we only have annotated fragments of the code. This might be expanded comprehensively later.
+
+### `tagService.js`
+
+TODO: add annotated source code from the beginning of the file.
+
+```javascript
+   getTaggedPivs (String tag, String type) async {
+      var existing = [], New = [];
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
+         if (type == 'local') {
+            if (RegExp ('^pendingTags:').hasMatch (k)) {
+               if (StoreService.instance.get (k).contains (tag)) New.add (k.split (':') [1]);
+            }
+         }
+      });
+      var response = await ajax ('post', 'query', {
+         'tags':    [tag],
+         'sort':    'newest',
+         'from':    1,
+         'to':      100000,
+         'idsOnly': true
+      });
+      var queryIds;
+      if (type == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
+      response ['body'].forEach ((v) {
+         if (type == 'uploaded') {
+            if (queryIds.contains (v)) New.add (v);
+         }
+         else {
+            var id = StoreService.instance.get ('rpivMap:' + v);
+            if (id != '') New.add (id);
+         }
+      });
+      New.forEach ((id) {
+        if (! existing.contains (id)) StoreService.instance.set ('tagMap:' + id, true);
+        else existing.remove (id);
+      });
+      existing.forEach ((id) {
+        StoreService.instance.set ('tagMap:' + id, '');
+      });
+
+      StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), New.length);
+   }
+```
+
+TODO: add annotated source code until the end of the file.
