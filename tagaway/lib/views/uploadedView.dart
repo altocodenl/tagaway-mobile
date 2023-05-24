@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -9,6 +8,7 @@ import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class UploadedYear extends StatefulWidget {
   const UploadedYear({Key? key}) : super(key: key);
@@ -97,6 +97,9 @@ class _UploadedViewState extends State<UploadedView> {
         if (currentView != 1) {
           currentlyTagging = v2;
           if (v3 != '') swiped = v3;
+          if (swiped == false) {
+            FocusManager.instance.primaryFocus?.unfocus();
+          }
           if (swiped == false && initialChildSize > initialScrollableSize)
             initialChildSize = initialScrollableSize;
           if (swiped == true && initialChildSize < 0.77)
@@ -222,68 +225,70 @@ class _UploadedViewState extends State<UploadedView> {
                                           ),
                                         ),
                                       )),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: SizedBox(
-                                  height: 50,
-                                  child: TextField(
-                                    controller: searchTagController,
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 10.0, horizontal: 20.0),
-                                      fillColor: kGreyLightest,
-                                      hintText: 'Create or search a tag',
-                                      hintMaxLines: 1,
-                                      hintStyle: kPlainTextBold,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: const BorderSide(
-                                              color: kGreyDarker)),
-                                      prefixIcon: const Padding(
-                                        padding: EdgeInsets.only(
-                                            right: 12, left: 12, top: 15),
-                                        child: FaIcon(
-                                          kSearchIcon,
-                                          size: 16,
-                                          color: kGreyDarker,
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: SizedBox(
+                                      height: 50,
+                                      child: TextField(
+                                        controller: searchTagController,
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 10.0,
+                                                  horizontal: 20.0),
+                                          fillColor: kGreyLightest,
+                                          hintText: 'Create or search a tag',
+                                          hintMaxLines: 1,
+                                          hintStyle: kPlainTextBold,
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: const BorderSide(
+                                                  color: kGreyDarker)),
+                                          prefixIcon: const Padding(
+                                            padding: EdgeInsets.only(
+                                                right: 12, left: 12, top: 15),
+                                            child: FaIcon(
+                                              kSearchIcon,
+                                              size: 16,
+                                              color: kGreyDarker,
+                                            ),
+                                          ),
                                         ),
+                                        onChanged: searchTag,
                                       ),
                                     ),
-                                    onChanged: searchTag,
                                   ),
-                                ),
-                              ),
-                              ListView.builder(
-                                  itemCount: usertags.length,
-                                  padding: EdgeInsets.zero,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    var tag = usertags[index];
-                                    var actualTag = tag;
-                                    if (index == 0 &&
-                                        RegExp(' \\(new tag\\)\$')
-                                            .hasMatch(tag)) {
-                                      actualTag = tag.replaceFirst(
-                                          RegExp(' \\(new tag\\)\$'), '');
-                                    }
-                                    return TagListElement(
-                                      tagColor: tagColor(actualTag),
-                                      tagName: tag,
-                                      onTap: () {
-                                        // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                        return () {
-                                          StoreService.instance.set(
-                                              'currentlyTaggingUploaded',
-                                              actualTag);
-                                        };
-                                      },
-                                    );
-                                  })
-                                      /*
+                                  ListView.builder(
+                                      itemCount: usertags.length,
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var tag = usertags[index];
+                                        var actualTag = tag;
+                                        if (index == 0 &&
+                                            RegExp(' \\(new tag\\)\$')
+                                                .hasMatch(tag)) {
+                                          actualTag = tag.replaceFirst(
+                                              RegExp(' \\(new tag\\)\$'), '');
+                                        }
+                                        return TagListElement(
+                                          tagColor: tagColor(actualTag),
+                                          tagName: tag,
+                                          onTap: () {
+                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                                            return () {
+                                              StoreService.instance.set(
+                                                  'currentlyTaggingUploaded',
+                                                  actualTag);
+                                            };
+                                          },
+                                        );
+                                      })
+                                  /*
                                   Visibility(
                                       visible: swiped,
                                       child: const Center(
@@ -391,16 +396,17 @@ class _UploadGridState extends State<UploadGrid> {
               ),
               itemCount: queryResult['total'],
               itemBuilder: (BuildContext context, index) {
-               return VisibilityDetector(
-                  key: Key('uploaded-' + index.toString()),
-                  onVisibilityChanged: (VisibilityInfo info) {
-                     // If we're redrawing, we might try to get a piv that is out of range, so we prevent this by doing this check.
-                     if (queryResult ['pivs'].length - 1 < index) return;
-                     TagService.instance.toggleVisibility ('uploaded', index, info.visibleFraction > 0.2);
-                  },
-                  child: UploadedGridItem(
-                    //piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
-                    pivIndex: index));
+                return VisibilityDetector(
+                    key: Key('uploaded-' + index.toString()),
+                    onVisibilityChanged: (VisibilityInfo info) {
+                      // If we're redrawing, we might try to get a piv that is out of range, so we prevent this by doing this check.
+                      if (queryResult['pivs'].length - 1 < index) return;
+                      TagService.instance.toggleVisibility(
+                          'uploaded', index, info.visibleFraction > 0.2);
+                    },
+                    child: UploadedGridItem(
+                        //piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
+                        pivIndex: index));
               }),
         ),
       ),
@@ -428,8 +434,8 @@ class _TopRowState extends State<TopRow> {
   @override
   void initState() {
     super.initState();
-    StoreService.instance.set ('uploadedTimeHeaderController', pageController);
-    StoreService.instance.set ('uploadedTimeHeaderPage', 0);
+    StoreService.instance.set('uploadedTimeHeaderController', pageController);
+    StoreService.instance.set('uploadedTimeHeaderPage', 0);
     cancelListener = StoreService.instance.listen([
       'currentlyTaggingUploaded',
       'taggedPivCountUploaded',
@@ -520,7 +526,8 @@ class _TopRowState extends State<TopRow> {
                           scrollDirection: Axis.horizontal,
                           controller: pageController,
                           onPageChanged: (int index) {
-                            StoreService.instance.set ('uploadedTimeHeaderPage', index);
+                            StoreService.instance
+                                .set('uploadedTimeHeaderPage', index);
                             StoreService.instance.set(
                                 'uploadedYear',
                                 timeHeader[timeHeader.length - index - 1][0][0]
@@ -555,8 +562,9 @@ class _TopRowState extends State<TopRow> {
                                               ? kAltoOrganized
                                               : kGreyDarker,
                                           month: month[1],
-                                          whiteOrAltoBlueDashIcon:
-                                              month[3] ? kAltoBlue : Colors.white,
+                                          whiteOrAltoBlueDashIcon: month[3]
+                                              ? kAltoBlue
+                                              : Colors.white,
                                           onTap: () {
                                             // TODO: add method to jump to proper piv
                                             /*
@@ -689,10 +697,16 @@ class _TopRowState extends State<TopRow> {
                           style: kLookingAtText,
                         ),
                       ));
-                      output.add(GridTagElement(
-                          gridTagElementIcon: kCameraIcon,
-                          iconColor: kGreyDarker,
-                          gridTagName: 'Everything'));
+                      output.add(GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, 'querySelector');
+                        },
+                        child: GridTagElement(
+                            gridTagElementIcon: kCameraIcon,
+                            iconColor: kGreyDarker,
+                            gridTagName: 'Everything'),
+                      ));
                     }
                     if (queryTags.length > 1) output.add(GridSeeMoreElement());
                     output.add(Expanded(

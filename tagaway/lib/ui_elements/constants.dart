@@ -55,6 +55,7 @@ const kVideoIcon = FontAwesomeIcons.video;
 const kAlert = FontAwesomeIcons.triangleExclamation;
 const kEmailValidation = FontAwesomeIcons.envelopeCircleCheck;
 const kPinIcon = FontAwesomeIcons.thumbtack;
+const kArrowLeft = FontAwesomeIcons.arrowLeftLong;
 
 const tagColors = [
   kTagColor1,
@@ -277,90 +278,125 @@ const kTaglineText = TextStyle(
   color: kGreyDarker,
 );
 
-int initT = now ();
+int initT = now();
 
-int now () {
-  return DateTime.now ().millisecondsSinceEpoch;
+int now() {
+  return DateTime.now().millisecondsSinceEpoch;
 }
 
-void debug (List params) {
-  String acc = 'DEBUG (' + (now () - initT).toString () + 'ms)';
-  params.forEach ((v) => acc += ' ' + v.toString ());
-  print (acc);
+void debug(List params) {
+  String acc = 'DEBUG (' + (now() - initT).toString() + 'ms)';
+  params.forEach((v) => acc += ' ' + v.toString());
+  print(acc);
 }
 
-Color tagColor (String tag) {
-   var acc = 0;
-   tag.split ('').forEach ((v) {
-      acc += v.codeUnitAt (0);
-   });
-   return tagColors [acc % tagColors.length];
+Color tagColor(String tag) {
+  var acc = 0;
+  tag.split('').forEach((v) {
+    acc += v.codeUnitAt(0);
+  });
+  return tagColors[acc % tagColors.length];
 }
 
 bool ajaxLogs = true;
 
-Future<dynamic> ajax (String method, String path, [dynamic body]) async {
-   // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
-   String cookie = await StoreService.instance.getBeforeLoad ('cookie');
-   int start = now ();
-   var response;
-   try {
-      if (method == 'get') {
-         response = await http.get (Uri.parse (kAltoPicAppURL + '/' + path), headers: {'cookie': cookie});
+Future<dynamic> ajax(String method, String path, [dynamic body]) async {
+  // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
+  String cookie = await StoreService.instance.getBeforeLoad('cookie');
+  int start = now();
+  var response;
+  try {
+    if (method == 'get') {
+      response = await http.get(Uri.parse(kAltoPicAppURL + '/' + path),
+          headers: {'cookie': cookie});
+    } else {
+      if (path != 'auth/login' &&
+          path != 'auth/signup' &&
+          path != 'auth/recover') {
+        body['csrf'] = await StoreService.instance.get('csrf');
       }
-      else {
-         if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover') {
-            body ['csrf'] = await StoreService.instance.get ('csrf');
-         }
-         var httpOperation = method == 'post' ? http.post : http.put;
-         response = await httpOperation (
-            Uri.parse (kAltoPicAppURL + '/' + path),
-            headers: {'cookie': cookie, 'Content-Type': 'application/json; charset=UTF-8'},
-            body:    jsonEncode (body)
-         );
-      }
+      var httpOperation = method == 'post' ? http.post : http.put;
+      response = await httpOperation(Uri.parse(kAltoPicAppURL + '/' + path),
+          headers: {
+            'cookie': cookie,
+            'Content-Type': 'application/json; charset=UTF-8'
+          },
+          body: jsonEncode(body));
+    }
 
-      if (ajaxLogs) debug ([method, '/' + path, (now () - start).toString () + 'ms', response.statusCode, ((response.body == '' ? '{}' : utf8.decode (response.bodyBytes)).length / 1000).round ().toString () + 'kb']);
+    if (ajaxLogs)
+      debug([
+        method,
+        '/' + path,
+        (now() - start).toString() + 'ms',
+        response.statusCode,
+        ((response.body == '' ? '{}' : utf8.decode(response.bodyBytes)).length /
+                    1000)
+                .round()
+                .toString() +
+            'kb'
+      ]);
 
-      // If we get a 403, it must be because the cookie is invalid. We delete it locally.
-      if (response.statusCode == 403) {
-         await StoreService.instance.remove ('cookie', 'disk');
-         await StoreService.instance.remove ('csrf', 'disk');
-      }
+    // If we get a 403, it must be because the cookie is invalid. We delete it locally.
+    if (response.statusCode == 403) {
+      await StoreService.instance.remove('cookie', 'disk');
+      await StoreService.instance.remove('csrf', 'disk');
+    }
 
-      return {
-         'code': response.statusCode,
-         'headers': response.headers,
-         'body': jsonDecode (response.body == '' ? '{}' : utf8.decode (response.bodyBytes))
-      };
-   } on SocketException catch (_) {
-      if (ajaxLogs) debug ([method, '/' + path, (now () - start).toString () + 'ms', 'Socket Exception']);
-      return {'code': 0};
-   }
+    return {
+      'code': response.statusCode,
+      'headers': response.headers,
+      'body': jsonDecode(
+          response.body == '' ? '{}' : utf8.decode(response.bodyBytes))
+    };
+  } on SocketException catch (_) {
+    if (ajaxLogs)
+      debug([
+        method,
+        '/' + path,
+        (now() - start).toString() + 'ms',
+        'Socket Exception'
+      ]);
+    return {'code': 0};
+  }
 }
 
-Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async {
-   var request = http.MultipartRequest ('post', Uri.parse (kAltoPicAppURL + '/' + path));
+Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
+  var request =
+      http.MultipartRequest('post', Uri.parse(kAltoPicAppURL + '/' + path));
 
-   request.headers ['cookie'] = await StoreService.instance.get ('cookie');
-   request.fields  ['csrf']   = await StoreService.instance.get ('csrf');
+  request.headers['cookie'] = await StoreService.instance.get('cookie');
+  request.fields['csrf'] = await StoreService.instance.get('csrf');
 
-   fields.forEach ((k, v) => request.fields [k] = v.toString ());
-   request.files.add (await http.MultipartFile.fromPath ('piv', filePath));
+  fields.forEach((k, v) => request.fields[k] = v.toString());
+  request.files.add(await http.MultipartFile.fromPath('piv', filePath));
 
-   int start = now ();
-   var response;
-   try {
-      var response = await request.send ();
-      String rbody = await response.stream.bytesToString ();
-      if (ajaxLogs) debug (['post', '/' + path, (now () - start).toString () + 'ms', response.statusCode, (rbody.length / 1000).round ().toString () + 'kb']);
-      return {
-         'code': response.statusCode,
-         'headers': response.headers,
-         'body': jsonDecode (rbody == '' ? '{}' : rbody)
-      };
-   } on SocketException catch (_) {
-      if (ajaxLogs) debug (['post', '/' + path, (now () - start).toString () + 'ms', 'Socket Exception']);
-      return {'code': 0};
-   }
+  int start = now();
+  var response;
+  try {
+    var response = await request.send();
+    String rbody = await response.stream.bytesToString();
+    if (ajaxLogs)
+      debug([
+        'post',
+        '/' + path,
+        (now() - start).toString() + 'ms',
+        response.statusCode,
+        (rbody.length / 1000).round().toString() + 'kb'
+      ]);
+    return {
+      'code': response.statusCode,
+      'headers': response.headers,
+      'body': jsonDecode(rbody == '' ? '{}' : rbody)
+    };
+  } on SocketException catch (_) {
+    if (ajaxLogs)
+      debug([
+        'post',
+        '/' + path,
+        (now() - start).toString() + 'ms',
+        'Socket Exception'
+      ]);
+    return {'code': 0};
+  }
 }

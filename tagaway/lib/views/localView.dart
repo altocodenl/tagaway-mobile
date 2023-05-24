@@ -96,6 +96,9 @@ class _LocalViewState extends State<LocalView> {
         if (currentView != 2) {
           currentlyTagging = v2;
           if (v3 != '') swiped = v3;
+          if (swiped == false) {
+            FocusManager.instance.primaryFocus?.unfocus();
+          }
           if (swiped == false && initialChildSize > initialScrollableSize)
             initialChildSize = initialScrollableSize;
           if (swiped == true && initialChildSize < 0.77)

@@ -364,36 +364,41 @@ class GridTagUploadedQueryElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.only(left: 12, right: 12),
-        decoration: const BoxDecoration(
-            color: kGreyLighter,
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: FaIcon(
-                gridTagElementIcon,
-                color: iconColor,
-                size: 20,
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacementNamed(context, 'querySelector');
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: Container(
+          height: 40,
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          decoration: const BoxDecoration(
+              color: kGreyLighter,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: FaIcon(
+                  gridTagElementIcon,
+                  color: iconColor,
+                  size: 20,
+                ),
               ),
-            ),
-            Container(
-              constraints: BoxConstraints(
-                maxWidth: SizeService.instance
-                    .gridTagUploadedQueryElementMaxWidthCalculator(context),
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: SizeService.instance
+                      .gridTagUploadedQueryElementMaxWidthCalculator(context),
+                ),
+                child: Text(gridTagName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: kGridTagListElement),
               ),
-              child: Text(gridTagName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style: kGridTagListElement),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

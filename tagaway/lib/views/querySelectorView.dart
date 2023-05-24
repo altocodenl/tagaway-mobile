@@ -101,15 +101,16 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey[50],
+        elevation: 0,
         iconTheme: const IconThemeData(color: kAltoBlue),
         centerTitle: true,
         leadingWidth: 70,
         leading: IconButton(
             icon: const FaIcon(
-              FontAwesomeIcons.circleXmark,
+              kArrowLeft,
               color: kGreyDarker,
-              size: 25,
+              // size: 25,
             ),
             onPressed: () {
               Navigator.pushReplacementNamed(context, 'bottomNavigation');
