@@ -2,8 +2,6 @@
 
 ## TODO
 
-- When a piv being uploaded is tagged with tag X, show it in green if you switch back to tagging with tag X.
-
 - Time header
    - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
    - When clicking on month on time header, jump to relevant scroll position.
