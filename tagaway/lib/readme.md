@@ -32,6 +32,9 @@
    - Colorful and wider filter button
    - Unify search & filter in Uploaded, make button wider
    - Tutorial?
+   - Change cloud icon for organized icon
+   - Replace name of view in bottomNavigation for amount of pivs
+   - Score in phone view should be the unorganized (?)
 - On tap on a top bar tag in Uploaded, open query selector (Tom)
 - Find a colorscheme to distinguish Local from Uploaded (Tom)
 - Think about a way to delete tags (Tom)
