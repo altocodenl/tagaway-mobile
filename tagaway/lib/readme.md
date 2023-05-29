@@ -2,6 +2,8 @@
 
 ## TODO
 
+- hashes x2
+
 - Time header
    - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
    - When clicking on month on time header, jump to relevant scroll position.
@@ -32,7 +34,6 @@
    - Colorful and wider filter button
    - Unify search & filter in Uploaded, make button wider
    - Tutorial?
-- On tap on a top bar tag in Uploaded, open query selector (Tom)
 - Find a colorscheme to distinguish Local from Uploaded (Tom)
 - Think about a way to delete tags (Tom)
 - Delete piv mode (uploaded) (Tom)
