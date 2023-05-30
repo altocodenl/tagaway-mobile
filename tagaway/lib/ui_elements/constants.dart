@@ -37,6 +37,8 @@ const kSelectedTag = Color(0xFFc1d4ff);
 
 // FontAwesomeIcons.circleCheck
 const kTagIcon = FontAwesomeIcons.tag;
+const kTagsIcon = FontAwesomeIcons.tags;
+const kUserTagIcon = FontAwesomeIcons.userTag;
 const kEmptyCircle = FontAwesomeIcons.circle;
 const kSolidCircleIcon = FontAwesomeIcons.solidCircle;
 const kCircleCheckIcon = FontAwesomeIcons.solidCircleCheck;
@@ -56,6 +58,7 @@ const kAlert = FontAwesomeIcons.triangleExclamation;
 const kEmailValidation = FontAwesomeIcons.envelopeCircleCheck;
 const kPinIcon = FontAwesomeIcons.thumbtack;
 const kArrowLeft = FontAwesomeIcons.arrowLeftLong;
+const kCloudArrowUp = FontAwesomeIcons.cloudArrowUp;
 
 const tagColors = [
   kTagColor1,
@@ -83,7 +86,7 @@ const kAcpicMain = TextStyle(
 const kLocalYear = TextStyle(
     fontFamily: 'Montserrat',
     fontWeight: FontWeight.bold,
-    fontSize: 30,
+    fontSize: 25,
     color: kGrey);
 
 const kBigTitle = TextStyle(

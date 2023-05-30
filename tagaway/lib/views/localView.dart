@@ -477,7 +477,7 @@ class _TopRowState extends State<TopRow> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 12.0, right: 12),
+                  padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -485,31 +485,53 @@ class _TopRowState extends State<TopRow> {
                         child: const Icon(
                           kTrashCanIcon,
                           color: Colors.transparent,
+                          semanticLabel: 'Search',
                           size: 25,
                         ),
                       ),
                       const Expanded(
                         child: Align(
-                            alignment: Alignment(0.29, .9), child: LocalYear()),
+                            alignment: Alignment(0.6, .9), child: LocalYear()),
                       ),
-                      const Icon(
-                        kSearchIcon,
-                        color: Colors.transparent,
-                        size: 25,
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Icon(
-                          kSlidersIcon,
-                          color: Colors.transparent,
-                          size: 25,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            disabledBackgroundColor: Colors.white,
+                            disabledForegroundColor: Colors.white,
+                            elevation: 0,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            surfaceTintColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                          ),
+                          child: Row(
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.0, bottom: 2),
+                                child: Text(
+                                  'Search',
+                                  style: TextStyle(color: Colors.transparent),
+                                ),
+                              ),
+                              Icon(
+                                kSearchIcon,
+                                color: Colors.transparent,
+                                size: 15,
+                              ),
+                            ],
+                          ),
                         ),
                       )
                     ],
                   ),
                 ),
                 Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
+                    padding: const EdgeInsets.only(top: 15.0),
                     child: SizedBox(
                         height: 80,
                         child: PageView.builder(

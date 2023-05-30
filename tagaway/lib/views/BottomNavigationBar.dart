@@ -50,7 +50,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
             BottomNavigationBar(
               selectedItemColor: kAltoBlue,
               unselectedItemColor: kGreyDarker,
-              iconSize: 30,
+              iconSize: 25,
               currentIndex: currentIndex,
               unselectedLabelStyle: kBottomNavigationText,
               selectedLabelStyle: kBottomNavigationText,
@@ -59,16 +59,14 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
               },
               items: const [
                 BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
+                    icon: FaIcon(FontAwesomeIcons.house), label: ''),
                 BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                    label: 'Phone'),
-                BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.cloudArrowUp),
-                    label: 'Cloud'),
+                    label: ''),
+                BottomNavigationBarItem(icon: FaIcon(kCloudArrowUp), label: ''),
               ],
             ),
-            UploadingNumber()
+            const UploadingNumber()
           ],
         ),
       );

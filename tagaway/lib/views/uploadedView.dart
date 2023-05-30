@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
@@ -471,7 +469,7 @@ class _TopRowState extends State<TopRow> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 12.0, right: 12),
+                  padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -483,33 +481,37 @@ class _TopRowState extends State<TopRow> {
                           )),
                       const Expanded(
                         child: Align(
-                            alignment: Alignment(0.29, .9),
+                            alignment: Alignment(0.6, .9),
                             child: UploadedYear()),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacementNamed(context, 'searchTags');
-                        },
-                        child: const Icon(
-                          kSearchIcon,
-                          color: kGreyDarker,
-                          size: 25,
-                        ),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: GestureDetector(
-                          onTap: () {
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: ElevatedButton(
+                          onPressed: () {
                             Navigator.pushReplacementNamed(
                                 context, 'querySelector');
                           },
-                          child: Transform.rotate(
-                            angle: 90 * -math.pi / 180.0,
-                            child: const Icon(
-                              kSlidersIcon,
-                              color: kGreyDarker,
-                              size: 25,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kAltoBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
                             ),
+                          ),
+                          child: Row(
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8.0, bottom: 2),
+                                child: Text(
+                                  'Search',
+                                  style: kButtonText,
+                                ),
+                              ),
+                              Icon(
+                                kSearchIcon,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -517,7 +519,7 @@ class _TopRowState extends State<TopRow> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
+                  padding: const EdgeInsets.only(top: 15.0),
                   child: SizedBox(
                       height: 80,
                       child: PageView.builder(

@@ -683,7 +683,7 @@ class GridMonthElement extends StatelessWidget {
             FaIcon(
               roundedIcon,
               color: roundedIconColor,
-              size: 16,
+              size: 12,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
