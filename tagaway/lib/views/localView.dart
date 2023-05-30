@@ -67,7 +67,8 @@ class _LocalViewState extends State<LocalView> {
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
   double initialScrollableSize =
       StoreService.instance.get('initialScrollableSize');
-  double currentScrollableSize = StoreService.instance.get('initialScrollableSize');
+  double currentScrollableSize =
+      StoreService.instance.get('initialScrollableSize');
 
   @override
   void initState() {
@@ -157,7 +158,7 @@ class _LocalViewState extends State<LocalView> {
                   return true;
                 },
                 child: DraggableScrollableSheet(
-                    key: Key(currentScrollableSize.toString ()),
+                    key: Key(currentScrollableSize.toString()),
                     snap: true,
                     initialChildSize: currentScrollableSize,
                     minChildSize: initialScrollableSize,
@@ -177,13 +178,19 @@ class _LocalViewState extends State<LocalView> {
                             children: [
                               Visibility(
                                   visible: !swiped,
-                                  child: const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: FaIcon(
-                                        FontAwesomeIcons.anglesUp,
-                                        color: kGrey,
-                                        size: 16,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      print(
+                                          'This should open the draggableScrollableSheet');
+                                    },
+                                    child: const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(top: 8.0),
+                                        child: FaIcon(
+                                          FontAwesomeIcons.anglesUp,
+                                          color: kGrey,
+                                          size: 16,
+                                        ),
                                       ),
                                     ),
                                   )),
