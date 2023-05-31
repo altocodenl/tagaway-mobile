@@ -521,7 +521,7 @@ class _TopRowState extends State<TopRow> {
                 Padding(
                   padding: const EdgeInsets.only(top: 15.0),
                   child: SizedBox(
-                      height: 80,
+                      height: 64,
                       child: PageView.builder(
                           itemCount: timeHeader.length,
                           reverse: true,
