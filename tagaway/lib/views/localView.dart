@@ -208,13 +208,19 @@ class _LocalViewState extends State<LocalView> {
                                   )),
                               Visibility(
                                   visible: swiped,
-                                  child: const Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(top: 8.0),
-                                      child: FaIcon(
-                                        FontAwesomeIcons.anglesDown,
-                                        color: kGrey,
-                                        size: 16,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      print(
+                                          'This should close the draggableScrollableSheet');
+                                    },
+                                    child: const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(top: 8.0),
+                                        child: FaIcon(
+                                          FontAwesomeIcons.anglesDown,
+                                          color: kGrey,
+                                          size: 16,
+                                        ),
                                       ),
                                     ),
                                   )),
