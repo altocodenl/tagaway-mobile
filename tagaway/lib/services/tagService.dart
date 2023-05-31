@@ -271,7 +271,7 @@ class TagService {
         if (listEquals (tags, queryTags)) return;
       }
       queryTags = List.from (tags);
-      var firstLoadSize = 100;
+      var firstLoadSize = 200;
       var response = await ajax ('post', 'query', {
          'tags': tags,
          'sort': 'newest',
@@ -319,6 +319,7 @@ class TagService {
       });
 
       if (queryResult ['total'] > firstLoadSize) {
+
          response = await ajax ('post', 'query', {
             'tags': tags,
             'sort': 'newest',
