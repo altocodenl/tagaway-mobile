@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/services/storeService.dart';
 
 class SizeService {
-  SizeService._privateConstructor ();
-  static final SizeService instance = SizeService._privateConstructor ();
+  SizeService._privateConstructor();
+  static final SizeService instance = SizeService._privateConstructor();
 
-  double screenHeight (context) {
-    return MediaQuery.of (context).size.height;
+  double screenHeight(context) {
+    return MediaQuery.of(context).size.height;
   }
 
-  double screenWidth (context) {
-    return MediaQuery.of (context).size.width;
+  double screenWidth(context) {
+    return MediaQuery.of(context).size.width;
   }
 
-  double draggableScrollableSheetInitialChildSize (context) {
-    var screenHeight = MediaQuery.of (context).size.height;
+  double draggableScrollableSheetInitialChildSize(context) {
+    var screenHeight = MediaQuery.of(context).size.height;
     if (screenHeight < 710) {
       return .1;
     } else if (screenHeight > 711 && screenHeight < 800) {
@@ -24,25 +24,25 @@ class SizeService {
     }
   }
 
-  double timeHeaderChildAspectRatio (context) {
-    var screenWidth = MediaQuery.of (context).size.width;
+  double timeHeaderChildAspectRatio(context) {
+    var screenWidth = MediaQuery.of(context).size.width;
     if (screenWidth < 374) {
-      return 1.3;
+      return 1.08;
     } else if (screenWidth <= 375) {
-      return 1.26;
+      return 1.025;
     } else if (screenWidth < 390) {
-      return 1.23;
+      return 1.015;
     } else if (screenWidth < 410) {
-      return 1.2;
+      return .98;
     } else if (screenWidth < 415) {
-      return 1.15;
+      return .92;
     } else {
-      return 1.11;
+      return .9;
     }
   }
 
-  double gridTagElementMaxWidthCalculator (context) {
-    var screenWidth = MediaQuery.of (context).size.width;
+  double gridTagElementMaxWidthCalculator(context) {
+    var screenWidth = MediaQuery.of(context).size.width;
     if (screenWidth < 374) {
       return screenWidth * .28;
     } else if (screenWidth <= 375) {
@@ -58,9 +58,9 @@ class SizeService {
     }
   }
 
-  double gridTagUploadedQueryElementMaxWidthCalculator (context) {
-    var screenWidth = MediaQuery.of (context).size.width;
-    var numberOfTags = StoreService.instance.get ('queryTags');
+  double gridTagUploadedQueryElementMaxWidthCalculator(context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var numberOfTags = StoreService.instance.get('queryTags');
     if (numberOfTags == '') {
       numberOfTags = 0;
     } else {
