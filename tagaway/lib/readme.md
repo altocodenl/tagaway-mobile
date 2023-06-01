@@ -2,14 +2,13 @@
 
 ## TODO
 
-- hashes x2
-
+- Hashes x2
+   - Compute hashes on client-side on startup and add them to map
+   - Endpoint to get ids of pivs for list of hashes. Check for existence and remove stale entries from pivMap
 - Time header
    - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
    - When clicking on month on time header, jump to relevant scroll position.
-- Compute hashes on client and use this to query the server to create pivMap entries for pivs with no pivMap entry
-- When loading local pivs, check for existence and remove stale entries from pivMap
-
+- Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
 - Signup
   - Email validation process.
   - Welcome email and communication with user
@@ -26,7 +25,6 @@
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
-
 - Discuss/design:
    - Distinctive icon for app
    - Show score on top bar of Local (total unorganized vs total organized)
