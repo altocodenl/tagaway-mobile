@@ -413,7 +413,7 @@ class _GridState extends State<Grid> {
                   shrinkWrap: true,
                   cacheExtent: 50,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                    crossAxisCount: 3,
                     mainAxisSpacing: 1,
                     crossAxisSpacing: 1,
                   ),
