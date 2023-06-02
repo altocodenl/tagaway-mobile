@@ -180,8 +180,10 @@ class _LocalViewState extends State<LocalView> {
                                   visible: !swiped,
                                   child: GestureDetector(
                                     onTap: () {
-                                      StoreService.instance.set('swipedLocal', true);
-                                      StoreService.instance.set('startTaggingModal', false);
+                                      StoreService.instance
+                                          .set('swipedLocal', true);
+                                      StoreService.instance
+                                          .set('startTaggingModal', false);
                                     },
                                     child: const Center(
                                       child: Padding(
@@ -210,7 +212,8 @@ class _LocalViewState extends State<LocalView> {
                                   visible: swiped,
                                   child: GestureDetector(
                                     onTap: () {
-                                      StoreService.instance.set('swipedLocal', false);
+                                      StoreService.instance
+                                          .set('swipedLocal', false);
                                     },
                                     child: const Center(
                                       child: Padding(
@@ -421,8 +424,10 @@ class _GridState extends State<Grid> {
                     return VisibilityDetector(
                         key: Key('local-' + index.toString()),
                         onVisibilityChanged: (VisibilityInfo info) {
-                          TagService.instance.toggleTimeHeaderVisibility('local',
-                              itemList[index], info.visibleFraction > 0.2);
+                          TagService.instance.toggleTimeHeaderVisibility(
+                              'local',
+                              itemList[index],
+                              info.visibleFraction > 0.2);
                         },
                         child: LocalGridItem(itemList[index]));
                   })),

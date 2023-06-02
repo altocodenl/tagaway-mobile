@@ -26,13 +26,16 @@ class _HomeViewState extends State<HomeView> {
 
   dynamic hometags = '';
   dynamic tags = '';
-  dynamic account = {'username': '', 'usage': {'byfs': 0}};
+  dynamic account = {
+    'username': '',
+    'usage': {'byfs': 0}
+  };
 
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['hometags', 'tags', 'account'], (v1, v2, v3) {
+    cancelListener = StoreService.instance
+        .listen(['hometags', 'tags', 'account'], (v1, v2, v3) {
       setState(() {
         hometags = v1;
         tags = v2;
@@ -40,7 +43,7 @@ class _HomeViewState extends State<HomeView> {
       });
     });
 
-    AuthService.instance.getAccount ();
+    AuthService.instance.getAccount();
     TagService.instance.getTags().then((statusCode) {
       if (statusCode == 403)
         Navigator.pushReplacementNamed(context, 'distributor');
@@ -77,7 +80,7 @@ class _HomeViewState extends State<HomeView> {
             Padding(
               padding: EdgeInsets.only(top: 1.0),
               child: Text(
-                account ['username'],
+                account['username'],
                 style: kPlainText,
               ),
             ),
@@ -93,11 +96,15 @@ class _HomeViewState extends State<HomeView> {
           SizedBox(
             height: 64,
             child: DrawerHeader(
-              child: Text(account ['username'], style: kSubPageAppBarTitle),
+              child: Text(account['username'], style: kSubPageAppBarTitle),
             ),
           ),
           UserMenuElementTransparent(
-              textOnElement: 'Your usage: ' + (account['usage']['byfs'] / (1000 * 1000 * 1000)).round ().toString () + 'GB of your free 5GB'),
+              textOnElement: 'Your usage: ' +
+                  (account['usage']['byfs'] / (1000 * 1000 * 1000))
+                      .round()
+                      .toString() +
+                  'GB of your free 5GB'),
           UserMenuElementLightGrey(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -192,15 +199,14 @@ class _HomeViewState extends State<HomeView> {
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         children: [
-                          for (var v in hometags) GestureDetector(
-                            onTap: () {
-                              StoreService.instance.set ('queryTags', [v]);
-                              StoreService.instance.set ('currentIndex', 2);
-                            },
-                            child: HomeCard(color: tagColor(v), title: v)
-                         )
-                       ])
-                  )),
+                          for (var v in hometags)
+                            GestureDetector(
+                                onTap: () {
+                                  StoreService.instance.set('queryTags', [v]);
+                                  StoreService.instance.set('currentIndex', 2);
+                                },
+                                child: HomeCard(color: tagColor(v), title: v))
+                        ]))),
       ),
       floatingActionButton: Visibility(
         visible: hometags.isNotEmpty,

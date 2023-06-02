@@ -253,5 +253,6 @@ class _LoginViewState extends State<LoginView> {
 
 class ShowVerifyBanner {
   final String showVerifyBanner;
+
   ShowVerifyBanner(this.showVerifyBanner);
 }
