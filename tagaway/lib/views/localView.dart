@@ -365,10 +365,10 @@ class _GridState extends State<Grid> {
   @override
   void initState() {
     super.initState();
-    fetchAssets();
+    loadLocalPivs();
   }
 
-  fetchAssets() async {
+  loadLocalPivs() async {
     FilterOptionGroup makeOption() {
       // final option = FilterOption();
       return FilterOptionGroup()
@@ -384,20 +384,21 @@ class _GridState extends State<Grid> {
     final recentAlbum = albums.first;
 
     // Now that we got the album, fetch all the assets it contains
-    final recentAssets = await recentAlbum.getAssetListRange(
+    final localPivs = await recentAlbum.getAssetListRange(
       start: 0, // start at index 0
       end: 1000000, // end at a very big index (to get all the assets)
     );
+    StoreService.instance.set('countLocal', localPivs.length);
 
-    for (var asset in recentAssets) {
+    for (var piv in localPivs) {
       StoreService.instance.set(
-          'pivDate:' + asset.id, asset.createDateTime.millisecondsSinceEpoch);
+          'pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
     }
     TagService.instance.getLocalTimeHeader();
 
     // Update the state and notify UI
     setState(() {
-      itemList = recentAssets;
+      itemList = localPivs;
       loadedPivs = true;
     });
   }

@@ -43,6 +43,7 @@
 ```
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED , geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - cookie <str> [DISK]: cookie of current session, brought from server
+- count(Local|Uploaded) <str>: count of pivs shown in bottom navigation icon for that view
 - csrf <str> [DISK]: csrf token of current session, brought from server
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
@@ -60,6 +61,7 @@
 - pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart
 - previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
+- queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart

@@ -288,6 +288,7 @@ class TagService {
       if (response ['code'] != 200) return;
 
       var queryResult = response ['body'];
+      if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
 
       if (queryResult ['total'] > firstLoadSize) {
         // We create n empty entries as placeholders for those pivs we haven't loaded yet

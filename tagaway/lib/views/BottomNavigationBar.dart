@@ -21,6 +21,8 @@ class BottomNavigationView extends StatefulWidget {
 
 class _BottomNavigationViewState extends State<BottomNavigationView> {
   dynamic cancelListener;
+  dynamic countLocal = '';
+  dynamic countUploaded = '';
 
   int currentIndex = 0;
   final screens = [const HomeView(), const LocalView(), const UploadedView()];
@@ -28,8 +30,12 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['currentIndex'], (v) {
-      setState(() => currentIndex = v == '' ? 0 : v);
+    cancelListener = StoreService.instance.listen(['currentIndex', 'countLocal', 'countUploaded'], (v1, v2, v3) {
+      setState(() {
+        currentIndex = v1 == '' ? 0 : v1;
+        countLocal = v2.toString ();
+        countUploaded = v3.toString ();
+      });
     });
   }
 
@@ -58,13 +64,13 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
               onTap: (index) {
                 StoreService.instance.set('currentIndex', index);
               },
-              items: const [
+              items: [
                 BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.house), label: ''),
                 BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                    label: ''),
-                BottomNavigationBarItem(icon: FaIcon(kCloudArrowUp), label: ''),
+                    label: countLocal),
+                BottomNavigationBarItem(icon: FaIcon(kCloudArrowUp), label: countUploaded),
               ],
             ),
             const UploadingNumber()
