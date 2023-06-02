@@ -174,6 +174,8 @@ class TagService {
       fromMonth = fromMonth < 7 ? 1  : 7;
       toMonth   = toMonth   > 6 ? 12 : 6;
 
+      // Semester is an array of months.
+      // A month is [year, month, color, selected (boolean), id of the last piv on the month]
       for (var year = fromYear; year <= toYear; year++) {
          for (var month = (year == fromYear ? fromMonth : 1); month <= (year == toYear ? toMonth : 12); month++) {
             var dateKey = year.toString () + ':' + month.toString ();
@@ -215,7 +217,6 @@ class TagService {
       var output      = [];
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
-      // No uploaded pivs, return current semester as empty.
       timeHeader.keys.forEach ((v) {
          var dates = v.split (':');
          dates = [int.parse (dates [0]), int.parse (dates [1])];
@@ -227,10 +228,13 @@ class TagService {
          if (dates [0] < min [0] || (dates [0] == min [0] && dates [1] < min [1])) min = dates;
          if (dates [0] > max [0] || (dates [0] == max [0] && dates [1] < max [1])) max = dates;
       });
+      // No uploaded pivs, return current semester as empty.
       if (timeHeader.keys.length == 0) {
         max = [DateTime.now ().year, DateTime.now ().month > 6 ? 12 : 6];
         min = [DateTime.now ().year, DateTime.now ().month < 7 ? 1 : 7];
       }
+      // Semester is an array of months.
+      // A month is [year, month, color, selected (boolean), id of the last piv on the month]
       for (var year = min [0]; year <= max [0]; year++) {
          for (var month = 1; month <= 12; month++) {
            var dateKey = year.toString () + ':' + month.toString ();
@@ -260,7 +264,7 @@ class TagService {
 
       StoreService.instance.set ('uploadedTimeHeader', semesters);
       // The line below is a hack. A redraw we don't understand well yet is sometimes recalculating the uploaded time header, causing the selected months to be erased. By recomputing visibility, we overcome the problem.
-      toggleVisibility ('update', null, false);
+      toggleTimeHeaderVisibility ('update', null, false);
       StoreService.instance.set ('uploadedYear', semesters[semesters.length - 1][0][0]);
    }
 
@@ -386,7 +390,7 @@ class TagService {
     return response['code'];
   }
 
-  toggleVisibility (String view, dynamic piv, bool visible) async {
+  toggleTimeHeaderVisibility (String view, dynamic piv, bool visible) async {
 
      filter (dynamic list, String id, int date, bool visible) {
         var existing;

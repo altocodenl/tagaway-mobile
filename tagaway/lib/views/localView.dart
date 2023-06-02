@@ -409,7 +409,7 @@ class _GridState extends State<Grid> {
                     return VisibilityDetector(
                         key: Key('local-' + index.toString()),
                         onVisibilityChanged: (VisibilityInfo info) {
-                          TagService.instance.toggleVisibility('local',
+                          TagService.instance.toggleTimeHeaderVisibility('local',
                               itemList[index], info.visibleFraction > 0.2);
                         },
                         child: LocalGridItem(itemList[index]));

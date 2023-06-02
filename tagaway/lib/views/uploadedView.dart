@@ -349,12 +349,14 @@ class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
   dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
+  final ScrollController scrollController = ScrollController();
 
   dynamic visibleItems = [];
 
   @override
   void initState() {
     super.initState();
+    StoreService.instance.set('uploadedScrollController', scrollController);
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
@@ -377,6 +379,7 @@ class _UploadGridState extends State<UploadGrid> {
     super.dispose();
     cancelListener();
     cancelListener2();
+    scrollController.dispose();
   }
 
   @override
@@ -387,6 +390,7 @@ class _UploadGridState extends State<UploadGrid> {
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: GridView.builder(
+              controller: scrollController,
               reverse: true,
               shrinkWrap: true,
               cacheExtent: 50,
@@ -402,7 +406,7 @@ class _UploadGridState extends State<UploadGrid> {
                     onVisibilityChanged: (VisibilityInfo info) {
                       // If we're redrawing, we might try to get a piv that is out of range, so we prevent this by doing this check.
                       if (queryResult['pivs'].length - 1 < index) return;
-                      TagService.instance.toggleVisibility(
+                      TagService.instance.toggleTimeHeaderVisibility(
                           'uploaded', index, info.visibleFraction > 0.2);
                     },
                     child: UploadedGridItem(
@@ -567,12 +571,12 @@ class _TopRowState extends State<TopRow> {
                                               ? kAltoBlue
                                               : Colors.white,
                                           onTap: () {
-                                            // TODO: add method to jump to proper piv
-                                            /*
-                                            if (month[2] != 'white')
-                                              return debug(
-                                                  ['TODO JUMP TO', month[4]]);
-                                              */
+                                            if (month[2] != 'white') {
+                                               // TODO: ADD JUMP LOGIC
+                                               // final double position = month [4] * SizeService.instance.thumbnailHeight (context);
+                                               // debug(['TODO JUMP TO', month[4], position]);
+                                               // StoreService.instance.get ('uploadedScrollController').jumpTo (position);
+                                             }
                                           }));
                                     });
                                   return output;

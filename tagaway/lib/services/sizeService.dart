@@ -94,4 +94,9 @@ class SizeService {
       return 0;
     }
   }
+
+  double thumbnailHeight (context) {
+    return (MediaQuery.of(context).size.width / 2).round () - 1;
+  }
+
 }

@@ -75,6 +75,7 @@
 - tagMap:<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the current tag
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
 - uploadQueue [<string>, ...] [DISK]: list of ids of pivs that are going to be uploaded.
+- uploadedScrollController <scroll controller>: controller that drives the scroll of the uploaded grid
 - uploadedTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
