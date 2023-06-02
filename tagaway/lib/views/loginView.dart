@@ -21,8 +21,8 @@ class _LoginViewState extends State<LoginView> {
   late Timer materialBannerDelayer;
   bool recurringUserLocal = false;
   late Future myFuture;
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final inviteResponse = StreamController<int>.broadcast();
 
   @override
@@ -33,6 +33,8 @@ class _LoginViewState extends State<LoginView> {
   @override
   void dispose() {
     inviteResponse.close();
+    usernameController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -124,7 +126,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                         TextField(
-                          controller: _usernameController,
+                          controller: usernameController,
                           keyboardType: TextInputType.emailAddress,
                           autofocus: true,
                           textAlign: TextAlign.center,
@@ -142,7 +144,7 @@ class _LoginViewState extends State<LoginView> {
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0, bottom: 20),
                           child: TextField(
-                            controller: _passwordController,
+                            controller: passwordController,
                             autofocus: true,
                             obscureText: true,
                             textAlign: TextAlign.center,
@@ -164,8 +166,8 @@ class _LoginViewState extends State<LoginView> {
                             FocusManager.instance.primaryFocus?.unfocus();
                             AuthService.instance
                                 .login(
-                                    _usernameController.text,
-                                    _passwordController.text,
+                                    usernameController.text,
+                                    passwordController.text,
                                     DateTime.now()
                                         .timeZoneOffset
                                         .inMinutes
@@ -173,8 +175,8 @@ class _LoginViewState extends State<LoginView> {
                                     // TODO: move to handler function
                                     )
                                 .then((value) {
-                              if (value != 403) _usernameController.clear();
-                              _passwordController.clear();
+                              if (value != 403) usernameController.clear();
+                              passwordController.clear();
 
                               if (value == 403) {
                                 SnackBarGlobal.buildSnackBar(

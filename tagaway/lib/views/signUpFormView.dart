@@ -25,7 +25,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController repeatEmailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController repeatpasswordController =
+  final TextEditingController repeatPasswordController =
       TextEditingController();
   final RegExp emailValidation = RegExp(
       r"^(?=[A-Z0-9][A-Z0-9@._%+-]{5,253}$)[A-Z0-9._%+-]{1,64}@(?:(?=[A-Z0-9-]{1,63}\.)[A-Z0-9]+(?:-[A-Z0-9]+)*\.){1,8}[A-Z]{2,63}$",
@@ -34,6 +34,12 @@ class _SignUpFormViewState extends State<SignUpFormView> {
   @override
   void dispose() {
     pageController.dispose();
+    userNameController.dispose();
+    repeatUserNameController.dispose();
+    emailController.dispose();
+    repeatEmailController.dispose();
+    passwordController.dispose();
+    repeatPasswordController.dispose();
     super.dispose();
   }
 
@@ -285,7 +291,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                             ),
                           ),
                           TextField(
-                            controller: repeatpasswordController,
+                            controller: repeatPasswordController,
                             keyboardType: TextInputType.text,
                             autofocus: true,
                             obscureText: true,
@@ -312,11 +318,11 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                   });
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   if (passwordController.text.isEmpty ||
-                                      repeatpasswordController.text.isEmpty) {
+                                      repeatPasswordController.text.isEmpty) {
                                     SnackBarGlobal.buildSnackBar(context,
                                         'Please fill both fields', 'red');
                                   } else if (passwordController.text !=
-                                      repeatpasswordController.text) {
+                                      repeatPasswordController.text) {
                                     SnackBarGlobal.buildSnackBar(context,
                                         'Your passwords do not match', 'red');
                                   } else if (passwordController.text.length <
@@ -328,7 +334,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                   }
                                   // HOW DO WE RESOLVE THE SPACES IN THE WEB APP SIGN UP?
                                   else if (passwordController.text ==
-                                      repeatpasswordController.text) {
+                                      repeatPasswordController.text) {
                                     AuthService.instance
                                         .signup(
                                             userNameController.text,
@@ -349,7 +355,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                           emailController.clear();
                                           repeatEmailController.clear();
                                           passwordController.clear();
-                                          repeatpasswordController.clear();
+                                          repeatPasswordController.clear();
                                         });
                                       } else if (value == 403) {
                                         //HERE WE HAVE TO MANAGE {error: 'email'}, {error: 'username'} and any other error based on 403.

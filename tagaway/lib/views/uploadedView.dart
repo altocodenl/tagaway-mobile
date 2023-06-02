@@ -112,6 +112,7 @@ class _UploadedViewState extends State<UploadedView> {
   void dispose() {
     super.dispose();
     cancelListener();
+    searchTagController.dispose();
   }
 
   bool searchTag(String query) {

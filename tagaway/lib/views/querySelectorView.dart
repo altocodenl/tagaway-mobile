@@ -35,9 +35,17 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic filteredYears = [];
   dynamic filteredCountries = [];
 
+
+  // This function will be called every time the text changes
+  searchQueryChanged() {
+    String searchQuery = searchQueryController.text;
+    print("Search query has changed: $searchQuery");
+  }
+
   @override
   void initState() {
     super.initState();
+    searchQueryController.addListener (searchQueryChanged);
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
@@ -96,6 +104,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     super.dispose();
     cancelListener();
     cancelListener2();
+    searchQueryController.dispose();
+    searchQueryController.removeListener (searchQueryChanged);
   }
 
   @override
