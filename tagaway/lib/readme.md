@@ -9,6 +9,8 @@
    - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
    - When clicking on month on time header, jump to relevant scroll position.
 - Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
+- Hide pivs that are organized in Local
+- Try out putting last 3 used tags on top of list
 - Signup
   - Email validation process.
   - Welcome email and communication with user
@@ -25,22 +27,15 @@
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
-- Discuss/design:
+- Design (Tom):
    - Distinctive icon for app
    - Show score on top bar of Local (total unorganized vs total organized)
-   - Hide pivs that are organized in Local
-   - Colorful and wider filter button
-   - Unify search & filter in Uploaded, make button wider
-   - Tutorial?
-   - Change cloud icon for organized icon
-   - Replace name of view in bottomNavigation for amount of pivs
-   - Score in phone view should be the unorganized (?)
-- On tap on a top bar tag in Uploaded, open query selector (Tom)
-- Find a colorscheme to distinguish Local from Uploaded (Tom)
-- Think about a way to delete tags (Tom)
-- Delete piv mode (uploaded) (Tom)
-- Delete piv mode (local): if deleting something being uploaded, defer the deletion. (Tom)
-- Figure out mechanism for showing recent tags on top: pinning tags, keep last n tags used, or both? (Tom)
+   - Manage tags view (rename, delete) (Tom)
+- Tutorial (Tom)
+- Fix zoom-in zoom-out when opening piv (Tom/Mono)
+- Delete piv mode (Tom):
+   - Uploaded
+   - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
