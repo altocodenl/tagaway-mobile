@@ -66,7 +66,8 @@ class _UploadedViewState extends State<UploadedView> {
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
   double initialScrollableSize =
       StoreService.instance.get('initialScrollableSize');
-  double currentScrollableSize = StoreService.instance.get('initialScrollableSize');
+  double currentScrollableSize =
+      StoreService.instance.get('initialScrollableSize');
 
   @override
   void initState() {
@@ -155,7 +156,7 @@ class _UploadedViewState extends State<UploadedView> {
                       return true;
                     },
                     child: DraggableScrollableSheet(
-                        key: Key(currentScrollableSize.toString ()),
+                        key: Key(currentScrollableSize.toString()),
                         snap: true,
                         initialChildSize: currentScrollableSize,
                         minChildSize: initialScrollableSize,
@@ -395,7 +396,7 @@ class _UploadGridState extends State<UploadGrid> {
               shrinkWrap: true,
               cacheExtent: 50,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: 3,
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
