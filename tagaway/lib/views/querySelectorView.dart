@@ -35,11 +35,9 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic filteredYears = [];
   dynamic filteredCountries = [];
 
-
   // This function will be called every time the text changes
   searchQueryChanged() {
-    String searchQuery = searchQueryController.text;
-    print("Search query has changed: $searchQuery");
+    StoreService.instance.set ('queryFilter', searchQueryController.text);
   }
 
   @override
@@ -58,35 +56,45 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     });
     cancelListener2 = StoreService.instance.listen([
       'queryResult',
-    ], (v1) {
+      'queryFilter',
+    ], (v1, v2) {
+      bool matchFilter (String tag) {
+        if (v2 == '' || queryTags.contains (tag)) return true;
+        return tag.toLowerCase().contains(v2.toLowerCase());
+      }
       if (v1 != '')
         setState(() {
           queryResult = v1;
           years = queryResult['tags']
               .keys
               .where((tag) => RegExp('^d::[0-9]').hasMatch(tag))
+              .where(matchFilter)
               .toList();
           years.sort();
           months = queryResult['tags']
               .keys
               .where((tag) => RegExp('^d::M').hasMatch(tag))
+              .where(matchFilter)
               .toList();
           months.sort(
               (a, b) => int.parse(a.substring(4)) - int.parse(b.substring(4)));
           countries = queryResult['tags']
               .keys
               .where((tag) => RegExp('^g::[A-Z]{2}').hasMatch(tag))
+              .where(matchFilter)
               .toList();
           countries.sort();
           cities = queryResult['tags']
               .keys
               .where((tag) =>
                   RegExp('^g::').hasMatch(tag) && !countries.contains(tag))
+              .where(matchFilter)
               .toList();
           cities.sort();
           usertags = queryResult['tags']
               .keys
               .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+              .where(matchFilter)
               .toList();
           usertags.sort();
           filteredYears = (expandYears || years.length < 4)
