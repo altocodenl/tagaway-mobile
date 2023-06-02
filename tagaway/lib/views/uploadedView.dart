@@ -177,13 +177,19 @@ class _UploadedViewState extends State<UploadedView> {
                                 children: [
                                   Visibility(
                                       visible: !swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 8.0),
-                                          child: FaIcon(
-                                            FontAwesomeIcons.anglesUp,
-                                            color: kGrey,
-                                            size: 16,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          StoreService.instance
+                                              .set('swipedUploaded', true);
+                                        },
+                                        child: const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 8.0),
+                                            child: FaIcon(
+                                              FontAwesomeIcons.anglesUp,
+                                              color: kGrey,
+                                              size: 16,
+                                            ),
                                           ),
                                         ),
                                       )),
@@ -201,13 +207,19 @@ class _UploadedViewState extends State<UploadedView> {
                                       )),
                                   Visibility(
                                       visible: swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 8.0),
-                                          child: FaIcon(
-                                            FontAwesomeIcons.anglesDown,
-                                            color: kGrey,
-                                            size: 16,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          StoreService.instance
+                                              .set('swipedUploaded', false);
+                                        },
+                                        child: const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 8.0),
+                                            child: FaIcon(
+                                              FontAwesomeIcons.anglesDown,
+                                              color: kGrey,
+                                              size: 16,
+                                            ),
                                           ),
                                         ),
                                       )),
@@ -573,11 +585,11 @@ class _TopRowState extends State<TopRow> {
                                               : Colors.white,
                                           onTap: () {
                                             if (month[2] != 'white') {
-                                               // TODO: ADD JUMP LOGIC
-                                               // final double position = month [4] * SizeService.instance.thumbnailHeight (context);
-                                               // debug(['TODO JUMP TO', month[4], position]);
-                                               // StoreService.instance.get ('uploadedScrollController').jumpTo (position);
-                                             }
+                                              // TODO: ADD JUMP LOGIC
+                                              // final double position = month [4] * SizeService.instance.thumbnailHeight (context);
+                                              // debug(['TODO JUMP TO', month[4], position]);
+                                              // StoreService.instance.get ('uploadedScrollController').jumpTo (position);
+                                            }
                                           }));
                                     });
                                   return output;
