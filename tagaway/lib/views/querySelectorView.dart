@@ -201,6 +201,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                             output.add(QuerySelectionTagElement(
                               onTap: () {
                                 TagService.instance.toggleQueryTag('u::');
+                                searchQueryController.clear();
                               },
                               elementColor: queryTags.contains('u::')
                                   ? kSelectedTag
@@ -213,6 +214,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                             output.add(QuerySelectionTagElement(
                               onTap: () {
                                 TagService.instance.toggleQueryTag('t::');
+                                searchQueryController.clear();
                               },
                               elementColor: queryTags.contains('t::')
                                   ? kSelectedTag
@@ -225,6 +227,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                             output.add(QuerySelectionTagElement(
                               onTap: () {
                                 TagService.instance.toggleQueryTag('o::');
+                                searchQueryController.clear();
                               },
                               elementColor: queryTags.contains('o::')
                                   ? kSelectedTag
@@ -259,6 +262,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     return QuerySelectionTagElement(
                         onTap: () {
                           TagService.instance.toggleQueryTag(year);
+                          searchQueryController.clear();
                         },
                         elementColor: queryTags.contains(year)
                             ? kSelectedTag
@@ -343,6 +347,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         return QuerySelectionTagElement(
                           onTap: () {
                             TagService.instance.toggleQueryTag(month);
+                            searchQueryController.clear();
                           },
                           elementColor: queryTags.contains(month)
                               ? kSelectedTag
@@ -385,6 +390,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         return QuerySelectionTagElement(
                             onTap: () {
                               TagService.instance.toggleQueryTag(country);
+                              searchQueryController.clear();
                             },
                             elementColor: queryTags.contains(country)
                                 ? kSelectedTag
@@ -457,6 +463,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         return QuerySelectionTagElement(
                             onTap: () {
                               TagService.instance.toggleQueryTag(city);
+                              searchQueryController.clear();
                             },
                             elementColor: queryTags.contains(city)
                                 ? kSelectedTag
@@ -493,6 +500,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     return QuerySelectionTagElement(
                         onTap: () {
                           TagService.instance.toggleQueryTag(tag);
+                          searchQueryController.clear();
                         },
                         elementColor: queryTags.contains(tag)
                             ? kSelectedTag
