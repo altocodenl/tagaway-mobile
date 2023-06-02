@@ -180,8 +180,8 @@ class _LocalViewState extends State<LocalView> {
                                   visible: !swiped,
                                   child: GestureDetector(
                                     onTap: () {
-                                      print(
-                                          'This should open the draggableScrollableSheet');
+                                      StoreService.instance.set('swipedLocal', true);
+                                      StoreService.instance.set('startTaggingModal', false);
                                     },
                                     child: const Center(
                                       child: Padding(
@@ -210,8 +210,7 @@ class _LocalViewState extends State<LocalView> {
                                   visible: swiped,
                                   child: GestureDetector(
                                     onTap: () {
-                                      print(
-                                          'This should close the draggableScrollableSheet');
+                                      StoreService.instance.set('swipedLocal', false);
                                     },
                                     child: const Center(
                                       child: Padding(
