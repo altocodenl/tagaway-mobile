@@ -26,7 +26,8 @@ class _SearchTagsViewState extends State<SearchTagsView> {
         StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
       setState(() {
         if (v1 != '') queryTags = v1;
-        if (v2 != '') tags = v2['tags'].keys.toList ();;
+        if (v2 != '') tags = v2['tags'].keys.toList();
+        ;
         List ShowTags = [];
         tags.forEach((tag) {
           if (RegExp('^[a-z]::').hasMatch(tag)) return;
@@ -119,10 +120,12 @@ class _SearchTagsViewState extends State<SearchTagsView> {
                         // For some reason, any code we put outside of the function below will be invoked on widget draw.
                         // Returning the desired behavior in a function solves the problem.
                         return () {
-                          var updatedTags = StoreService.instance.get ('queryTags');
-                          updatedTags.add (v);
-                          StoreService.instance.set ('queryTags', updatedTags);
-                          Navigator.pushReplacementNamed(context, 'bottomNavigation');
+                          var updatedTags =
+                              StoreService.instance.get('queryTags');
+                          updatedTags.add(v);
+                          StoreService.instance.set('queryTags', updatedTags);
+                          Navigator.pushReplacementNamed(
+                              context, 'bottomNavigation');
                         };
                       })
               ],
@@ -137,8 +140,7 @@ class _SearchTagsViewState extends State<SearchTagsView> {
 class TagSearchClass extends SearchDelegate {
   dynamic tags = [];
 
-  TagSearchClass(dynamic tags)
-      : this.tags = tags;
+  TagSearchClass(dynamic tags) : this.tags = tags;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -197,9 +199,9 @@ class TagSearchClass extends SearchDelegate {
             onTap: () {
               // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
               return () {
-                var updatedTags = StoreService.instance.get ('queryTags');
-                updatedTags.add (result);
-                StoreService.instance.set ('queryTags', updatedTags);
+                var updatedTags = StoreService.instance.get('queryTags');
+                updatedTags.add(result);
+                StoreService.instance.set('queryTags', updatedTags);
                 Navigator.pushReplacementNamed(context, 'bottomNavigation');
               };
             });

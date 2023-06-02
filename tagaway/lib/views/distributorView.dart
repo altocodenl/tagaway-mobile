@@ -51,7 +51,8 @@ class _DistributorState extends State<Distributor> {
   @override
   Widget build(BuildContext context) {
     // Quite a hack, but we need to set this somewhere where we have context.
-    StoreService.instance.set ('initialScrollableSize', SizeService.instance.draggableScrollableSheetInitialChildSize(context));
+    StoreService.instance.set('initialScrollableSize',
+        SizeService.instance.draggableScrollableSheetInitialChildSize(context));
     return Container(
       color: Colors.grey[50],
       child: const Center(

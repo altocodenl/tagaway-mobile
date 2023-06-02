@@ -969,7 +969,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
     return Icon(
       selected ? kCircleCheckIcon : kSolidCircleIcon,
       color: selected ? kAltoOrganized : kGreyDarker,
-      size: 25,
+      size: 15,
     );
   }
 }
