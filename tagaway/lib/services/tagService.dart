@@ -272,7 +272,8 @@ class TagService {
       tags.sort ();
       if (refresh == false && queryTags != '') {
         // If query tags have not changed and we're not getting the `refresh` parameters, do not query again since we already have that result.
-        if (listEquals (tags, queryTags)) return;
+        // We need to check if we have data loaded; we might not, if we just logged in.
+        if (listEquals (tags, queryTags) && StoreService.instance.get ('queryResult') != '') return;
       }
       queryTags = List.from (tags);
       var firstLoadSize = 200;
@@ -467,6 +468,7 @@ class TagService {
         var currentPage = StoreService.instance.get ('uploadedTimeHeaderPage');
         if (activePages.length > 0 && ! activePages.contains (currentPage)) {
            var pageController = StoreService.instance.get ('uploadedTimeHeaderController');
+           // Prevent scrolling semesters if the uploaded view is not active.
            if (pageController.hasClients) {
               pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
            }
