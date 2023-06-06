@@ -21,7 +21,7 @@ class LocalGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List?>(
-      future: asset.thumbnailDataWithSize(const ThumbnailSize.square(700)),
+      future: asset.thumbnailDataWithSize(const ThumbnailSize.square(400)),
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null) {
