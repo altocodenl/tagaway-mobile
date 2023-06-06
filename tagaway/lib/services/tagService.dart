@@ -290,6 +290,9 @@ class TagService {
       var queryResult = response ['body'];
       if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
 
+      // If query changed in the meantime, don't do anything else.
+      if (! listEquals (queryTags, tags)) return;
+
       if (queryResult ['total'] > firstLoadSize) {
         // We create n empty entries as placeholders for those pivs we haven't loaded yet
         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['total'] - firstLoadSize, (v) => {})];
@@ -308,6 +311,8 @@ class TagService {
             'to': firstLoadSize,
             'idsOnly': true
          });
+         if (! listEquals (queryTags, tags)) return debug;
+
          // TODO: NOTIFY ERRORS
          if (response ['code'] != 200) return;
          orgIds = response['body'];
@@ -332,6 +337,7 @@ class TagService {
             // Load all pivs in the query, no time header needed
             'to': 100000
          });
+         if (! listEquals (queryTags, tags)) return debug;
 
          // TODO: NOTIFY ERRORS
          if (response ['code'] != 200) return;
@@ -349,6 +355,8 @@ class TagService {
                'to': 100000,
                'idsOnly': true
             });
+            if (! listEquals (queryTags, tags)) return debug;
+
             // TODO: NOTIFY ERRORS
             if (response ['code'] != 200) return;
             orgIds = response['body'];
