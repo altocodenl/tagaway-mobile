@@ -467,7 +467,9 @@ class TagService {
         var currentPage = StoreService.instance.get ('uploadedTimeHeaderPage');
         if (activePages.length > 0 && ! activePages.contains (currentPage)) {
            var pageController = StoreService.instance.get ('uploadedTimeHeaderController');
-           pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
+           if (pageController.hasClients) {
+              pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
+           }
         }
      }
 
