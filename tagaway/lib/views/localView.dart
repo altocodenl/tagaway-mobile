@@ -391,8 +391,8 @@ class _GridState extends State<Grid> {
     StoreService.instance.set('countLocal', localPivs.length);
 
     for (var piv in localPivs) {
-      StoreService.instance.set(
-          'pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+      StoreService.instance
+          .set('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
     }
     TagService.instance.getLocalTimeHeader();
 
@@ -529,8 +529,8 @@ class _TopRowState extends State<TopRow> {
                               borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
-                          child: Row(
-                            children: const [
+                          child: const Row(
+                            children: [
                               Padding(
                                 padding: EdgeInsets.only(right: 8.0, bottom: 2),
                                 child: Text(
