@@ -23,6 +23,7 @@ import 'package:tagaway/views/signUpFormView.dart';
 import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
+import 'package:tagaway/views/selectGridPage.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -55,7 +56,8 @@ class Tagaway extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const Distributor(),
+      //home: const Distributor(),
+      home: SelectGridPage(),
       routes: {
         SignUpFormView.id: (context) => const SignUpFormView(),
         SignUpView.id: (context) => const SignUpView(),
