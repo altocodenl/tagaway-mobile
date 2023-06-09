@@ -87,7 +87,7 @@ class _SelectGridPageState extends State<SelectGridPage> {
 
     int index = rowIndex * crossAxisCount + columnIndex;
     if (index != lastDraggedPivIndex) {
-      debug (['INDEX', index]);
+      debug (['INDEX', index + 1]);
       lastDraggedPivIndex = index;
     }
   }
