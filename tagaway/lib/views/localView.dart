@@ -147,6 +147,31 @@ class _LocalViewState extends State<LocalView> {
         Visibility(
             visible: currentlyTagging == '',
             child: Align(
+              alignment: const Alignment(0, .92),
+              child: FloatingActionButton.extended(
+                heroTag: null,
+                key: const Key('start tagging'),
+                onPressed: () {},
+                backgroundColor: kAltoBlue,
+                label: const Text('Start tagging', style: kSelectAllButton),
+              ),
+            )),
+        Visibility(
+            visible: currentlyTagging == '',
+            child: Align(
+              alignment: const Alignment(.92, .75),
+              child: FloatingActionButton(
+                heroTag: null,
+                elevation: 10,
+                key: const Key('delete'),
+                onPressed: () {},
+                backgroundColor: kAltoRed,
+                child: const Icon(kTrashCanIcon),
+              ),
+            )),
+        Visibility(
+            visible: currentlyTagging == '',
+            child: Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox.expand(
                   child: NotificationListener<DraggableScrollableNotification>(
@@ -161,8 +186,10 @@ class _LocalViewState extends State<LocalView> {
                 child: DraggableScrollableSheet(
                     key: Key(currentScrollableSize.toString()),
                     snap: true,
-                    initialChildSize: currentScrollableSize,
-                    minChildSize: initialScrollableSize,
+                    initialChildSize: 0,
+                    minChildSize: 0,
+                    // initialChildSize: currentScrollableSize,
+                    // minChildSize: initialScrollableSize,
                     maxChildSize: 0.77,
                     builder: (BuildContext context,
                         ScrollController scrollController) {
@@ -345,7 +372,7 @@ class _LocalViewState extends State<LocalView> {
                   ],
                 ),
               ),
-            )))
+            ))),
       ],
     );
   }
@@ -391,8 +418,8 @@ class _GridState extends State<Grid> {
     StoreService.instance.set('countLocal', localPivs.length);
 
     for (var piv in localPivs) {
-      StoreService.instance.set(
-          'pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+      StoreService.instance
+          .set('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
     }
     TagService.instance.getLocalTimeHeader();
 
@@ -496,60 +523,13 @@ class _TopRowState extends State<TopRow> {
           child: SafeArea(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20.0, right: 20),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Icon(
-                          kTrashCanIcon,
-                          color: Colors.transparent,
-                          semanticLabel: 'Search',
-                          size: 25,
-                        ),
-                      ),
-                      const Expanded(
-                        child: Align(
-                            alignment: Alignment(0.6, .9), child: LocalYear()),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            disabledBackgroundColor: Colors.white,
-                            disabledForegroundColor: Colors.white,
-                            elevation: 0,
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            surfaceTintColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                          ),
-                          child: Row(
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.only(right: 8.0, bottom: 2),
-                                child: Text(
-                                  'Search',
-                                  style: TextStyle(color: Colors.transparent),
-                                ),
-                              ),
-                              Icon(
-                                kSearchIcon,
-                                color: Colors.transparent,
-                                size: 15,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                const Padding(
+                    padding: EdgeInsets.only(left: 20.0, right: 20, top: 10),
+                    child: LinearProgressIndicator(
+                      value: .5,
+                      color: kAltoBlue,
+                      backgroundColor: Colors.white,
+                    )),
                 Padding(
                     padding: const EdgeInsets.only(top: 15.0),
                     child: SizedBox(

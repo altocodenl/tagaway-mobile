@@ -63,15 +63,8 @@ class LocalGridItem extends StatelessWidget {
                     : Container(),
                 Align(
                     alignment: const Alignment(0.9, -.9),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(100),
-                            border:
-                                Border.all(color: Colors.white, width: 1.5)),
-                        // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
-                        child: GridItemSelection(asset.id, 'local',
-                            key: Key(asset.id)))),
+                    child: GridItemSelection(asset.id, 'local',
+                        key: Key(asset.id))),
               ],
             ));
       },
