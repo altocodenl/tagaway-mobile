@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/loginView.dart';
-import 'package:tagaway/views/signUpFormView.dart';
+import 'package:tagaway/views/signupFormView.dart';
 
 class SignUpView extends StatelessWidget {
   static const String id = 'signup';

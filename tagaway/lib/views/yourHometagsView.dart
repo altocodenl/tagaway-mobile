@@ -4,8 +4,6 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
-import 'package:tagaway/views/addHometagsView.dart';
-import 'package:tagaway/views/editHometagsView.dart';
 
 class YourHometagsView extends StatefulWidget {
   static const String id = 'yourHomeTags';
@@ -53,7 +51,7 @@ class _YourHometagsViewState extends State<YourHometagsView> {
             padding: const EdgeInsets.only(top: 18, left: 12),
             child: GestureDetector(
               onTap: () {
-                Navigator.pushReplacementNamed(context, EditHometagsView.id);
+                Navigator.pushReplacementNamed(context, 'editHomeTags');
               },
               child: const Text('Edit', style: kDoneEditText),
             ),
@@ -67,7 +65,7 @@ class _YourHometagsViewState extends State<YourHometagsView> {
             IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, AddHometagsView.id);
+                  Navigator.pushReplacementNamed(context, 'addHomeTags');
                 }),
           ],
         ),
@@ -81,7 +79,7 @@ class _YourHometagsViewState extends State<YourHometagsView> {
         )),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, BottomNavigationView.id);
+            Navigator.pushReplacementNamed(context, 'bottomNavigation');
           },
           backgroundColor: kAltoBlue,
           label: const Text('Done', style: kSelectAllButton),

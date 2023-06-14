@@ -12,14 +12,13 @@ import 'package:tagaway/views/distributorView.dart';
 import 'package:tagaway/views/editHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
-// AUTH VIEWS
 import 'package:tagaway/views/loginView.dart';
 import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
 import 'package:tagaway/views/searchTagsView.dart';
-import 'package:tagaway/views/signUpFormView.dart';
+import 'package:tagaway/views/signupFormView.dart';
 import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
@@ -57,24 +56,23 @@ class Tagaway extends StatelessWidget {
       ),
       home: const Distributor(),
       routes: {
-        SignUpFormView.id: (context) => const SignUpFormView(),
-        SignUpView.id: (context) => const SignUpView(),
-        Distributor.id: (context) => const Distributor(),
-        UploadedView.id: (context) => const UploadedView(),
-        LoginView.id: (context) => const LoginView(),
-        HomeView.id: (context) => const HomeView(),
-        DeleteAccount.id: (context) => const DeleteAccount(),
-        YourHometagsView.id: (context) => const YourHometagsView(),
-        AddHometagsView.id: (context) => const AddHometagsView(),
-        EditHometagsView.id: (context) => const EditHometagsView(),
-        ChangePasswordView.id: (context) => const ChangePasswordView(),
-        RecoverPasswordView.id: (context) => const RecoverPasswordView(),
-        QuerySelectorView.id: (context) => const QuerySelectorView(),
-        SearchTagsView.id: (context) => const SearchTagsView(),
-        BottomNavigationView.id: (context) => const BottomNavigationView(),
-        RequestPermissionView.id: (context) => const RequestPermissionView(),
-        LocalView.id: (context) => const LocalView(),
-        PhotoAccessNeededView.id: (context) => const PhotoAccessNeededView()
+        'distributor': (context) => const Distributor(),
+        'signup': (context) => const SignUpView(),
+        'signupForm': (context) => const SignUpFormView(),
+        'login': (context) => const LoginView(),
+        'recoverPassword': (context) => const RecoverPasswordView(),
+        'requestPermission': (context) => const RequestPermissionView(),
+        'photoAccessNeeded': (context) => const PhotoAccessNeededView(),
+        'bottomNavigation': (context) => const BottomNavigationView(),
+        'home': (context) => const HomeView(),
+        'changePassword': (context) => const ChangePasswordView(),
+        'deleteAccount': (context) => const DeleteAccount(),
+        'addHomeTags': (context) => const AddHometagsView(),
+        'editHomeTags': (context) => const EditHometagsView(),
+        'yourHomeTags': (context) => const YourHometagsView(),
+        'local': (context) => const LocalView(),
+        'uploaded': (context) => const UploadedView(),
+        'querySelector': (context) => const QuerySelectorView(),
       },
     );
   }

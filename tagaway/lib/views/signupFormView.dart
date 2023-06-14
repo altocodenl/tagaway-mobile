@@ -7,7 +7,7 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/loginView.dart';
 
 class SignUpFormView extends StatefulWidget {
-  static const String id = 'sign_up_form_view';
+  static const String id = 'signupForm';
 
   const SignUpFormView({Key? key}) : super(key: key);
 

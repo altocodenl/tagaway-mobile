@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Move utility functions from constants to toolsService
 - Hashes
    - Compute hashes on client-side on startup
    - Add them to map
@@ -31,9 +32,6 @@
       - email already registered => 403 {error: 'email'}
       - we have too many users. => ?
    - Go through other services and notify with snackbar when there's an error
-- General
-   - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
-   - Move utility functions from constants to toolsService
 - Design distinctive icon for app (Tom)
 - Design manage tags view (rename, delete) (Tom)
 - Tutorial (Tom)

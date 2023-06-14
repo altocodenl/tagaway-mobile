@@ -4,11 +4,9 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/addHometagsView.dart';
-import 'package:tagaway/views/yourHometagsView.dart';
 
 class EditHometagsView extends StatefulWidget {
-  static const String id = 'edit_home_tags';
+  static const String id = 'editHomeTags';
 
   const EditHometagsView({Key? key}) : super(key: key);
 
@@ -55,7 +53,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
             padding: const EdgeInsets.only(top: 18, left: 12),
             child: GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, YourHometagsView.id);
+                  Navigator.pushReplacementNamed(context, 'yourHomeTags');
                 },
                 child: const Text('Done', style: kDoneEditText)),
           ),
@@ -67,7 +65,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
             IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, AddHometagsView.id);
+                  Navigator.pushReplacementNamed(context, 'addHomeTags');
                 }),
           ],
         ),

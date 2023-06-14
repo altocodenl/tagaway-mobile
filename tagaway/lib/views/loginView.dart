@@ -6,7 +6,6 @@ import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
-import 'package:tagaway/views/signupView.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -231,7 +230,7 @@ class _LoginViewState extends State<LoginView> {
                               onPressed: () {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 Navigator.pushReplacementNamed(
-                                    context, SignUpView.id);
+                                    context, 'signup');
                                 // FocusManager.instance.primaryFocus?.unfocus();
                               },
                               child: const Text(

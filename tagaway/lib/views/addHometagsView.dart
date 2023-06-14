@@ -5,7 +5,7 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class AddHometagsView extends StatefulWidget {
-  static const String id = 'add_home_tags';
+  static const String id = 'addHomeTags';
 
   const AddHometagsView({Key? key}) : super(key: key);
 

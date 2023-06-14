@@ -6,7 +6,7 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
 class DeleteAccount extends StatefulWidget {
-  static const String id = 'delete_account';
+  static const String id = 'deleteAccount';
 
   const DeleteAccount({Key? key}) : super(key: key);
 

@@ -6,7 +6,7 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/offlineView.dart';
 
 class ChangePasswordView extends StatefulWidget {
-  static const String id = 'change_password';
+  static const String id = 'changePassword';
 
   const ChangePasswordView({Key? key}) : super(key: key);
 

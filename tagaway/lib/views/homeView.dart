@@ -6,9 +6,7 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/changePasswordView.dart';
-import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -120,7 +118,7 @@ class _HomeViewState extends State<HomeView> {
               textOnElement: 'Go to tagaway web'),
           UserMenuElementLightGrey(
               onTap: () {
-                Navigator.pushReplacementNamed(context, DeleteAccount.id);
+                Navigator.pushReplacementNamed(context, 'deleteAccount');
               },
               textOnElement: 'Delete My Account'),
           UserMenuElementDarkGrey(
@@ -185,7 +183,7 @@ class _HomeViewState extends State<HomeView> {
                                         .set('currentIndex', 1);
                                   else
                                     Navigator.pushReplacementNamed(
-                                        context, AddHometagsView.id);
+                                        context, 'addHomeTags');
                                 },
                               ))
                         ],
