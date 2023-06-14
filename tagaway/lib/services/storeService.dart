@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/tools.dart';
 
 class StoreService {
   late SharedPreferences prefs;

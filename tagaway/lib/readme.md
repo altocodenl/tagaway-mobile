@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Move utility functions from constants to toolsService
 - Hashes
    - Compute hashes on client-side on startup
    - Add them to map

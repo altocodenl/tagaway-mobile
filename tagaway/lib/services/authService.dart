@@ -1,4 +1,4 @@
-import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
 
 class AuthService {
