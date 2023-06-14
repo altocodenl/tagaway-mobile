@@ -391,8 +391,8 @@ class _GridState extends State<Grid> {
     StoreService.instance.set('countLocal', localPivs.length);
 
     for (var piv in localPivs) {
-      StoreService.instance.set(
-          'pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+      StoreService.instance
+          .set('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
     }
     TagService.instance.getLocalTimeHeader();
 

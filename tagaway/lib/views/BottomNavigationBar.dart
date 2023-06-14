@@ -30,11 +30,12 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['currentIndex', 'countLocal', 'countUploaded'], (v1, v2, v3) {
+    cancelListener = StoreService.instance
+        .listen(['currentIndex', 'countLocal', 'countUploaded'], (v1, v2, v3) {
       setState(() {
         currentIndex = v1 == '' ? 0 : v1;
-        countLocal = v2.toString ();
-        countUploaded = v3.toString ();
+        countLocal = v2.toString();
+        countUploaded = v3.toString();
       });
     });
   }
@@ -70,7 +71,8 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 BottomNavigationBarItem(
                     icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
                     label: countLocal),
-                BottomNavigationBarItem(icon: FaIcon(kCloudArrowUp), label: countUploaded),
+                BottomNavigationBarItem(
+                    icon: FaIcon(kCloudArrowUp), label: countUploaded),
               ],
             ),
             const UploadingNumber()

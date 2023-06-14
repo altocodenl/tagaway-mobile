@@ -276,11 +276,10 @@ const kTaglineText = TextStyle(
   color: kGreyDarker,
 );
 
-Color tagColor (String tag) {
+Color tagColor(String tag) {
   var acc = 0;
-  tag.split('').forEach ((v) {
-    acc += v.codeUnitAt (0);
+  tag.split('').forEach((v) {
+    acc += v.codeUnitAt(0);
   });
-  return tagColors [acc % tagColors.length];
+  return tagColors[acc % tagColors.length];
 }
-
