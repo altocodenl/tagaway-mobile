@@ -12,9 +12,9 @@ int now () {
 }
 
 void debug (List params) {
-  String acc = 'DEBUG (' + (now() - initT).toString() + 'ms)';
-  params.forEach((v) => acc += ' ' + v.toString());
-  print(acc);
+  String acc = 'DEBUG (' + (now () - initT).toString () + 'ms)';
+  params.forEach ((v) => acc += ' ' + v.toString ());
+  print (acc);
 }
 
 bool ajaxLogs = true;
