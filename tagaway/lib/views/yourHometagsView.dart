@@ -3,7 +3,6 @@ import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/BottomNavigationBar.dart';
 
 class YourHometagsView extends StatefulWidget {
   static const String id = 'yourHomeTags';

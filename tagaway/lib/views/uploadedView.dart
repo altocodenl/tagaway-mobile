@@ -516,7 +516,7 @@ class _TopRowState extends State<TopRow> {
                               borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             children: const [
                               Padding(
                                 padding: EdgeInsets.only(right: 8.0, bottom: 2),

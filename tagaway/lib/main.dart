@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -17,7 +15,6 @@ import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
-import 'package:tagaway/views/searchTagsView.dart';
 import 'package:tagaway/views/signupFormView.dart';
 import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';

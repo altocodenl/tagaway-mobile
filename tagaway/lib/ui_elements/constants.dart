@@ -377,7 +377,7 @@ Future<dynamic> ajaxMulti(String path, dynamic fields, dynamic filePath) async {
   int start = now();
   var response;
   try {
-    var response = await request.send();
+    response = await request.send();
     String rbody = await response.stream.bytesToString();
     if (ajaxLogs)
       debug([

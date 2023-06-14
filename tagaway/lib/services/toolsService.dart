@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'dart:convert';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class ToolsService {
