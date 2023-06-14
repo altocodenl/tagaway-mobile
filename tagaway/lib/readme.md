@@ -3,9 +3,10 @@
 ## TODO
 
 - Hashes
+   - When loading, remove hashes that belong to asset ids that are not there
+   - Check for existence and remove stale entries from pivMap
    - Compute hashes on client-side on startup
    - Add them to map
-   - Check for existence and remove stale entries from pivMap
    - Endpoint to get ids of pivs for list of hashes.
    - Move to isolate
 - Hide pivs that are organized in Local
@@ -34,6 +35,7 @@
 - Design distinctive icon for app (Tom)
 - Design manage tags view (rename, delete) (Tom)
 - Tutorial (Tom)
+- Draggable selection (Tom)
 - Fix zoom-in zoom-out when opening piv (Tom/Mono)
 - Add login flow with Google, Apple and Facebook (Tom)
 
@@ -57,13 +59,13 @@
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
-- pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart
+- pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`
 - previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
-- rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart
+- rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
 - startTaggingModal (boolean): used to determine blue popup to start tagging on LocalView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
