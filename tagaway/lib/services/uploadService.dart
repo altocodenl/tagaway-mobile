@@ -81,7 +81,7 @@ class UploadService {
       // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now.
       if (StoreService.instance.get ('pivMap:' + nextPiv.id) == '') {
          // If an upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
-         var result= await uploadPiv (nextPiv);
+         var result = await uploadPiv (nextPiv);
          if (result ['code'] == 200) {
             // Success, remove from queue and keep on going.
             uploadQueue.removeAt (0);
@@ -148,4 +148,5 @@ class UploadService {
 
       queuePiv (null);
    }
+
 }

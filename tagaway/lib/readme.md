@@ -2,15 +2,22 @@
 
 ## TODO
 
-- Hashes x2
-   - Compute hashes on client-side on startup and add them to map
-   - Endpoint to get ids of pivs for list of hashes. Check for existence and remove stale entries from pivMap
-- Time header
-   - Replicate & fix bug with time header in uploaded, where wrong semester is shown.
-   - When clicking on month on time header, jump to relevant scroll position.
-- Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
+- Hashes
+   - Compute hashes on client-side on startup
+   - Add them to map
+   - Check for existence and remove stale entries from pivMap
+   - Endpoint to get ids of pivs for list of hashes.
+   - Move to isolate
 - Hide pivs that are organized in Local
+- Redesign Phone view using Today/This Week/This Month/...
+- Delete piv mode (Tom):
+   - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
+   - Uploaded
+
 - Try out putting last 3 used tags on top of list
+- Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
+- Bug: if user is logged out, do not revive uploads. Or perhaps better, clear almost all keys on logout.
+- When clicking on month on time header, jump to relevant scroll position.
 - Signup
   - Email validation process.
   - Welcome email and communication with user
@@ -27,15 +34,10 @@
 - General
    - Redirect in the same way everywhere and use strings, not imported views at the top. Also rename view ids (on some views only) to keep things short
    - Move utility functions from constants to toolsService
-- Design (Tom):
-   - Distinctive icon for app
-   - Show score on top bar of Local (total unorganized vs total organized)
-   - Manage tags view (rename, delete) (Tom)
+- Design distinctive icon for app (Tom)
+- Design manage tags view (rename, delete) (Tom)
 - Tutorial (Tom)
 - Fix zoom-in zoom-out when opening piv (Tom/Mono)
-- Delete piv mode (Tom):
-   - Uploaded
-   - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
