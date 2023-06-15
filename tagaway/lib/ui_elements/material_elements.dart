@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -1067,5 +1068,113 @@ class _UploadingNumberState extends State<UploadingNumber> {
         ),
       ),
     );
+  }
+}
+
+class DeleteButton extends StatelessWidget {
+  const DeleteButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    bool visible = false;
+
+    return Align(
+      alignment: const Alignment(.92, .75),
+      child: FloatingActionButton(
+        heroTag: null,
+        elevation: 10,
+        key: const Key('delete'),
+        onPressed: () {},
+        backgroundColor: kAltoRed,
+        child: const Icon(kTrashCanIcon),
+      ),
+    );
+  }
+}
+
+class StartTaggingButton extends StatelessWidget {
+  const StartTaggingButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: const Alignment(0, .92),
+      child: FloatingActionButton.extended(
+        heroTag: null,
+        key: const Key('start tagging'),
+        onPressed: () {},
+        backgroundColor: kAltoBlue,
+        label: const Text('Start tagging', style: kSelectAllButton),
+      ),
+    );
+  }
+}
+
+class DoneTaggingButton extends StatelessWidget {
+  const DoneTaggingButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+        alignment: const Alignment(0.8, .9),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            StoreService.instance.set('swipedLocal', false);
+            StoreService.instance.set('currentlyTaggingLocal', '');
+            // We update the tag list in case we just created a new one.
+            TagService.instance.getTags();
+          },
+          backgroundColor: kAltoBlue,
+          label: const Text('Done', style: kSelectAllButton),
+          icon: const Icon(Icons.done),
+        ));
+  }
+}
+
+class PicsWillBackupAsYouTagModal extends StatelessWidget {
+  const PicsWillBackupAsYouTagModal({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+        child: Padding(
+      padding: const EdgeInsets.only(left: 12, right: 12),
+      child: Container(
+        height: 180,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: kAltoBlue,
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            const Padding(
+              padding:
+                  EdgeInsets.only(top: 20.0, right: 15, left: 15, bottom: 10),
+              child: Text(
+                'Your pics will backup as you tag them',
+                textAlign: TextAlign.center,
+                style: kWhiteSubtitle,
+              ),
+            ),
+            Center(
+                child: WhiteRoundedButton(
+                    title: 'Start tagging',
+                    onPressed: () {
+                      StoreService.instance.set('swipedLocal', true);
+                      StoreService.instance.set('startTaggingModal', false);
+                    }))
+          ],
+        ),
+      ),
+    ));
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -56,6 +55,7 @@ class LocalView extends StatefulWidget {
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
   final TextEditingController searchTagController = TextEditingController();
+  final PageController controller = PageController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
@@ -114,6 +114,7 @@ class _LocalViewState extends State<LocalView> {
   void dispose() {
     super.dispose();
     searchTagController.dispose();
+    controller.dispose();
     cancelListener();
   }
 
@@ -125,254 +126,200 @@ class _LocalViewState extends State<LocalView> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return Stack(
+    return PageView(
+      reverse: true,
+      controller: controller,
       children: [
-        const Grid(),
-        const TopRow(),
-        Visibility(
-            visible: currentlyTagging != '',
-            child: Align(
-                alignment: const Alignment(0.8, .9),
-                child: FloatingActionButton.extended(
-                  onPressed: () {
-                    StoreService.instance.set('swipedLocal', false);
-                    StoreService.instance.set('currentlyTaggingLocal', '');
-                    // We update the tag list in case we just created a new one.
-                    TagService.instance.getTags();
-                  },
-                  backgroundColor: kAltoBlue,
-                  label: const Text('Done', style: kSelectAllButton),
-                  icon: const Icon(Icons.done),
-                ))),
-        Visibility(
-            visible: currentlyTagging == '',
-            child: Align(
-              alignment: const Alignment(0, .92),
-              child: FloatingActionButton.extended(
-                heroTag: null,
-                key: const Key('start tagging'),
-                onPressed: () {},
-                backgroundColor: kAltoBlue,
-                label: const Text('Start tagging', style: kSelectAllButton),
-              ),
-            )),
-        Visibility(
-            visible: currentlyTagging == '',
-            child: Align(
-              alignment: const Alignment(.92, .75),
-              child: FloatingActionButton(
-                heroTag: null,
-                elevation: 10,
-                key: const Key('delete'),
-                onPressed: () {},
-                backgroundColor: kAltoRed,
-                child: const Icon(kTrashCanIcon),
-              ),
-            )),
-        Visibility(
-            visible: currentlyTagging == '',
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox.expand(
-                  child: NotificationListener<DraggableScrollableNotification>(
-                onNotification: (state) {
-                  if (state.extent < (initialScrollableSize + 0.0001))
-                    StoreService.instance.set('swipedLocal', false);
-                  if (state.extent > (0.77 - 0.0001))
-                    StoreService.instance.set('swipedLocal', true);
-                  StoreService.instance.set('startTaggingModal', false);
-                  return true;
-                },
-                child: DraggableScrollableSheet(
-                    key: Key(currentScrollableSize.toString()),
-                    snap: true,
-                    initialChildSize: 0,
-                    minChildSize: 0,
-                    // initialChildSize: currentScrollableSize,
-                    // minChildSize: initialScrollableSize,
-                    maxChildSize: 0.77,
-                    builder: (BuildContext context,
-                        ScrollController scrollController) {
-                      return ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          topRight: Radius.circular(25),
-                        ),
-                        child: Container(
-                          color: Colors.white,
-                          child: ListView(
-                            padding: const EdgeInsets.only(left: 12, right: 12),
-                            controller: scrollController,
-                            children: [
-                              Visibility(
-                                  visible: !swiped,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      StoreService.instance
-                                          .set('swipedLocal', true);
-                                      StoreService.instance
-                                          .set('startTaggingModal', false);
-                                    },
-                                    child: const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 8.0),
-                                        child: FaIcon(
-                                          FontAwesomeIcons.anglesUp,
-                                          color: kGrey,
-                                          size: 16,
+        Stack(
+          children: [
+            const Grid(),
+            const TopRow(),
+            Visibility(
+                visible: currentlyTagging != '',
+                child: const DoneTaggingButton()),
+            Visibility(
+                visible: currentlyTagging == '',
+                child: const StartTaggingButton()),
+            Visibility(
+                visible: currentlyTagging == '', child: const DeleteButton()),
+            Visibility(
+                visible: currentlyTagging == '',
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox.expand(
+                      child:
+                          NotificationListener<DraggableScrollableNotification>(
+                    onNotification: (state) {
+                      if (state.extent < (initialScrollableSize + 0.0001))
+                        StoreService.instance.set('swipedLocal', false);
+                      if (state.extent > (0.77 - 0.0001))
+                        StoreService.instance.set('swipedLocal', true);
+                      StoreService.instance.set('startTaggingModal', false);
+                      return true;
+                    },
+                    child: DraggableScrollableSheet(
+                        key: Key(currentScrollableSize.toString()),
+                        snap: true,
+                        initialChildSize: 0,
+                        minChildSize: 0,
+                        // initialChildSize: currentScrollableSize,
+                        // minChildSize: initialScrollableSize,
+                        maxChildSize: 0.77,
+                        builder: (BuildContext context,
+                            ScrollController scrollController) {
+                          return ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(25),
+                              topRight: Radius.circular(25),
+                            ),
+                            child: Container(
+                              color: Colors.white,
+                              child: ListView(
+                                padding:
+                                    const EdgeInsets.only(left: 12, right: 12),
+                                controller: scrollController,
+                                children: [
+                                  Visibility(
+                                      visible: !swiped,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          StoreService.instance
+                                              .set('swipedLocal', true);
+                                          StoreService.instance
+                                              .set('startTaggingModal', false);
+                                        },
+                                        child: const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 8.0),
+                                            child: FaIcon(
+                                              FontAwesomeIcons.anglesUp,
+                                              color: kGrey,
+                                              size: 16,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  )),
-                              Visibility(
-                                  visible: !swiped,
-                                  child: const Center(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.only(top: 8.0, bottom: 8),
-                                      child: Text(
-                                        'Swipe to start tagging',
-                                        style: kPlainTextBold,
-                                      ),
-                                    ),
-                                  )),
-                              Visibility(
-                                  visible: swiped,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      StoreService.instance
-                                          .set('swipedLocal', false);
-                                    },
-                                    child: const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(top: 8.0),
-                                        child: FaIcon(
-                                          FontAwesomeIcons.anglesDown,
-                                          color: kGrey,
-                                          size: 16,
+                                      )),
+                                  Visibility(
+                                      visible: !swiped,
+                                      child: const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 8.0, bottom: 8),
+                                          child: Text(
+                                            'Swipe to start tagging',
+                                            style: kPlainTextBold,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  )),
-                              Visibility(
-                                  visible: swiped,
-                                  child: const Center(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.only(top: 8.0, bottom: 8),
-                                      child: Text(
-                                        'Tag your pics and videos',
-                                        style: TextStyle(
-                                            fontFamily: 'Montserrat',
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            color: kAltoBlue),
-                                      ),
-                                    ),
-                                  )),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: SizedBox(
-                                  height: 50,
-                                  child: TextField(
-                                    controller: searchTagController,
-                                    decoration: InputDecoration(
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              vertical: 10.0, horizontal: 20.0),
-                                      fillColor: kGreyLightest,
-                                      hintText: 'Create or search a tag',
-                                      hintMaxLines: 1,
-                                      hintStyle: kPlainTextBold,
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          borderSide: const BorderSide(
-                                              color: kGreyDarker)),
-                                      prefixIcon: const Padding(
-                                        padding: EdgeInsets.only(
-                                            right: 12, left: 12, top: 15),
-                                        child: FaIcon(
-                                          kSearchIcon,
-                                          size: 16,
-                                          color: kGreyDarker,
+                                      )),
+                                  Visibility(
+                                      visible: swiped,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          StoreService.instance
+                                              .set('swipedLocal', false);
+                                        },
+                                        child: const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 8.0),
+                                            child: FaIcon(
+                                              FontAwesomeIcons.anglesDown,
+                                              color: kGrey,
+                                              size: 16,
+                                            ),
+                                          ),
                                         ),
+                                      )),
+                                  Visibility(
+                                      visible: swiped,
+                                      child: const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: 8.0, bottom: 8),
+                                          child: Text(
+                                            'Tag your pics and videos',
+                                            style: TextStyle(
+                                                fontFamily: 'Montserrat',
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                                color: kAltoBlue),
+                                          ),
+                                        ),
+                                      )),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: SizedBox(
+                                      height: 50,
+                                      child: TextField(
+                                        controller: searchTagController,
+                                        decoration: InputDecoration(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 10.0,
+                                                  horizontal: 20.0),
+                                          fillColor: kGreyLightest,
+                                          hintText: 'Create or search a tag',
+                                          hintMaxLines: 1,
+                                          hintStyle: kPlainTextBold,
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: const BorderSide(
+                                                  color: kGreyDarker)),
+                                          prefixIcon: const Padding(
+                                            padding: EdgeInsets.only(
+                                                right: 12, left: 12, top: 15),
+                                            child: FaIcon(
+                                              kSearchIcon,
+                                              size: 16,
+                                              color: kGreyDarker,
+                                            ),
+                                          ),
+                                        ),
+                                        onChanged: searchTag,
                                       ),
                                     ),
-                                    onChanged: searchTag,
                                   ),
-                                ),
+                                  ListView.builder(
+                                      itemCount: usertags.length,
+                                      padding: EdgeInsets.zero,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var tag = usertags[index];
+                                        var actualTag = tag;
+                                        if (index == 0 &&
+                                            RegExp(' \\(new tag\\)\$')
+                                                .hasMatch(tag)) {
+                                          actualTag = tag.replaceFirst(
+                                              RegExp(' \\(new tag\\)\$'), '');
+                                        }
+                                        return TagListElement(
+                                          tagColor: tagColor(actualTag),
+                                          tagName: tag,
+                                          onTap: () {
+                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                                            return () {
+                                              StoreService.instance.set(
+                                                  'currentlyTaggingLocal',
+                                                  actualTag);
+                                            };
+                                          },
+                                        );
+                                      })
+                                ],
                               ),
-                              ListView.builder(
-                                  itemCount: usertags.length,
-                                  padding: EdgeInsets.zero,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    var tag = usertags[index];
-                                    var actualTag = tag;
-                                    if (index == 0 &&
-                                        RegExp(' \\(new tag\\)\$')
-                                            .hasMatch(tag)) {
-                                      actualTag = tag.replaceFirst(
-                                          RegExp(' \\(new tag\\)\$'), '');
-                                    }
-                                    return TagListElement(
-                                      tagColor: tagColor(actualTag),
-                                      tagName: tag,
-                                      onTap: () {
-                                        // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                        return () {
-                                          StoreService.instance.set(
-                                              'currentlyTaggingLocal',
-                                              actualTag);
-                                        };
-                                      },
-                                    );
-                                  })
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-              )),
-            )),
-        Visibility(
-            visible: startTaggingModal == true,
-            child: Center(
-                child: Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12),
-              child: Container(
-                height: 180,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: kAltoBlue,
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-                child: Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(
-                          top: 20.0, right: 15, left: 15, bottom: 10),
-                      child: Text(
-                        'Your pics will backup as you tag them',
-                        textAlign: TextAlign.center,
-                        style: kWhiteSubtitle,
-                      ),
-                    ),
-                    Center(
-                        child: WhiteRoundedButton(
-                            title: 'Start tagging',
-                            onPressed: () {
-                              StoreService.instance.set('swipedLocal', true);
-                              StoreService.instance
-                                  .set('startTaggingModal', false);
-                            }))
-                  ],
-                ),
-              ),
-            ))),
+                            ),
+                          );
+                        }),
+                  )),
+                )),
+            Visibility(
+                visible: startTaggingModal == true,
+                child: const PicsWillBackupAsYouTagModal()),
+          ],
+        ),
       ],
     );
   }
@@ -520,80 +467,71 @@ class _TopRowState extends State<TopRow> {
         Container(
           width: double.infinity,
           color: Colors.white,
-          child: SafeArea(
-            child: Column(
-              children: [
-                const Padding(
-                    padding: EdgeInsets.only(left: 20.0, right: 20, top: 10),
-                    child: LinearProgressIndicator(
-                      value: .5,
-                      color: kAltoBlue,
-                      backgroundColor: Colors.white,
-                    )),
-                Padding(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    child: SizedBox(
-                        height: 64,
-                        child: PageView.builder(
-                            itemCount: timeHeader.length,
-                            reverse: true,
-                            scrollDirection: Axis.horizontal,
-                            controller: pageController,
-                            onPageChanged: (int index) {
-                              StoreService.instance
-                                  .set('localTimeHeaderPage', index);
-                              StoreService.instance.set(
-                                  'localYear',
-                                  timeHeader[timeHeader.length - index - 1][0]
-                                          [0]
-                                      .toString());
-                            },
-                            itemBuilder:
-                                (BuildContext context, int semesterIndex) {
-                              return GridView.count(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  crossAxisCount: 1,
-                                  crossAxisSpacing: 0,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  childAspectRatio: SizeService.instance
-                                      .timeHeaderChildAspectRatio(context),
-                                  children: (() {
-                                    List<Widget> output = [];
-                                    if (timeHeader.isEmpty)
-                                      output.add(Container());
-                                    else
-                                      timeHeader[timeHeader.length -
-                                              semesterIndex -
-                                              1]
-                                          .forEach((month) {
-                                        output.add(GridMonthElement(
-                                            roundedIcon: month[2] == 'green'
-                                                ? kCircleCheckIcon
-                                                : (month[2] == 'gray'
-                                                    ? kSolidCircleIcon
-                                                    : kEmptyCircle),
-                                            roundedIconColor:
-                                                month[2] == 'green'
-                                                    ? kAltoOrganized
-                                                    : kGreyDarker,
-                                            month: month[1],
-                                            whiteOrAltoBlueDashIcon: month[3]
-                                                ? kAltoBlue
-                                                : Colors.white,
-                                            onTap: () {
-                                              // TODO: add method to jump to proper piv
-                                              /*
-                                              if (month[2] != 'white')
-                                                return debug(
-                                                    ['TODO JUMP TO', month[4]]);
-                                                */
-                                            }));
-                                      });
-                                    return output;
-                                  })());
-                            })))
-              ],
+          child: const SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20),
+              child: Column(
+                children: [
+                  Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: LinearProgressIndicator(
+                        value: .5,
+                        color: kAltoBlue,
+                        backgroundColor: Colors.white,
+                      )),
+                  Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '1,000 left',
+                              style: kLookingAtText,
+                            ),
+                          ),
+                        ],
+                      )),
+                  Padding(
+                    padding: EdgeInsets.only(top: 15.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text('This Month',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: kGreyLight,
+                              ),
+                              key: Key('left-title')),
+                        ),
+                        Expanded(
+                            child: Text('This Week',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: kAltoBlue,
+                                ),
+                                textAlign: TextAlign.center,
+                                key: Key('center-title'))),
+                        Expanded(
+                            child: Text('Today',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: kGreyLight,
+                                ),
+                                key: Key('right-title'))),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
