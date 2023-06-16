@@ -140,15 +140,6 @@ class _CarrouselViewState extends State<CarrouselView>
     super.dispose();
   }
 
-  void resetAnimation() {
-    animation = Matrix4Tween(
-      begin: controller.value,
-      end: Matrix4.identity(),
-    ).animate(
-        CurvedAnimation(parent: animationController, curve: Curves.linear));
-    animationController.forward(from: 0);
-  }
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -234,9 +225,6 @@ class _CarrouselViewState extends State<CarrouselView>
                         clipBehavior: Clip.none,
                         minScale: 1,
                         maxScale: 8,
-                        onInteractionEnd: (details) {
-                          resetAnimation();
-                        },
                         child: Stack(children: [
                           Positioned(
                               left: left,
