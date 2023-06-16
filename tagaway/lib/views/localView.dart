@@ -5,6 +5,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
@@ -359,46 +360,21 @@ class Grid extends StatefulWidget {
 }
 
 class _GridState extends State<Grid> {
-  List<AssetEntity> itemList = [];
+  var itemList = [];
   bool loadedPivs = false;
 
   @override
   void initState() {
     super.initState();
-    loadLocalPivs();
+    waitForLocalPivsToLoad();
   }
 
-  loadLocalPivs() async {
-    FilterOptionGroup makeOption() {
-      // final option = FilterOption();
-      return FilterOptionGroup()
-        ..addOrderOption(
-            const OrderOption(type: OrderOptionType.createDate, asc: false));
+  waitForLocalPivsToLoad() async {
+    while (UploadService.instance.localPivsLoaded == false) {
+      await Future.delayed(Duration(milliseconds: 50));
     }
-
-    final option = makeOption();
-    // Set onlyAll to true, to fetch only the 'Recent' album
-    // which contains all the photos/videos in the storage
-    final albums = await PhotoManager.getAssetPathList(
-        onlyAll: true, filterOption: option);
-    final recentAlbum = albums.first;
-
-    // Now that we got the album, fetch all the assets it contains
-    final localPivs = await recentAlbum.getAssetListRange(
-      start: 0, // start at index 0
-      end: 1000000, // end at a very big index (to get all the assets)
-    );
-    StoreService.instance.set('countLocal', localPivs.length);
-
-    for (var piv in localPivs) {
-      StoreService.instance
-          .set('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
-    }
-    TagService.instance.getLocalTimeHeader();
-
-    // Update the state and notify UI
     setState(() {
-      itemList = localPivs;
+      itemList = UploadService.instance.localPivs;
       loadedPivs = true;
     });
   }

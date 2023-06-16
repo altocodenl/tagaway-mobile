@@ -3,6 +3,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
 
 class UploadService {
    UploadService._privateConstructor ();
@@ -10,6 +11,8 @@ class UploadService {
 
    var uploadQueue = [];
    var upload      = {};
+   var localPivs   = [];
+   var localPivsLoaded = false;
    bool uploading  = false;
 
    startUpload () async {
@@ -127,25 +130,52 @@ class UploadService {
       queuePiv (null);
    }
 
+   loadLocalPivs () async {
+
+      FilterOptionGroup makeOption () {
+         return FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false));
+      }
+
+      final option = makeOption ();
+      // Set onlyAll to true, to fetch only the 'Recent' album which contains all the photos/videos in the storage
+      final albums = await PhotoManager.getAssetPathList (onlyAll: true, filterOption: option);
+      final recentAlbum = albums.first;
+
+      localPivs = await recentAlbum.getAssetListRange (start: 0, end: 1000000);
+      localPivsLoaded = true;
+
+      StoreService.instance.set ('countLocal', localPivs.length);
+
+      for (var piv in localPivs) {
+         StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+      }
+
+      TagService.instance.getLocalTimeHeader ();
+
+      // Check if we have uploads we should revive
+      UploadService.instance.reviveUploads();
+
+      // Compute hashes for local pivs
+      UploadService.instance.computeHashes();
+   }
+
    reviveUploads () async {
       var queue = await StoreService.instance.getBeforeLoad ('uploadQueue');
 
       if (queue == '' || queue.length == 0) return;
-
-      final albums = await PhotoManager.getAssetPathList (onlyAll: true);
-      final recentAlbum = albums.first;
-
-      // Now that we got the album, fetch all the assets it contains
-      final localPivs = await recentAlbum.getAssetListRange (
-        start: 0, // start at index 0
-        end: 1000000, // end at a very big index (to get all the assets)
-      );
 
       localPivs.forEach ((v) {
          if (queue.contains (v.id)) uploadQueue.add (v);
       });
 
       queuePiv (null);
+   }
+
+   computeHashes () async {
+      for (var piv in localPivs) {
+         var result = await flutterCompute(hashPiv, piv.id);
+         debug(['result', result]);
+      }
    }
 
 }

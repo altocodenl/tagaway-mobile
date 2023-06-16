@@ -45,8 +45,8 @@ void main() {
   StoreService.instance.load();
   // Submit previous error if any
   StoreService.instance.reportPreviousError();
-  // Check if we have uploads we should revive
-  UploadService.instance.reviveUploads();
+  // Load all local pivs
+  UploadService.instance.loadLocalPivs();
 }
 
 class Tagaway extends StatelessWidget {

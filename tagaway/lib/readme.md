@@ -4,11 +4,11 @@
 
 - Hashes
    - When loading, remove hashes that belong to asset ids that are not there
-   - Check for existence and remove stale entries from pivMap
    - Compute hashes on client-side on startup
    - Add them to map
    - Endpoint to get ids of pivs for list of hashes.
    - Move to isolate
+   - Check for existence and remove stale entries from pivMap when getting entire list of pivs on everything
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
 - Delete piv mode (Tom):
