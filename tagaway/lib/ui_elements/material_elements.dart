@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -1071,202 +1070,85 @@ class _UploadingNumberState extends State<UploadingNumber> {
   }
 }
 
-class DeleteButton extends StatelessWidget {
+class DeleteButton extends StatefulWidget {
   const DeleteButton({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<DeleteButton> createState() => _DeleteButtonState();
+}
+
+class _DeleteButtonState extends State<DeleteButton> {
+  bool shouldDisplay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        shouldDisplay = true;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: const Alignment(.92, .75),
-      child: FloatingActionButton(
-        heroTag: null,
-        elevation: 10,
-        key: const Key('delete'),
-        onPressed: () {},
-        backgroundColor: kAltoRed,
-        child: const Icon(kTrashCanIcon),
-      ),
-    );
+    return shouldDisplay
+        ? Align(
+            alignment: const Alignment(.92, .75),
+            child: FloatingActionButton(
+              heroTag: null,
+              elevation: 10,
+              key: const Key('delete'),
+              onPressed: () {},
+              backgroundColor: kAltoRed,
+              child: const Icon(kTrashCanIcon),
+            ),
+          )
+        : Container();
   }
 }
 
-class StartTaggingButton extends StatelessWidget {
+class StartTaggingButton extends StatefulWidget {
   const StartTaggingButton({
     Key? key,
+    required this.buttonText,
+    required this.buttonKey,
   }) : super(key: key);
+  final String buttonText;
+  final Key buttonKey;
 
   @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: const Alignment(0, .92),
-      child: FloatingActionButton.extended(
-        heroTag: null,
-        key: const Key('start tagging'),
-        onPressed: () {},
-        backgroundColor: kAltoBlue,
-        label: const Text('Start tagging', style: kSelectAllButton),
-      ),
-    );
-  }
+  State<StartTaggingButton> createState() => _StartTaggingButtonState();
 }
 
-class DoneTaggingButton extends StatelessWidget {
-  const DoneTaggingButton({
-    Key? key,
-  }) : super(key: key);
+class _StartTaggingButtonState extends State<StartTaggingButton> {
+  bool shouldDisplay = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Align(
-        alignment: const Alignment(0.8, .9),
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            StoreService.instance.set('swipedLocal', false);
-            StoreService.instance.set('currentlyTaggingLocal', '');
-            // We update the tag list in case we just created a new one.
-            TagService.instance.getTags();
-          },
-          backgroundColor: kAltoBlue,
-          label: const Text('Done', style: kSelectAllButton),
-          icon: const Icon(Icons.done),
-        ));
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        shouldDisplay = true;
+      });
+    });
   }
-}
-
-class PicsWillBackupAsYouTagModal extends StatelessWidget {
-  const PicsWillBackupAsYouTagModal({
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12),
-      child: Container(
-        height: 180,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: kAltoBlue,
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            const Padding(
-              padding:
-                  EdgeInsets.only(top: 20.0, right: 15, left: 15, bottom: 10),
-              child: Text(
-                'Your pics will backup as you tag them',
-                textAlign: TextAlign.center,
-                style: kWhiteSubtitle,
-              ),
+    return shouldDisplay
+        ? Align(
+            alignment: const Alignment(0, .92),
+            child: FloatingActionButton.extended(
+              heroTag: null,
+              key: Key(widget.buttonKey.toString()),
+              onPressed: () {},
+              backgroundColor: kAltoBlue,
+              label: Text(widget.buttonText, style: kSelectAllButton),
             ),
-            Center(
-                child: WhiteRoundedButton(
-                    title: 'Start tagging',
-                    onPressed: () {
-                      StoreService.instance.set('swipedLocal', true);
-                      StoreService.instance.set('startTaggingModal', false);
-                    }))
-          ],
-        ),
-      ),
-    ));
-  }
-}
-
-class RightTitlePhoneGrid extends StatelessWidget {
-  const RightTitlePhoneGrid({
-    Key? key,
-    required this.rightTitle,
-  }) : super(key: key);
-
-  final String rightTitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Text(rightTitle,
-            textAlign: TextAlign.center,
-            style: kLeftAndRightPhoneGridTitle,
-            key: const Key('right-title')));
-  }
-}
-
-class CenterTitlePhoneGrid extends StatelessWidget {
-  const CenterTitlePhoneGrid({
-    Key? key,
-    required this.centerTitle,
-  }) : super(key: key);
-
-  final String centerTitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Text(centerTitle,
-            style: kCenterPhoneGridTitle,
-            textAlign: TextAlign.center,
-            key: const Key('center-title')));
-  }
-}
-
-class LeftTitlePhoneGrid extends StatelessWidget {
-  const LeftTitlePhoneGrid({
-    Key? key,
-    required this.leftTitle,
-  }) : super(key: key);
-
-  final String leftTitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Text(leftTitle,
-          textAlign: TextAlign.center,
-          style: kLeftAndRightPhoneGridTitle,
-          key: const Key('left-title')),
-    );
-  }
-}
-
-class LinearProgressIndicatorPhoneGrid extends StatelessWidget {
-  const LinearProgressIndicatorPhoneGrid({
-    Key? key,
-    required this.linearValue,
-  }) : super(key: key);
-
-  final double linearValue;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: LinearProgressIndicator(
-          value: linearValue,
-          color: kAltoBlue,
-          backgroundColor: Colors.white,
-        ));
-  }
-}
-
-class PivsLeftPhoneGrid extends StatelessWidget {
-  const PivsLeftPhoneGrid({
-    Key? key,
-    required this.amountOfPivsLeft,
-  }) : super(key: key);
-
-  final int amountOfPivsLeft;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Text(
-        '${amountOfPivsLeft.toString()} left',
-        style: kLookingAtText,
-      ),
-    );
+          )
+        : Container();
   }
 }

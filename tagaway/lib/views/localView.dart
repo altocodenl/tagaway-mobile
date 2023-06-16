@@ -7,7 +7,6 @@ import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class LocalYear extends StatefulWidget {
   const LocalYear({Key? key}) : super(key: key);
@@ -129,7 +128,7 @@ class _LocalViewState extends State<LocalView> {
     return PageView.builder(
       reverse: true,
       controller: controller,
-      itemCount: 3,
+      itemCount: 5,
       pageSnapping: true,
       itemBuilder: (BuildContext context, int index) {
         return Stack(
@@ -138,10 +137,25 @@ class _LocalViewState extends State<LocalView> {
             const TopRow(),
             Visibility(
                 visible: currentlyTagging != '',
-                child: const DoneTaggingButton()),
+                child: Align(
+                    alignment: const Alignment(0.8, .9),
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        StoreService.instance.set('swipedLocal', false);
+                        StoreService.instance.set('currentlyTaggingLocal', '');
+                        // We update the tag list in case we just created a new one.
+                        TagService.instance.getTags();
+                      },
+                      backgroundColor: kAltoBlue,
+                      label: const Text('Done', style: kSelectAllButton),
+                      icon: const Icon(Icons.done),
+                    ))),
             Visibility(
                 visible: currentlyTagging == '',
-                child: const StartTaggingButton()),
+                child: const StartTaggingButton(
+                  buttonKey: Key('start tagging'),
+                  buttonText: 'Start Tagging',
+                )),
             Visibility(
                 visible: currentlyTagging == '', child: const DeleteButton()),
             Visibility(
@@ -319,7 +333,40 @@ class _LocalViewState extends State<LocalView> {
                 )),
             Visibility(
                 visible: startTaggingModal == true,
-                child: const PicsWillBackupAsYouTagModal()),
+                child: Center(
+                    child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: Container(
+                    height: 180,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: kAltoBlue,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(
+                              top: 20.0, right: 15, left: 15, bottom: 10),
+                          child: Text(
+                            'Your pics will backup as you tag them',
+                            textAlign: TextAlign.center,
+                            style: kWhiteSubtitle,
+                          ),
+                        ),
+                        Center(
+                            child: WhiteRoundedButton(
+                                title: 'Start tagging',
+                                onPressed: () {
+                                  StoreService.instance
+                                      .set('swipedLocal', true);
+                                  StoreService.instance
+                                      .set('startTaggingModal', false);
+                                }))
+                      ],
+                    ),
+                  ),
+                ))),
           ],
         );
       },
@@ -399,15 +446,7 @@ class _GridState extends State<Grid> {
                   ),
                   itemCount: itemList.length,
                   itemBuilder: (BuildContext context, index) {
-                    return VisibilityDetector(
-                        key: Key('local-' + index.toString()),
-                        onVisibilityChanged: (VisibilityInfo info) {
-                          TagService.instance.toggleTimeHeaderVisibility(
-                              'local',
-                              itemList[index],
-                              info.visibleFraction > 0.2);
-                        },
-                        child: LocalGridItem(itemList[index]));
+                    return LocalGridItem(itemList[index]);
                   })),
         ),
       ),
@@ -474,15 +513,22 @@ class _TopRowState extends State<TopRow> {
               padding: EdgeInsets.only(left: 20.0, right: 20),
               child: Column(
                 children: [
-                  LinearProgressIndicatorPhoneGrid(
-                    linearValue: .5,
-                  ),
+                  Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: LinearProgressIndicator(
+                        value: .5,
+                        color: kAltoBlue,
+                        backgroundColor: Colors.white,
+                      )),
                   Padding(
                       padding: EdgeInsets.only(top: 10.0),
                       child: Row(
                         children: [
-                          PivsLeftPhoneGrid(
-                            amountOfPivsLeft: 1000,
+                          Expanded(
+                            child: Text(
+                              '1000 left',
+                              style: kLookingAtText,
+                            ),
                           ),
                         ],
                       )),
@@ -491,9 +537,22 @@ class _TopRowState extends State<TopRow> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        LeftTitlePhoneGrid(leftTitle: 'This Month'),
-                        CenterTitlePhoneGrid(centerTitle: 'This Week'),
-                        RightTitlePhoneGrid(rightTitle: 'Today'),
+                        Expanded(
+                          child: Text('This Month',
+                              textAlign: TextAlign.center,
+                              style: kLeftAndRightPhoneGridTitle,
+                              key: Key('left-title')),
+                        ),
+                        Expanded(
+                            child: Text('This Week',
+                                style: kCenterPhoneGridTitle,
+                                textAlign: TextAlign.center,
+                                key: Key('center-title'))),
+                        Expanded(
+                            child: Text('Today',
+                                textAlign: TextAlign.center,
+                                style: kLeftAndRightPhoneGridTitle,
+                                key: Key('right-title'))),
                       ],
                     ),
                   )

@@ -143,6 +143,14 @@ class _UploadedViewState extends State<UploadedView> {
                 ))),
         Visibility(
             visible: currentlyTagging == '',
+            child: const StartTaggingButton(
+              buttonKey: Key('continue tagging'),
+              buttonText: 'Add More Tags',
+            )),
+        Visibility(
+            visible: currentlyTagging == '', child: const DeleteButton()),
+        Visibility(
+            visible: currentlyTagging == '',
             child: Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox.expand(
@@ -157,8 +165,8 @@ class _UploadedViewState extends State<UploadedView> {
                     child: DraggableScrollableSheet(
                         key: Key(currentScrollableSize.toString()),
                         snap: true,
-                        initialChildSize: currentScrollableSize,
-                        minChildSize: initialScrollableSize,
+                        initialChildSize: 0,
+                        minChildSize: 0,
                         maxChildSize: 0.77,
                         builder: (BuildContext context,
                             ScrollController scrollController) {

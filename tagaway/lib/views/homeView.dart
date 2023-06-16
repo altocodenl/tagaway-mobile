@@ -209,6 +209,7 @@ class _HomeViewState extends State<HomeView> {
       floatingActionButton: Visibility(
         visible: hometags.isNotEmpty,
         child: FloatingActionButton(
+          heroTag: null,
           onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (_) {
               return const YourHometagsView();
