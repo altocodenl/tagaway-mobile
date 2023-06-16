@@ -458,11 +458,11 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                         color: kGreyDarker,
                         size: 30,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'You’re looking at',
                               style: kLookingAtText,
@@ -484,19 +484,19 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                           itemBuilder: (BuildContext context, index) {
                             var tag = queryTags[index];
                             if (tag == 'u::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kTagIcon,
                                 iconColor: kGrey,
                                 gridTagName: 'Untagged',
                               );
                             if (tag == 't::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kBoxArchiveIcon,
                                 iconColor: kGrey,
                                 gridTagName: 'To Organize',
                               );
                             if (tag == 'o::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kCircleCheckIcon,
                                 iconColor: kAltoOrganized,
                                 gridTagName: 'Organized',
@@ -1042,7 +1042,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
 
   @override
   Widget build(BuildContext context) {
-    if (numeroli == 0) return Text('');
+    if (numeroli == 0) return const Text('');
     return Positioned(
       right: SizeService.instance.screenWidth(context) * .08,
       top: 2,
@@ -1059,7 +1059,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: TextStyle(
+            style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -1078,8 +1078,6 @@ class DeleteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool visible = false;
-
     return Align(
       alignment: const Alignment(.92, .75),
       child: FloatingActionButton(
@@ -1176,5 +1174,99 @@ class PicsWillBackupAsYouTagModal extends StatelessWidget {
         ),
       ),
     ));
+  }
+}
+
+class RightTitlePhoneGrid extends StatelessWidget {
+  const RightTitlePhoneGrid({
+    Key? key,
+    required this.rightTitle,
+  }) : super(key: key);
+
+  final String rightTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Text(rightTitle,
+            textAlign: TextAlign.center,
+            style: kLeftAndRightPhoneGridTitle,
+            key: const Key('right-title')));
+  }
+}
+
+class CenterTitlePhoneGrid extends StatelessWidget {
+  const CenterTitlePhoneGrid({
+    Key? key,
+    required this.centerTitle,
+  }) : super(key: key);
+
+  final String centerTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Text(centerTitle,
+            style: kCenterPhoneGridTitle,
+            textAlign: TextAlign.center,
+            key: const Key('center-title')));
+  }
+}
+
+class LeftTitlePhoneGrid extends StatelessWidget {
+  const LeftTitlePhoneGrid({
+    Key? key,
+    required this.leftTitle,
+  }) : super(key: key);
+
+  final String leftTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Text(leftTitle,
+          textAlign: TextAlign.center,
+          style: kLeftAndRightPhoneGridTitle,
+          key: const Key('left-title')),
+    );
+  }
+}
+
+class LinearProgressIndicatorPhoneGrid extends StatelessWidget {
+  const LinearProgressIndicatorPhoneGrid({
+    Key? key,
+    required this.linearValue,
+  }) : super(key: key);
+
+  final double linearValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: LinearProgressIndicator(
+          value: linearValue,
+          color: kAltoBlue,
+          backgroundColor: Colors.white,
+        ));
+  }
+}
+
+class PivsLeftPhoneGrid extends StatelessWidget {
+  const PivsLeftPhoneGrid({
+    Key? key,
+    required this.amountOfPivsLeft,
+  }) : super(key: key);
+
+  final int amountOfPivsLeft;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Text(
+        '${amountOfPivsLeft.toString()} left',
+        style: kLookingAtText,
+      ),
+    );
   }
 }

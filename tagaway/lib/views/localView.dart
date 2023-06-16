@@ -126,11 +126,13 @@ class _LocalViewState extends State<LocalView> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return PageView(
+    return PageView.builder(
       reverse: true,
       controller: controller,
-      children: [
-        Stack(
+      itemCount: 3,
+      pageSnapping: true,
+      itemBuilder: (BuildContext context, int index) {
+        return Stack(
           children: [
             const Grid(),
             const TopRow(),
@@ -319,8 +321,8 @@ class _LocalViewState extends State<LocalView> {
                 visible: startTaggingModal == true,
                 child: const PicsWillBackupAsYouTagModal()),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -472,22 +474,15 @@ class _TopRowState extends State<TopRow> {
               padding: EdgeInsets.only(left: 20.0, right: 20),
               child: Column(
                 children: [
-                  Padding(
-                      padding: EdgeInsets.only(top: 10),
-                      child: LinearProgressIndicator(
-                        value: .5,
-                        color: kAltoBlue,
-                        backgroundColor: Colors.white,
-                      )),
+                  LinearProgressIndicatorPhoneGrid(
+                    linearValue: .5,
+                  ),
                   Padding(
                       padding: EdgeInsets.only(top: 10.0),
                       child: Row(
                         children: [
-                          Expanded(
-                            child: Text(
-                              '1,000 left',
-                              style: kLookingAtText,
-                            ),
+                          PivsLeftPhoneGrid(
+                            amountOfPivsLeft: 1000,
                           ),
                         ],
                       )),
@@ -496,37 +491,9 @@ class _TopRowState extends State<TopRow> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text('This Month',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: kGreyLight,
-                              ),
-                              key: Key('left-title')),
-                        ),
-                        Expanded(
-                            child: Text('This Week',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: kAltoBlue,
-                                ),
-                                textAlign: TextAlign.center,
-                                key: Key('center-title'))),
-                        Expanded(
-                            child: Text('Today',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: kGreyLight,
-                                ),
-                                key: Key('right-title'))),
+                        LeftTitlePhoneGrid(leftTitle: 'This Month'),
+                        CenterTitlePhoneGrid(centerTitle: 'This Week'),
+                        RightTitlePhoneGrid(rightTitle: 'Today'),
                       ],
                     ),
                   )

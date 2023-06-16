@@ -134,6 +134,13 @@ const kPlainTextBold = TextStyle(
   color: kGreyDarker,
 );
 
+const kCenterPhoneGridTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.bold,
+  fontSize: 16,
+  color: kAltoBlue,
+);
+
 const kPlainHypertext = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 14,
@@ -172,6 +179,13 @@ const kLogOutButton = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.bold,
     color: kAltoRed);
+
+const kLeftAndRightPhoneGridTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kGreyLight,
+);
 
 const kSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
@@ -276,11 +290,10 @@ const kTaglineText = TextStyle(
   color: kGreyDarker,
 );
 
-Color tagColor (String tag) {
+Color tagColor(String tag) {
   var acc = 0;
-  tag.split('').forEach ((v) {
-    acc += v.codeUnitAt (0);
+  tag.split('').forEach((v) {
+    acc += v.codeUnitAt(0);
   });
-  return tagColors [acc % tagColors.length];
+  return tagColors[acc % tagColors.length];
 }
-
