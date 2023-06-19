@@ -55,11 +55,11 @@ class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
   final TextEditingController searchTagController = TextEditingController();
   final PageController controller = PageController();
-
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
   dynamic startTaggingModal = '';
+  List<String> pivIdsToDelete = [];
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -122,6 +122,12 @@ class _LocalViewState extends State<LocalView> {
     return true;
   }
 
+  void deleteAssets() async {
+    PhotoManager.editor.deleteWithIds(pivIdsToDelete);
+    // https://pub.dev/packages/photo_manager#delete-entities
+    //After the deletion, you can call the refreshPathProperties method to refresh the corresponding AssetPathEntity in order to get latest fields.
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -157,7 +163,12 @@ class _LocalViewState extends State<LocalView> {
                   buttonText: 'Start Tagging',
                 )),
             Visibility(
-                visible: currentlyTagging == '', child: const DeleteButton()),
+                visible: currentlyTagging == '',
+                child: DeleteButton(
+                  onPressed: () {
+                    //  enter DELETE MODE
+                  },
+                )),
             Visibility(
                 visible: currentlyTagging == '',
                 child: Align(

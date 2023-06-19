@@ -1073,7 +1073,10 @@ class _UploadingNumberState extends State<UploadingNumber> {
 class DeleteButton extends StatefulWidget {
   const DeleteButton({
     Key? key,
+    required this.onPressed,
   }) : super(key: key);
+
+  final Function onPressed;
 
   @override
   State<DeleteButton> createState() => _DeleteButtonState();
@@ -1101,7 +1104,7 @@ class _DeleteButtonState extends State<DeleteButton> {
               heroTag: null,
               elevation: 10,
               key: const Key('delete'),
-              onPressed: () {},
+              onPressed: widget.onPressed(),
               backgroundColor: kAltoRed,
               child: const Icon(kTrashCanIcon),
             ),
