@@ -148,8 +148,6 @@ class _UploadedViewState extends State<UploadedView> {
               buttonText: 'Add More Tags',
             )),
         Visibility(
-            visible: currentlyTagging == '', child: const DeleteButton()),
-        Visibility(
             visible: currentlyTagging == '',
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -499,20 +497,26 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
-                      GestureDetector(
-                          onTap: () {},
-                          child: const Icon(
-                            kTrashCanIcon,
-                            color: Colors.transparent,
-                            size: 25,
-                          )),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(40, 40),
+                          backgroundColor: kAltoRed,
+                          shape: const CircleBorder(),
+                        ),
+                        child: const Icon(
+                          kTrashCanIcon,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
                       const Expanded(
                         child: Align(
-                            alignment: Alignment(0.6, .9),
+                            alignment: Alignment(0.5, .9),
                             child: UploadedYear()),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
+                        padding: const EdgeInsets.only(left: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.pushReplacementNamed(
@@ -525,7 +529,7 @@ class _TopRowState extends State<TopRow> {
                             ),
                           ),
                           child: const Row(
-                            children: const [
+                            children: [
                               Padding(
                                 padding: EdgeInsets.only(right: 8.0, bottom: 2),
                                 child: Text(
