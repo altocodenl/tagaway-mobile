@@ -307,43 +307,6 @@ class _UploadedViewState extends State<UploadedView> {
                                           },
                                         );
                                       })
-                                  /*
-                                  Visibility(
-                                      visible: swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Choose a tag and select the pics & videos you want!',
-                                            textAlign: TextAlign.center,
-                                            style: kPlainTextBold,
-                                          ),
-                                        ),
-                                      )),
-                                  ListView.builder(
-                                      itemCount: usertags.length,
-                                      padding: EdgeInsets.zero,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var tag = usertags[index];
-                                        return TagListElement(
-                                          tagColor: tagColor(tag),
-                                          tagName: tag,
-                                          onTap: () {
-                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                            return () {
-                                              StoreService.instance.set(
-                                                  'currentlyTaggingUploaded',
-                                                  tag);
-                                            };
-                                          },
-                                        );
-                                      })
-                                  */
                                 ],
                               ),
                             ),
