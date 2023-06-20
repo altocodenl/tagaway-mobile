@@ -35,6 +35,7 @@ class TagService {
   editHometags (String tag, bool add) async {
     // Refresh hometag list first in case it was updated in another client
     await getTags ();
+    tag = tag.trim ();
     var hometags = StoreService.instance.get ('hometags');
     if (hometags == '') hometags = [];
     if ((add && hometags.contains (tag)) || (!add && !hometags.contains (tag)))
