@@ -61,6 +61,17 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
+  mailto() async {
+    final Uri params =
+        Uri(scheme: 'mailto', path: 'info@altocode.nl', queryParameters: {
+      'subject': 'Tagaway Feedback',
+    });
+
+    if (!await launchUrl(params)) {
+      print('cannot send email');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,6 +127,11 @@ class _HomeViewState extends State<HomeView> {
                 _launchUrl();
               },
               textOnElement: 'Go to tagaway web'),
+          UserMenuElementLightGrey(
+              onTap: () {
+                mailto();
+              },
+              textOnElement: 'Send Us Feedback'),
           UserMenuElementLightGrey(
               onTap: () {
                 Navigator.pushReplacementNamed(context, 'deleteAccount');
