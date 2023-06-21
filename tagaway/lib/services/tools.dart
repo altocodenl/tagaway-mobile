@@ -7,11 +7,11 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
 
-int initT = now ();
-
 int now () {
   return DateTime.now().millisecondsSinceEpoch;
 }
+
+int initT = now ();
 
 void debug (List params) {
   String acc = 'DEBUG (' + (now () - initT).toString () + 'ms)';

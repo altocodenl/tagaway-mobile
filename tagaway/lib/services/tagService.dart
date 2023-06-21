@@ -56,7 +56,10 @@ class TagService {
        if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
        await queryPivs (StoreService.instance.get ('queryTags'), true);
        var total = StoreService.instance.get ('queryResult')['total'];
+
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+         StoreService.instance.set('swipedUploaded', false);
+         StoreService.instance.set('currentlyTaggingUploaded', '');
          StoreService.instance.set ('queryTags', []);
          await queryPivs (StoreService.instance.get ('queryTags'));
        }

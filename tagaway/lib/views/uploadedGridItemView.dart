@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -23,8 +24,6 @@ class UploadedGridItem extends StatelessWidget {
   //   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
   //   return "${twoDigits(duration.inMinutes)}:$twoDigitSeconds";
   // }
-  bool selected = true;
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -87,8 +86,9 @@ class UploadedGridItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(100),
                     border: Border.all(color: Colors.white, width: 1.5)),
                 // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
+                // The piv selection status could change depending on the query, so we cannot just rely on the piv's id. We need to make sure these elements don't get recycled to avoid showing a stale GridItemSelection within them.
                 child: GridItemSelection(piv['id'], 'uploaded',
-                    key: Key(piv['id'])))),
+                    key: Key(piv['id'] + ':' + now ().toString ())))),
       ],
     );
   }

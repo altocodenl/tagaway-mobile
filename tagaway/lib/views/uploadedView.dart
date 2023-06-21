@@ -134,6 +134,9 @@ class _UploadedViewState extends State<UploadedView> {
                   onPressed: () {
                     StoreService.instance.set('swipedUploaded', false);
                     StoreService.instance.set('currentlyTaggingUploaded', '');
+                    StoreService.instance.set('tagFilterUploaded', '');
+                    searchTagController.clear();
+
                     // We update the tag list in case we just created a new one.
                     TagService.instance.getTags();
                   },

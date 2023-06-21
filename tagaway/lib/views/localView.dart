@@ -138,6 +138,8 @@ class _LocalViewState extends State<LocalView> {
                   onPressed: () {
                     StoreService.instance.set('swipedLocal', false);
                     StoreService.instance.set('currentlyTaggingLocal', '');
+                    StoreService.instance.set('tagFilterLocal', '');
+                    searchTagController.clear();
                     // We update the tag list in case we just created a new one.
                     TagService.instance.getTags();
                   },
