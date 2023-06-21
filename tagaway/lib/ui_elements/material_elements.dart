@@ -349,6 +349,49 @@ class GridTagElement extends StatelessWidget {
   }
 }
 
+class GridDeleteTagElement extends StatelessWidget {
+  const GridDeleteTagElement({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.only(left: 12, right: 12),
+        decoration: const BoxDecoration(
+            color: kGreyLighter,
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: Row(
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.only(right: 12.0),
+              child: FaIcon(
+                kTrashCanIcon,
+                color: kAltoRed,
+                size: 20,
+              ),
+            ),
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: SizeService.instance
+                    .gridTagElementMaxWidthCalculator(context),
+              ),
+              child: const Text('Deleting photos and videos',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: kGridDeleteElement),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class GridTagUploadedQueryElement extends StatelessWidget {
   const GridTagUploadedQueryElement({
     Key? key,

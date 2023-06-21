@@ -141,6 +141,13 @@ const kCenterPhoneGridTitle = TextStyle(
   color: kAltoBlue,
 );
 
+const kDeleteModalTitle = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoRed,
+);
+
 const kPlainHypertext = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 14,
@@ -234,6 +241,13 @@ const kGridTagListElement = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
+);
+
+const kGridDeleteElement = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoRed,
 );
 
 const kDoneEditText = TextStyle(

@@ -60,6 +60,7 @@ class _LocalViewState extends State<LocalView> {
   bool swiped = false;
   dynamic startTaggingModal = '';
   List<String> pivIdsToDelete = [];
+  bool deleting = false;
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -152,7 +153,7 @@ class _LocalViewState extends State<LocalView> {
                         // We update the tag list in case we just created a new one.
                         TagService.instance.getTags();
                       },
-                      backgroundColor: kAltoBlue,
+                      backgroundColor: deleting ? kAltoRed : kAltoBlue,
                       label: const Text('Done', style: kSelectAllButton),
                       icon: const Icon(Icons.done),
                     ))),
@@ -378,6 +379,67 @@ class _LocalViewState extends State<LocalView> {
                     ),
                   ),
                 ))),
+            Visibility(
+                visible: !deleting,
+                // THIS HAS TO CHANGE, IT HAS TO BE ON RED 'DONE' BUTTON TAP
+                child: Center(
+                  child: Container(
+                    height: 225,
+                    width: 225,
+                    decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: Colors.white, width: .5)),
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 15.0, right: 15, left: 15),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 20.0),
+                            child: Text(
+                              'Delete from your phone?',
+                              textAlign: TextAlign.center,
+                              style: kDeleteModalTitle,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 10.0),
+                            child: Text(
+                              'This action cannot be undone. This will permanently delete these photos and videos from your device.',
+                              textAlign: TextAlign.center,
+                              style: kGridBottomRowText,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 20.0),
+                            child: Text(
+                              'Are you sure?',
+                              textAlign: TextAlign.center,
+                              style: kGridBottomRowText,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 15.0),
+                            child: Text(
+                              'Delete',
+                              textAlign: TextAlign.center,
+                              style: kDeleteModalTitle,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 0.0),
+                            child: Text(
+                              'Cancel',
+                              textAlign: TextAlign.center,
+                              style: kGridTagListElement,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ))
           ],
         );
       },
