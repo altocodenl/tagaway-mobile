@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/tools.dart';
+import 'package:tagaway/services/permissionService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
@@ -45,8 +46,8 @@ class UploadService {
       }, file.path);
 
       if (response ['code'] == 200) {
-         StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id'], 'disk');
-         StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id, 'disk');
+         StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
+         StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
          TagService.instance.getLocalTimeHeader ();
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
@@ -132,6 +133,10 @@ class UploadService {
 
    loadLocalPivs () async {
 
+      var permissionStatus = await checkPermission ();
+      // If user has granted complete or partial permissions, go to the main part of the app.
+      if (permissionStatus != 'granted' && permissionStatus != 'limited') return;
+
       FilterOptionGroup makeOption () {
          return FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false));
       }
@@ -153,10 +158,10 @@ class UploadService {
       TagService.instance.getLocalTimeHeader ();
 
       // Check if we have uploads we should revive
-      UploadService.instance.reviveUploads();
+      UploadService.instance.reviveUploads ();
 
       // Compute hashes for local pivs
-      UploadService.instance.computeHashes();
+      UploadService.instance.computeHashes ();
    }
 
    reviveUploads () async {
@@ -171,11 +176,66 @@ class UploadService {
       queuePiv (null);
    }
 
+   queryHashes (dynamic hashesToQuery) async {
+      debug (['HASHES TO QUERY', hashesToQuery]);
+      var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
+      // TODO: handle errors
+      if (response ['code'] != 200) return;
+
+      var output = {};
+
+      hashesToQuery.forEach ((localId, hash) {
+         output [localId] = response ['body'] [hash];
+      });
+      return output;
+   }
+
    computeHashes () async {
-      for (var piv in localPivs) {
-         var result = await flutterCompute(hashPiv, piv.id);
-         debug(['result', result]);
+      // Get all hash entries and remove those that don't belong to a piv
+      var localPivIds = {};
+      localPivs.forEach ((v) {
+         localPivIds [v.id] = true;
+      });
+
+      // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
+      for (var k in StoreService.instance.store.keys.toList ()) {
+         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+         var id = k.replaceAll ('hashMap:', '');
+         if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
       }
+
+      // Query existing hashes
+      var hashesToQuery = {};
+
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (! RegExp ('^hashMap:').hasMatch (k)) return;
+         var id = k.replaceAll ('hashMap:', '');
+         hashesToQuery [id] = StoreService.instance.get (k);
+      });
+
+      var queriedHashes = await queryHashes (hashesToQuery);
+
+      queriedHashes.forEach ((localId, uploadedId) {
+         if (uploadedId == null) return;
+         StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
+         StoreService.instance.set ('rpivMap:' + uploadedId, localId);
+      });
+
+      // Compute hashes for local pivs that do not have them
+      for (var piv in localPivs) {
+         if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+         var hash = await flutterCompute (hashPiv, piv.id);
+         StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+         debug (['STORE NEW HASH', piv.id, hash]);
+
+         // Check if the local piv we just hashed as an uploaded counterpart
+         var queriedHash = await queryHashes ({[piv.id]: hash});
+         if (queriedHash [piv.id] != null) {
+            StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
+            StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+         }
+      }
+
    }
 
 }

@@ -7,6 +7,7 @@ class StoreService {
   late SharedPreferences prefs;
   getPrefs () async {
      prefs = await SharedPreferences.getInstance ();
+     await cleanupDeprecatedKeys ();
   }
 
   StoreService._privateConstructor () {
@@ -113,5 +114,13 @@ class StoreService {
       remove ('previousError', 'disk');
     }
   }
+
+   cleanupDeprecatedKeys () async {
+      var keys = await prefs.getKeys ().toList ();
+      // We no longer store pivMap: and rpivMap: keys on disk
+      for (var k in keys) {
+         if (RegExp ('^r?pivMap:').hasMatch (k)) await prefs.remove (k);
+      };
+   }
 
 }

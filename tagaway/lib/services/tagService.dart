@@ -82,8 +82,8 @@ class TagService {
       // If piv still exists, we are done. Otherwise, we need to re-upload it.
       if (code == 200) return;
       if (code == 404) {
-         StoreService.instance.remove ('pivMap:' + id, 'disk');
-         StoreService.instance.remove ('rpivMap:' + pivId, 'disk');
+         StoreService.instance.remove ('pivMap:' + id);
+         StoreService.instance.remove ('rpivMap:' + pivId);
       }
     }
     UploadService.instance.queuePiv (assetOrPiv);
@@ -389,8 +389,8 @@ class TagService {
     var response = await ajax ('post', 'delete', {'ids': [id], 'csrf': 'foo'});
     var localPivId = StoreService.instance.get ('rpivMap:' + id);
     if (localPivId != '') {
-      StoreService.instance.remove ('pivMap:' + localPivId, 'disk');
-      StoreService.instance.remove ('rpivMap:' + id, 'disk');
+      StoreService.instance.remove ('pivMap:' + localPivId);
+      StoreService.instance.remove ('rpivMap:' + id);
     }
     if (response['code'] == 200) {
        await queryPivs (StoreService.instance.get ('queryTags'), true);

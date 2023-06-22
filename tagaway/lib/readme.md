@@ -4,11 +4,9 @@
 
 - Hashes
    - When loading, remove hashes that belong to asset ids that are not there
-   - Compute hashes on client-side on startup
+   - Compute hashes on client-side on startup, do each in an isolate
    - Add them to map
    - Endpoint to get ids of pivs for list of hashes.
-   - Move to isolate
-   - Check for existence and remove stale entries from pivMap when getting entire list of pivs on everything
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
 - Delete piv mode (Tom):
@@ -17,7 +15,7 @@
 
 - Try out putting last 3 used tags on top of list
 - Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
-- Bug: if user is logged out, do not revive uploads. Or perhaps better, clear almost all keys on logout.
+- Bug: if user is logged out, clear upload queue & take that into account when leaving upload if already logged out.
 - When clicking on month on time header, jump to relevant scroll position.
 - Signup
   - Email validation process.
@@ -48,6 +46,7 @@
 - csrf <str> [DISK]: csrf token of current session, brought from server
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
+- hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - localYear <str>: displayed year in LocalView time header
@@ -59,13 +58,13 @@
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
-- pivMap:<assetId> <str> [DISK]: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`
+- pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`
 - previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
-- rpivMap:<pivId> <str> [DISK]: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
+- rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
 - startTaggingModal (boolean): used to determine blue popup to start tagging on LocalView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
