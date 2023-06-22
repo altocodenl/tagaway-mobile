@@ -390,49 +390,69 @@ class _LocalViewState extends State<LocalView> {
                         color: Colors.grey[50],
                         borderRadius:
                             const BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white, width: .5)),
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 15.0, right: 15, left: 15),
+                        border: Border.all(color: kGreyLight, width: .5)),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
                       child: Column(
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 20.0),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                bottom: 20.0, right: 15, left: 15),
                             child: Text(
                               'Delete from your phone?',
                               textAlign: TextAlign.center,
                               style: kDeleteModalTitle,
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 10.0),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                bottom: 10.0, right: 15, left: 15),
                             child: Text(
                               'This action cannot be undone. This will permanently delete these photos and videos from your device.',
                               textAlign: TextAlign.center,
                               style: kGridBottomRowText,
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 20.0),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 10.0),
                             child: Text(
                               'Are you sure?',
                               textAlign: TextAlign.center,
                               style: kGridBottomRowText,
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 15.0),
-                            child: Text(
-                              'Delete',
-                              textAlign: TextAlign.center,
-                              style: kDeleteModalTitle,
+                          Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                top: BorderSide(color: kGreyLight, width: 1),
+                                bottom: BorderSide(color: kGreyLight, width: 1),
+                              ),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                                child: Text(
+                                  'Delete',
+                                  textAlign: TextAlign.center,
+                                  style: kDeleteModalTitle,
+                                ),
+                              ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(bottom: 0.0),
-                            child: Text(
-                              'Cancel',
-                              textAlign: TextAlign.center,
-                              style: kGridTagListElement,
+                          SizedBox(
+                            width: double.infinity,
+                            child: GestureDetector(
+                              onTap: () {},
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10.0),
+                                child: Text(
+                                  'Cancel',
+                                  textAlign: TextAlign.center,
+                                  style: kGridTagListElement,
+                                ),
+                              ),
                             ),
                           ),
                         ],
