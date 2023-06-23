@@ -55,9 +55,7 @@ class RequestPermissionView extends StatelessWidget {
                           await PhotoManager.requestPermissionExtend();
                       Navigator.pushReplacementNamed(
                           context,
-                          permitted.isAuth
-                              ? 'bottomNavigation'
-                              : 'distributor');
+                          'distributor');
                     }),
               ],
             ),
