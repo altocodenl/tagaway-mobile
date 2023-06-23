@@ -4,7 +4,6 @@ import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
 
 class UploadService {
    UploadService._privateConstructor ();
@@ -228,6 +227,8 @@ class UploadService {
       for (var piv in localPivs) {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
          var hash = await flutterCompute (hashPiv, piv.id);
+         // TODO: version with no isolate - remove
+         //var hash = await hashPiv (piv.id);
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
          debug (['STORE NEW HASH', piv.id, hash]);
 

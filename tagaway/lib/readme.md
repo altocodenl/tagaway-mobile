@@ -8,7 +8,7 @@
    - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
    - Uploaded
 - Rename and delete tag from tag list
-- Remove localTimeHeader functionallity completely
+- Remove localTimeHeader functionality completely
 
 - When clicking on month on time header, jump to relevant scroll position.
 - Tighten up client-side validations for inputs in signup & login
