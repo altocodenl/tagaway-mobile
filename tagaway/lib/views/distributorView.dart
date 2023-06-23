@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/sizeService.dart';
+import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/services/permissionService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -36,8 +37,11 @@ class _DistributorState extends State<Distributor> {
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
     var permissionStatus = await checkPermission();
     // If user has granted complete or partial permissions, go to the main part of the app.
-    if (permissionStatus == 'granted' || permissionStatus == 'limited')
+    if (permissionStatus == 'granted' || permissionStatus == 'limited') {
+      // Load all local pivs
+      UploadService.instance.loadLocalPivs();
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');
+    }
 
     var userWasAskedPermission =
         await StoreService.instance.getBeforeLoad('userWasAskedPermission');

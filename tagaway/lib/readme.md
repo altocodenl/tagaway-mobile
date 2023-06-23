@@ -2,11 +2,6 @@
 
 ## TODO
 
-- Hashes
-   - When loading, remove hashes that belong to asset ids that are not there
-   - Compute hashes on client-side on startup, do each in an isolate
-   - Add them to map
-   - Endpoint to get ids of pivs for list of hashes.
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
 - Delete piv mode (Tom):
