@@ -7,14 +7,11 @@
 - Delete piv mode (Tom):
    - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
    - Uploaded
+- Rename and delete tag from tag list
 - Remove localTimeHeader functionallity completely
 
 - When clicking on month on time header, jump to relevant scroll position.
-- Signup
-  - Email validation process.
-  - Welcome email and communication with user
-  - Make sure it says tagaway in all emails to user
-  - Tighten up client-side validations for inputs
+- Tighten up client-side validations for inputs in signup & login
 - Handle errors with snackbar
    - signup
       - usernames are too short or invalid for any other reason => NOT FINISHED
@@ -24,7 +21,6 @@
       - we have too many users. => ?
    - Go through other services and notify with snackbar when there's an error
 - Design distinctive icon for app (Tom)
-- Design manage tags view (rename, delete) (Tom)
 - Tutorial (Tom)
 - Draggable selection (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
