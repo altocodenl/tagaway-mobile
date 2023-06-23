@@ -72,9 +72,13 @@ class UploadService {
    // Calls with piv argument come from another service
    // Calls with no piv argument are recursive to keep the ball rolling
    // Recursive calls do not get blocked by the `uploading` flag.
-   // TODO: add logic to revive uploads that haven't been completed if the application is restarted
    queuePiv (dynamic piv) async {
       if (piv != null) {
+         bool pivAlreadyInQueue = false;
+         uploadQueue.forEach ((queuedPiv) {
+            if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
+         });
+         if (pivAlreadyInQueue) return;
          uploadQueue.add (piv);
          updateUploadQueue ();
 

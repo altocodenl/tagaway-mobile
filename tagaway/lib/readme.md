@@ -7,9 +7,9 @@
 - Delete piv mode (Tom):
    - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
    - Uploaded
+- Remove localTimeHeader functionallity completely
 
 - Try out putting last 3 used tags on top of list
-- Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
 - When clicking on month on time header, jump to relevant scroll position.
 - Signup
   - Email validation process.
@@ -28,7 +28,6 @@
 - Design manage tags view (rename, delete) (Tom)
 - Tutorial (Tom)
 - Draggable selection (Tom)
-- Fix zoom-in zoom-out when opening piv (Tom/Mono)
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure

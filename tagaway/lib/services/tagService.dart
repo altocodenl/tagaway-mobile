@@ -86,6 +86,8 @@ class TagService {
          StoreService.instance.remove ('rpivMap:' + pivId);
       }
     }
+    // If we're untagging a piv that's not uploaded yet, there's nothing else to do.
+    if (del) return;
     UploadService.instance.queuePiv (assetOrPiv);
     var pendingTags = StoreService.instance.get ('pending:' + id);
     if (pendingTags == '') pendingTags = [];
