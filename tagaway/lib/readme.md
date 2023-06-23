@@ -9,7 +9,6 @@
    - Uploaded
 - Remove localTimeHeader functionallity completely
 
-- Try out putting last 3 used tags on top of list
 - When clicking on month on time header, jump to relevant scroll position.
 - Signup
   - Email validation process.
@@ -42,6 +41,7 @@
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
+- lastNTags [<str>, ...]: list of the last N tags used to tag or untag, either on local or uploaded.
 - localYear <str>: displayed year in LocalView time header
 - localTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]

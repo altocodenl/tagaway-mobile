@@ -88,7 +88,10 @@ class _LocalViewState extends State<LocalView> {
       setState(() {
         if (v1 != '') {
           var filter = v4;
-          usertags = v1
+          var lastNTags = StoreService.instance.get ('lastNTags');
+          if (lastNTags == '') lastNTags = [];
+          usertags = List.from (lastNTags)..addAll (v1.where ((tag) => !lastNTags.contains (tag)));
+          usertags = usertags
               .where(
                   (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
               .toList();

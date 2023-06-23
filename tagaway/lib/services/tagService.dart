@@ -27,6 +27,7 @@ class TagService {
         if (!RegExp ('^[a-z]::').hasMatch (tag)) usertags.add (tag);
       });
       StoreService.instance.set ('usertags', usertags);
+      updateLastNTags (null, true);
     }
     // TODO: handle errors
     return response['code'];
@@ -67,12 +68,34 @@ class TagService {
     return response['code'];
   }
 
+  updateLastNTags (var tag, [bool refreshExistingList = false]) {
+    var lastNTags = StoreService.instance.get ('lastNTags');
+    if (lastNTags == '') lastNTags = [];
+    if (refreshExistingList) {
+      var usertags = StoreService.instance.get ('usertags');
+      lastNTags.forEach ((tag) {
+         if (! usertags.contains (tag)) lastNTags.remove (tag);
+      });
+      return StoreService.instance.set ('lastNTags', lastNTags);
+    }
+
+    var N = 3;
+    if (lastNTags.contains (tag)) {
+       lastNTags.remove (tag);
+    }
+    lastNTags.insert (0, tag);
+    if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
+    StoreService.instance.set ('lastNTags', lastNTags);
+  }
+
   tagPiv (dynamic assetOrPiv, String tag, String type) async {
     String id = type == 'uploaded' ? assetOrPiv['id'] : assetOrPiv.id;
     String pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
     bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
     StoreService.instance.set ('tagMap:' + id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
+
+    updateLastNTags (tag);
 
     if (pivId != '') {
       var code = await tagPivById (pivId, tag, del);
