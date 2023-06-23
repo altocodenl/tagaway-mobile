@@ -10,7 +10,6 @@
 
 - Try out putting last 3 used tags on top of list
 - Bug: in Phone, when untagging a piv that is on the queue to be uploaded, remove it from the queue.
-- Bug: if user is logged out, clear upload queue & take that into account when leaving upload if already logged out.
 - When clicking on month on time header, jump to relevant scroll position.
 - Signup
   - Email validation process.
@@ -51,7 +50,7 @@
 - localTimeHeaderController <page controller>: controller that drives the localTimeHeader
 - localTimeHeaderPage <int>: page in localTimeHeader currently displayed.
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
-- pendingTags:<assetId> [<str>, ...]: list of tags that should be applied to a local piv that hasn't been uploaded yet
+- pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
 - pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`
 - previousError <object> [DISK]: stores the last error experienced by the application, if any

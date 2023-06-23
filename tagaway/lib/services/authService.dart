@@ -33,6 +33,8 @@ class AuthService {
          await StoreService.instance.remove ('cookie',      'disk');
          await StoreService.instance.remove ('csrf',        'disk');
          await StoreService.instance.remove ('uploadQueue', 'disk');
+         await StoreService.instance.remove ('pendingTags:*', 'disk');
+
          StoreService.instance.store = {};
       }
       return response ['code'];
@@ -57,5 +59,8 @@ class AuthService {
       return response ['code'];
    }
 
+   bool isLogged () {
+      return StoreService.instance.get ('cookie') != '';
+   }
 
 }

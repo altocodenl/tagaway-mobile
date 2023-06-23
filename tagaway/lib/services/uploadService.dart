@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/services/permissionService.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
@@ -45,6 +45,8 @@ class UploadService {
          'lastModified': piv.createDateTime.millisecondsSinceEpoch
       }, file.path);
 
+      if (! AuthService.instance.isLogged ()) return;
+
       if (response ['code'] == 200) {
          StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
          StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
@@ -85,6 +87,7 @@ class UploadService {
       if (StoreService.instance.get ('pivMap:' + nextPiv.id) == '') {
          // If an upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
          var result = await uploadPiv (nextPiv);
+         if (! AuthService.instance.isLogged ()) return;
          if (result ['code'] == 200) {
             // Success, remove from queue and keep on going.
             uploadQueue.removeAt (0);
@@ -132,10 +135,6 @@ class UploadService {
    }
 
    loadLocalPivs () async {
-
-      var permissionStatus = await checkPermission ();
-      // If user has granted complete or partial permissions, go to the main part of the app.
-      if (permissionStatus != 'granted' && permissionStatus != 'limited') return;
 
       FilterOptionGroup makeOption () {
          return FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false));
