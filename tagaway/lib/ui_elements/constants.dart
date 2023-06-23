@@ -44,6 +44,7 @@ const kSearchIcon = FontAwesomeIcons.magnifyingGlass;
 const kSlidersIcon = FontAwesomeIcons.sliders;
 const kCameraIcon = FontAwesomeIcons.camera;
 const kEllipsisIcon = FontAwesomeIcons.ellipsis;
+const kEllipsisVerticalIcon = FontAwesomeIcons.ellipsisVertical;
 const kMinusIcon = FontAwesomeIcons.minus;
 const kBoxArchiveIcon = FontAwesomeIcons.boxArchive;
 const kShareArrownUpIcon = FontAwesomeIcons.arrowUpFromBracket;
@@ -54,6 +55,9 @@ const kEmailValidation = FontAwesomeIcons.envelopeCircleCheck;
 const kPinIcon = FontAwesomeIcons.thumbtack;
 const kArrowLeft = FontAwesomeIcons.arrowLeftLong;
 const kCloudArrowUp = FontAwesomeIcons.cloudArrowUp;
+const kPenToSquareSolidIcon = FontAwesomeIcons.solidPenToSquare;
+const kHouseIcon = FontAwesomeIcons.house;
+const kMobileScreenIcon = FontAwesomeIcons.mobileScreenButton;
 
 const tagColors = [
   kTagColor1,

@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/storeService.dart';
-
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -66,11 +65,9 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 StoreService.instance.set('currentIndex', index);
               },
               items: [
+                BottomNavigationBarItem(icon: FaIcon(kHouseIcon), label: ''),
                 BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.house), label: ''),
-                BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                    label: countLocal),
+                    icon: FaIcon(kMobileScreenIcon), label: countLocal),
                 BottomNavigationBarItem(
                     icon: FaIcon(kCloudArrowUp), label: countUploaded),
               ],

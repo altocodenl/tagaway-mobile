@@ -348,7 +348,22 @@ class _LocalViewState extends State<LocalView> {
                   ],
                 ),
               ),
-            )))
+            ))),
+        Center(
+          child: Container(
+              height: 60,
+              width: 80,
+              decoration: const BoxDecoration(
+                color: kGreyLighter,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.grey, //New
+                      blurRadius: 1.0,
+                      offset: Offset(0, 1))
+                ],
+              )),
+        )
       ],
     );
   }

@@ -1,7 +1,6 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -215,6 +214,18 @@ class TagListElement extends StatelessWidget {
                     style: kTagListElementText,
                   ),
                 ),
+                Expanded(
+                  child: Align(
+                    alignment: const Alignment(1, 0),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: const Icon(
+                        kEllipsisVerticalIcon,
+                        color: kGreyDarker,
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
@@ -458,11 +469,11 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                         color: kGreyDarker,
                         size: 30,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'You’re looking at',
                               style: kLookingAtText,
@@ -484,19 +495,19 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                           itemBuilder: (BuildContext context, index) {
                             var tag = queryTags[index];
                             if (tag == 'u::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kTagIcon,
                                 iconColor: kGrey,
                                 gridTagName: 'Untagged',
                               );
                             if (tag == 't::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kBoxArchiveIcon,
                                 iconColor: kGrey,
                                 gridTagName: 'To Organize',
                               );
                             if (tag == 'o::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kCircleCheckIcon,
                                 iconColor: kAltoOrganized,
                                 gridTagName: 'Organized',
@@ -994,10 +1005,10 @@ class AltocodeCommit extends StatelessWidget {
         onPressed: () {
           launchAltocodeHome();
         },
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Text(
               'altocode',
               style: kBlueAltocodeSubtitle,
@@ -1042,7 +1053,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
 
   @override
   Widget build(BuildContext context) {
-    if (numeroli == 0) return Text('');
+    if (numeroli == 0) return const Text('');
     return Positioned(
       right: SizeService.instance.screenWidth(context) * .08,
       top: 2,
@@ -1059,7 +1070,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: TextStyle(
+            style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
