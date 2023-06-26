@@ -32,7 +32,10 @@ class StoreService {
       updater ();
       // Register listener and return its cancel method
       return updateStream.stream.listen ((key) async {
-         if (list.contains (key)) return updater ();
+         if (list.contains (key)) {
+            debug (['REDRAWING WITH KEY', key]);
+            return updater ();
+         }
       }).cancel;
    }
 
