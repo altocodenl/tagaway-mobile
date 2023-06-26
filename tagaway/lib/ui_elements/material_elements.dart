@@ -168,7 +168,7 @@ class HomeCard extends StatelessWidget {
   }
 }
 
-class TagListElement extends StatelessWidget {
+class TagListElement extends StatefulWidget {
   const TagListElement({
     Key? key,
     required this.tagColor,
@@ -181,9 +181,22 @@ class TagListElement extends StatelessWidget {
   final Function onTap;
 
   @override
+  State<TagListElement> createState() => _TagListElementState();
+}
+
+class _TagListElementState extends State<TagListElement> {
+  bool showDeleteAndEditTagModal = false;
+
+  showDeleteAndEditTagModalFunction() {
+    setState(() {
+      showDeleteAndEditTagModal = !showDeleteAndEditTagModal;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap(),
+      onTap: widget.onTap(),
       child: Padding(
         padding: const EdgeInsets.only(top: 5),
         child: Container(
@@ -191,44 +204,103 @@ class TagListElement extends StatelessWidget {
           decoration: const BoxDecoration(
               color: kGreyLighter,
               borderRadius: BorderRadius.all(Radius.circular(10))),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: FaIcon(
-                    kTagIcon,
-                    color: tagColor,
-                  ),
-                ),
-                Container(
-                  constraints: BoxConstraints(
-                    maxWidth: SizeService.instance.screenWidth(context) * .8,
-                  ),
-                  child: Text(
-                    tagName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: kTagListElementText,
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: const Alignment(1, 0),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Icon(
-                        kEllipsisVerticalIcon,
-                        color: kGreyDarker,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        color: widget.tagColor,
                       ),
                     ),
-                  ),
-                )
-              ],
-            ),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth:
+                            SizeService.instance.screenWidth(context) * .8,
+                      ),
+                      child: Text(
+                        widget.tagName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: kTagListElementText,
+                      ),
+                    ),
+                    Expanded(
+                      child: Align(
+                        alignment: const Alignment(1, 0),
+                        child: GestureDetector(
+                          onTap: () {
+                            showDeleteAndEditTagModalFunction();
+                          },
+                          child: const Icon(
+                            kEllipsisVerticalIcon,
+                            color: kGreyDarker,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Visibility(
+                  visible: showDeleteAndEditTagModal,
+                  child: DeleteAndEditTagModal()),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DeleteAndEditTagModal extends StatelessWidget {
+  const DeleteAndEditTagModal({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: const Alignment(.75, 0),
+      child: Container(
+        height: 60,
+        width: 100,
+        decoration: const BoxDecoration(
+          color: kGreyLighter,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey, //New
+                blurRadius: 1.0,
+                offset: Offset(0, 1))
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {},
+              child: const Icon(
+                kTrashCanIcon,
+                color: kAltoRed,
+              ),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            GestureDetector(
+              onTap: () {},
+              child: const Icon(
+                kPenToSquareSolidIcon,
+                color: kAltoBlue,
+              ),
+            )
+          ],
         ),
       ),
     );

@@ -306,7 +306,7 @@ class _LocalViewState extends State<LocalView> {
                                         };
                                       },
                                     );
-                                  })
+                                  }),
                             ],
                           ),
                         ),
@@ -349,21 +349,6 @@ class _LocalViewState extends State<LocalView> {
                 ),
               ),
             ))),
-        Center(
-          child: Container(
-              height: 60,
-              width: 80,
-              decoration: const BoxDecoration(
-                color: kGreyLighter,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey, //New
-                      blurRadius: 1.0,
-                      offset: Offset(0, 1))
-                ],
-              )),
-        )
       ],
     );
   }
@@ -388,7 +373,7 @@ class _GridState extends State<Grid> {
 
   waitForLocalPivsToLoad() async {
     while (UploadService.instance.localPivsLoaded == false) {
-      await Future.delayed(Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 50));
     }
     setState(() {
       itemList = UploadService.instance.localPivs;
@@ -522,8 +507,8 @@ class _TopRowState extends State<TopRow> {
                               borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
-                          child: Row(
-                            children: const [
+                          child: const Row(
+                            children: [
                               Padding(
                                 padding: EdgeInsets.only(right: 8.0, bottom: 2),
                                 child: Text(
