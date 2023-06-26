@@ -181,7 +181,6 @@ class UploadService {
    }
 
    queryHashes (dynamic hashesToQuery) async {
-      debug (['HASHES TO QUERY', hashesToQuery]);
       var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
       // TODO: handle errors
       if (response ['code'] != 200) return;
@@ -232,10 +231,9 @@ class UploadService {
          // TODO: version with no isolate - remove
          //var hash = await hashPiv (piv.id);
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
-         debug (['STORE NEW HASH', piv.id, hash]);
 
          // Check if the local piv we just hashed as an uploaded counterpart
-         var queriedHash = await queryHashes ({[piv.id]: hash});
+         var queriedHash = await queryHashes ({piv.id: hash});
          if (queriedHash [piv.id] != null) {
             StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
             StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
