@@ -33,7 +33,7 @@ class StoreService {
       // Register listener and return its cancel method
       return updateStream.stream.listen ((key) async {
          if (list.contains (key)) {
-            debug (['REDRAWING WITH KEY', key]);
+            if (showLogs) debug (['KEY TRIGGERED LISTENER', key]);
             return updater ();
          }
       }).cancel;
