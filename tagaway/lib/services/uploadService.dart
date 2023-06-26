@@ -4,6 +4,7 @@ import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
 
 class UploadService {
    UploadService._privateConstructor ();
@@ -146,6 +147,7 @@ class UploadService {
       final option = makeOption ();
       // Set onlyAll to true, to fetch only the 'Recent' album which contains all the photos/videos in the storage
       final albums = await PhotoManager.getAssetPathList (onlyAll: true, filterOption: option);
+      if (albums.length == 0) return localPivsLoaded = true;
       final recentAlbum = albums.first;
 
       localPivs = await recentAlbum.getAssetListRange (start: 0, end: 1000000);
@@ -241,5 +243,4 @@ class UploadService {
       }
 
    }
-
 }
