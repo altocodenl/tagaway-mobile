@@ -90,17 +90,16 @@ class TagService {
 
   tagPiv (dynamic assetOrPiv, String tag, String type) async {
     String id = type == 'uploaded' ? assetOrPiv['id'] : assetOrPiv.id;
-    String pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
+    dynamic pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
     bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
     StoreService.instance.set ('tagMap:' + id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
 
     updateLastNTags (tag);
 
-    if (pivId != '') {
+    if (pivId != '' && pivId != true) {
       var code = await tagPivById (pivId, tag, del);
       if (type == 'uploaded') return;
-      // TODO: add error handling for non 200 (with exception to 404 for local, which is handled below)
 
       // If piv still exists, we are done. Otherwise, we need to re-upload it.
       if (code == 200) return;
@@ -108,16 +107,21 @@ class TagService {
          StoreService.instance.remove ('pivMap:' + id);
          StoreService.instance.remove ('rpivMap:' + pivId);
       }
+      // TODO: add error handling for non 200, non 404
     }
-    // If we're untagging a piv that's not uploaded yet, there's nothing else to do.
-    if (del) return;
+
+    // If we're untagging a piv that's not uploaded yet, we only need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function
+    if (del) {
+       if ([true, ''].contains (StoreService.instance.get ('pivMap:' + id))) StoreService.instance.remove ('pivMap:' + id);
+       return;
+    }
     UploadService.instance.queuePiv (assetOrPiv);
     var pendingTags = StoreService.instance.get ('pending:' + id);
     if (pendingTags == '') pendingTags = [];
     if (del) pendingTags.remove (tag);
     else     pendingTags.add    (tag);
     StoreService.instance.set ('pendingTags:' + id, pendingTags, 'disk');
-  }
+   }
 
    getTaggedPivs (String tag, String type) async {
       var existing = [], New = [];

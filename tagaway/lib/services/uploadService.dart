@@ -74,6 +74,10 @@ class UploadService {
    // Recursive calls do not get blocked by the `uploading` flag.
    queuePiv (dynamic piv) async {
       if (piv != null) {
+         // If not set, we set pivMap:ID to `true` to mark the piv as uploaded already, to avoid confusion to the user.
+         if (StoreService.instance.get ('pivMap:' + piv.id) == '') {
+            StoreService.instance.set ('pivMap:' + piv.id, true);
+         }
          bool pivAlreadyInQueue = false;
          uploadQueue.forEach ((queuedPiv) {
             if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
@@ -87,8 +91,8 @@ class UploadService {
       }
 
       var nextPiv = uploadQueue [0];
-      // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now.
-      if (StoreService.instance.get ('pivMap:' + nextPiv.id) == '') {
+      // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now. `true` entries are mere placeholders.
+      if (['', true].contains (StoreService.instance.get ('pivMap:' + nextPiv.id))) {
          // If an upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
          var result = await uploadPiv (nextPiv);
          if (! AuthService.instance.isLogged ()) return;

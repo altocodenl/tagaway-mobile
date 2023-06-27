@@ -2,19 +2,17 @@
 
 ## TODO
 
-- Mark pivs that are on the upload queue as tagged.
 - Use hash returned from server in case we uploaded a piv that is not hashed yet.
-- Rename & delete tag.
-- When signing up with 403 repeated username or repeated email, send user back to first step of form.
+- Rename and delete tag from tag list.
 
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
 - Delete piv mode (Tom):
    - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
    - Uploaded
-- Rename and delete tag from tag list
 - Remove localTimeHeader functionality completely
 
+- When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - When clicking on month on time header, jump to relevant scroll position.
 - Design distinctive icon for app (Tom)
@@ -44,7 +42,7 @@
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet
 - pivDate:<assetId> <int>: date of each local piv
-- pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`
+- pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`. They are temporarily set to `true` for pivs on the upload queue.
 - previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
