@@ -149,13 +149,12 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                         context,
                                         'Your username cannot contain @ or :',
                                         'red');
-                                  } else if (userNameController.text.length <
+                                  } else if (userNameController.text.trim ().length <
                                       3) {
                                     SnackBarGlobal.buildSnackBar(
                                         context,
                                         'Your username should have at least 3 characters',
                                         'red');
-                                    //  HOW DO WE RESOLVE THE SPACES IN THE WEB APP SIGN UP?
                                   } else if (userNameController.text ==
                                       repeatUserNameController.text) {
                                     pageController.animateToPage(
@@ -332,7 +331,6 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                         'Your password should have at least 6 characters',
                                         'red');
                                   }
-                                  // HOW DO WE RESOLVE THE SPACES IN THE WEB APP SIGN UP?
                                   else if (passwordController.text ==
                                       repeatPasswordController.text) {
                                     AuthService.instance

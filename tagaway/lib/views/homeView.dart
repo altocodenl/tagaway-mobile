@@ -145,7 +145,7 @@ class _HomeViewState extends State<HomeView> {
                     if (value == 200)
                       return Navigator.pushReplacementNamed(
                           context, 'distributor');
-                    // TODO: HANDLE non-200 CASE
+                    SnackBarGlobal.buildSnackBar(context, 'Something is wrong on our side. Sorry.', 'red');
                   });
                 };
               },

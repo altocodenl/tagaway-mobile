@@ -10,7 +10,8 @@ class AuthService {
       return response ['code'];
    }
 
-   Future <int> login (String username, String password, int timezone) async {
+   Future <int> login (String username, String password) async {
+      int timezone = DateTime.now().timeZoneOffset.inMinutes.toInt()
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
       if (response ['code'] == 200) {
          StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
