@@ -5,6 +5,7 @@
 - Mark pivs that are on the upload queue as tagged.
 - Use hash returned from server in case we uploaded a piv that is not hashed yet.
 - Rename & delete tag.
+- When signing up with 403 repeated username or repeated email, send user back to first step of form.
 
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
