@@ -149,7 +149,9 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                         context,
                                         'Your username cannot contain @ or :',
                                         'red');
-                                  } else if (userNameController.text.trim ().length <
+                                  } else if (userNameController.text
+                                          .trim()
+                                          .length <
                                       3) {
                                     SnackBarGlobal.buildSnackBar(
                                         context,
@@ -312,9 +314,6 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                 title: 'Create account',
                                 colour: kAltoBlue,
                                 onPressed: () {
-                                  setState(() {
-                                    showSuccess = true;
-                                  });
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   if (passwordController.text.isEmpty ||
                                       repeatPasswordController.text.isEmpty) {
@@ -330,8 +329,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                         context,
                                         'Your password should have at least 6 characters',
                                         'red');
-                                  }
-                                  else if (passwordController.text ==
+                                  } else if (passwordController.text ==
                                       repeatPasswordController.text) {
                                     AuthService.instance
                                         .signup(
@@ -339,7 +337,10 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                             passwordController.text,
                                             emailController.text)
                                         .then((value) {
-                                      if (value ['code'] == 200) {
+                                      if (value['code'] == 200) {
+                                        setState(() {
+                                          showSuccess = true;
+                                        });
                                         navigationDelayer = Timer(
                                             const Duration(seconds: 2), () {
                                           Navigator.pushReplacementNamed(
@@ -353,20 +354,45 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                           passwordController.clear();
                                           repeatPasswordController.clear();
                                         });
-                                      } else if (value ['code'] == 403) {
-                                        if (value ['body'] ['error'] == 'email') SnackBarGlobal.buildSnackBar(context,
-                                            'That email is already in use', 'red');
-                                        if (value ['body'] ['error'] == 'username') SnackBarGlobal.buildSnackBar(context,
-                                            'That username is already in use', 'red');
-                                      } else if (value ['code'] > 500) {
-                                        SnackBarGlobal.buildSnackBar(context,
-                                           'Something is wrong on our side. Sorry.', 'red');
-                                      } else if (value ['code'] == 0) {
+                                      } else if (value['code'] == 403) {
+                                        if (value['body']['error'] == 'email') {
+                                          pageController.animateToPage(
+                                            1,
+                                            duration: const Duration(
+                                                milliseconds: 400),
+                                            curve: Curves.easeInOut,
+                                          );
+                                          SnackBarGlobal.buildSnackBar(
+                                              context,
+                                              'That email is already in use',
+                                              'red');
+                                        }
+                                        if (value['body']['error'] ==
+                                            'username') {
+                                          pageController.animateToPage(
+                                            0,
+                                            duration: const Duration(
+                                                milliseconds: 400),
+                                            curve: Curves.easeInOut,
+                                          );
+                                          SnackBarGlobal.buildSnackBar(
+                                              context,
+                                              'That username is already in use',
+                                              'red');
+                                        }
+                                      } else if (value['code'] > 500) {
+                                        SnackBarGlobal.buildSnackBar(
+                                            context,
+                                            'Something is wrong on our side. Sorry.',
+                                            'red');
+                                      } else if (value['code'] == 0) {
                                         Navigator.pushReplacementNamed(
                                             context, 'offline');
-                                      } else if (value ['code'] == 418) {
-                                        SnackBarGlobal.buildSnackBar(context,
-                                           'We currently have too many users. Please wait a few days!', 'red');
+                                      } else if (value['code'] == 418) {
+                                        SnackBarGlobal.buildSnackBar(
+                                            context,
+                                            'We currently have too many users. Please wait a few days!',
+                                            'red');
                                       }
                                     });
                                   }
