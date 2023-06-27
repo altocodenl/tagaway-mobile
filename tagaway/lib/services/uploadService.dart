@@ -228,8 +228,6 @@ class UploadService {
       for (var piv in localPivs) {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
          var hash = await flutterCompute (hashPiv, piv.id);
-         // TODO: version with no isolate - remove
-         //var hash = await hashPiv (piv.id);
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
          // Check if the local piv we just hashed as an uploaded counterpart
