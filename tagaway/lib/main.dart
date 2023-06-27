@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/changePasswordView.dart';

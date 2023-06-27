@@ -339,9 +339,7 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                             passwordController.text,
                                             emailController.text)
                                         .then((value) {
-                                      // VALUE IS RETURNING 400
-                                      if (value == 200) {
-                                        // ACCOUNT IS CREATED
+                                      if (value ['code'] == 200) {
                                         navigationDelayer = Timer(
                                             const Duration(seconds: 2), () {
                                           Navigator.pushReplacementNamed(
@@ -355,18 +353,20 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                           passwordController.clear();
                                           repeatPasswordController.clear();
                                         });
-                                      } else if (value == 403) {
-                                        //HERE WE HAVE TO MANAGE {error: 'email'}, {error: 'username'} and any other error based on 403.
-                                        // SignUp Service currently does not return 'body'
+                                      } else if (value ['code'] == 403) {
+                                        if (value ['body'] ['error'] == 'email') SnackBarGlobal.buildSnackBar(context,
+                                            'That email is already in use', 'red');
+                                        if (value ['body'] ['error'] == 'username') SnackBarGlobal.buildSnackBar(context,
+                                            'That username is already in use', 'red');
+                                      } else if (value ['code'] > 500) {
                                         SnackBarGlobal.buildSnackBar(context,
-                                            'There has been an error', 'red');
-                                      } else if (value > 500) {
-                                        //CAN THIS HAPPEN?
-                                        SnackBarGlobal.buildSnackBar(context,
-                                            'There has been an error', 'red');
-                                      } else if (value == 0) {
+                                           'Something is wrong on our side. Sorry.', 'red');
+                                      } else if (value ['code'] == 0) {
                                         Navigator.pushReplacementNamed(
                                             context, 'offline');
+                                      } else if (value ['code'] == 418) {
+                                        SnackBarGlobal.buildSnackBar(context,
+                                           'We currently have too many users. Please wait a few days!', 'red');
                                       }
                                     });
                                   }

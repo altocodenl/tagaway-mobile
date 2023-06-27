@@ -2,6 +2,10 @@
 
 ## TODO
 
+- Mark pivs that are on the upload queue as tagged.
+- Use hash returned from server in case we uploaded a piv that is not hashed yet.
+- Rename & delete tag.
+
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
 - Delete piv mode (Tom):
@@ -10,19 +14,11 @@
 - Rename and delete tag from tag list
 - Remove localTimeHeader functionality completely
 
+- Handle >= 400 errors with snackbar on tagService and uploadService
 - When clicking on month on time header, jump to relevant scroll position.
-- Tighten up client-side validations for inputs in signup & login
-- Handle errors with snackbar
-   - signup
-      - usernames are too short or invalid for any other reason => NOT FINISHED
-      - password is too short or is invalid for any other reason => NOT FINISHED
-      - username already exists => 403 {error: 'username'}
-      - email already registered => 403 {error: 'email'}
-      - we have too many users. => ?
-   - Go through other services and notify with snackbar when there's an error
 - Design distinctive icon for app (Tom)
-- Tutorial (Tom)
 - Draggable selection (Tom)
+- Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
