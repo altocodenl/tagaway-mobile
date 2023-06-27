@@ -200,6 +200,8 @@ int murmurhashV3 (Uint8List key, int seed, dynamic partialHash, [dynamic totalLe
 @pragma('vm:entry-point')
 hashPiv (dynamic pivId) async {
 
+   PhotoManager.setIgnorePermissionCheck (true);
+
    var piv = await AssetEntity.fromId (pivId) as dynamic;
    var file = await piv.originFile;
    var fileLength = await file.length ();
