@@ -253,8 +253,7 @@ class _TagListElementState extends State<TagListElement> {
               ),
               Visibility(
                   visible: showDeleteAndEditTagModal,
-                  //child: DeleteAndEditTagModal(tagName, view)),
-                  child: DeleteAndEditTagModal()),
+                  child: DeleteAndEditTagModal(tagName: widget.tagName, view: widget.view)),
             ],
           ),
         ),
@@ -266,12 +265,12 @@ class _TagListElementState extends State<TagListElement> {
 class DeleteAndEditTagModal extends StatelessWidget {
   const DeleteAndEditTagModal({
     Key? key,
-    //required this.tagName,
-    //required this.view,
+    required this.tagName,
+    required this.view,
   }) : super(key: key);
 
-  //final String tagName;
-  //final String view;
+  final String tagName;
+  final String view;
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +294,7 @@ class DeleteAndEditTagModal extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                 //print (tagName);
+                 StoreService.instance.set (view == 'local' ? 'deleteTagLocal' : 'deleteTagUploaded', tagName);
               },
               child: const Icon(
                 kTrashCanIcon,
@@ -307,7 +306,7 @@ class DeleteAndEditTagModal extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                 //print (view);
+                 StoreService.instance.set (view == 'local' ? 'renameTagLocal' : 'renameTagUploaded', tagName);
               },
               child: const Icon(
                 kPenToSquareSolidIcon,

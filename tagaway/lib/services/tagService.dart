@@ -515,4 +515,16 @@ class TagService {
 
   }
 
+   renameTag (String from, String to) async {
+      await ajax ('post', 'rename', {'from': from, 'to': to});
+      await getTags ();
+      // TODO: handle non-200 error
+   }
+
+   deleteTag (String tag) async {
+      await ajax ('post', 'deleteTag', {'tag': tag});
+      await getTags ();
+      // TODO: handle non-200 error
+   }
+
 }

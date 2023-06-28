@@ -3,6 +3,9 @@
 ## TODO
 
 - Rename and delete tag from tag list.
+   - Get current value from input when renaming
+   - After renaming, tag should be renamed in tag list (probably a key issue)
+   - Remove edit & delete buttons after any operation
 
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
@@ -28,6 +31,8 @@
 - csrf <str> [DISK]: csrf token of current session, brought from server
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
+- deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
+- renameTag(Local|Uploaded) <str>: tag currently being renamed in LocalView/UploadedView
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.

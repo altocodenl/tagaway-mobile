@@ -58,6 +58,8 @@ class _UploadedViewState extends State<UploadedView> {
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
+  String renameTagUploaded = '';
+  String deleteTagUploaded = '';
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -75,7 +77,9 @@ class _UploadedViewState extends State<UploadedView> {
       'currentlyTaggingUploaded',
       'swipedUploaded',
       'tagFilterUploaded',
-    ], (v1, v2, v3, v4) {
+      'renameTagUploaded',
+      'deleteTagUploaded'
+    ], (v1, v2, v3, v4, v5, v6) {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
       if (currentView == 2 && v2 == '' && currentlyTagging != '')
@@ -108,6 +112,8 @@ class _UploadedViewState extends State<UploadedView> {
           if (swiped == true && currentScrollableSize < 0.77)
             currentScrollableSize = 0.77;
         }
+        renameTagUploaded = v5;
+        deleteTagUploaded = v6;
       });
     });
   }
@@ -316,9 +322,9 @@ class _UploadedViewState extends State<UploadedView> {
                         })),
               ),
             )),
-        // Edit tag modal
+        // Rename tag modal
         Visibility(
-            visible: false,
+            visible: renameTagUploaded != '',
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
@@ -354,7 +360,7 @@ class _UploadedViewState extends State<UploadedView> {
                               // When a controller is specified, initialValue must be null (the default). If controller is null, then a TextEditingController will be constructed automatically and its text will be initialized to initialValue or the empty string.
                               // For documentation about the various parameters, see the TextField class and TextField.new, the constructor.
                               style: kTaglineTextBold,
-                              initialValue: 'Bohemian Rhapsody Premiere in STL',
+                              initialValue: renameTagUploaded,
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
@@ -378,7 +384,10 @@ class _UploadedViewState extends State<UploadedView> {
                             ),
                           ),
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              TagService.instance.renameTag (renameTagUploaded, 'PEPITO');
+                              StoreService.instance.remove ('renameTagUploaded');
+                            },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10, bottom: 10.0),
                               child: Text(
@@ -392,7 +401,9 @@ class _UploadedViewState extends State<UploadedView> {
                         SizedBox(
                           width: double.infinity,
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              StoreService.instance.remove ('renameTagUploaded');
+                            },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10.0),
                               child: Text(
@@ -411,7 +422,7 @@ class _UploadedViewState extends State<UploadedView> {
             )),
         // Delete tag modal
         Visibility(
-            visible: false,
+            visible: deleteTagUploaded != '',
             child: Center(
               child: Container(
                 height: 200,
@@ -433,11 +444,11 @@ class _UploadedViewState extends State<UploadedView> {
                           style: kTaglineText,
                         ),
                       ),
-                      const Padding(
+                      Padding(
                         padding:
                             EdgeInsets.only(right: 15, left: 15, bottom: 10),
                         child: Text(
-                          'Bohemian Rhapsody Premiere in STL?',
+                          deleteTagUploaded + '?',
                           textAlign: TextAlign.center,
                           softWrap: true,
                           style: kTaglineTextBold,
@@ -461,7 +472,10 @@ class _UploadedViewState extends State<UploadedView> {
                           ),
                         ),
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             TagService.instance.deleteTag (deleteTagUploaded);
+                             StoreService.instance.remove ('deleteTagUploaded');
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 10.0),
                             child: Text(
@@ -475,7 +489,9 @@ class _UploadedViewState extends State<UploadedView> {
                       SizedBox(
                         width: double.infinity,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             StoreService.instance.remove ('deleteTagUploaded');
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: Text(

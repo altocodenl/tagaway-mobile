@@ -63,6 +63,8 @@ class _LocalViewState extends State<LocalView> {
   String currentlyTagging = '';
   bool swiped = false;
   dynamic startTaggingModal = '';
+  String renameTagLocal = '';
+  String deleteTagLocal = '';
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -80,8 +82,10 @@ class _LocalViewState extends State<LocalView> {
       'currentlyTaggingLocal',
       'swipedLocal',
       'tagFilterLocal',
-      'startTaggingModal'
-    ], (v1, v2, v3, v4, v5) {
+      'startTaggingModal',
+      'renameTagLocal',
+      'deleteTagLocal'
+    ], (v1, v2, v3, v4, v5, v6, v7) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -112,6 +116,8 @@ class _LocalViewState extends State<LocalView> {
             currentScrollableSize = 0.77;
           startTaggingModal = v5;
         }
+        renameTagLocal = v6;
+        deleteTagLocal = v7;
       });
     });
   }
@@ -355,9 +361,9 @@ class _LocalViewState extends State<LocalView> {
                 ),
               ),
             ))),
-        // Edit tag modal
+        // Rename tag modal
         Visibility(
-            visible: false,
+            visible: renameTagLocal != '',
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
@@ -393,7 +399,7 @@ class _LocalViewState extends State<LocalView> {
                               // When a controller is specified, initialValue must be null (the default). If controller is null, then a TextEditingController will be constructed automatically and its text will be initialized to initialValue or the empty string.
                               // For documentation about the various parameters, see the TextField class and TextField.new, the constructor.
                               style: kTaglineTextBold,
-                              initialValue: 'Bohemian Rhapsody Premiere in STL',
+                              initialValue: renameTagLocal,
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
@@ -417,7 +423,10 @@ class _LocalViewState extends State<LocalView> {
                             ),
                           ),
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              TagService.instance.renameTag (renameTagLocal, 'PEPITO');
+                              StoreService.instance.remove ('renameTagLocal');
+                            },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10, bottom: 10.0),
                               child: Text(
@@ -431,7 +440,9 @@ class _LocalViewState extends State<LocalView> {
                         SizedBox(
                           width: double.infinity,
                           child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              StoreService.instance.remove ('renameTagLocal');
+                            },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10.0),
                               child: Text(
@@ -450,7 +461,7 @@ class _LocalViewState extends State<LocalView> {
             )),
         // Delete tag modal
         Visibility(
-            visible: false,
+            visible: deleteTagLocal != '',
             child: Center(
               child: Container(
                 height: 200,
@@ -472,11 +483,11 @@ class _LocalViewState extends State<LocalView> {
                           style: kTaglineText,
                         ),
                       ),
-                      const Padding(
+                      Padding(
                         padding:
                             EdgeInsets.only(right: 15, left: 15, bottom: 10),
                         child: Text(
-                          'Bohemian Rhapsody Premiere in STL?',
+                          deleteTagLocal + '?',
                           textAlign: TextAlign.center,
                           softWrap: true,
                           style: kTaglineTextBold,
@@ -500,7 +511,10 @@ class _LocalViewState extends State<LocalView> {
                           ),
                         ),
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             TagService.instance.deleteTag (deleteTagLocal);
+                             StoreService.instance.remove ('deleteTagLocal');
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 10.0),
                             child: Text(
@@ -514,7 +528,9 @@ class _LocalViewState extends State<LocalView> {
                       SizedBox(
                         width: double.infinity,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             StoreService.instance.remove ('deleteTagLocal');
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: Text(
