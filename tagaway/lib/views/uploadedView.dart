@@ -351,6 +351,82 @@ class _UploadedViewState extends State<UploadedView> {
                         })),
               ),
             )),
+        Center(
+          child: Container(
+            height: 200,
+            width: 225,
+            decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                border: Border.all(color: kGreyLight, width: .5)),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 15.0),
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                    child: Text(
+                      'Delete the tag ',
+                      textAlign: TextAlign.center,
+                      style: kTaglineText,
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                    child: Text(
+                      'Bohemian Rhapsody Premiere in STL?',
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                      style: kTaglineTextBold,
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
+                    child: Text(
+                      'This will not delete any photos or videos, just the tag.',
+                      textAlign: TextAlign.center,
+                      style: kTaglineText,
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: kGreyLight, width: 1),
+                        bottom: BorderSide(color: kGreyLight, width: 1),
+                      ),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                        child: Text(
+                          'Delete',
+                          textAlign: TextAlign.center,
+                          style: kGridTagListElementRed,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Text(
+                          'Cancel',
+                          textAlign: TextAlign.center,
+                          style: kGridTagListElement,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
       ],
     );
   }

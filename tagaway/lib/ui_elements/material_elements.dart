@@ -1,7 +1,6 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -169,7 +168,7 @@ class HomeCard extends StatelessWidget {
   }
 }
 
-class TagListElement extends StatelessWidget {
+class TagListElement extends StatefulWidget {
   const TagListElement({
     Key? key,
     required this.tagColor,
@@ -182,9 +181,22 @@ class TagListElement extends StatelessWidget {
   final Function onTap;
 
   @override
+  State<TagListElement> createState() => _TagListElementState();
+}
+
+class _TagListElementState extends State<TagListElement> {
+  bool showDeleteAndEditTagModal = false;
+
+  showDeleteAndEditTagModalFunction() {
+    setState(() {
+      showDeleteAndEditTagModal = !showDeleteAndEditTagModal;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap(),
+      onTap: widget.onTap(),
       child: Padding(
         padding: const EdgeInsets.only(top: 5),
         child: Container(
@@ -192,32 +204,103 @@ class TagListElement extends StatelessWidget {
           decoration: const BoxDecoration(
               color: kGreyLighter,
               borderRadius: BorderRadius.all(Radius.circular(10))),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: FaIcon(
-                    kTagIcon,
-                    color: tagColor,
-                  ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        color: widget.tagColor,
+                      ),
+                    ),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth:
+                            SizeService.instance.screenWidth(context) * .8,
+                      ),
+                      child: Text(
+                        widget.tagName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: kTagListElementText,
+                      ),
+                    ),
+                    Expanded(
+                      child: Align(
+                        alignment: const Alignment(1, 0),
+                        child: GestureDetector(
+                          onTap: () {
+                            showDeleteAndEditTagModalFunction();
+                          },
+                          child: const Icon(
+                            kEllipsisVerticalIcon,
+                            color: kGreyDarker,
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
-                Container(
-                  constraints: BoxConstraints(
-                    maxWidth: SizeService.instance.screenWidth(context) * .8,
-                  ),
-                  child: Text(
-                    tagName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: kTagListElementText,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Visibility(
+                  visible: showDeleteAndEditTagModal,
+                  child: DeleteAndEditTagModal()),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DeleteAndEditTagModal extends StatelessWidget {
+  const DeleteAndEditTagModal({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: const Alignment(.75, 0),
+      child: Container(
+        height: 60,
+        width: 100,
+        decoration: const BoxDecoration(
+          color: kGreyLighter,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey, //New
+                blurRadius: 1.0,
+                offset: Offset(0, 1))
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {},
+              child: const Icon(
+                kTrashCanIcon,
+                color: kAltoRed,
+              ),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            GestureDetector(
+              onTap: () {},
+              child: const Icon(
+                kPenToSquareSolidIcon,
+                color: kAltoBlue,
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -458,11 +541,11 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                         color: kGreyDarker,
                         size: 30,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'You’re looking at',
                               style: kLookingAtText,
@@ -484,19 +567,19 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                           itemBuilder: (BuildContext context, index) {
                             var tag = queryTags[index];
                             if (tag == 'u::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kTagIcon,
                                 iconColor: kGrey,
                                 gridTagName: 'Untagged',
                               );
                             if (tag == 't::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kBoxArchiveIcon,
                                 iconColor: kGrey,
                                 gridTagName: 'To Organize',
                               );
                             if (tag == 'o::')
-                              return GridTagElement(
+                              return const GridTagElement(
                                 gridTagElementIcon: kCircleCheckIcon,
                                 iconColor: kAltoOrganized,
                                 gridTagName: 'Organized',
@@ -994,10 +1077,10 @@ class AltocodeCommit extends StatelessWidget {
         onPressed: () {
           launchAltocodeHome();
         },
-        child: Column(
+        child: const Column(
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             Text(
               'altocode',
               style: kBlueAltocodeSubtitle,
@@ -1042,7 +1125,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
 
   @override
   Widget build(BuildContext context) {
-    if (numeroli == 0) return Text('');
+    if (numeroli == 0) return const Text('');
     return Positioned(
       right: SizeService.instance.screenWidth(context) * .08,
       top: 2,
@@ -1059,7 +1142,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             softWrap: false,
-            style: TextStyle(
+            style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

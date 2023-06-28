@@ -44,6 +44,7 @@ const kSearchIcon = FontAwesomeIcons.magnifyingGlass;
 const kSlidersIcon = FontAwesomeIcons.sliders;
 const kCameraIcon = FontAwesomeIcons.camera;
 const kEllipsisIcon = FontAwesomeIcons.ellipsis;
+const kEllipsisVerticalIcon = FontAwesomeIcons.ellipsisVertical;
 const kMinusIcon = FontAwesomeIcons.minus;
 const kBoxArchiveIcon = FontAwesomeIcons.boxArchive;
 const kShareArrownUpIcon = FontAwesomeIcons.arrowUpFromBracket;
@@ -54,6 +55,9 @@ const kEmailValidation = FontAwesomeIcons.envelopeCircleCheck;
 const kPinIcon = FontAwesomeIcons.thumbtack;
 const kArrowLeft = FontAwesomeIcons.arrowLeftLong;
 const kCloudArrowUp = FontAwesomeIcons.cloudArrowUp;
+const kPenToSquareSolidIcon = FontAwesomeIcons.solidPenToSquare;
+const kHouseIcon = FontAwesomeIcons.house;
+const kMobileScreenIcon = FontAwesomeIcons.mobileScreenButton;
 
 const tagColors = [
   kTagColor1,
@@ -222,6 +226,20 @@ const kGridTagListElement = TextStyle(
   color: kGreyDarker,
 );
 
+const kGridTagListElementRed = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoRed,
+);
+
+const kGridTagListElementBlue = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoBlue,
+);
+
 const kDoneEditText = TextStyle(
   fontFamily: 'Montserrat',
   fontWeight: FontWeight.bold,
@@ -273,6 +291,13 @@ const kBottomNavigationText = TextStyle(
 const kTaglineText = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 12,
+  color: kGreyDarker,
+);
+
+const kTaglineTextBold = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 12,
+  fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
