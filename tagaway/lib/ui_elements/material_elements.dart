@@ -232,28 +232,33 @@ class _TagListElementState extends State<TagListElement> {
                         style: kTagListElementText,
                       ),
                     ),
-                    Expanded(
-                      child: Visibility(
-                      visible: ['local', 'uploaded'].contains (widget.view),
-                      child: Align(
-                        alignment: const Alignment(1, 0),
-                        child: GestureDetector(
-                          onTap: () {
-                            showDeleteAndEditTagModalFunction();
-                          },
-                          child: const Icon(
-                            kEllipsisVerticalIcon,
-                            color: kGreyDarker,
+                    Visibility(
+                      visible: ['local', 'uploaded'].contains(widget.view),
+                      child: Expanded(
+                        child: Align(
+                          alignment: const Alignment(1, 0),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDeleteAndEditTagModalFunction();
+                            },
+                            child: const Icon(
+                              kEllipsisVerticalIcon,
+                              color: kGreyDarker,
+                            ),
                           ),
                         ),
                       ),
-                    ))
+                      replacement: Expanded(
+                        child: Container(),
+                      ),
+                    )
                   ],
                 ),
               ),
               Visibility(
                   visible: showDeleteAndEditTagModal,
-                  child: DeleteAndEditTagModal(tagName: widget.tagName, view: widget.view)),
+                  child: DeleteAndEditTagModal(
+                      tagName: widget.tagName, view: widget.view)),
             ],
           ),
         ),
@@ -294,7 +299,9 @@ class DeleteAndEditTagModal extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                 StoreService.instance.set (view == 'local' ? 'deleteTagLocal' : 'deleteTagUploaded', tagName);
+                StoreService.instance.set(
+                    view == 'local' ? 'deleteTagLocal' : 'deleteTagUploaded',
+                    tagName);
               },
               child: const Icon(
                 kTrashCanIcon,
@@ -306,7 +313,9 @@ class DeleteAndEditTagModal extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                 StoreService.instance.set (view == 'local' ? 'renameTagLocal' : 'renameTagUploaded', tagName);
+                StoreService.instance.set(
+                    view == 'local' ? 'renameTagLocal' : 'renameTagUploaded',
+                    tagName);
               },
               child: const Icon(
                 kPenToSquareSolidIcon,
