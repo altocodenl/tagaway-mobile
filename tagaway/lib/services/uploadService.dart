@@ -50,6 +50,8 @@ class UploadService {
       if (response ['code'] == 200) {
          StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
          StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+         // We set the hashMap in case it wasn't already locally set. If we overwrite it, it shouldn't matter, since the server and the client compute them in the same way.
+         StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash']);
          TagService.instance.getLocalTimeHeader ();
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
