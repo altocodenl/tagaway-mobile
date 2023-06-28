@@ -73,7 +73,7 @@ class _YourHometagsViewState extends State<YourHometagsView> {
           padding: const EdgeInsets.only(left: 12, right: 12, top: 5),
           child: ListView(shrinkWrap: true, children: [
             for (var v in hometags)
-              TagListElement(tagColor: tagColor(v), tagName: v, onTap: () {})
+              TagListElement(tagColor: tagColor(v), tagName: v, view: 'yourHometags', onTap: () {})
           ]),
         )),
         floatingActionButton: FloatingActionButton.extended(

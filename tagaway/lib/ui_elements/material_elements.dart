@@ -173,11 +173,13 @@ class TagListElement extends StatefulWidget {
     Key? key,
     required this.tagColor,
     required this.tagName,
+    required this.view,
     required this.onTap,
   }) : super(key: key);
 
   final Color tagColor;
   final String tagName;
+  final String view;
   final Function onTap;
 
   @override
@@ -231,6 +233,8 @@ class _TagListElementState extends State<TagListElement> {
                       ),
                     ),
                     Expanded(
+                      child: Visibility(
+                      visible: ['local', 'uploaded'].contains (widget.view),
                       child: Align(
                         alignment: const Alignment(1, 0),
                         child: GestureDetector(
@@ -243,12 +247,13 @@ class _TagListElementState extends State<TagListElement> {
                           ),
                         ),
                       ),
-                    )
+                    ))
                   ],
                 ),
               ),
               Visibility(
                   visible: showDeleteAndEditTagModal,
+                  //child: DeleteAndEditTagModal(tagName, view)),
                   child: DeleteAndEditTagModal()),
             ],
           ),
@@ -261,7 +266,12 @@ class _TagListElementState extends State<TagListElement> {
 class DeleteAndEditTagModal extends StatelessWidget {
   const DeleteAndEditTagModal({
     Key? key,
+    //required this.tagName,
+    //required this.view,
   }) : super(key: key);
+
+  //final String tagName;
+  //final String view;
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +294,9 @@ class DeleteAndEditTagModal extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                 //print (tagName);
+              },
               child: const Icon(
                 kTrashCanIcon,
                 color: kAltoRed,
@@ -294,7 +306,9 @@ class DeleteAndEditTagModal extends StatelessWidget {
               width: 20,
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                 //print (view);
+              },
               child: const Icon(
                 kPenToSquareSolidIcon,
                 color: kAltoBlue,

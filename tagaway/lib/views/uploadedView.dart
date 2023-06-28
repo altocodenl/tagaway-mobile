@@ -86,9 +86,10 @@ class _UploadedViewState extends State<UploadedView> {
       setState(() {
         if (v1 != '') {
           var filter = v4;
-          var lastNTags = StoreService.instance.get ('lastNTags');
+          var lastNTags = StoreService.instance.get('lastNTags');
           if (lastNTags == '') lastNTags = [];
-          usertags = List.from (lastNTags)..addAll (v1.where ((tag) => !lastNTags.contains (tag)));
+          usertags = List.from(lastNTags)
+            ..addAll(v1.where((tag) => !lastNTags.contains(tag)));
           usertags = usertags
               .where(
                   (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
@@ -297,6 +298,7 @@ class _UploadedViewState extends State<UploadedView> {
                                         return TagListElement(
                                           tagColor: tagColor(actualTag),
                                           tagName: tag,
+                                          view: 'uploaded',
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
@@ -307,43 +309,6 @@ class _UploadedViewState extends State<UploadedView> {
                                           },
                                         );
                                       })
-                                  /*
-                                  Visibility(
-                                      visible: swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Choose a tag and select the pics & videos you want!',
-                                            textAlign: TextAlign.center,
-                                            style: kPlainTextBold,
-                                          ),
-                                        ),
-                                      )),
-                                  ListView.builder(
-                                      itemCount: usertags.length,
-                                      padding: EdgeInsets.zero,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var tag = usertags[index];
-                                        return TagListElement(
-                                          tagColor: tagColor(tag),
-                                          tagName: tag,
-                                          onTap: () {
-                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                            return () {
-                                              StoreService.instance.set(
-                                                  'currentlyTaggingUploaded',
-                                                  tag);
-                                            };
-                                          },
-                                        );
-                                      })
-                                  */
                                 ],
                               ),
                             ),
@@ -351,82 +316,181 @@ class _UploadedViewState extends State<UploadedView> {
                         })),
               ),
             )),
-        Center(
-          child: Container(
-            height: 200,
-            width: 225,
-            decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                border: Border.all(color: kGreyLight, width: .5)),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 15, left: 15, bottom: 10),
-                    child: Text(
-                      'Delete the tag ',
-                      textAlign: TextAlign.center,
-                      style: kTaglineText,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(right: 15, left: 15, bottom: 10),
-                    child: Text(
-                      'Bohemian Rhapsody Premiere in STL?',
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                      style: kTaglineTextBold,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
-                    child: Text(
-                      'This will not delete any photos or videos, just the tag.',
-                      textAlign: TextAlign.center,
-                      style: kTaglineText,
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: kGreyLight, width: 1),
-                        bottom: BorderSide(color: kGreyLight, width: 1),
-                      ),
-                    ),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 10, bottom: 10.0),
-                        child: Text(
-                          'Delete',
-                          textAlign: TextAlign.center,
-                          style: kGridTagListElementRed,
+        // Edit tag modal
+        Visibility(
+            visible: false,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding:
+                              EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                          child: Text(
+                            'Edit tag',
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                            style: kTaglineTextBold,
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Text(
-                          'Cancel',
-                          textAlign: TextAlign.center,
-                          style: kGridTagListElement,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: SizedBox(
+                            height: 50,
+                            child: TextFormField(
+                              // autofocus: true,
+                              //WHEN THIS WIDGET IS DYNAMIZED, EVALUATE AUTOFOCUS
+                              // controller: modifyTagName,
+                              // When a controller is specified, initialValue must be null (the default). If controller is null, then a TextEditingController will be constructed automatically and its text will be initialized to initialValue or the empty string.
+                              // For documentation about the various parameters, see the TextField class and TextField.new, the constructor.
+                              style: kTaglineTextBold,
+                              initialValue: 'Bohemian Rhapsody Premiere in STL',
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 20.0),
+                                fillColor: kGreyLightest,
+                                hintMaxLines: 1,
+                                hintStyle: kTaglineText,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide:
+                                        const BorderSide(color: kGreyDarker)),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: kGreyLight, width: 1),
+                              bottom: BorderSide(color: kGreyLight, width: 1),
+                            ),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'Done',
+                                textAlign: TextAlign.center,
+                                style: kGridTagListElementBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Text(
+                                'Cancel',
+                                textAlign: TextAlign.center,
+                                style: kGridTagListElement,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        )
+            )),
+        // Delete tag modal
+        Visibility(
+            visible: false,
+            child: Center(
+              child: Container(
+                height: 200,
+                width: 225,
+                decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: kGreyLight, width: .5)),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                        child: Text(
+                          'Delete the tag ',
+                          textAlign: TextAlign.center,
+                          style: kTaglineText,
+                        ),
+                      ),
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                        child: Text(
+                          'Bohemian Rhapsody Premiere in STL?',
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: kTaglineTextBold,
+                        ),
+                      ),
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
+                        child: Text(
+                          'This will not delete any photos or videos, just the tag.',
+                          textAlign: TextAlign.center,
+                          style: kTaglineText,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: kGreyLight, width: 1),
+                            bottom: BorderSide(color: kGreyLight, width: 1),
+                          ),
+                        ),
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                            child: Text(
+                              'Delete',
+                              textAlign: TextAlign.center,
+                              style: kGridTagListElementRed,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              'Cancel',
+                              textAlign: TextAlign.center,
+                              style: kGridTagListElement,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ))
       ],
     );
   }
