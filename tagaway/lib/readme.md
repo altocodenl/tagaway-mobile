@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Use hash returned from server in case we uploaded a piv that is not hashed yet.
 - Rename and delete tag from tag list.
 
 - Hide pivs that are organized in Local
