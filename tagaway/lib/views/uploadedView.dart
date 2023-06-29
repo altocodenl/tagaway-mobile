@@ -162,7 +162,7 @@ class _UploadedViewState extends State<UploadedView> {
             visible: currentlyTagging == '',
             child: StartTaggingButton(
                 buttonKey: Key('uploaded-start-tagging'),
-                buttonText: 'Start Tagging',
+                buttonText: 'Add More Tags',
                 onPressed: () {
                   StoreService.instance.set('swipedUploaded', true);
                   StoreService.instance.set('startTaggingModal', false);
