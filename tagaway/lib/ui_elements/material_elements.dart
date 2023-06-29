@@ -222,7 +222,7 @@ class _TagListElementState extends State<TagListElement> {
                     Container(
                       constraints: BoxConstraints(
                         maxWidth:
-                            SizeService.instance.screenWidth(context) * .8,
+                            SizeService.instance.screenWidth(context) * .65,
                       ),
                       child: Text(
                         widget.tagName,
@@ -240,10 +240,18 @@ class _TagListElementState extends State<TagListElement> {
                           child: GestureDetector(
                             onTap: () {
                               showDeleteAndRenameTagModalFunction();
+                              print('hello');
                             },
-                            child: const Icon(
-                              kEllipsisVerticalIcon,
-                              color: kGreyDarker,
+                            child: Container(
+                              width: 60,
+                              decoration: const BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: const Icon(
+                                kEllipsisVerticalIcon,
+                                color: kGreyDarker,
+                              ),
                             ),
                           ),
                         ),
@@ -280,7 +288,7 @@ class DeleteAndRenameTagModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: const Alignment(.75, 0),
+      alignment: const Alignment(.65, 0),
       child: Container(
         height: 60,
         width: 100,
