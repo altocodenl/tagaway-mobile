@@ -57,7 +57,7 @@ class LocalView extends StatefulWidget {
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
   final TextEditingController searchTagController = TextEditingController();
-  final TextEditingController modifyTagName = TextEditingController();
+  final TextEditingController renameTagController = TextEditingController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
@@ -117,6 +117,7 @@ class _LocalViewState extends State<LocalView> {
           startTaggingModal = v5;
         }
         renameTagLocal = v6;
+        if (renameTagLocal != '') renameTagController.text = renameTagLocal;
         deleteTagLocal = v7;
       });
     });
@@ -126,6 +127,7 @@ class _LocalViewState extends State<LocalView> {
   void dispose() {
     super.dispose();
     searchTagController.dispose();
+    renameTagController.dispose();
     cancelListener();
   }
 
@@ -306,6 +308,8 @@ class _LocalViewState extends State<LocalView> {
                                           RegExp(' \\(new tag\\)\$'), '');
                                     }
                                     return TagListElement(
+                                      // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
+                                      key: Key('local-' + tag),
                                       tagColor: tagColor(actualTag),
                                       tagName: tag,
                                       view: 'local',
@@ -393,13 +397,9 @@ class _LocalViewState extends State<LocalView> {
                           child: SizedBox(
                             height: 50,
                             child: TextFormField(
-                              // autofocus: true,
-                              //WHEN THIS WIDGET IS DYNAMIZED, EVALUATE AUTOFOCUS
-                              // controller: modifyTagName,
-                              // When a controller is specified, initialValue must be null (the default). If controller is null, then a TextEditingController will be constructed automatically and its text will be initialized to initialValue or the empty string.
-                              // For documentation about the various parameters, see the TextField class and TextField.new, the constructor.
+                              autofocus: true,
+                              controller: renameTagController,
                               style: kTaglineTextBold,
-                              initialValue: renameTagLocal,
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
@@ -424,7 +424,7 @@ class _LocalViewState extends State<LocalView> {
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              TagService.instance.renameTag (renameTagLocal, 'PEPITO');
+                              TagService.instance.renameTag (renameTagLocal, renameTagController.text);
                               StoreService.instance.remove ('renameTagLocal');
                             },
                             child: const Padding(

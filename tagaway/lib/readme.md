@@ -3,9 +3,7 @@
 ## TODO
 
 - Rename and delete tag from tag list.
-   - Get current value from input when renaming
-   - After renaming, tag should be renamed in tag list (probably a key issue)
-   - Remove edit & delete buttons after any operation
+   - Remove edit & delete buttons after cancel
 
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...

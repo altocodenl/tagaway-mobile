@@ -187,11 +187,11 @@ class TagListElement extends StatefulWidget {
 }
 
 class _TagListElementState extends State<TagListElement> {
-  bool showDeleteAndEditTagModal = false;
+  bool showDeleteAndRenameTagModal = false;
 
-  showDeleteAndEditTagModalFunction() {
+  showDeleteAndRenameTagModalFunction() {
     setState(() {
-      showDeleteAndEditTagModal = !showDeleteAndEditTagModal;
+      showDeleteAndRenameTagModal = !showDeleteAndRenameTagModal;
     });
   }
 
@@ -239,7 +239,7 @@ class _TagListElementState extends State<TagListElement> {
                           alignment: const Alignment(1, 0),
                           child: GestureDetector(
                             onTap: () {
-                              showDeleteAndEditTagModalFunction();
+                              showDeleteAndRenameTagModalFunction();
                             },
                             child: const Icon(
                               kEllipsisVerticalIcon,
@@ -256,8 +256,8 @@ class _TagListElementState extends State<TagListElement> {
                 ),
               ),
               Visibility(
-                  visible: showDeleteAndEditTagModal,
-                  child: DeleteAndEditTagModal(
+                  visible: showDeleteAndRenameTagModal,
+                  child: DeleteAndRenameTagModal(
                       tagName: widget.tagName, view: widget.view)),
             ],
           ),
@@ -267,8 +267,8 @@ class _TagListElementState extends State<TagListElement> {
   }
 }
 
-class DeleteAndEditTagModal extends StatelessWidget {
-  const DeleteAndEditTagModal({
+class DeleteAndRenameTagModal extends StatelessWidget {
+  const DeleteAndRenameTagModal({
     Key? key,
     required this.tagName,
     required this.view,

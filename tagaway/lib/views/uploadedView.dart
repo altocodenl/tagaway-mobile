@@ -54,6 +54,7 @@ class UploadedView extends StatefulWidget {
 class _UploadedViewState extends State<UploadedView> {
   dynamic cancelListener;
   final TextEditingController searchTagController = TextEditingController();
+  final TextEditingController renameTagController = TextEditingController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
@@ -113,6 +114,7 @@ class _UploadedViewState extends State<UploadedView> {
             currentScrollableSize = 0.77;
         }
         renameTagUploaded = v5;
+        if (renameTagUploaded != '') renameTagController.text = renameTagUploaded;
         deleteTagUploaded = v6;
       });
     });
@@ -123,6 +125,7 @@ class _UploadedViewState extends State<UploadedView> {
     super.dispose();
     cancelListener();
     searchTagController.dispose();
+    renameTagController.dispose();
   }
 
   bool searchTag(String query) {
@@ -302,6 +305,8 @@ class _UploadedViewState extends State<UploadedView> {
                                               RegExp(' \\(new tag\\)\$'), '');
                                         }
                                         return TagListElement(
+                                          // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
+                                          key: Key('uploaded-' + tag),
                                           tagColor: tagColor(actualTag),
                                           tagName: tag,
                                           view: 'uploaded',
@@ -354,13 +359,9 @@ class _UploadedViewState extends State<UploadedView> {
                           child: SizedBox(
                             height: 50,
                             child: TextFormField(
-                              // autofocus: true,
-                              //WHEN THIS WIDGET IS DYNAMIZED, EVALUATE AUTOFOCUS
-                              // controller: modifyTagName,
-                              // When a controller is specified, initialValue must be null (the default). If controller is null, then a TextEditingController will be constructed automatically and its text will be initialized to initialValue or the empty string.
-                              // For documentation about the various parameters, see the TextField class and TextField.new, the constructor.
+                              autofocus: true,
+                              controller: renameTagController,
                               style: kTaglineTextBold,
-                              initialValue: renameTagUploaded,
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
@@ -385,7 +386,7 @@ class _UploadedViewState extends State<UploadedView> {
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              TagService.instance.renameTag (renameTagUploaded, 'PEPITO');
+                              TagService.instance.renameTag (renameTagUploaded, renameTagController.text);
                               StoreService.instance.remove ('renameTagUploaded');
                             },
                             child: const Padding(
