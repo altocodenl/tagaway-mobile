@@ -2,15 +2,13 @@
 
 ## TODO
 
-- Rename and delete tag from tag list.
-   - Remove edit & delete buttons after cancel
-
 - Hide pivs that are organized in Local
 - Redesign Phone view using Today/This Week/This Month/...
 - Delete piv mode (Tom):
    - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
    - Uploaded
 - Remove localTimeHeader functionality completely
+- Remove edit & delete buttons after cancel or when tapping anywhere else
 
 - When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
 - Handle >= 400 errors with snackbar on tagService and uploadService
