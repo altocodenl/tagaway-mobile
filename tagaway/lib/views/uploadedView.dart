@@ -114,7 +114,8 @@ class _UploadedViewState extends State<UploadedView> {
             currentScrollableSize = 0.77;
         }
         renameTagUploaded = v5;
-        if (renameTagUploaded != '') renameTagController.text = renameTagUploaded;
+        if (renameTagUploaded != '')
+          renameTagController.text = renameTagUploaded;
         deleteTagUploaded = v6;
       });
     });
@@ -158,16 +159,14 @@ class _UploadedViewState extends State<UploadedView> {
                   icon: const Icon(Icons.done),
                 ))),
         Visibility(
-                visible: currentlyTagging == '',
-                child: StartTaggingButton(
-                  buttonKey: Key('uploaded-start-tagging'),
-                  buttonText: 'Start Tagging',
-                  onPressed: () {
-                    StoreService.instance.set('swipedUploaded', true);
-                    StoreService.instance
-                      .set('startTaggingModal', false);
-                  }
-                )),
+            visible: currentlyTagging == '',
+            child: StartTaggingButton(
+                buttonKey: Key('uploaded-start-tagging'),
+                buttonText: 'Start Tagging',
+                onPressed: () {
+                  StoreService.instance.set('swipedUploaded', true);
+                  StoreService.instance.set('startTaggingModal', false);
+                })),
         Visibility(
             visible: currentlyTagging == '',
             child: Align(
@@ -397,8 +396,9 @@ class _UploadedViewState extends State<UploadedView> {
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              TagService.instance.renameTag (renameTagUploaded, renameTagController.text);
-                              StoreService.instance.remove ('renameTagUploaded');
+                              TagService.instance.renameTag(
+                                  renameTagUploaded, renameTagController.text);
+                              StoreService.instance.remove('renameTagUploaded');
                             },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -414,7 +414,7 @@ class _UploadedViewState extends State<UploadedView> {
                           width: double.infinity,
                           child: GestureDetector(
                             onTap: () {
-                              StoreService.instance.remove ('renameTagUploaded');
+                              StoreService.instance.remove('renameTagUploaded');
                             },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10.0),
@@ -485,8 +485,8 @@ class _UploadedViewState extends State<UploadedView> {
                         ),
                         child: GestureDetector(
                           onTap: () {
-                             TagService.instance.deleteTag (deleteTagUploaded);
-                             StoreService.instance.remove ('deleteTagUploaded');
+                            TagService.instance.deleteTag(deleteTagUploaded);
+                            StoreService.instance.remove('deleteTagUploaded');
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -502,7 +502,7 @@ class _UploadedViewState extends State<UploadedView> {
                         width: double.infinity,
                         child: GestureDetector(
                           onTap: () {
-                             StoreService.instance.remove ('deleteTagUploaded');
+                            StoreService.instance.remove('deleteTagUploaded');
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10.0),

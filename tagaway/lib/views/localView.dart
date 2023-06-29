@@ -162,16 +162,14 @@ class _LocalViewState extends State<LocalView> {
                   icon: const Icon(Icons.done),
                 ))),
         Visibility(
-                visible: currentlyTagging == '',
-                child: StartTaggingButton(
-                  buttonKey: Key('local-start-tagging'),
-                  buttonText: 'Start Tagging',
-                  onPressed: () {
-                    StoreService.instance.set('swipedLocal', true);
-                    StoreService.instance
-                      .set('startTaggingModal', false);
-                  }
-                )),
+            visible: currentlyTagging == '',
+            child: StartTaggingButton(
+                buttonKey: Key('local-start-tagging'),
+                buttonText: 'Start Tagging',
+                onPressed: () {
+                  StoreService.instance.set('swipedLocal', true);
+                  StoreService.instance.set('startTaggingModal', false);
+                })),
         Visibility(
             visible: currentlyTagging == '',
             child: Align(
@@ -436,8 +434,9 @@ class _LocalViewState extends State<LocalView> {
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              TagService.instance.renameTag (renameTagLocal, renameTagController.text);
-                              StoreService.instance.remove ('renameTagLocal');
+                              TagService.instance.renameTag(
+                                  renameTagLocal, renameTagController.text);
+                              StoreService.instance.remove('renameTagLocal');
                             },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -453,7 +452,7 @@ class _LocalViewState extends State<LocalView> {
                           width: double.infinity,
                           child: GestureDetector(
                             onTap: () {
-                              StoreService.instance.remove ('renameTagLocal');
+                              StoreService.instance.remove('renameTagLocal');
                             },
                             child: const Padding(
                               padding: EdgeInsets.only(top: 10.0),
@@ -524,8 +523,8 @@ class _LocalViewState extends State<LocalView> {
                         ),
                         child: GestureDetector(
                           onTap: () {
-                             TagService.instance.deleteTag (deleteTagLocal);
-                             StoreService.instance.remove ('deleteTagLocal');
+                            TagService.instance.deleteTag(deleteTagLocal);
+                            StoreService.instance.remove('deleteTagLocal');
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -541,7 +540,7 @@ class _LocalViewState extends State<LocalView> {
                         width: double.infinity,
                         child: GestureDetector(
                           onTap: () {
-                             StoreService.instance.remove ('deleteTagLocal');
+                            StoreService.instance.remove('deleteTagLocal');
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10.0),
