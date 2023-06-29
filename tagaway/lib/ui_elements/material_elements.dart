@@ -1175,3 +1175,48 @@ class _UploadingNumberState extends State<UploadingNumber> {
     );
   }
 }
+
+class StartTaggingButton extends StatefulWidget {
+  const StartTaggingButton({
+    Key? key,
+    required this.buttonText,
+    required this.buttonKey,
+    required this.onPressed,
+  }) : super(key: key);
+  final String buttonText;
+  final Key buttonKey;
+  final VoidCallback onPressed;
+
+  @override
+  State<StartTaggingButton> createState() => _StartTaggingButtonState();
+}
+
+class _StartTaggingButtonState extends State<StartTaggingButton> {
+  bool shouldDisplay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        shouldDisplay = true;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return shouldDisplay
+        ? Align(
+            alignment: const Alignment(0, .92),
+            child: FloatingActionButton.extended(
+              heroTag: null,
+              key: Key(widget.buttonKey.toString()),
+              onPressed: widget.onPressed,
+              backgroundColor: kAltoBlue,
+              label: Text(widget.buttonText, style: kSelectAllButton),
+            ),
+          )
+        : Container();
+  }
+}

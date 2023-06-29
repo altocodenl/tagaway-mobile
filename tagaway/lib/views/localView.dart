@@ -71,6 +71,7 @@ class _LocalViewState extends State<LocalView> {
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
   double initialScrollableSize =
       StoreService.instance.get('initialScrollableSize');
+
   double currentScrollableSize =
       StoreService.instance.get('initialScrollableSize');
 
@@ -160,6 +161,17 @@ class _LocalViewState extends State<LocalView> {
                   label: const Text('Done', style: kSelectAllButton),
                   icon: const Icon(Icons.done),
                 ))),
+        Visibility(
+                visible: currentlyTagging == '',
+                child: StartTaggingButton(
+                  buttonKey: Key('local-start-tagging'),
+                  buttonText: 'Start Tagging',
+                  onPressed: () {
+                    StoreService.instance.set('swipedLocal', true);
+                    StoreService.instance
+                      .set('startTaggingModal', false);
+                  }
+                )),
         Visibility(
             visible: currentlyTagging == '',
             child: Align(

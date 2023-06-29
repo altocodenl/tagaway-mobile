@@ -158,6 +158,17 @@ class _UploadedViewState extends State<UploadedView> {
                   icon: const Icon(Icons.done),
                 ))),
         Visibility(
+                visible: currentlyTagging == '',
+                child: StartTaggingButton(
+                  buttonKey: Key('uploaded-start-tagging'),
+                  buttonText: 'Start Tagging',
+                  onPressed: () {
+                    StoreService.instance.set('swipedUploaded', true);
+                    StoreService.instance
+                      .set('startTaggingModal', false);
+                  }
+                )),
+        Visibility(
             visible: currentlyTagging == '',
             child: Align(
               alignment: Alignment.bottomCenter,
