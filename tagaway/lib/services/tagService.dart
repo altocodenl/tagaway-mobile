@@ -73,7 +73,8 @@ class TagService {
     if (lastNTags == '') lastNTags = [];
     if (refreshExistingList) {
       var usertags = StoreService.instance.get ('usertags');
-      lastNTags.forEach ((tag) {
+      // We iterate a copy of the list to avoid Flutter complaining about modifying a list while it's being iterated
+      List.from (lastNTags).forEach ((tag) {
          if (! usertags.contains (tag)) lastNTags.remove (tag);
       });
       return StoreService.instance.set ('lastNTags', lastNTags);
@@ -518,12 +519,26 @@ class TagService {
    renameTag (String from, String to) async {
       await ajax ('post', 'rename', {'from': from, 'to': to});
       await getTags ();
+      var queryTags = StoreService.instance.get ('queryTags');
+      if (queryTags == '') queryTags = [];
+      if (queryTags.contains (from)) {
+         queryTags.remove (from);
+         queryTags.add (to);
+      }
+      StoreService.instance.set ('queryTags', queryTags);
+      await queryPivs (queryTags, true);
       // TODO: handle non-200 error
    }
 
    deleteTag (String tag) async {
       await ajax ('post', 'deleteTag', {'tag': tag});
       await getTags ();
+      var queryTags = StoreService.instance.get ('queryTags');
+      if (queryTags == '') queryTags = [];
+      if (queryTags.contains (tag)) queryTags.remove (tag);
+      StoreService.instance.set ('queryTags', queryTags);
+      await queryPivs (queryTags, true);
+      await queryPivs (StoreService.instance.get ('queryTags'), true);
       // TODO: handle non-200 error
    }
 

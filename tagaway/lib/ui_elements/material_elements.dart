@@ -240,7 +240,6 @@ class _TagListElementState extends State<TagListElement> {
                           child: GestureDetector(
                             onTap: () {
                               showDeleteAndRenameTagModalFunction();
-                              print('hello');
                             },
                             child: Container(
                               width: 60,
