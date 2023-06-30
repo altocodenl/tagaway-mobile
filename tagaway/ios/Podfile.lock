@@ -7,6 +7,8 @@ PODS:
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - open_mail_app (0.0.1):
+    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -32,6 +34,7 @@ DEPENDENCIES:
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - flutter_isolate (from `.symlinks/plugins/flutter_isolate/ios`)
+  - open_mail_app (from `.symlinks/plugins/open_mail_app/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
@@ -52,6 +55,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_isolate:
     :path: ".symlinks/plugins/flutter_isolate/ios"
+  open_mail_app:
+    :path: ".symlinks/plugins/open_mail_app/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
@@ -74,6 +79,7 @@ SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_isolate: 0edf5081826d071adf21759d1eb10ff5c24503b5
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  open_mail_app: 794172f6a22cd16319d3ddaf45e945b2f74952b0
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
