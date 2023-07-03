@@ -8,14 +8,14 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-class UploadedYear extends StatefulWidget {
-  const UploadedYear({Key? key}) : super(key: key);
+class YearUploaded extends StatefulWidget {
+  const YearUploaded({Key? key}) : super(key: key);
 
   @override
-  State<UploadedYear> createState() => _UploadedYearState();
+  State<YearUploaded> createState() => _YearUploadedState();
 }
 
-class _UploadedYearState extends State<UploadedYear> {
+class _YearUploadedState extends State<YearUploaded> {
   dynamic cancelListener;
   dynamic year = '';
 
@@ -23,7 +23,7 @@ class _UploadedYearState extends State<UploadedYear> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
-      'uploadedYear',
+      'yearUploaded',
     ], (v1) {
       setState(() => year = v1);
     });
@@ -616,14 +616,14 @@ class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
   dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
-  final ScrollController scrollController = ScrollController();
+  final ScrollController gridController = ScrollController();
 
   dynamic visibleItems = [];
 
   @override
   void initState() {
     super.initState();
-    StoreService.instance.set('uploadedScrollController', scrollController);
+    StoreService.instance.set('gridControllerUploaded', gridController);
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
@@ -646,7 +646,7 @@ class _UploadGridState extends State<UploadGrid> {
     super.dispose();
     cancelListener();
     cancelListener2();
-    scrollController.dispose();
+    gridController.dispose();
   }
 
   @override
@@ -657,7 +657,7 @@ class _UploadGridState extends State<UploadGrid> {
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: GridView.builder(
-              controller: scrollController,
+              controller: gridController,
               reverse: true,
               shrinkWrap: true,
               cacheExtent: 50,
@@ -706,12 +706,12 @@ class _TopRowState extends State<TopRow> {
   @override
   void initState() {
     super.initState();
-    StoreService.instance.set('uploadedTimeHeaderController', pageController);
-    StoreService.instance.set('uploadedTimeHeaderPage', 0);
+    StoreService.instance.set('timeHeaderController', pageController);
+    StoreService.instance.set('timeHeaderPage', 0);
     cancelListener = StoreService.instance.listen([
       'currentlyTaggingUploaded',
       'taggedPivCountUploaded',
-      'uploadedTimeHeader',
+      'timeHeader',
       'queryTags',
       'queryResult'
     ], (v1, v2, v3, v4, v5) {
@@ -762,7 +762,7 @@ class _TopRowState extends State<TopRow> {
                       const Expanded(
                         child: Align(
                             alignment: Alignment(0.5, .9),
-                            child: UploadedYear()),
+                            child: YearUploaded()),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),
@@ -809,9 +809,9 @@ class _TopRowState extends State<TopRow> {
                           controller: pageController,
                           onPageChanged: (int index) {
                             StoreService.instance
-                                .set('uploadedTimeHeaderPage', index);
+                                .set('timeHeaderPage', index);
                             StoreService.instance.set(
-                                'uploadedYear',
+                                'yearUploaded',
                                 timeHeader[timeHeader.length - index - 1][0][0]
                                     .toString());
                           },
@@ -852,7 +852,7 @@ class _TopRowState extends State<TopRow> {
                                               // TODO: ADD JUMP LOGIC
                                               // final double position = month [4] * SizeService.instance.thumbnailHeight (context);
                                               // debug(['TODO JUMP TO', month[4], position]);
-                                              // StoreService.instance.get ('uploadedScrollController').jumpTo (position);
+                                              // StoreService.instance.get ('gridControllerUploaded').jumpTo (position);
                                             }
                                           }));
                                     });

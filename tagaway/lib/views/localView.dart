@@ -190,7 +190,7 @@ class _LocalViewState extends State<LocalView> {
                 visible: currentlyTagging == '',
                 child: DeleteButton(
                   onPressed: () {
-                    //  enter DELETE MODE
+                    // TODO:  enter DELETE MODE
                   },
                 )),
             Visibility(

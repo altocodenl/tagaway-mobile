@@ -295,10 +295,10 @@ class TagService {
          }).toList ();
       }
 
-      StoreService.instance.set ('uploadedTimeHeader', semesters);
+      StoreService.instance.set ('timeHeader', semesters);
       // The line below is a hack. A redraw we don't understand well yet is sometimes recalculating the uploaded time header, causing the selected months to be erased. By recomputing visibility, we overcome the problem.
       toggleTimeHeaderVisibility ('update', null, false);
-      StoreService.instance.set ('uploadedYear', semesters[semesters.length - 1][0][0]);
+      StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
    }
 
    queryPivs (dynamic tags, [refresh = false]) async {
@@ -459,7 +459,7 @@ class TagService {
      var activePages = [];
 
      updateHeader (dynamic newDates) {
-        var header = StoreService.instance.get (view == 'local' ? 'localTimeHeader' : 'uploadedTimeHeader');
+        var header = StoreService.instance.get (view == 'local' ? 'localTimeHeader' : 'timeHeader');
         header.asMap ().forEach ((k, semester) {
           semester.forEach ((month) {
              var monthKey = month [0].toString () + ':' + (monthNames.indexOf (month [1]) + 1).toString ();
@@ -472,7 +472,7 @@ class TagService {
 
           });
         });
-        StoreService.instance.set (view == 'local' ? 'localTimeHeader' : 'uploadedTimeHeader', header);
+        StoreService.instance.set (view == 'local' ? 'localTimeHeader' : 'timeHeader', header);
      }
 
      activePages.sort ();
@@ -498,9 +498,9 @@ class TagService {
         var newDates = getDates (uploadedVisible);
         if (ListEquality ().equals (oldDates, newDates)) return;
         updateHeader (newDates);
-        var currentPage = StoreService.instance.get ('uploadedTimeHeaderPage');
+        var currentPage = StoreService.instance.get ('timeHeaderPage');
         if (activePages.length > 0 && ! activePages.contains (currentPage)) {
-           var pageController = StoreService.instance.get ('uploadedTimeHeaderController');
+           var pageController = StoreService.instance.get ('timeHeaderController');
            // Prevent scrolling semesters if the uploaded view is not active.
            if (pageController.hasClients) {
               pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
