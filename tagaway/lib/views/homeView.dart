@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -62,13 +63,26 @@ class _HomeViewState extends State<HomeView> {
   }
 
   mailto() async {
-    final Uri params =
-        Uri(scheme: 'mailto', path: 'info@altocode.nl', queryParameters: {
-      'subject': 'Tagaway Feedback',
-    });
+    EmailContent email = EmailContent(
+      to: [
+        'info@altocode.nl',
+      ],
+      subject: 'Tagaway Feedback!',
+      body: 'What needs to be improved in Tagaway is:',
+    );
 
-    if (!await launchUrl(params)) {
-      print('cannot send email');
+    OpenMailAppResult result = await OpenMailApp.composeNewEmailInMailApp(
+        nativePickerTitle: 'Select email app to compose', emailContent: email);
+    if (!result.didOpen && !result.canOpen) {
+      showNoMailAppsDialog(context);
+    } else if (!result.didOpen && result.canOpen) {
+      showDialog(
+        context: context,
+        builder: (_) => MailAppPickerDialog(
+          mailApps: result.options,
+          emailContent: email,
+        ),
+      );
     }
   }
 
@@ -145,7 +159,8 @@ class _HomeViewState extends State<HomeView> {
                     if (value == 200)
                       return Navigator.pushReplacementNamed(
                           context, 'distributor');
-                    SnackBarGlobal.buildSnackBar(context, 'Something is wrong on our side. Sorry.', 'red');
+                    SnackBarGlobal.buildSnackBar(context,
+                        'Something is wrong on our side. Sorry.', 'red');
                   });
                 };
               },
@@ -235,6 +250,26 @@ class _HomeViewState extends State<HomeView> {
           child: const Icon(Icons.create_rounded),
         ),
       ),
+    );
+  }
+
+  void showNoMailAppsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Open Mail App"),
+          content: Text("No mail apps installed"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
     );
   }
 }
