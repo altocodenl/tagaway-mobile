@@ -831,9 +831,7 @@ class _TopRowState extends State<TopRow> {
                             replacement: Padding(
                               padding: const EdgeInsets.only(right: 4),
                               child: GestureDetector(
-                                onTap: () {
-                                  print('no see');
-                                },
+                                onTap: () {},
                                 child: const Icon(
                                   kSlashedEyeIcon,
                                   color: kGreyDarker,
