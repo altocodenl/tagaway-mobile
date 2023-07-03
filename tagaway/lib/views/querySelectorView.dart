@@ -37,13 +37,13 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
 
   // This function will be called every time the text changes
   searchQueryChanged() {
-    StoreService.instance.set ('queryFilter', searchQueryController.text);
+    StoreService.instance.set('queryFilter', searchQueryController.text);
   }
 
   @override
   void initState() {
     super.initState();
-    searchQueryController.addListener (searchQueryChanged);
+    searchQueryController.addListener(searchQueryChanged);
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
@@ -58,10 +58,11 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
       'queryResult',
       'queryFilter',
     ], (v1, v2) {
-      bool matchFilter (String tag) {
-        if (v2 == '' || queryTags.contains (tag)) return true;
+      bool matchFilter(String tag) {
+        if (v2 == '' || queryTags.contains(tag)) return true;
         return tag.toLowerCase().contains(v2.toLowerCase());
       }
+
       if (v1 != '')
         setState(() {
           queryResult = v1;
@@ -113,7 +114,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     cancelListener();
     cancelListener2();
     searchQueryController.dispose();
-    searchQueryController.removeListener (searchQueryChanged);
+    searchQueryController.removeListener(searchQueryChanged);
   }
 
   @override

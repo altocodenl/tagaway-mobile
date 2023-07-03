@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
@@ -54,11 +55,18 @@ class LocalView extends StatefulWidget {
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
   final TextEditingController searchTagController = TextEditingController();
+  final TextEditingController renameTagController = TextEditingController();
+
   final PageController controller = PageController();
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
   dynamic startTaggingModal = '';
+
+  String renameTagLocal = '';
+  String deleteTagLocal = '';
+
+  // TODO: REMOVE THESE TWO LINES BELOW
   List<String> pivIdsToDelete = [];
   bool deleting = false;
 
@@ -78,8 +86,10 @@ class _LocalViewState extends State<LocalView> {
       'currentlyTaggingLocal',
       'swipedLocal',
       'tagFilterLocal',
-      'startTaggingModal'
-    ], (v1, v2, v3, v4, v5) {
+      'startTaggingModal',
+      'renameTagLocal',
+      'deleteTagLocal'
+    ], (v1, v2, v3, v4, v5, v6, v7) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -87,7 +97,11 @@ class _LocalViewState extends State<LocalView> {
       setState(() {
         if (v1 != '') {
           var filter = v4;
-          usertags = v1
+          var lastNTags = StoreService.instance.get('lastNTags');
+          if (lastNTags == '') lastNTags = [];
+          usertags = List.from(lastNTags)
+            ..addAll(v1.where((tag) => !lastNTags.contains(tag)));
+          usertags = usertags
               .where(
                   (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
               .toList();
@@ -105,6 +119,9 @@ class _LocalViewState extends State<LocalView> {
           if (swiped == true && currentScrollableSize < 0.77)
             currentScrollableSize = 0.77;
           startTaggingModal = v5;
+          renameTagLocal = v6;
+          if (renameTagLocal != '') renameTagController.text = renameTagLocal;
+          deleteTagLocal = v7;
         }
       });
     });
@@ -114,6 +131,7 @@ class _LocalViewState extends State<LocalView> {
   void dispose() {
     super.dispose();
     searchTagController.dispose();
+    renameTagController.dispose();
     controller.dispose();
     cancelListener();
   }
@@ -150,6 +168,8 @@ class _LocalViewState extends State<LocalView> {
                       onPressed: () {
                         StoreService.instance.set('swipedLocal', false);
                         StoreService.instance.set('currentlyTaggingLocal', '');
+                        StoreService.instance.set('tagFilterLocal', '');
+                        searchTagController.clear();
                         // We update the tag list in case we just created a new one.
                         TagService.instance.getTags();
                       },
@@ -159,10 +179,13 @@ class _LocalViewState extends State<LocalView> {
                     ))),
             Visibility(
                 visible: currentlyTagging == '',
-                child: const StartTaggingButton(
-                  buttonKey: Key('start tagging'),
-                  buttonText: 'Start Tagging',
-                )),
+                child: StartTaggingButton(
+                    buttonKey: Key('local-start-tagging'),
+                    buttonText: 'Start Tagging',
+                    onPressed: () {
+                      StoreService.instance.set('swipedLocal', true);
+                      StoreService.instance.set('startTaggingModal', false);
+                    })),
             Visibility(
                 visible: currentlyTagging == '',
                 child: DeleteButton(
@@ -188,10 +211,8 @@ class _LocalViewState extends State<LocalView> {
                     child: DraggableScrollableSheet(
                         key: Key(currentScrollableSize.toString()),
                         snap: true,
-                        initialChildSize: 0,
-                        minChildSize: 0,
-                        // initialChildSize: currentScrollableSize,
-                        // minChildSize: initialScrollableSize,
+                        initialChildSize: currentScrollableSize,
+                        minChildSize: initialScrollableSize,
                         maxChildSize: 0.77,
                         builder: (BuildContext context,
                             ScrollController scrollController) {
@@ -324,8 +345,11 @@ class _LocalViewState extends State<LocalView> {
                                               RegExp(' \\(new tag\\)\$'), '');
                                         }
                                         return TagListElement(
+                                          // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
+                                          key: Key('local-' + tag),
                                           tagColor: tagColor(actualTag),
                                           tagName: tag,
+                                          view: 'local',
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
@@ -379,8 +403,197 @@ class _LocalViewState extends State<LocalView> {
                     ),
                   ),
                 ))),
+            // Rename tag modal
             Visibility(
-                visible: !deleting,
+                visible: renameTagLocal != '',
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: kGreyLight, width: .5)),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        child: Column(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(
+                                  right: 15, left: 15, bottom: 10),
+                              child: Text(
+                                'Edit tag',
+                                textAlign: TextAlign.center,
+                                softWrap: true,
+                                style: kTaglineTextBold,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: SizedBox(
+                                height: 50,
+                                child: TextFormField(
+                                  autofocus: true,
+                                  controller: renameTagController,
+                                  style: kTaglineTextBold,
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    fillColor: kGreyLightest,
+                                    hintMaxLines: 1,
+                                    hintStyle: kTaglineText,
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                            color: kGreyDarker)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(color: kGreyLight, width: 1),
+                                  bottom:
+                                      BorderSide(color: kGreyLight, width: 1),
+                                ),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  TagService.instance.renameTag(
+                                      renameTagLocal, renameTagController.text);
+                                  StoreService.instance
+                                      .remove('renameTagLocal');
+                                },
+                                child: const Padding(
+                                  padding:
+                                      EdgeInsets.only(top: 10, bottom: 10.0),
+                                  child: Text(
+                                    'Done',
+                                    textAlign: TextAlign.center,
+                                    style: kGridTagListElementBlue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: GestureDetector(
+                                onTap: () {
+                                  StoreService.instance
+                                      .remove('renameTagLocal');
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.only(top: 10.0),
+                                  child: Text(
+                                    'Cancel',
+                                    textAlign: TextAlign.center,
+                                    style: kGridTagListElement,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                )),
+            // Delete tag modal
+            Visibility(
+                visible: deleteTagLocal != '',
+                child: Center(
+                  child: Container(
+                    height: 200,
+                    width: 225,
+                    decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: kGreyLight, width: .5)),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                right: 15, left: 15, bottom: 10),
+                            child: Text(
+                              'Delete the tag ',
+                              textAlign: TextAlign.center,
+                              style: kTaglineText,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                right: 15, left: 15, bottom: 10),
+                            child: Text(
+                              deleteTagLocal + '?',
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              style: kTaglineTextBold,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                bottom: 10.0, right: 15, left: 15),
+                            child: Text(
+                              'This will not delete any photos or videos, just the tag.',
+                              textAlign: TextAlign.center,
+                              style: kTaglineText,
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                top: BorderSide(color: kGreyLight, width: 1),
+                                bottom: BorderSide(color: kGreyLight, width: 1),
+                              ),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                TagService.instance.deleteTag(deleteTagLocal);
+                                StoreService.instance.remove('deleteTagLocal');
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                                child: Text(
+                                  'Delete',
+                                  textAlign: TextAlign.center,
+                                  style: kGridDeleteElement,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: GestureDetector(
+                              onTap: () {
+                                StoreService.instance.remove('deleteTagLocal');
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10.0),
+                                child: Text(
+                                  'Cancel',
+                                  textAlign: TextAlign.center,
+                                  style: kGridTagListElement,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )),
+            // Delete modal
+            Visibility(
+                visible: deleting,
                 // THIS HAS TO CHANGE, IT HAS TO BE ON RED 'DONE' BUTTON TAP
                 child: Center(
                   child: Container(
@@ -475,48 +688,24 @@ class Grid extends StatefulWidget {
 }
 
 class _GridState extends State<Grid> {
-  List<AssetEntity> itemList = [];
+  var itemList = [];
+
   bool loadedPivs = false;
 
   @override
   void initState() {
     super.initState();
-    loadLocalPivs();
+    waitForLocalPivsToLoad();
   }
 
-  loadLocalPivs() async {
-    FilterOptionGroup makeOption() {
-      // final option = FilterOption();
-      return FilterOptionGroup()
-        ..addOrderOption(
-            const OrderOption(type: OrderOptionType.createDate, asc: false));
+  waitForLocalPivsToLoad() async {
+    while (UploadService.instance.localPivsLoaded == false) {
+      await Future.delayed(const Duration(milliseconds: 50));
+      setState(() {
+        itemList = UploadService.instance.localPivs;
+        loadedPivs = true;
+      });
     }
-
-    final option = makeOption();
-    // Set onlyAll to true, to fetch only the 'Recent' album
-    // which contains all the photos/videos in the storage
-    final albums = await PhotoManager.getAssetPathList(
-        onlyAll: true, filterOption: option);
-    final recentAlbum = albums.first;
-
-    // Now that we got the album, fetch all the assets it contains
-    final localPivs = await recentAlbum.getAssetListRange(
-      start: 0, // start at index 0
-      end: 1000000, // end at a very big index (to get all the assets)
-    );
-    StoreService.instance.set('countLocal', localPivs.length);
-
-    for (var piv in localPivs) {
-      StoreService.instance
-          .set('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
-    }
-    TagService.instance.getLocalTimeHeader();
-
-    // Update the state and notify UI
-    setState(() {
-      itemList = localPivs;
-      loadedPivs = true;
-    });
   }
 
   @override

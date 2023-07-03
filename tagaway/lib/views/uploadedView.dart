@@ -54,11 +54,14 @@ class UploadedView extends StatefulWidget {
 class _UploadedViewState extends State<UploadedView> {
   dynamic cancelListener;
   final TextEditingController searchTagController = TextEditingController();
+  final TextEditingController renameTagController = TextEditingController();
 
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
   bool deleting = false;
+  String renameTagUploaded = '';
+  String deleteTagUploaded = '';
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -76,7 +79,9 @@ class _UploadedViewState extends State<UploadedView> {
       'currentlyTaggingUploaded',
       'swipedUploaded',
       'tagFilterUploaded',
-    ], (v1, v2, v3, v4) {
+      'renameTagUploaded',
+      'deleteTagUploaded'
+    ], (v1, v2, v3, v4, v5, v6) {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
       if (currentView == 2 && v2 == '' && currentlyTagging != '')
@@ -87,7 +92,11 @@ class _UploadedViewState extends State<UploadedView> {
       setState(() {
         if (v1 != '') {
           var filter = v4;
-          usertags = v1
+          var lastNTags = StoreService.instance.get('lastNTags');
+          if (lastNTags == '') lastNTags = [];
+          usertags = List.from(lastNTags)
+            ..addAll(v1.where((tag) => !lastNTags.contains(tag)));
+          usertags = usertags
               .where(
                   (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
               .toList();
@@ -105,6 +114,10 @@ class _UploadedViewState extends State<UploadedView> {
           if (swiped == true && currentScrollableSize < 0.77)
             currentScrollableSize = 0.77;
         }
+        renameTagUploaded = v5;
+        if (renameTagUploaded != '')
+          renameTagController.text = renameTagUploaded;
+        deleteTagUploaded = v6;
       });
     });
   }
@@ -114,6 +127,7 @@ class _UploadedViewState extends State<UploadedView> {
     super.dispose();
     cancelListener();
     searchTagController.dispose();
+    renameTagController.dispose();
   }
 
   bool searchTag(String query) {
@@ -135,6 +149,9 @@ class _UploadedViewState extends State<UploadedView> {
                   onPressed: () {
                     StoreService.instance.set('swipedUploaded', false);
                     StoreService.instance.set('currentlyTaggingUploaded', '');
+                    StoreService.instance.set('tagFilterUploaded', '');
+                    searchTagController.clear();
+
                     // We update the tag list in case we just created a new one.
                     TagService.instance.getTags();
                   },
@@ -144,10 +161,13 @@ class _UploadedViewState extends State<UploadedView> {
                 ))),
         Visibility(
             visible: currentlyTagging == '',
-            child: const StartTaggingButton(
-              buttonKey: Key('continue tagging'),
-              buttonText: 'Add More Tags',
-            )),
+            child: StartTaggingButton(
+                buttonKey: Key('uploaded-start-tagging'),
+                buttonText: 'Add More Tags',
+                onPressed: () {
+                  StoreService.instance.set('swipedUploaded', true);
+                  StoreService.instance.set('startTaggingModal', false);
+                })),
         Visibility(
             visible: currentlyTagging == '',
             child: Align(
@@ -164,8 +184,8 @@ class _UploadedViewState extends State<UploadedView> {
                     child: DraggableScrollableSheet(
                         key: Key(currentScrollableSize.toString()),
                         snap: true,
-                        initialChildSize: 0,
-                        minChildSize: 0,
+                        initialChildSize: currentScrollableSize,
+                        minChildSize: initialScrollableSize,
                         maxChildSize: 0.77,
                         builder: (BuildContext context,
                             ScrollController scrollController) {
@@ -296,8 +316,11 @@ class _UploadedViewState extends State<UploadedView> {
                                               RegExp(' \\(new tag\\)\$'), '');
                                         }
                                         return TagListElement(
+                                          // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
+                                          key: Key('uploaded-' + tag),
                                           tagColor: tagColor(actualTag),
                                           tagName: tag,
+                                          view: 'uploaded',
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
@@ -315,81 +338,268 @@ class _UploadedViewState extends State<UploadedView> {
                         })),
               ),
             )),
-        Center(
-          child: Container(
-            height: 225,
-            width: 225,
-            decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                border: Border.all(color: kGreyLight, width: .5)),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 15.0),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 20.0, right: 15, left: 15),
-                    child: Text(
-                      'Delete from your cloud?',
-                      textAlign: TextAlign.center,
-                      style: kDeleteModalTitle,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
-                    child: Text(
-                      'This action cannot be undone. This will permanently delete these photos and videos from our servers.',
-                      textAlign: TextAlign.center,
-                      style: kGridBottomRowText,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10.0),
-                    child: Text(
-                      'Are you sure?',
-                      textAlign: TextAlign.center,
-                      style: kGridBottomRowText,
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: kGreyLight, width: 1),
-                        bottom: BorderSide(color: kGreyLight, width: 1),
-                      ),
-                    ),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 10, bottom: 10.0),
+        // Delete modal
+        Visibility(
+            visible: false,
+            child: Center(
+              child: Container(
+                height: 225,
+                width: 225,
+                decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: kGreyLight, width: .5)),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(bottom: 20.0, right: 15, left: 15),
                         child: Text(
-                          'Delete',
+                          'Delete from your cloud?',
                           textAlign: TextAlign.center,
                           style: kDeleteModalTitle,
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
                         child: Text(
-                          'Cancel',
+                          'This action cannot be undone. This will permanently delete these photos and videos from our servers.',
                           textAlign: TextAlign.center,
-                          style: kGridTagListElement,
+                          style: kGridBottomRowText,
                         ),
                       ),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text(
+                          'Are you sure?',
+                          textAlign: TextAlign.center,
+                          style: kGridBottomRowText,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: kGreyLight, width: 1),
+                            bottom: BorderSide(color: kGreyLight, width: 1),
+                          ),
+                        ),
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                            child: Text(
+                              'Delete',
+                              textAlign: TextAlign.center,
+                              style: kDeleteModalTitle,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              'Cancel',
+                              textAlign: TextAlign.center,
+                              style: kGridTagListElement,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )),
+        // Rename tag modal
+        Visibility(
+            visible: renameTagUploaded != '',
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding:
+                              EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                          child: Text(
+                            'Edit tag',
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                            style: kTaglineTextBold,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: SizedBox(
+                            height: 50,
+                            child: TextFormField(
+                              autofocus: true,
+                              controller: renameTagController,
+                              style: kTaglineTextBold,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 20.0),
+                                fillColor: kGreyLightest,
+                                hintMaxLines: 1,
+                                hintStyle: kTaglineText,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide:
+                                        const BorderSide(color: kGreyDarker)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: kGreyLight, width: 1),
+                              bottom: BorderSide(color: kGreyLight, width: 1),
+                            ),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              TagService.instance.renameTag(
+                                  renameTagUploaded, renameTagController.text);
+                              StoreService.instance.remove('renameTagUploaded');
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'Done',
+                                textAlign: TextAlign.center,
+                                style: kGridTagListElementBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: GestureDetector(
+                            onTap: () {
+                              StoreService.instance.remove('renameTagUploaded');
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Text(
+                                'Cancel',
+                                textAlign: TextAlign.center,
+                                style: kGridTagListElement,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        )
+            )),
+        // Delete tag modal
+        Visibility(
+            visible: deleteTagUploaded != '',
+            child: Center(
+              child: Container(
+                height: 200,
+                width: 225,
+                decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: kGreyLight, width: .5)),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15.0),
+                  child: Column(
+                    children: [
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                        child: Text(
+                          'Delete the tag ',
+                          textAlign: TextAlign.center,
+                          style: kTaglineText,
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.only(right: 15, left: 15, bottom: 10),
+                        child: Text(
+                          deleteTagUploaded + '?',
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: kTaglineTextBold,
+                        ),
+                      ),
+                      const Padding(
+                        padding:
+                            EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
+                        child: Text(
+                          'This will not delete any photos or videos, just the tag.',
+                          textAlign: TextAlign.center,
+                          style: kTaglineText,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: kGreyLight, width: 1),
+                            bottom: BorderSide(color: kGreyLight, width: 1),
+                          ),
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            TagService.instance.deleteTag(deleteTagUploaded);
+                            StoreService.instance.remove('deleteTagUploaded');
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                            child: Text(
+                              'Delete',
+                              textAlign: TextAlign.center,
+                              style: kGridDeleteElement,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: GestureDetector(
+                          onTap: () {
+                            StoreService.instance.remove('deleteTagUploaded');
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              'Cancel',
+                              textAlign: TextAlign.center,
+                              style: kGridTagListElement,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ))
       ],
     );
   }

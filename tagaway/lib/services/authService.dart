@@ -5,12 +5,13 @@ class AuthService {
    AuthService._privateConstructor ();
    static final AuthService instance = AuthService._privateConstructor ();
 
-   Future <int> signup (String username, String password, String email) async {
+   signup (String username, String password, String email) async {
       var response = await ajax ('post', 'auth/signup', {'username': username, 'password': password, 'email': email});
-      return response ['code'];
+      return {'code': response ['code'], 'body': response ['body']};
    }
 
-   Future <int> login (String username, String password, int timezone) async {
+   Future <int> login (String username, String password) async {
+      int timezone = DateTime.now ().timeZoneOffset.inMinutes.toInt ();
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
       if (response ['code'] == 200) {
          StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
@@ -33,6 +34,8 @@ class AuthService {
          await StoreService.instance.remove ('cookie',      'disk');
          await StoreService.instance.remove ('csrf',        'disk');
          await StoreService.instance.remove ('uploadQueue', 'disk');
+         await StoreService.instance.remove ('pendingTags:*', 'disk');
+
          StoreService.instance.store = {};
       }
       return response ['code'];
@@ -57,5 +60,8 @@ class AuthService {
       return response ['code'];
    }
 
+   bool isLogged () {
+      return StoreService.instance.get ('cookie') != '';
+   }
 
 }

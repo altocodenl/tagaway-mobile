@@ -168,22 +168,37 @@ class HomeCard extends StatelessWidget {
   }
 }
 
-class TagListElement extends StatelessWidget {
+class TagListElement extends StatefulWidget {
   const TagListElement({
     Key? key,
     required this.tagColor,
     required this.tagName,
+    required this.view,
     required this.onTap,
   }) : super(key: key);
 
   final Color tagColor;
   final String tagName;
+  final String view;
   final Function onTap;
+
+  @override
+  State<TagListElement> createState() => _TagListElementState();
+}
+
+class _TagListElementState extends State<TagListElement> {
+  bool showDeleteAndRenameTagModal = false;
+
+  showDeleteAndRenameTagModalFunction() {
+    setState(() {
+      showDeleteAndRenameTagModal = !showDeleteAndRenameTagModal;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap(),
+      onTap: widget.onTap(),
       child: Padding(
         padding: const EdgeInsets.only(top: 5),
         child: Container(
@@ -191,32 +206,130 @@ class TagListElement extends StatelessWidget {
           decoration: const BoxDecoration(
               color: kGreyLighter,
               borderRadius: BorderRadius.all(Radius.circular(10))),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: FaIcon(
-                    kTagIcon,
-                    color: tagColor,
-                  ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        color: widget.tagColor,
+                      ),
+                    ),
+                    Container(
+                      constraints: BoxConstraints(
+                        maxWidth:
+                            SizeService.instance.screenWidth(context) * .65,
+                      ),
+                      child: Text(
+                        widget.tagName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: kTagListElementText,
+                      ),
+                    ),
+                    Visibility(
+                      visible: ['local', 'uploaded'].contains(widget.view),
+                      child: Expanded(
+                        child: Align(
+                          alignment: const Alignment(1, 0),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDeleteAndRenameTagModalFunction();
+                            },
+                            child: Container(
+                              width: 60,
+                              decoration: const BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10))),
+                              child: const Icon(
+                                kEllipsisVerticalIcon,
+                                color: kGreyDarker,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      replacement: Expanded(
+                        child: Container(),
+                      ),
+                    )
+                  ],
                 ),
-                Container(
-                  constraints: BoxConstraints(
-                    maxWidth: SizeService.instance.screenWidth(context) * .8,
-                  ),
-                  child: Text(
-                    tagName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: kTagListElementText,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Visibility(
+                  visible: showDeleteAndRenameTagModal,
+                  child: DeleteAndRenameTagModal(
+                      tagName: widget.tagName, view: widget.view)),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class DeleteAndRenameTagModal extends StatelessWidget {
+  const DeleteAndRenameTagModal({
+    Key? key,
+    required this.tagName,
+    required this.view,
+  }) : super(key: key);
+
+  final String tagName;
+  final String view;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: const Alignment(.65, 0),
+      child: Container(
+        height: 60,
+        width: 100,
+        decoration: const BoxDecoration(
+          color: kGreyLighter,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey, //New
+                blurRadius: 1.0,
+                offset: Offset(0, 1))
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                StoreService.instance.set(
+                    view == 'local' ? 'deleteTagLocal' : 'deleteTagUploaded',
+                    tagName);
+              },
+              child: const Icon(
+                kTrashCanIcon,
+                color: kAltoRed,
+              ),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            GestureDetector(
+              onTap: () {
+                StoreService.instance.set(
+                    view == 'local' ? 'renameTagLocal' : 'renameTagUploaded',
+                    tagName);
+              },
+              child: const Icon(
+                kPenToSquareSolidIcon,
+                color: kAltoBlue,
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -1161,9 +1274,11 @@ class StartTaggingButton extends StatefulWidget {
     Key? key,
     required this.buttonText,
     required this.buttonKey,
+    required this.onPressed,
   }) : super(key: key);
   final String buttonText;
   final Key buttonKey;
+  final VoidCallback onPressed;
 
   @override
   State<StartTaggingButton> createState() => _StartTaggingButtonState();
@@ -1190,7 +1305,7 @@ class _StartTaggingButtonState extends State<StartTaggingButton> {
             child: FloatingActionButton.extended(
               heroTag: null,
               key: Key(widget.buttonKey.toString()),
-              onPressed: () {},
+              onPressed: widget.onPressed,
               backgroundColor: kAltoBlue,
               label: Text(widget.buttonText, style: kSelectAllButton),
             ),

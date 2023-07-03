@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -51,13 +50,8 @@ class RequestPermissionView extends StatelessWidget {
                     onPressed: () async {
                       await StoreService.instance
                           .set('userWasAskedPermission', true, 'disk');
-                      final permitted =
-                          await PhotoManager.requestPermissionExtend();
-                      Navigator.pushReplacementNamed(
-                          context,
-                          permitted.isAuth
-                              ? 'bottomNavigation'
-                              : 'distributor');
+                      await PhotoManager.requestPermissionExtend();
+                      Navigator.pushReplacementNamed(context, 'distributor');
                     }),
               ],
             ),

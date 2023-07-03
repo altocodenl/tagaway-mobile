@@ -37,7 +37,7 @@ class _LoginViewState extends State<LoginView> {
     super.dispose();
   }
 
-  materialBannerDisplay() {
+  showVerifyBanner() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showMaterialBanner(
         MaterialBanner(
@@ -82,7 +82,7 @@ class _LoginViewState extends State<LoginView> {
     final check =
         ModalRoute.of(context)?.settings.arguments as ShowVerifyBanner?;
     if (check?.showVerifyBanner == 'showVerifyBanner') {
-      materialBannerDisplay();
+      showVerifyBanner();
     } else if (check?.showVerifyBanner == null) {
       Container();
     }
@@ -167,11 +167,6 @@ class _LoginViewState extends State<LoginView> {
                                 .login(
                                     usernameController.text,
                                     passwordController.text,
-                                    DateTime.now()
-                                        .timeZoneOffset
-                                        .inMinutes
-                                        .toInt()
-                                    // TODO: move to handler function
                                     )
                                 .then((value) {
                               if (value != 403) usernameController.clear();
@@ -198,7 +193,7 @@ class _LoginViewState extends State<LoginView> {
                                     context, 'offline');
                               }
                               if (value == 1) {
-                                materialBannerDisplay();
+                                showVerifyBanner();
                               }
                             });
                           },

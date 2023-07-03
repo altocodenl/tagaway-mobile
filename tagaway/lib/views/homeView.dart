@@ -61,6 +61,17 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
+  mailto() async {
+    final Uri params =
+        Uri(scheme: 'mailto', path: 'info@altocode.nl', queryParameters: {
+      'subject': 'Tagaway Feedback',
+    });
+
+    if (!await launchUrl(params)) {
+      print('cannot send email');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,6 +129,11 @@ class _HomeViewState extends State<HomeView> {
               textOnElement: 'Go to tagaway web'),
           UserMenuElementLightGrey(
               onTap: () {
+                mailto();
+              },
+              textOnElement: 'Send Us Feedback'),
+          UserMenuElementLightGrey(
+              onTap: () {
                 Navigator.pushReplacementNamed(context, 'deleteAccount');
               },
               textOnElement: 'Delete My Account'),
@@ -129,7 +145,7 @@ class _HomeViewState extends State<HomeView> {
                     if (value == 200)
                       return Navigator.pushReplacementNamed(
                           context, 'distributor');
-                    // TODO: HANDLE non-200 CASE
+                    SnackBarGlobal.buildSnackBar(context, 'Something is wrong on our side. Sorry.', 'red');
                   });
                 };
               },

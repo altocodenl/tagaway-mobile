@@ -2,19 +2,21 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:photo_manager/photo_manager.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/storeService.dart';
-
-int initT = now ();
 
 int now () {
   return DateTime.now().millisecondsSinceEpoch;
 }
 
+int initT = now ();
+
 void debug (List params) {
-  String acc = 'DEBUG (' + (now() - initT).toString() + 'ms)';
-  params.forEach((v) => acc += ' ' + v.toString());
-  print(acc);
+  String acc = 'DEBUG (' + (now () - initT).toString () + 'ms)';
+  params.forEach ((v) => acc += ' ' + v.toString ());
+  print (acc);
 }
 
 bool ajaxLogs = true;
@@ -194,7 +196,13 @@ int murmurhashV3 (Uint8List key, int seed, dynamic partialHash, [dynamic totalLe
    return zeroFillRightShift (h1, 0);
 }
 
-hashPiv (dynamic piv) async {
+// Note: if this function is edited, we need to stop and start the Flutter process (rather than hot reloading) because it will be run in an isolate
+@pragma('vm:entry-point')
+hashPiv (dynamic pivId) async {
+
+   PhotoManager.setIgnorePermissionCheck (true);
+
+   var piv = await AssetEntity.fromId (pivId) as dynamic;
    var file = await piv.originFile;
    var fileLength = await file.length ();
    var inputStream = file.openRead ();
@@ -215,5 +223,5 @@ hashPiv (dynamic piv) async {
       else                                                       hash = murmurhashV3 (Uint8List.fromList (currentData), 0, hash);
    }
    if (remainder.length > 0) hash = murmurhashV3 (Uint8List.fromList (remainder), 0, hash, fileLength);
-   debug (['HASH', hash.toString () + ':' + fileLength.toString ()]);
+   return hash.toString () + ':' + fileLength.toString ();
 }

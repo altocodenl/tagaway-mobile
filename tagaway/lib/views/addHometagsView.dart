@@ -116,6 +116,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
                 TagListElement(
                     tagColor: tagColor(v),
                     tagName: v,
+                    view: 'addHomeTags',
                     onTap: () {
                       // For some reason, any code we put outside of the function below will be invoked on widget draw.
                       // Returning the desired behavior in a function solves the problem.
@@ -192,6 +193,7 @@ class CustomSearchDelegate extends SearchDelegate {
         return TagListElement(
             tagName: result,
             tagColor: tagColor(result),
+            view: 'addHomeTags',
             onTap: () {
               // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
               return () {

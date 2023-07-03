@@ -27,6 +27,7 @@ class TagService {
         if (!RegExp ('^[a-z]::').hasMatch (tag)) usertags.add (tag);
       });
       StoreService.instance.set ('usertags', usertags);
+      updateLastNTags (null, true);
     }
     // TODO: handle errors
     return response['code'];
@@ -35,6 +36,7 @@ class TagService {
   editHometags (String tag, bool add) async {
     // Refresh hometag list first in case it was updated in another client
     await getTags ();
+    tag = tag.trim ();
     var hometags = StoreService.instance.get ('hometags');
     if (hometags == '') hometags = [];
     if ((add && hometags.contains (tag)) || (!add && !hometags.contains (tag)))
@@ -55,7 +57,10 @@ class TagService {
        if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
        await queryPivs (StoreService.instance.get ('queryTags'), true);
        var total = StoreService.instance.get ('queryResult')['total'];
+
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+         StoreService.instance.set('swipedUploaded', false);
+         StoreService.instance.set('currentlyTaggingUploaded', '');
          StoreService.instance.set ('queryTags', []);
          await queryPivs (StoreService.instance.get ('queryTags'));
        }
@@ -63,24 +68,53 @@ class TagService {
     return response['code'];
   }
 
+  updateLastNTags (var tag, [bool refreshExistingList = false]) {
+    var lastNTags = StoreService.instance.get ('lastNTags');
+    if (lastNTags == '') lastNTags = [];
+    if (refreshExistingList) {
+      var usertags = StoreService.instance.get ('usertags');
+      // We iterate a copy of the list to avoid Flutter complaining about modifying a list while it's being iterated
+      List.from (lastNTags).forEach ((tag) {
+         if (! usertags.contains (tag)) lastNTags.remove (tag);
+      });
+      return StoreService.instance.set ('lastNTags', lastNTags);
+    }
+
+    var N = 3;
+    if (lastNTags.contains (tag)) {
+       lastNTags.remove (tag);
+    }
+    lastNTags.insert (0, tag);
+    if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
+    StoreService.instance.set ('lastNTags', lastNTags);
+  }
+
   tagPiv (dynamic assetOrPiv, String tag, String type) async {
     String id = type == 'uploaded' ? assetOrPiv['id'] : assetOrPiv.id;
-    String pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
+    dynamic pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
     bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
     StoreService.instance.set ('tagMap:' + id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
 
-    if (pivId != '') {
+    updateLastNTags (tag);
+
+    if (pivId != '' && pivId != true) {
       var code = await tagPivById (pivId, tag, del);
       if (type == 'uploaded') return;
-      // TODO: add error handling for non 200 (with exception to 404 for local, which is handled below)
 
       // If piv still exists, we are done. Otherwise, we need to re-upload it.
       if (code == 200) return;
       if (code == 404) {
-         StoreService.instance.remove ('pivMap:' + id, 'disk');
-         StoreService.instance.remove ('rpivMap:' + pivId, 'disk');
+         StoreService.instance.remove ('pivMap:' + id);
+         StoreService.instance.remove ('rpivMap:' + pivId);
       }
+      // TODO: add error handling for non 200, non 404
+    }
+
+    // If we're untagging a piv that's not uploaded yet, we only need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function
+    if (del) {
+       if ([true, ''].contains (StoreService.instance.get ('pivMap:' + id))) StoreService.instance.remove ('pivMap:' + id);
+       return;
     }
     UploadService.instance.queuePiv (assetOrPiv);
     var pendingTags = StoreService.instance.get ('pending:' + id);
@@ -88,7 +122,7 @@ class TagService {
     if (del) pendingTags.remove (tag);
     else     pendingTags.add    (tag);
     StoreService.instance.set ('pendingTags:' + id, pendingTags, 'disk');
-  }
+   }
 
    getTaggedPivs (String tag, String type) async {
       var existing = [], New = [];
@@ -385,8 +419,8 @@ class TagService {
     var response = await ajax ('post', 'delete', {'ids': [id], 'csrf': 'foo'});
     var localPivId = StoreService.instance.get ('rpivMap:' + id);
     if (localPivId != '') {
-      StoreService.instance.remove ('pivMap:' + localPivId, 'disk');
-      StoreService.instance.remove ('rpivMap:' + id, 'disk');
+      StoreService.instance.remove ('pivMap:' + localPivId);
+      StoreService.instance.remove ('rpivMap:' + id);
     }
     if (response['code'] == 200) {
        await queryPivs (StoreService.instance.get ('queryTags'), true);
@@ -481,5 +515,31 @@ class TagService {
      }
 
   }
+
+   renameTag (String from, String to) async {
+      await ajax ('post', 'rename', {'from': from, 'to': to});
+      await getTags ();
+      var queryTags = StoreService.instance.get ('queryTags');
+      if (queryTags == '') queryTags = [];
+      if (queryTags.contains (from)) {
+         queryTags.remove (from);
+         queryTags.add (to);
+      }
+      StoreService.instance.set ('queryTags', queryTags);
+      await queryPivs (queryTags, true);
+      // TODO: handle non-200 error
+   }
+
+   deleteTag (String tag) async {
+      await ajax ('post', 'deleteTag', {'tag': tag});
+      await getTags ();
+      var queryTags = StoreService.instance.get ('queryTags');
+      if (queryTags == '') queryTags = [];
+      if (queryTags.contains (tag)) queryTags.remove (tag);
+      StoreService.instance.set ('queryTags', queryTags);
+      await queryPivs (queryTags, true);
+      await queryPivs (StoreService.instance.get ('queryTags'), true);
+      // TODO: handle non-200 error
+   }
 
 }
