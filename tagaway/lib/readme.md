@@ -2,17 +2,26 @@
 
 ## TODO
 
-- Hide pivs that are organized in Local
-   - localPivList: [...], each is {name: ..., list: [...], total: NN}.
-   - Recompute list on tag/untag/delete/toggle mode
-   - make selected item disappear when in normal mode
-   - make selected item be red on delete mode
-   - add show/hide button (Tom)
-- Redesign Phone view using Today/This Week/This Month/...
+- Hide pivs that are organized in Local & split local view in pages (Today, This Week, This Month)
+   - pivPagesLocal: [{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}.
+   - Depends on pivMap:, orgMap:, pendingTags, displayMode and currentlyTaggingPivs
+      - If displayMode is all, show them all
+      - If not, show only entries that don't have orgMap:ID and are NOT in pendingTag
+      - But, don't hide pivs that are currentlyTaggingPivs!
+   - Update object only if there are changes
+   - Register listener to retrigger computation
+
+   - Feed pages
+   - Selected grid item:
+      - make item disappear when in displayMode normal and not tagging
+      - make it red on delete mode
+   - Add show/hide button and bind to displayMode (Tom)
+   - Put/remove pivs from currentlyTaggingPivs
+   - Message and icon when page is empty (You're all done here!) (Tom)
+   - Remove localTimeHeader functionality completely
 - Delete piv mode (Tom):
    - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
    - Uploaded
-- Remove localTimeHeader functionality completely
 
 - Remove edit & delete buttons after cancel or when tapping anywhere else
 - When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
