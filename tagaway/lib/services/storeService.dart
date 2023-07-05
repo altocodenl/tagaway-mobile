@@ -25,6 +25,7 @@ class StoreService {
    listen (dynamic list, Function fun) {
       Function updater = () async {
          var results = [];
+         // If a key is a prefix key (for example, `pivMap:*`), it will have no value other than `''`; prefix keys are passed only to trigger recomputations.
          list.forEach ((v) => results.add (StoreService.instance.get (v)));
          Function.apply (fun, results);
       };
@@ -36,6 +37,14 @@ class StoreService {
             if (showLogs) debug (['KEY TRIGGERED LISTENER', key]);
             return updater ();
          }
+         list.forEach ((listKey) {
+           if (RegExp ('^[^:]+:\\*').hasMatch (listKey)) {
+             if (RegExp (listKey.split (':') [0]).hasMatch (key)) {
+               if (showLogs) debug (['KEY TRIGGERED LISTENER', key]);
+               return updater ();
+             }
+           }
+         });
       }).cancel;
    }
 
