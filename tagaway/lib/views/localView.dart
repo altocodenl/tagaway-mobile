@@ -70,6 +70,8 @@ class _LocalViewState extends State<LocalView> {
   List<String> pivIdsToDelete = [];
   bool deleting = false;
 
+  dynamic localPages = [];
+
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
@@ -88,8 +90,9 @@ class _LocalViewState extends State<LocalView> {
       'tagFilterLocal',
       'startTaggingModal',
       'renameTagLocal',
-      'deleteTagLocal'
-    ], (v1, v2, v3, v4, v5, v6, v7) {
+      'deleteTagLocal',
+      'localPages'
+    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -122,6 +125,7 @@ class _LocalViewState extends State<LocalView> {
           renameTagLocal = v6;
           if (renameTagLocal != '') renameTagController.text = renameTagLocal;
           deleteTagLocal = v7;
+          localPages = v8;
         }
       });
     });
@@ -153,13 +157,13 @@ class _LocalViewState extends State<LocalView> {
     return PageView.builder(
       reverse: true,
       controller: controller,
-      itemCount: 5,
+      itemCount: localPages.length,
       pageSnapping: true,
       itemBuilder: (BuildContext context, int index) {
         return Stack(
           children: [
-            const Grid(),
-            const TopRow(),
+            Grid(page: localPages[index]['pivs']),
+            TopRow(),
             Visibility(
                 visible: currentlyTagging != '',
                 child: Align(
@@ -681,37 +685,38 @@ class _LocalViewState extends State<LocalView> {
 }
 
 class Grid extends StatefulWidget {
-  const Grid({Key? key}) : super(key: key);
+  const Grid({Key? key,
+      required this.page,
+  }) : super(key: key);
+
+  final dynamic page;
 
   @override
   State<Grid> createState() => _GridState();
 }
 
 class _GridState extends State<Grid> {
-  var itemList = [];
-
-  bool loadedPivs = false;
+  bool localPivsLoaded = UploadService.instance.localPivsLoaded;
 
   @override
   void initState() {
     super.initState();
-    waitForLocalPivsToLoad();
+    loadPivPage();
   }
 
-  waitForLocalPivsToLoad() async {
-    while (UploadService.instance.localPivsLoaded == false) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      setState(() {
-        itemList = UploadService.instance.localPivs;
-        loadedPivs = true;
-      });
+  loadPivPage() async {
+    if (! localPivsLoaded) {
+       while (UploadService.instance.localPivsLoaded == false) {
+         await Future.delayed(const Duration(milliseconds: 50));
+       }
     }
+    localPivsLoaded = true;
   }
 
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: loadedPivs,
+      visible: localPivsLoaded,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0, top: 180),
         child: SizedBox.expand(
@@ -726,9 +731,9 @@ class _GridState extends State<Grid> {
                     mainAxisSpacing: 1,
                     crossAxisSpacing: 1,
                   ),
-                  itemCount: itemList.length,
+                  itemCount: widget.page.length,
                   itemBuilder: (BuildContext context, index) {
-                    return LocalGridItem(itemList[index]);
+                    return LocalGridItem(widget.page[index]);
                   })),
         ),
       ),
