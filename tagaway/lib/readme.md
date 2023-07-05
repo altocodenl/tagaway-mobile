@@ -41,19 +41,23 @@
 - count(Local|Uploaded) <str>: count of pivs shown in bottom navigation icon for that view
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
+- currentlyTaggingPivs <list>: list of local piv ids currently being tagged, to avoid hiding them before the operation is complete.
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
+- displayMode <str>: if set to `'all'`, shows all local pivs; otherwise, it only shows local pivs that are not organized.
 - deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...]: list of the last N tags used to tag or untag, either on local or uploaded.
-- localYear <str>: displayed year in LocalView time header
+- localPages <list>: `[{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}, ...]` - contains all the pages of local pivs to be shown, one per grid.
+- localPagesListener <listener>: listener that triggers the function to compute the local pages.
 - localTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
 - localTimeHeaderController <page controller>: controller that drives the localTimeHeader
 - localTimeHeaderPage <int>: page in localTimeHeader currently displayed.
+- localYear <str>: displayed year in LocalView time header
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet - deleted on logout.
 - pivDate:<assetId> <int>: date of each local piv
