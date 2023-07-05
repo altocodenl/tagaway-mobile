@@ -10,8 +10,8 @@
       - But, don't hide pivs that are currentlyTaggingPivs!
    - Update object only if there are changes
    - Register listener to retrigger computation
-
    - Feed pages
+
    - Progress bar
    - Selected grid item:
       - make item disappear when in displayMode normal and not tagging

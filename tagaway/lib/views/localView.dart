@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -163,8 +164,8 @@ class _LocalViewState extends State<LocalView> {
       itemBuilder: (BuildContext context, int index) {
         return Stack(
           children: [
-            Grid(page: localPages[index]['pivs']),
-            TopRow(),
+            Grid(pivs: localPages[index]['pivs']),
+            TopRow(page: localPages[index], prev: index == 0 ? null : localPages[index - 1], next: index == localPages.length - 1 ? null : localPages [index + 1]),
             Visibility(
                 visible: currentlyTagging != '',
                 child: Align(
@@ -687,10 +688,10 @@ class _LocalViewState extends State<LocalView> {
 
 class Grid extends StatefulWidget {
   const Grid({Key? key,
-      required this.page,
+      required this.pivs,
   }) : super(key: key);
 
-  final dynamic page;
+  final dynamic pivs;
 
   @override
   State<Grid> createState() => _GridState();
@@ -702,10 +703,10 @@ class _GridState extends State<Grid> {
   @override
   void initState() {
     super.initState();
-    loadPivPage();
+    loadPivs();
   }
 
-  loadPivPage() async {
+  loadPivs() async {
     if (! localPivsLoaded) {
        while (UploadService.instance.localPivsLoaded == false) {
          await Future.delayed(const Duration(milliseconds: 50));
@@ -720,7 +721,7 @@ class _GridState extends State<Grid> {
       visible: localPivsLoaded,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0, top: 180),
-        child: SizedBox.expand(
+        child: widget.pivs.length == 0 ? Text ('You\'re all done!') : SizedBox.expand(
           child: Directionality(
               textDirection: TextDirection.rtl,
               child: GridView.builder(
@@ -732,9 +733,9 @@ class _GridState extends State<Grid> {
                     mainAxisSpacing: 1,
                     crossAxisSpacing: 1,
                   ),
-                  itemCount: widget.page.length,
+                  itemCount: widget.pivs.length,
                   itemBuilder: (BuildContext context, index) {
-                    return LocalGridItem(widget.page[index]);
+                    return LocalGridItem(widget.pivs[index]);
                   })),
         ),
       ),
@@ -750,7 +751,15 @@ class _GridState extends State<Grid> {
 }
 
 class TopRow extends StatefulWidget {
-  const TopRow({Key? key}) : super(key: key);
+  const TopRow({Key? key,
+      required this.page,
+      required this.prev,
+      required this.next,
+  }) : super(key: key);
+
+  final dynamic page;
+  final dynamic prev;
+  final dynamic next;
 
   @override
   State<TopRow> createState() => _TopRowState();
@@ -762,6 +771,7 @@ class _TopRowState extends State<TopRow> {
   String currentlyTagging = '';
   dynamic taggedPivCount = '';
   dynamic timeHeader = [];
+  dynamic displayMode = '';
 
   final PageController pageController = PageController();
 
@@ -772,12 +782,13 @@ class _TopRowState extends State<TopRow> {
     StoreService.instance.set('localTimeHeaderController', pageController);
     StoreService.instance.set('localTimeHeaderPage', 0);
     cancelListener = StoreService.instance.listen(
-        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader'],
-        (v1, v2, v3) {
+        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader', 'displayMode'],
+        (v1, v2, v3, v4) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
         timeHeader = v3 == '' ? [] : v3;
+        displayMode = v4;
       });
     });
   }
@@ -810,8 +821,8 @@ class _TopRowState extends State<TopRow> {
                           SizedBox(
                             width:
                                 SizeService.instance.screenWidth(context) * .7,
-                            child: const LinearProgressIndicator(
-                              value: 1,
+                            child: LinearProgressIndicator(
+                              value: widget.page['total'] == 0 ? 1 : max ((widget.page['total'] - widget.page['left']) / widget.page['total'], 0.1),
                               color: kAltoBlue,
                               backgroundColor: Colors.white,
                             ),
@@ -821,11 +832,13 @@ class _TopRowState extends State<TopRow> {
                                 SizeService.instance.screenWidth(context) * .13,
                           ),
                           Visibility(
-                            visible: false,
+                            visible: displayMode == 'all',
                             child: Padding(
                               padding: const EdgeInsets.only(right: 2),
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                   StoreService.instance.set ('displayMode', '');
+                                },
                                 child: const Icon(
                                   kEyeIcon,
                                   color: kGreyDarker,
@@ -836,7 +849,9 @@ class _TopRowState extends State<TopRow> {
                             replacement: Padding(
                               padding: const EdgeInsets.only(right: 4),
                               child: GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  StoreService.instance.set ('displayMode', 'all');
+                                },
                                 child: const Icon(
                                   kSlashedEyeIcon,
                                   color: kGreyDarker,
@@ -847,36 +862,36 @@ class _TopRowState extends State<TopRow> {
                           ),
                         ],
                       )),
-                  const Padding(
+                  Padding(
                       padding: EdgeInsets.only(top: 10.0),
                       child: Row(
                         children: [
                           Expanded(
                             child: Text(
-                              '1000 left',
+                              widget.page['left'].toString () + ' left',
                               style: kLookingAtText,
                             ),
                           ),
                         ],
                       )),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(top: 15.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Text('This Month',
+                          child: Text(widget.next != null ? widget.next['title'] : '',
                               textAlign: TextAlign.center,
                               style: kLeftAndRightPhoneGridTitle,
                               key: Key('left-title')),
                         ),
                         Expanded(
-                            child: Text('This Week',
+                            child: Text(widget.page['title'],
                                 style: kCenterPhoneGridTitle,
                                 textAlign: TextAlign.center,
                                 key: Key('center-title'))),
                         Expanded(
-                            child: Text('Today',
+                          child: Text(widget.prev != null ? widget.prev['title'] : '',
                                 textAlign: TextAlign.center,
                                 style: kLeftAndRightPhoneGridTitle,
                                 key: Key('right-title'))),

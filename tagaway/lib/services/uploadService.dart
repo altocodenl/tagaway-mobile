@@ -267,7 +267,7 @@ class UploadService {
       DateTime firstDayOfMonth = DateTime (now.year, now.month, 1);
 
       var pages = [['Today', today], ['This week', monday], ['This month', firstDayOfMonth]].map ((pair) {
-         return {'title': pair [0], 'total': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (now)};
+         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (now)};
       }).toList ();
 
       var displayMode = StoreService.instance.get ('displayMode');
@@ -275,28 +275,30 @@ class UploadService {
       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
 
       localPivs.forEach ((piv) {
-         // If piv is not currently being tagged, and we are hiding organized pivs
-         if (displayMode != 'all' && ! currentlyTaggingPivs.contains (piv.id)) {
-            var pendingTag = StoreService.instance.get ('pendingTags:' + piv.id);
-            var tagged = StoreService.instance.get ('orgMap:' + StoreService.instance.get ('pivMap:' + piv.id));
-            // If piv has a pending tag, or is already organized, we don't show it. Notice the return.
-            if (pendingTag != '' || tagged != '') return;
-         }
+         // Piv is considered as organized if it has a matching orgMap entry or if it has a pending tag. Since we always mark as organized when tagging, the latter is qeuivalent of the former.
+         var pivIsOrganized = StoreService.instance.get ('orgMap:' + StoreService.instance.get ('pivMap:' + piv.id)) != '';
+         if (! pivIsOrganized) pivIsOrganized = StoreService.instance.get ('pendingTags:' + piv.id) != '';
+
+         var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
+
+         var showPiv = pivIsCurrentlyBeingTagged || displayMode == 'all' || ! pivIsOrganized;
 
          var placed = false, pivDate = piv.createDateTime;
          pages.forEach ((page) {
-            if ((page ['from'] as int) >= ms (pivDate) && (page ['to'] as int) <= ms (pivDate)) {
+            if ((page ['from'] as int) <= ms (pivDate) && (page ['to'] as int) >= ms (pivDate)) {
                placed = true;
                page ['total'] = (page ['total'] as int) + 1;
-               (page ['pivs'] as List).add (piv);
+               if (showPiv) (page ['pivs'] as List).add (piv);
+               if (! pivIsOrganized) page ['left'] = (page ['left'] as int) + 1;
             }
          });
          if (! placed) pages.add ({
             'title': pivDate.month.toString () + ' ' + pivDate.year.toString (),
             'total': 1,
-            'pivs': [piv],
+            'pivs': showPiv ? [piv] : [],
+            'left': pivIsOrganized ? 0 : 1,
             'from': ms (DateTime (pivDate.year, pivDate.month, 1)),
-            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1
+            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month + 1, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1
          });
       });
 
