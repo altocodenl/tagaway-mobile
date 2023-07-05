@@ -58,6 +58,8 @@ const kCloudArrowUp = FontAwesomeIcons.cloudArrowUp;
 const kPenToSquareSolidIcon = FontAwesomeIcons.solidPenToSquare;
 const kHouseIcon = FontAwesomeIcons.house;
 const kMobileScreenIcon = FontAwesomeIcons.mobileScreenButton;
+const kEyeIcon = FontAwesomeIcons.eye;
+const kSlashedEyeIcon = FontAwesomeIcons.eyeSlash;
 
 const tagColors = [
   kTagColor1,

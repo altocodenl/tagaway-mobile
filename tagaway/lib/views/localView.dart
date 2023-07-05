@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/uploadService.dart';
@@ -184,7 +185,7 @@ class _LocalViewState extends State<LocalView> {
             Visibility(
                 visible: currentlyTagging == '',
                 child: StartTaggingButton(
-                    buttonKey: Key('local-start-tagging'),
+                    buttonKey: const Key('local-start-tagging'),
                     buttonText: 'Start Tagging',
                     onPressed: () {
                       StoreService.instance.set('swipedLocal', true);
@@ -533,7 +534,7 @@ class _LocalViewState extends State<LocalView> {
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                                 right: 15, left: 15, bottom: 10),
                             child: Text(
                               deleteTagLocal + '?',
@@ -795,19 +796,58 @@ class _TopRowState extends State<TopRow> {
         Container(
           width: double.infinity,
           color: Colors.white,
-          child: const SafeArea(
+          child: SafeArea(
             child: Padding(
-              padding: EdgeInsets.only(left: 20.0, right: 20),
+              padding: const EdgeInsets.only(left: 20.0, right: 20),
               child: Column(
                 children: [
                   Padding(
-                      padding: EdgeInsets.only(top: 10),
-                      child: LinearProgressIndicator(
-                        value: .5,
-                        color: kAltoBlue,
-                        backgroundColor: Colors.white,
+                      padding: const EdgeInsets.only(
+                        top: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width:
+                                SizeService.instance.screenWidth(context) * .7,
+                            child: const LinearProgressIndicator(
+                              value: 1,
+                              color: kAltoBlue,
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                          SizedBox(
+                            width:
+                                SizeService.instance.screenWidth(context) * .13,
+                          ),
+                          Visibility(
+                            visible: false,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 2),
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: const Icon(
+                                  kEyeIcon,
+                                  color: kGreyDarker,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            replacement: Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: const Icon(
+                                  kSlashedEyeIcon,
+                                  color: kGreyDarker,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       )),
-                  Padding(
+                  const Padding(
                       padding: EdgeInsets.only(top: 10.0),
                       child: Row(
                         children: [
@@ -819,7 +859,7 @@ class _TopRowState extends State<TopRow> {
                           ),
                         ],
                       )),
-                  Padding(
+                  const Padding(
                     padding: EdgeInsets.only(top: 15.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
