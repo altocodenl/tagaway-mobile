@@ -11,6 +11,10 @@ int now () {
   return DateTime.now().millisecondsSinceEpoch;
 }
 
+int ms (date) {
+  return date.millisecondsSinceEpoch;
+}
+
 int initT = now ();
 
 void debug (List params) {

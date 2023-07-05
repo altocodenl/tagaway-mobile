@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:collection/collection.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -15,6 +16,7 @@ class UploadService {
    var localPivs   = [];
    var localPivsLoaded = false;
    bool uploading  = false;
+   var recomputeLocalPages = true;
 
    startUpload () async {
       // Reuse existing upload if it has been used less than nine minutes ago.
@@ -168,10 +170,12 @@ class UploadService {
       TagService.instance.getLocalTimeHeader ();
 
       // Check if we have uploads we should revive
-      UploadService.instance.reviveUploads ();
+      reviveUploads ();
 
       // Compute hashes for local pivs
-      UploadService.instance.computeHashes ();
+      computeHashes ();
+
+      computeLocalPages ();
    }
 
    reviveUploads () async {
@@ -243,6 +247,76 @@ class UploadService {
             StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
          }
       }
-
    }
+
+   computeLocalPages () async {
+
+      var t = DateTime.now ();
+
+      // If there's no need to recompute, just await and return.
+      if (! recomputeLocalPages) {
+         await Future.delayed (Duration (milliseconds: 50));
+         return computeLocalPages ();
+      }
+
+      recomputeLocalPages = false;
+
+      DateTime now             = DateTime.now ();
+      DateTime today           = DateTime (now.year, now.month, now.day);
+      DateTime monday          = DateTime (now.year, now.month, now.day - (now.weekday - 1));
+      DateTime firstDayOfMonth = DateTime (now.year, now.month, 1);
+
+      var pages = [['Today', today], ['This week', monday], ['This month', firstDayOfMonth]].map ((pair) {
+         return {'title': pair [0], 'total': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (now)};
+      }).toList ();
+
+      var displayMode = StoreService.instance.get ('displayMode');
+      var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
+      if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+
+      localPivs.forEach ((piv) {
+         // If piv is not currently being tagged, and we are hiding organized pivs
+         if (displayMode != 'all' && ! currentlyTaggingPivs.contains (piv.id)) {
+            var pendingTag = StoreService.instance.get ('pendingTags:' + piv.id);
+            var tagged = StoreService.instance.get ('orgMap:' + StoreService.instance.get ('pivMap:' + piv.id));
+            // If piv has a pending tag, or is already organized, we don't show it. Notice the return.
+            if (pendingTag != '' || tagged != '') return;
+         }
+
+         var placed = false, pivDate = piv.createDateTime;
+         pages.forEach ((page) {
+            if ((page ['from'] as int) >= ms (pivDate) && (page ['to'] as int) <= ms (pivDate)) {
+               placed = true;
+               page ['total'] = (page ['total'] as int) + 1;
+               (page ['pivs'] as List).add (piv);
+            }
+         });
+         if (! placed) pages.add ({
+            'title': pivDate.month.toString () + ' ' + pivDate.year.toString (),
+            'total': 1,
+            'pivs': [piv],
+            'from': ms (DateTime (pivDate.year, pivDate.month, 1)),
+            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1
+         });
+      });
+
+      var existingPages = StoreService.instance.get ('localPages');
+      if (existingPages == '' || ! DeepCollectionEquality ().equals (existingPages, pages)) StoreService.instance.set ('localPages', pages);
+
+      if (StoreService.instance.get ('localPagesListener') == '') {
+        StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
+          'pivMap:*',
+          'orgMap:*',
+          'pendingTags:*',
+          'displayMode',
+          'currentlyTaggingPivs'
+         ], (v1, v2, v3, v4, v5) {
+            recomputeLocalPages = true;
+         }));
+      }
+
+      await Future.delayed (Duration (milliseconds: 50));
+      computeLocalPages ();
+   }
+
 }

@@ -12,6 +12,7 @@
    - Register listener to retrigger computation
 
    - Feed pages
+   - Progress bar
    - Selected grid item:
       - make item disappear when in displayMode normal and not tagging
       - make it red on delete mode

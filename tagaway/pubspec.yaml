@@ -50,6 +50,8 @@ dependencies:
   visibility_detector: ^0.4.0+2
   flutter_isolate: ^2.0.4
   open_mail_app: ^0.4.5
+  collection: ^1.17.1
+
 
 dev_dependencies:
   flutter_test:
