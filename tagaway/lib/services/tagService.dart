@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
+import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/uploadService.dart';
@@ -15,7 +16,6 @@ class TagService {
   var uploadedVisible = [];
   // We use this to see whether queryTags has changed and based on that, query pivs again or use the last result.
   dynamic queryTags = '';
-  var monthNames  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   getTags () async {
     var response = await ajax ('get', 'tags');
@@ -51,9 +51,9 @@ class TagService {
   }
 
   tagPivById (String id, String tag, bool del) async {
-    var hometags = StoreService.instance.get ('hometags');
     var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
     if (response['code'] == 200) {
+       var hometags = StoreService.instance.get ('hometags');
        if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
        await queryPivs (StoreService.instance.get ('queryTags'), true);
        var total = StoreService.instance.get ('queryResult')['total'];
@@ -95,6 +95,13 @@ class TagService {
     bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
     StoreService.instance.set ('tagMap:' + id, del ? '' : true);
     StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
+
+    if (! del && type == 'local') {
+       var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
+       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+       currentlyTaggingPivs.add (id);
+       StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
+    }
 
     updateLastNTags (tag);
 
@@ -215,9 +222,9 @@ class TagService {
             if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
             if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
 
-            if (localCount [dateKey] == 0)                         output.add ([year, monthNames [month - 1], 'white', false]);
-            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, monthNames [month - 1], 'gray', false, lastPivInMonth [dateKey] ['id']]);
-            else                                                   output.add ([year, monthNames [month - 1], 'green', false, lastPivInMonth [dateKey] ['id']]);
+            if (localCount [dateKey] == 0)                         output.add ([year, shortMonthNames [month - 1], 'white', false]);
+            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, shortMonthNames [month - 1], 'gray', false, lastPivInMonth [dateKey] ['id']]);
+            else                                                   output.add ([year, shortMonthNames [month - 1], 'green', false, lastPivInMonth [dateKey] ['id']]);
          }
       };
 
@@ -271,10 +278,10 @@ class TagService {
       for (var year = min [0]; year <= max [0]; year++) {
          for (var month = 1; month <= 12; month++) {
            var dateKey = year.toString () + ':' + month.toString ();
-           if (timeHeader [dateKey] == null)       output.add ([year, monthNames [month - 1], 'white', false]);
+           if (timeHeader [dateKey] == null)       output.add ([year, shortMonthNames [month - 1], 'white', false]);
            // TODO: add last piv in month or figure out alternative way to jump
-           else if (timeHeader [dateKey] == false) output.add ([year, monthNames [month - 1], 'gray', false]);
-           else                                    output.add ([year, monthNames [month - 1], 'green', false]);
+           else if (timeHeader [dateKey] == false) output.add ([year, shortMonthNames [month - 1], 'gray', false]);
+           else                                    output.add ([year, shortMonthNames [month - 1], 'green', false]);
          }
       }
       var semesters = [[]];
@@ -414,14 +421,17 @@ class TagService {
     StoreService.instance.set ('queryTags', queryTags);
   }
 
-  deletePiv (String id) async {
+  deleteUploadedPivs (dynamic ids) async {
     // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
-    var response = await ajax ('post', 'delete', {'ids': [id], 'csrf': 'foo'});
-    var localPivId = StoreService.instance.get ('rpivMap:' + id);
-    if (localPivId != '') {
-      StoreService.instance.remove ('pivMap:' + localPivId);
-      StoreService.instance.remove ('rpivMap:' + id);
-    }
+    var response = await ajax ('post', 'delete', {'ids': ids, 'csrf': 'foo'});
+    ids.forEach ((id) {
+       var localPivId = StoreService.instance.get ('rpivMap:' + id);
+       if (localPivId != '') {
+         StoreService.instance.remove ('pivMap:' + localPivId);
+         StoreService.instance.remove ('rpivMap:' + id);
+       }
+    });
+    StoreService.instance.remove ('currentlyDeletingPivsUploaded');
     if (response['code'] == 200) {
        await queryPivs (StoreService.instance.get ('queryTags'), true);
        var total = StoreService.instance.get ('queryResult')['total'];
@@ -462,7 +472,7 @@ class TagService {
         var header = StoreService.instance.get (view == 'local' ? 'localTimeHeader' : 'timeHeader');
         header.asMap ().forEach ((k, semester) {
           semester.forEach ((month) {
-             var monthKey = month [0].toString () + ':' + (monthNames.indexOf (month [1]) + 1).toString ();
+             var monthKey = month [0].toString () + ':' + (shortMonthNames.indexOf (month [1]) + 1).toString ();
              month [3] = newDates.contains (monthKey);
              if (newDates.contains (monthKey)) {
                // Pages are inverted, that's why we use this index and not `k` itself.
@@ -540,6 +550,15 @@ class TagService {
       await queryPivs (queryTags, true);
       await queryPivs (StoreService.instance.get ('queryTags'), true);
       // TODO: handle non-200 error
+   }
+
+   toggleDeletion (String id, String view) {
+      var key = 'currentlyDeletingPivs' + (view == 'local' ? 'Local' : 'Uploaded');
+      var currentlyDeletingPivs = StoreService.instance.get (key);
+      if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
+      if (! currentlyDeletingPivs.contains (id)) currentlyDeletingPivs.add (id);
+      else currentlyDeletingPivs.remove (id);
+      StoreService.instance.set (key, currentlyDeletingPivs);
    }
 
 }

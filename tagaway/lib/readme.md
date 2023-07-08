@@ -2,28 +2,10 @@
 
 ## TODO
 
-- Hide pivs that are organized in Local & split local view in pages (Today, This Week, This Month)
-   - pivPagesLocal: [{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}.
-   - Depends on pivMap:, orgMap:, pendingTags, displayMode and currentlyTaggingPivs
-      - If displayMode is all, show them all
-      - If not, show only entries that don't have orgMap:ID and are NOT in pendingTag
-      - But, don't hide pivs that are currentlyTaggingPivs!
-   - Update object only if there are changes
-   - Register listener to retrigger computation
-   - Feed pages
+- Message and icon when page is empty (You're all done here!) (Tom)
+- Remove localTimeHeader functionality completely
 
-   - Progress bar
-   - Selected grid item:
-      - make item disappear when in displayMode normal and not tagging
-      - make it red on delete mode
-   - Add show/hide button and bind to displayMode (Tom)
-   - Put/remove pivs from currentlyTaggingPivs
-   - Message and icon when page is empty (You're all done here!) (Tom)
-   - Remove localTimeHeader functionality completely
-- Delete piv mode (Tom):
-   - Local (must ask for permissions) - note: if deleting something being uploaded, defer the deletion
-   - Uploaded
-
+- Rename uploadService to pivService
 - Remove edit & delete buttons after cancel or when tapping anywhere else
 - When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
 - Handle >= 400 errors with snackbar on tagService and uploadService
@@ -41,8 +23,11 @@
 - count(Local|Uploaded) <str>: count of pivs shown in bottom navigation icon for that view
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
-- currentlyTaggingPivs <list>: list of local piv ids currently being tagged, to avoid hiding them before the operation is complete.
-- currentlyTagging(Local|Uploaded) <str>: tag currently being tagged In LocalView/UploadedView
+- currentlyTaggingPivs <list>: list of *local* piv ids currently being tagged, to avoid hiding them before the operation is complete.
+- currentlyTagging(Local|Uploaded) <str>: tag currently being tagged in LocalView/UploadedView
+- currentlyDeleting(Local|Uploaded) <bool>: if set, we are in delete mode in LocalView/UploadedView
+- currentlyDeletingModal(Local|Uploaded) <bool>: if set, we are showing the delete confirmation modal for Local/Uploaded view.
+- currentlyDeletingPivs(Local|Uploaded) <list>: list of pivs that are currently being deleted, either Local or Uploaded.
 - displayMode <str>: if set to `'all'`, shows all local pivs; otherwise, it only shows local pivs that are not organized.
 - deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid

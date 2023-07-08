@@ -6,6 +6,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/uploadService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -68,9 +69,8 @@ class _LocalViewState extends State<LocalView> {
   String renameTagLocal = '';
   String deleteTagLocal = '';
 
-  // TODO: REMOVE THESE TWO LINES BELOW
-  List<String> pivIdsToDelete = [];
-  bool deleting = false;
+  bool currentlyDeleting = false;
+  bool currentlyDeletingModal = false;
 
   dynamic localPages = [];
 
@@ -93,8 +93,10 @@ class _LocalViewState extends State<LocalView> {
       'startTaggingModal',
       'renameTagLocal',
       'deleteTagLocal',
-      'localPages'
-    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
+      'localPages',
+      'currentlyDeletingLocal',
+      'currentlyDeletingModalLocal'
+    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -128,6 +130,8 @@ class _LocalViewState extends State<LocalView> {
           if (renameTagLocal != '') renameTagController.text = renameTagLocal;
           deleteTagLocal = v7;
           localPages = v8;
+          currentlyDeleting = v9 != '';
+          currentlyDeletingModal = v10 != '';
         }
       });
     });
@@ -147,12 +151,6 @@ class _LocalViewState extends State<LocalView> {
     return true;
   }
 
-  void deleteAssets() async {
-    PhotoManager.editor.deleteWithIds(pivIdsToDelete);
-    // https://pub.dev/packages/photo_manager#delete-entities
-    //After the deletion, you can call the refreshPathProperties method to refresh the corresponding AssetPathEntity in order to get latest fields.
-  }
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -167,24 +165,35 @@ class _LocalViewState extends State<LocalView> {
             Grid(pivs: localPages[index]['pivs']),
             TopRow(page: localPages[index], prev: index == 0 ? null : localPages[index - 1], next: index == localPages.length - 1 ? null : localPages [index + 1]),
             Visibility(
-                visible: currentlyTagging != '',
+                visible: currentlyTagging != '' || currentlyDeleting,
                 child: Align(
                     alignment: const Alignment(0.8, .9),
                     child: FloatingActionButton.extended(
                       onPressed: () {
-                        StoreService.instance.set('swipedLocal', false);
-                        StoreService.instance.set('currentlyTaggingLocal', '');
-                        StoreService.instance.set('tagFilterLocal', '');
-                        searchTagController.clear();
-                        // We update the tag list in case we just created a new one.
-                        TagService.instance.getTags();
+                        if (currentlyTagging != '') {
+                           StoreService.instance.set('swipedLocal', false);
+                           StoreService.instance.set('currentlyTaggingLocal', '');
+                           StoreService.instance.set('tagFilterLocal', '');
+                           StoreService.instance.remove('currentlyTaggingPivs');
+                           searchTagController.clear();
+                           // We update the tag list in case we just created a new one.
+                           TagService.instance.getTags();
+                        }
+                        else {
+                           if (StoreService.instance.get ('currentlyDeletingPivsLocal') != '') {
+                             StoreService.instance.set ('currentlyDeletingModalLocal', true);
+                           }
+                           else {
+                              StoreService.instance.remove ('currentlyDeletingLocal');
+                           }
+                        }
                       },
-                      backgroundColor: deleting ? kAltoRed : kAltoBlue,
+                      backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
                       label: const Text('Done', style: kSelectAllButton),
                       icon: const Icon(Icons.done),
                     ))),
             Visibility(
-                visible: currentlyTagging == '',
+                visible: currentlyTagging == '' && ! currentlyDeleting,
                 child: StartTaggingButton(
                     buttonKey: const Key('local-start-tagging'),
                     buttonText: 'Start Tagging',
@@ -193,10 +202,13 @@ class _LocalViewState extends State<LocalView> {
                       StoreService.instance.set('startTaggingModal', false);
                     })),
             Visibility(
-                visible: currentlyTagging == '',
+                visible: currentlyTagging == '' && ! currentlyDeleting,
                 child: DeleteButton(
                   onPressed: () {
-                    // TODO:  enter DELETE MODE
+                    // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                    return () {
+                      StoreService.instance.set ('currentlyDeletingLocal', true);
+                    };
                   },
                 )),
             Visibility(
@@ -548,7 +560,7 @@ class _LocalViewState extends State<LocalView> {
                             padding: EdgeInsets.only(
                                 bottom: 10.0, right: 15, left: 15),
                             child: Text(
-                              'This will not delete any photos or videos, just the tag.',
+                              'This will not delete any photos or videos, just the tag itself.',
                               textAlign: TextAlign.center,
                               style: kTaglineText,
                             ),
@@ -599,8 +611,7 @@ class _LocalViewState extends State<LocalView> {
                 )),
             // Delete modal
             Visibility(
-                visible: deleting,
-                // THIS HAS TO CHANGE, IT HAS TO BE ON RED 'DONE' BUTTON TAP
+                visible: currentlyDeletingModal,
                 child: Center(
                   child: Container(
                     height: 225,
@@ -649,7 +660,13 @@ class _LocalViewState extends State<LocalView> {
                               ),
                             ),
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                 var pivsToDelete = StoreService.instance.get ('currentlyDeletingPivsLocal');
+                                 UploadService.instance.deleteLocalPivs (pivsToDelete);
+                                 StoreService.instance.remove ('currentlyDeletingLocal');
+                                 StoreService.instance.remove ('currentlyDeletingPivsLocal');
+                                 StoreService.instance.remove ('currentlyDeletingModalLocal');
+                              },
                               child: const Padding(
                                 padding: EdgeInsets.only(top: 10, bottom: 10.0),
                                 child: Text(
@@ -663,7 +680,11 @@ class _LocalViewState extends State<LocalView> {
                           SizedBox(
                             width: double.infinity,
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                 StoreService.instance.remove ('currentlyDeletingLocal');
+                                 StoreService.instance.remove ('currentlyDeletingPivsLocal');
+                                 StoreService.instance.remove ('currentlyDeletingModalLocal');
+                              },
                               child: const Padding(
                                 padding: EdgeInsets.only(top: 10.0),
                                 child: Text(

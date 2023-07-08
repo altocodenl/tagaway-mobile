@@ -32,12 +32,15 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector(
             onTap: () {
-              var currentlyTagging =
-                  StoreService.instance.get('currentlyTaggingLocal');
-              if (currentlyTagging == '')
+            if (StoreService.instance.get('currentlyDeletingLocal') != '') {
+              TagService.instance.toggleDeletion (asset.id, 'local');
+            }
+            else if (StoreService.instance.get('currentlyTaggingLocal') != '') {
+                TagService.instance.tagPiv(asset, StoreService.instance.get ('currentlyTaggingLocal'), 'local');
+            }
+            else {
                 StoreService.instance.set('startTaggingModal', true);
-              else
-                TagService.instance.tagPiv(asset, currentlyTagging, 'local');
+               }
             },
             child: Stack(
               children: [

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:collection/collection.dart';
+import 'package:tagaway/ui_elements/constants.dart';
+
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -193,7 +195,7 @@ class UploadService {
    queryHashes (dynamic hashesToQuery) async {
       var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
       // TODO: handle errors
-      if (response ['code'] != 200) return;
+      if (response ['code'] != 200) return {};
 
       var output = {};
 
@@ -276,7 +278,8 @@ class UploadService {
 
       localPivs.forEach ((piv) {
          // Piv is considered as organized if it has a matching orgMap entry or if it has a pending tag. Since we always mark as organized when tagging, the latter is qeuivalent of the former.
-         var pivIsOrganized = StoreService.instance.get ('orgMap:' + StoreService.instance.get ('pivMap:' + piv.id)) != '';
+         // We convert the pivMap:ID to string in case it's `true` (which denotes an ongoing upload)
+         var pivIsOrganized = StoreService.instance.get ('orgMap:' + StoreService.instance.get ('pivMap:' + piv.id).toString ()) != '';
          if (! pivIsOrganized) pivIsOrganized = StoreService.instance.get ('pendingTags:' + piv.id) != '';
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
@@ -293,7 +296,7 @@ class UploadService {
             }
          });
          if (! placed) pages.add ({
-            'title': pivDate.month.toString () + ' ' + pivDate.year.toString (),
+            'title': longMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (),
             'total': 1,
             'pivs': showPiv ? [piv] : [],
             'left': pivIsOrganized ? 0 : 1,
@@ -320,5 +323,11 @@ class UploadService {
       await Future.delayed (Duration (milliseconds: 50));
       computeLocalPages ();
    }
+
+  deleteLocalPivs (ids) async {
+    List<String> typedIds = ids.cast<String>();
+    await PhotoManager.editor.deleteWithIds (typedIds);
+    loadLocalPivs ();
+  }
 
 }

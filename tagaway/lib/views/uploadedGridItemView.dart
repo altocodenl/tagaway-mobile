@@ -63,9 +63,13 @@ class UploadedGridItem extends StatelessWidget {
             : Container(),
         GestureDetector(
           onTap: () {
-            var currentlyTagging =
-                StoreService.instance.get('currentlyTaggingUploaded');
-            if (currentlyTagging == '') {
+            if (StoreService.instance.get('currentlyDeletingUploaded') != '') {
+              TagService.instance.toggleDeletion (piv['id'], 'uploaded');
+            }
+            else if (StoreService.instance.get('currentlyTaggingUploaded') != '') {
+              TagService.instance.tagPiv(piv, StoreService.instance.get ('currentlyTaggingUploaded'), 'uploaded');
+            }
+            else {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) {
@@ -73,8 +77,6 @@ class UploadedGridItem extends StatelessWidget {
                       initialPiv: pivs.indexOf(piv), pivs: pivs);
                 }),
               );
-            } else {
-              TagService.instance.tagPiv(piv, currentlyTagging, 'uploaded');
             }
           },
         ),
@@ -308,7 +310,7 @@ class _CarrouselViewState extends State<CarrouselView>
                       Expanded(
                         child: IconButton(
                           onPressed: () {
-                            TagService.instance.deletePiv(piv['id']);
+                            TagService.instance.deleteUploadedPivs([piv['id']]);
                             Navigator.pop(context);
                           },
                           icon: const Icon(

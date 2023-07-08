@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -1092,7 +1093,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
   dynamic cancelListener;
   final String id;
   final String type;
-  bool selected = false;
+  var mode = 'none';
 
   _GridItemSelectionState(this.id, this.type);
 
@@ -1102,13 +1103,26 @@ class _GridItemSelectionState extends State<GridItemSelection> {
     cancelListener = StoreService.instance.listen([
       (type == 'local' ? 'pivMap:' : 'orgMap:') + id,
       'tagMap:' + id,
-      'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded')
-    ], (v1, v2, v3) {
+      'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'),
+      'displayMode',
+      'deleteMode',
+      'currentlyDeleting' + (type == 'local' ? 'Local' : 'Uploaded'),
+      'currentlyDeletingPivs' + (type == 'local' ? 'Local' : 'Uploaded')
+    ], (v1, v2, v3, v4, v5, v6, v7) {
       setState(() {
-        if (v3 == '')
-          selected = v1 != '';
-        else
-          selected = v2 != '';
+        // If currently tagging, set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
+        if (v3 != '') mode = v2 == '' ? 'gray' : 'green';
+        // Delete mode
+        else if (v6 != '') {
+           var currentlyDeletingPivs = v7;
+           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
+           mode = currentlyDeletingPivs.contains (id) ? 'red' : 'gray';
+        }
+        else {
+           var organized = type == 'uploaded' ? v1 != '' : StoreService.instance.get ('orgMap:' + v1.toString ()) != '';
+           mode = organized ? 'green' : 'gray';
+           if (type == 'local' && v4 != 'all') mode = 'none';
+        }
       });
     });
   }
@@ -1121,9 +1135,10 @@ class _GridItemSelectionState extends State<GridItemSelection> {
 
   @override
   Widget build(BuildContext context) {
+    if (mode == 'none') return Visibility (visible: false, child: Text(''));
     return Icon(
-      selected ? kCircleCheckIcon : kSolidCircleIcon,
-      color: selected ? kAltoOrganized : kGreyDarker,
+      mode == 'gray' ? kSolidCircleIcon : kCircleCheckIcon,
+      color: mode == 'green' ? kAltoOrganized : (mode == 'gray' ? kGreyDarker : kAltoRed),
       size: 15,
     );
   }

@@ -59,7 +59,8 @@ class _UploadedViewState extends State<UploadedView> {
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
-  bool deleting = false;
+  bool currentlyDeleting = false;
+  bool currentlyDeletingModal = false;
   String renameTagUploaded = '';
   String deleteTagUploaded = '';
 
@@ -80,8 +81,10 @@ class _UploadedViewState extends State<UploadedView> {
       'swipedUploaded',
       'tagFilterUploaded',
       'renameTagUploaded',
-      'deleteTagUploaded'
-    ], (v1, v2, v3, v4, v5, v6) {
+      'deleteTagUploaded',
+      'currentlyDeletingUploaded',
+      'currentlyDeletingModalUploaded'
+    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
       if (currentView == 2 && v2 == '' && currentlyTagging != '')
@@ -118,6 +121,8 @@ class _UploadedViewState extends State<UploadedView> {
         if (renameTagUploaded != '')
           renameTagController.text = renameTagUploaded;
         deleteTagUploaded = v6;
+        currentlyDeleting = v7 != '';
+        currentlyDeletingModal = v8 != '';
       });
     });
   }
@@ -142,25 +147,34 @@ class _UploadedViewState extends State<UploadedView> {
         const UploadGrid(),
         const TopRow(),
         Visibility(
-            visible: currentlyTagging != '',
+            visible: currentlyTagging != '' || currentlyDeleting,
             child: Align(
                 alignment: const Alignment(0.8, .9),
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    StoreService.instance.set('swipedUploaded', false);
-                    StoreService.instance.set('currentlyTaggingUploaded', '');
-                    StoreService.instance.set('tagFilterUploaded', '');
-                    searchTagController.clear();
-
-                    // We update the tag list in case we just created a new one.
-                    TagService.instance.getTags();
+                    if (currentlyTagging != '') {
+                       StoreService.instance.set('swipedUploaded', false);
+                       StoreService.instance.set('currentlyTaggingUploaded', '');
+                       StoreService.instance.set('tagFilterUploaded', '');
+                       searchTagController.clear();
+                       // We update the tag list in case we just created a new one.
+                       TagService.instance.getTags();
+                    }
+                    else {
+                           if (StoreService.instance.get ('currentlyDeletingPivsUploaded') != '') {
+                             StoreService.instance.set ('currentlyDeletingModalUploaded', true);
+                           }
+                           else {
+                              StoreService.instance.remove ('currentlyDeletingUploaded');
+                           }
+                        }
                   },
-                  backgroundColor: deleting ? kAltoRed : kAltoBlue,
+                  backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
                   label: const Text('Done', style: kSelectAllButton),
                   icon: const Icon(Icons.done),
                 ))),
         Visibility(
-            visible: currentlyTagging == '',
+            visible: currentlyTagging == '' && ! currentlyDeleting,
             child: StartTaggingButton(
                 buttonKey: Key('uploaded-start-tagging'),
                 buttonText: 'Add More Tags',
@@ -340,7 +354,7 @@ class _UploadedViewState extends State<UploadedView> {
             )),
         // Delete modal
         Visibility(
-            visible: false,
+            visible: currentlyDeletingModal,
             child: Center(
               child: Container(
                 height: 225,
@@ -388,7 +402,13 @@ class _UploadedViewState extends State<UploadedView> {
                           ),
                         ),
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             var pivsToDelete = StoreService.instance.get ('currentlyDeletingPivsUploaded');
+                             TagService.instance.deleteUploadedPivs (pivsToDelete);
+                             StoreService.instance.remove ('currentlyDeletingUploaded');
+                             StoreService.instance.remove ('currentlyDeletingPivsUploaded');
+                             StoreService.instance.remove ('currentlyDeletingModalUploaded');
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 10.0),
                             child: Text(
@@ -402,7 +422,11 @@ class _UploadedViewState extends State<UploadedView> {
                       SizedBox(
                         width: double.infinity,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            StoreService.instance.remove ('currentlyDeletingUploaded');
+                            StoreService.instance.remove ('currentlyDeletingPivsUploaded');
+                            StoreService.instance.remove ('currentlyDeletingModalUploaded');
+                          },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: Text(
@@ -551,7 +575,7 @@ class _UploadedViewState extends State<UploadedView> {
                         padding:
                             EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
                         child: Text(
-                          'This will not delete any photos or videos, just the tag.',
+                          'This will not delete any photos or videos, just the tag itself.',
                           textAlign: TextAlign.center,
                           style: kTaglineText,
                         ),
@@ -702,6 +726,7 @@ class _TopRowState extends State<TopRow> {
   dynamic queryTags = [];
   dynamic queryResult = {'total': 0};
   final PageController pageController = PageController();
+  bool currentlyDeleting = false;
 
   @override
   void initState() {
@@ -713,14 +738,16 @@ class _TopRowState extends State<TopRow> {
       'taggedPivCountUploaded',
       'timeHeader',
       'queryTags',
-      'queryResult'
-    ], (v1, v2, v3, v4, v5) {
+      'queryResult',
+      'currentlyDeletingUploaded'
+    ], (v1, v2, v3, v4, v5, v6) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
         timeHeader = v3 == '' ? [] : v3;
         if (v4 != '') queryTags = v4;
         if (v5 != '') queryResult = v5;
+        currentlyDeleting = v6 != '';
       });
     });
   }
@@ -746,8 +773,10 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {},
+                      Visibility (visible: ! currentlyDeleting, child: ElevatedButton(
+                        onPressed: () {
+                           StoreService.instance.set ('currentlyDeletingUploaded', true);
+                        },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(40, 40),
                           backgroundColor: kAltoRed,
@@ -758,7 +787,7 @@ class _TopRowState extends State<TopRow> {
                           color: Colors.white,
                           size: 20,
                         ),
-                      ),
+                      )),
                       const Expanded(
                         child: Align(
                             alignment: Alignment(0.5, .9),
