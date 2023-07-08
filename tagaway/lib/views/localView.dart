@@ -791,25 +791,19 @@ class _TopRowState extends State<TopRow> {
 
   String currentlyTagging = '';
   dynamic taggedPivCount = '';
-  dynamic timeHeader = [];
   dynamic displayMode = '';
-
-  final PageController pageController = PageController();
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    StoreService.instance.set('localTimeHeaderController', pageController);
-    StoreService.instance.set('localTimeHeaderPage', 0);
     cancelListener = StoreService.instance.listen(
-        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'localTimeHeader', 'displayMode'],
-        (v1, v2, v3, v4) {
+        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'displayMode'],
+        (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
-        timeHeader = v3 == '' ? [] : v3;
-        displayMode = v4;
+        displayMode = v3;
       });
     });
   }
@@ -818,7 +812,6 @@ class _TopRowState extends State<TopRow> {
   void dispose() {
     super.dispose();
     cancelListener();
-    pageController.dispose();
   }
 
   @override

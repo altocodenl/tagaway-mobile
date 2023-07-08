@@ -56,7 +56,6 @@ class UploadService {
          StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
          // We set the hashMap in case it wasn't already locally set. If we overwrite it, it shouldn't matter, since the server and the client compute them in the same way.
          StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash']);
-         TagService.instance.getLocalTimeHeader ();
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
             for (var tag in pendingTags) {
@@ -168,8 +167,6 @@ class UploadService {
       for (var piv in localPivs) {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
       }
-
-      TagService.instance.getLocalTimeHeader ();
 
       // Check if we have uploads we should revive
       reviveUploads ();

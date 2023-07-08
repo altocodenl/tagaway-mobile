@@ -170,86 +170,6 @@ class TagService {
       StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), New.length);
    }
 
-   getLocalTimeHeader () {
-      var localCount  = {};
-      var remoteCount = {};
-      var lastPivInMonth = {};
-      var output      = [];
-      var min = now (), max = 0;
-
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-        // pivDate entries exist for *all* local pivs, whereas pivMap entries exist only for local pivs that were already uploaded
-        if (! RegExp ('^pivDate:').hasMatch (k)) return;
-
-        var id   = k.replaceAll ('pivDate:', '');
-        var date = StoreService.instance.get (k);
-        if (date < min) min = date;
-        if (date > max) max = date;
-
-        var Date        = new DateTime.fromMillisecondsSinceEpoch (date);
-        var dateKey = Date.year.toString () + ':' + Date.month.toString ();
-        if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
-        if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
-        if (lastPivInMonth [dateKey] == null) lastPivInMonth [dateKey] = {};
-
-        localCount [dateKey] += 1;
-        if (StoreService.instance.get ('pivMap:' + id) != '') remoteCount [dateKey] += 1;
-        if (lastPivInMonth [dateKey] ['id'] == null || lastPivInMonth [dateKey] ['date'] < date) {
-           lastPivInMonth [dateKey] = {'id': id, 'date': date};
-        }
-      });
-
-      var empty = false;
-      // No local pivs, show current semester as empty.
-      if (max == 0) {
-         max = now ();
-         min = now ();
-         empty = true;
-      }
-
-      var fromYear  = DateTime.fromMillisecondsSinceEpoch (min).year;
-      var toYear    = DateTime.fromMillisecondsSinceEpoch (max).year;
-      var fromMonth = DateTime.fromMillisecondsSinceEpoch (min).month;
-      var toMonth   = DateTime.fromMillisecondsSinceEpoch (max).month;
-      fromMonth = fromMonth < 7 ? 1  : 7;
-      toMonth   = toMonth   > 6 ? 12 : 6;
-
-      // Semester is an array of months.
-      // A month is [year, month, color, selected (boolean), id of the last piv on the month]
-      for (var year = fromYear; year <= toYear; year++) {
-         for (var month = (year == fromYear ? fromMonth : 1); month <= (year == toYear ? toMonth : 12); month++) {
-            var dateKey = year.toString () + ':' + month.toString ();
-            if (localCount  [dateKey] == null) localCount  [dateKey] = 0;
-            if (remoteCount [dateKey] == null) remoteCount [dateKey] = 0;
-
-            if (localCount [dateKey] == 0)                         output.add ([year, shortMonthNames [month - 1], 'white', false]);
-            else if (localCount [dateKey] > remoteCount [dateKey]) output.add ([year, shortMonthNames [month - 1], 'gray', false, lastPivInMonth [dateKey] ['id']]);
-            else                                                   output.add ([year, shortMonthNames [month - 1], 'green', false, lastPivInMonth [dateKey] ['id']]);
-         }
-      };
-
-      var semesters = [[]];
-      output.forEach ((month) {
-         var lastSemester = semesters [semesters.length - 1];
-         if (lastSemester.length < 6) lastSemester.add (month);
-         else semesters.add ([month]);
-      });
-
-      // Filter out ronin semesters if we have pivs
-      if (! empty) {
-         semesters = semesters.where ((semester) {
-            var nonWhite = 0;
-            semester.forEach ((month) {
-               if (month [2] != 'white') nonWhite++;
-            });
-            return nonWhite > 0;
-         }).toList ();
-      }
-
-      StoreService.instance.set ('localTimeHeader', semesters);
-      StoreService.instance.set ('localYear', semesters[semesters.length - 1][0][0]);
-   }
-
    getUploadedTimeHeader () {
       var localCount  = {};
       var remoteCount = {};
@@ -469,7 +389,7 @@ class TagService {
      var activePages = [];
 
      updateHeader (dynamic newDates) {
-        var header = StoreService.instance.get (view == 'local' ? 'localTimeHeader' : 'timeHeader');
+        var header = StoreService.instance.get ('timeHeader');
         header.asMap ().forEach ((k, semester) {
           semester.forEach ((month) {
              var monthKey = month [0].toString () + ':' + (shortMonthNames.indexOf (month [1]) + 1).toString ();
@@ -482,23 +402,10 @@ class TagService {
 
           });
         });
-        StoreService.instance.set (view == 'local' ? 'localTimeHeader' : 'timeHeader', header);
+        StoreService.instance.set ('timeHeader', header);
      }
 
      activePages.sort ();
-
-     if (view == 'local') {
-        var oldDates = getDates (localVisible);
-        filter (localVisible, piv.id, piv.createDateTime.millisecondsSinceEpoch, visible);
-        var newDates = getDates (localVisible);
-        if (ListEquality ().equals (oldDates, newDates)) return;
-        updateHeader (newDates);
-        var currentPage = StoreService.instance.get ('localTimeHeaderPage');
-        if (activePages.length > 0 && ! activePages.contains (currentPage)) {
-           var pageController = StoreService.instance.get ('localTimeHeaderController');
-           pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
-        }
-     }
 
      if (view == 'uploaded') {
         var oldDates = getDates (uploadedVisible);

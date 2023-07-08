@@ -3,8 +3,6 @@
 ## TODO
 
 - Message and icon when page is empty (You're all done here!) (Tom)
-- Remove localTimeHeader functionality completely
-
 - Rename uploadService to pivService
 - Remove edit & delete buttons after cancel or when tapping anywhere else
 - When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
@@ -37,11 +35,6 @@
 - lastNTags [<str>, ...]: list of the last N tags used to tag or untag, either on local or uploaded.
 - localPages <list>: `[{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}, ...]` - contains all the pages of local pivs to be shown, one per grid.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
-- localTimeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
-   where <semester> is [<month 1>, <month 2>, ..., <month 6>]
-   where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
-- localTimeHeaderController <page controller>: controller that drives the localTimeHeader
-- localTimeHeaderPage <int>: page in localTimeHeader currently displayed.
 - localYear <str>: displayed year in LocalView time header
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet - deleted on logout.
