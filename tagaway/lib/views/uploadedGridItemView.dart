@@ -64,12 +64,14 @@ class UploadedGridItem extends StatelessWidget {
         GestureDetector(
           onTap: () {
             if (StoreService.instance.get('currentlyDeletingUploaded') != '') {
-              TagService.instance.toggleDeletion (piv['id'], 'uploaded');
-            }
-            else if (StoreService.instance.get('currentlyTaggingUploaded') != '') {
-              TagService.instance.tagPiv(piv, StoreService.instance.get ('currentlyTaggingUploaded'), 'uploaded');
-            }
-            else {
+              TagService.instance.toggleDeletion(piv['id'], 'uploaded');
+            } else if (StoreService.instance.get('currentlyTaggingUploaded') !=
+                '') {
+              TagService.instance.tagPiv(
+                  piv,
+                  StoreService.instance.get('currentlyTaggingUploaded'),
+                  'uploaded');
+            } else {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) {
@@ -90,7 +92,7 @@ class UploadedGridItem extends StatelessWidget {
                 // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
                 // The piv selection status could change depending on the query, so we cannot just rely on the piv's id. We need to make sure these elements don't get recycled to avoid showing a stale GridItemSelection within them.
                 child: GridItemSelection(piv['id'], 'uploaded',
-                    key: Key(piv['id'] + ':' + now ().toString ())))),
+                    key: Key(piv['id'] + ':' + now().toString())))),
       ],
     );
   }

@@ -153,28 +153,30 @@ class _UploadedViewState extends State<UploadedView> {
                 child: FloatingActionButton.extended(
                   onPressed: () {
                     if (currentlyTagging != '') {
-                       StoreService.instance.set('swipedUploaded', false);
-                       StoreService.instance.set('currentlyTaggingUploaded', '');
-                       StoreService.instance.set('tagFilterUploaded', '');
-                       searchTagController.clear();
-                       // We update the tag list in case we just created a new one.
-                       TagService.instance.getTags();
+                      StoreService.instance.set('swipedUploaded', false);
+                      StoreService.instance.set('currentlyTaggingUploaded', '');
+                      StoreService.instance.set('tagFilterUploaded', '');
+                      searchTagController.clear();
+                      // We update the tag list in case we just created a new one.
+                      TagService.instance.getTags();
+                    } else {
+                      if (StoreService.instance
+                              .get('currentlyDeletingPivsUploaded') !=
+                          '') {
+                        StoreService.instance
+                            .set('currentlyDeletingModalUploaded', true);
+                      } else {
+                        StoreService.instance
+                            .remove('currentlyDeletingUploaded');
+                      }
                     }
-                    else {
-                           if (StoreService.instance.get ('currentlyDeletingPivsUploaded') != '') {
-                             StoreService.instance.set ('currentlyDeletingModalUploaded', true);
-                           }
-                           else {
-                              StoreService.instance.remove ('currentlyDeletingUploaded');
-                           }
-                        }
                   },
                   backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
                   label: const Text('Done', style: kSelectAllButton),
                   icon: const Icon(Icons.done),
                 ))),
         Visibility(
-            visible: currentlyTagging == '' && ! currentlyDeleting,
+            visible: currentlyTagging == '' && !currentlyDeleting,
             child: StartTaggingButton(
                 buttonKey: Key('uploaded-start-tagging'),
                 buttonText: 'Add More Tags',
@@ -403,11 +405,16 @@ class _UploadedViewState extends State<UploadedView> {
                         ),
                         child: GestureDetector(
                           onTap: () {
-                             var pivsToDelete = StoreService.instance.get ('currentlyDeletingPivsUploaded');
-                             TagService.instance.deleteUploadedPivs (pivsToDelete);
-                             StoreService.instance.remove ('currentlyDeletingUploaded');
-                             StoreService.instance.remove ('currentlyDeletingPivsUploaded');
-                             StoreService.instance.remove ('currentlyDeletingModalUploaded');
+                            var pivsToDelete = StoreService.instance
+                                .get('currentlyDeletingPivsUploaded');
+                            TagService.instance
+                                .deleteUploadedPivs(pivsToDelete);
+                            StoreService.instance
+                                .remove('currentlyDeletingUploaded');
+                            StoreService.instance
+                                .remove('currentlyDeletingPivsUploaded');
+                            StoreService.instance
+                                .remove('currentlyDeletingModalUploaded');
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -423,9 +430,12 @@ class _UploadedViewState extends State<UploadedView> {
                         width: double.infinity,
                         child: GestureDetector(
                           onTap: () {
-                            StoreService.instance.remove ('currentlyDeletingUploaded');
-                            StoreService.instance.remove ('currentlyDeletingPivsUploaded');
-                            StoreService.instance.remove ('currentlyDeletingModalUploaded');
+                            StoreService.instance
+                                .remove('currentlyDeletingUploaded');
+                            StoreService.instance
+                                .remove('currentlyDeletingPivsUploaded');
+                            StoreService.instance
+                                .remove('currentlyDeletingModalUploaded');
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(top: 10.0),
@@ -773,21 +783,24 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
-                      Visibility (visible: ! currentlyDeleting, child: ElevatedButton(
-                        onPressed: () {
-                           StoreService.instance.set ('currentlyDeletingUploaded', true);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(40, 40),
-                          backgroundColor: kAltoRed,
-                          shape: const CircleBorder(),
-                        ),
-                        child: const Icon(
-                          kTrashCanIcon,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      )),
+                      Visibility(
+                          visible: !currentlyDeleting,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              StoreService.instance
+                                  .set('currentlyDeletingUploaded', true);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(40, 40),
+                              backgroundColor: kAltoRed,
+                              shape: const CircleBorder(),
+                            ),
+                            child: const Icon(
+                              kTrashCanIcon,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          )),
                       const Expanded(
                         child: Align(
                             alignment: Alignment(0.5, .9),
@@ -837,8 +850,7 @@ class _TopRowState extends State<TopRow> {
                           scrollDirection: Axis.horizontal,
                           controller: pageController,
                           onPageChanged: (int index) {
-                            StoreService.instance
-                                .set('timeHeaderPage', index);
+                            StoreService.instance.set('timeHeaderPage', index);
                             StoreService.instance.set(
                                 'yearUploaded',
                                 timeHeader[timeHeader.length - index - 1][0][0]

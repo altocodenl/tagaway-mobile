@@ -163,7 +163,12 @@ class _LocalViewState extends State<LocalView> {
         return Stack(
           children: [
             Grid(pivs: localPages[index]['pivs']),
-            TopRow(page: localPages[index], prev: index == 0 ? null : localPages[index - 1], next: index == localPages.length - 1 ? null : localPages [index + 1]),
+            TopRow(
+                page: localPages[index],
+                prev: index == 0 ? null : localPages[index - 1],
+                next: index == localPages.length - 1
+                    ? null
+                    : localPages[index + 1]),
             Visibility(
                 visible: currentlyTagging != '' || currentlyDeleting,
                 child: Align(
@@ -171,21 +176,24 @@ class _LocalViewState extends State<LocalView> {
                     child: FloatingActionButton.extended(
                       onPressed: () {
                         if (currentlyTagging != '') {
-                           StoreService.instance.set('swipedLocal', false);
-                           StoreService.instance.set('currentlyTaggingLocal', '');
-                           StoreService.instance.set('tagFilterLocal', '');
-                           StoreService.instance.remove('currentlyTaggingPivs');
-                           searchTagController.clear();
-                           // We update the tag list in case we just created a new one.
-                           TagService.instance.getTags();
-                        }
-                        else {
-                           if (StoreService.instance.get ('currentlyDeletingPivsLocal') != '') {
-                             StoreService.instance.set ('currentlyDeletingModalLocal', true);
-                           }
-                           else {
-                              StoreService.instance.remove ('currentlyDeletingLocal');
-                           }
+                          StoreService.instance.set('swipedLocal', false);
+                          StoreService.instance
+                              .set('currentlyTaggingLocal', '');
+                          StoreService.instance.set('tagFilterLocal', '');
+                          StoreService.instance.remove('currentlyTaggingPivs');
+                          searchTagController.clear();
+                          // We update the tag list in case we just created a new one.
+                          TagService.instance.getTags();
+                        } else {
+                          if (StoreService.instance
+                                  .get('currentlyDeletingPivsLocal') !=
+                              '') {
+                            StoreService.instance
+                                .set('currentlyDeletingModalLocal', true);
+                          } else {
+                            StoreService.instance
+                                .remove('currentlyDeletingLocal');
+                          }
                         }
                       },
                       backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
@@ -193,7 +201,7 @@ class _LocalViewState extends State<LocalView> {
                       icon: const Icon(Icons.done),
                     ))),
             Visibility(
-                visible: currentlyTagging == '' && ! currentlyDeleting,
+                visible: currentlyTagging == '' && !currentlyDeleting,
                 child: StartTaggingButton(
                     buttonKey: const Key('local-start-tagging'),
                     buttonText: 'Start Tagging',
@@ -202,12 +210,12 @@ class _LocalViewState extends State<LocalView> {
                       StoreService.instance.set('startTaggingModal', false);
                     })),
             Visibility(
-                visible: currentlyTagging == '' && ! currentlyDeleting,
+                visible: currentlyTagging == '' && !currentlyDeleting,
                 child: DeleteButton(
                   onPressed: () {
                     // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                     return () {
-                      StoreService.instance.set ('currentlyDeletingLocal', true);
+                      StoreService.instance.set('currentlyDeletingLocal', true);
                     };
                   },
                 )),
@@ -661,11 +669,16 @@ class _LocalViewState extends State<LocalView> {
                             ),
                             child: GestureDetector(
                               onTap: () {
-                                 var pivsToDelete = StoreService.instance.get ('currentlyDeletingPivsLocal');
-                                 UploadService.instance.deleteLocalPivs (pivsToDelete);
-                                 StoreService.instance.remove ('currentlyDeletingLocal');
-                                 StoreService.instance.remove ('currentlyDeletingPivsLocal');
-                                 StoreService.instance.remove ('currentlyDeletingModalLocal');
+                                var pivsToDelete = StoreService.instance
+                                    .get('currentlyDeletingPivsLocal');
+                                UploadService.instance
+                                    .deleteLocalPivs(pivsToDelete);
+                                StoreService.instance
+                                    .remove('currentlyDeletingLocal');
+                                StoreService.instance
+                                    .remove('currentlyDeletingPivsLocal');
+                                StoreService.instance
+                                    .remove('currentlyDeletingModalLocal');
                               },
                               child: const Padding(
                                 padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -681,9 +694,12 @@ class _LocalViewState extends State<LocalView> {
                             width: double.infinity,
                             child: GestureDetector(
                               onTap: () {
-                                 StoreService.instance.remove ('currentlyDeletingLocal');
-                                 StoreService.instance.remove ('currentlyDeletingPivsLocal');
-                                 StoreService.instance.remove ('currentlyDeletingModalLocal');
+                                StoreService.instance
+                                    .remove('currentlyDeletingLocal');
+                                StoreService.instance
+                                    .remove('currentlyDeletingPivsLocal');
+                                StoreService.instance
+                                    .remove('currentlyDeletingModalLocal');
                               },
                               child: const Padding(
                                 padding: EdgeInsets.only(top: 10.0),
@@ -708,8 +724,9 @@ class _LocalViewState extends State<LocalView> {
 }
 
 class Grid extends StatefulWidget {
-  const Grid({Key? key,
-      required this.pivs,
+  const Grid({
+    Key? key,
+    required this.pivs,
   }) : super(key: key);
 
   final dynamic pivs;
@@ -728,10 +745,10 @@ class _GridState extends State<Grid> {
   }
 
   loadPivs() async {
-    if (! localPivsLoaded) {
-       while (UploadService.instance.localPivsLoaded == false) {
-         await Future.delayed(const Duration(milliseconds: 50));
-       }
+    if (!localPivsLoaded) {
+      while (UploadService.instance.localPivsLoaded == false) {
+        await Future.delayed(const Duration(milliseconds: 50));
+      }
     }
     localPivsLoaded = true;
   }
@@ -742,23 +759,26 @@ class _GridState extends State<Grid> {
       visible: localPivsLoaded,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0, top: 180),
-        child: widget.pivs.length == 0 ? Text ('You\'re all done!') : SizedBox.expand(
-          child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: GridView.builder(
-                  reverse: true,
-                  shrinkWrap: true,
-                  cacheExtent: 50,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 1,
-                    crossAxisSpacing: 1,
-                  ),
-                  itemCount: widget.pivs.length,
-                  itemBuilder: (BuildContext context, index) {
-                    return LocalGridItem(widget.pivs[index]);
-                  })),
-        ),
+        child: widget.pivs.length == 0
+            ? Text('You\'re all done!')
+            : SizedBox.expand(
+                child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: GridView.builder(
+                        reverse: true,
+                        shrinkWrap: true,
+                        cacheExtent: 50,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          mainAxisSpacing: 1,
+                          crossAxisSpacing: 1,
+                        ),
+                        itemCount: widget.pivs.length,
+                        itemBuilder: (BuildContext context, index) {
+                          return LocalGridItem(widget.pivs[index]);
+                        })),
+              ),
       ),
       replacement: Center(
         child: Container(
@@ -772,10 +792,11 @@ class _GridState extends State<Grid> {
 }
 
 class TopRow extends StatefulWidget {
-  const TopRow({Key? key,
-      required this.page,
-      required this.prev,
-      required this.next,
+  const TopRow({
+    Key? key,
+    required this.page,
+    required this.prev,
+    required this.next,
   }) : super(key: key);
 
   final dynamic page;
@@ -797,9 +818,9 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen(
-        ['currentlyTaggingLocal', 'taggedPivCountLocal', 'displayMode'],
-        (v1, v2, v3) {
+    cancelListener = StoreService.instance
+        .listen(['currentlyTaggingLocal', 'taggedPivCountLocal', 'displayMode'],
+            (v1, v2, v3) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
@@ -836,7 +857,13 @@ class _TopRowState extends State<TopRow> {
                             width:
                                 SizeService.instance.screenWidth(context) * .7,
                             child: LinearProgressIndicator(
-                              value: widget.page['total'] == 0 ? 1 : max ((widget.page['total'] - widget.page['left']) / widget.page['total'], 0.1),
+                              value: widget.page['total'] == 0
+                                  ? 1
+                                  : max(
+                                      (widget.page['total'] -
+                                              widget.page['left']) /
+                                          widget.page['total'],
+                                      0.1),
                               color: kAltoBlue,
                               backgroundColor: Colors.white,
                             ),
@@ -851,7 +878,7 @@ class _TopRowState extends State<TopRow> {
                               padding: const EdgeInsets.only(right: 2),
                               child: GestureDetector(
                                 onTap: () {
-                                   StoreService.instance.set ('displayMode', '');
+                                  StoreService.instance.set('displayMode', '');
                                 },
                                 child: const Icon(
                                   kEyeIcon,
@@ -864,7 +891,8 @@ class _TopRowState extends State<TopRow> {
                               padding: const EdgeInsets.only(right: 4),
                               child: GestureDetector(
                                 onTap: () {
-                                  StoreService.instance.set ('displayMode', 'all');
+                                  StoreService.instance
+                                      .set('displayMode', 'all');
                                 },
                                 child: const Icon(
                                   kSlashedEyeIcon,
@@ -882,7 +910,7 @@ class _TopRowState extends State<TopRow> {
                         children: [
                           Expanded(
                             child: Text(
-                              widget.page['left'].toString () + ' left',
+                              widget.page['left'].toString() + ' left',
                               style: kLookingAtText,
                             ),
                           ),
@@ -894,7 +922,8 @@ class _TopRowState extends State<TopRow> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Text(widget.next != null ? widget.next['title'] : '',
+                          child: Text(
+                              widget.next != null ? widget.next['title'] : '',
                               textAlign: TextAlign.center,
                               style: kLeftAndRightPhoneGridTitle,
                               key: Key('left-title')),
@@ -905,7 +934,8 @@ class _TopRowState extends State<TopRow> {
                                 textAlign: TextAlign.center,
                                 key: Key('center-title'))),
                         Expanded(
-                          child: Text(widget.prev != null ? widget.prev['title'] : '',
+                            child: Text(
+                                widget.prev != null ? widget.prev['title'] : '',
                                 textAlign: TextAlign.center,
                                 style: kLeftAndRightPhoneGridTitle,
                                 key: Key('right-title'))),

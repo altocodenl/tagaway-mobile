@@ -165,9 +165,9 @@ class _LoginViewState extends State<LoginView> {
                             FocusManager.instance.primaryFocus?.unfocus();
                             AuthService.instance
                                 .login(
-                                    usernameController.text,
-                                    passwordController.text,
-                                    )
+                              usernameController.text,
+                              passwordController.text,
+                            )
                                 .then((value) {
                               if (value != 403) usernameController.clear();
                               passwordController.clear();

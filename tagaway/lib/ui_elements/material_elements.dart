@@ -1111,17 +1111,19 @@ class _GridItemSelectionState extends State<GridItemSelection> {
     ], (v1, v2, v3, v4, v5, v6, v7) {
       setState(() {
         // If currently tagging, set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
-        if (v3 != '') mode = v2 == '' ? 'gray' : 'green';
+        if (v3 != '')
+          mode = v2 == '' ? 'gray' : 'green';
         // Delete mode
         else if (v6 != '') {
-           var currentlyDeletingPivs = v7;
-           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
-           mode = currentlyDeletingPivs.contains (id) ? 'red' : 'gray';
-        }
-        else {
-           var organized = type == 'uploaded' ? v1 != '' : StoreService.instance.get ('orgMap:' + v1.toString ()) != '';
-           mode = organized ? 'green' : 'gray';
-           if (type == 'local' && v4 != 'all') mode = 'none';
+          var currentlyDeletingPivs = v7;
+          if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
+          mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
+        } else {
+          var organized = type == 'uploaded'
+              ? v1 != ''
+              : StoreService.instance.get('orgMap:' + v1.toString()) != '';
+          mode = organized ? 'green' : 'gray';
+          if (type == 'local' && v4 != 'all') mode = 'none';
         }
       });
     });
@@ -1135,10 +1137,12 @@ class _GridItemSelectionState extends State<GridItemSelection> {
 
   @override
   Widget build(BuildContext context) {
-    if (mode == 'none') return Visibility (visible: false, child: Text(''));
+    if (mode == 'none') return Visibility(visible: false, child: Text(''));
     return Icon(
       mode == 'gray' ? kSolidCircleIcon : kCircleCheckIcon,
-      color: mode == 'green' ? kAltoOrganized : (mode == 'gray' ? kGreyDarker : kAltoRed),
+      color: mode == 'green'
+          ? kAltoOrganized
+          : (mode == 'gray' ? kGreyDarker : kAltoRed),
       size: 15,
     );
   }
