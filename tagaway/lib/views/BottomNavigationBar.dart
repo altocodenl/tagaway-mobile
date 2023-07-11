@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/storeService.dart';
-
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -47,36 +46,39 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: IndexedStack(
-          index: currentIndex,
-          children: screens,
-        ),
-        bottomNavigationBar: Stack(
-          children: [
-            BottomNavigationBar(
-              selectedItemColor: kAltoBlue,
-              unselectedItemColor: kGreyDarker,
-              iconSize: 25,
-              currentIndex: currentIndex,
-              unselectedLabelStyle: kBottomNavigationText,
-              selectedLabelStyle: kBottomNavigationText,
-              onTap: (index) {
-                StoreService.instance.set('currentIndex', index);
-              },
-              items: [
-                const BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.house), label: ''),
-                const BottomNavigationBarItem(
-                    icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                    label: 'Phone'),
-                BottomNavigationBarItem(
-                    icon: const FaIcon(kCloudArrowUp), label: countUploaded),
-              ],
-            ),
-            const UploadingNumber()
-          ],
+  Widget build(BuildContext context) => WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: IndexedStack(
+            index: currentIndex,
+            children: screens,
+          ),
+          bottomNavigationBar: Stack(
+            children: [
+              BottomNavigationBar(
+                selectedItemColor: kAltoBlue,
+                unselectedItemColor: kGreyDarker,
+                iconSize: 25,
+                currentIndex: currentIndex,
+                unselectedLabelStyle: kBottomNavigationText,
+                selectedLabelStyle: kBottomNavigationText,
+                onTap: (index) {
+                  StoreService.instance.set('currentIndex', index);
+                },
+                items: [
+                  const BottomNavigationBarItem(
+                      icon: FaIcon(FontAwesomeIcons.house), label: ''),
+                  const BottomNavigationBarItem(
+                      icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
+                      label: 'Phone'),
+                  BottomNavigationBarItem(
+                      icon: const FaIcon(kCloudArrowUp), label: countUploaded),
+                ],
+              ),
+              const UploadingNumber()
+            ],
+          ),
         ),
       );
 }
