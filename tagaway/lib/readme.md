@@ -2,6 +2,12 @@
 
 ## TODO
 
+Bugs to fix:
+   - Dont delete local pics if still uploading!
+   - Mark tagged stuff if uploading!
+   - No reentrant hashing
+   - Avoid flashing by having the overall grid be redrawn on a different number of pages, and each page to be a reactive view based on the page itself.
+
 - Message and icon when page is empty (You're all done here!) (Tom)
 - Rename uploadService to pivService
 - Remove edit & delete buttons after cancel or when tapping anywhere else
