@@ -2,18 +2,32 @@
 
 ## TODO
 
+home:
+   - add tabs for pinned vs recent
+   - remove add hometags button if not on pinned
+   - add query selector search button, big one, on the bottom
+   - display tags in a different way, including the last piv
+home grid:
+   - options button that gives you delete, share & select all (also for phone grid)
+   - pared de ladrillos at top if nothing, or link to previous month, taking up one piv
+   - show only grid elements of that month, also in queries! do it by tag.
+   - When clicking on month on time header, refresh query
+phone
+   - Message and icon when page is empty (You're all done here!) (Tom)
+share
+   - liberate space, put icon, put "coming soon!"
 Bugs to fix:
    - Dont delete local pics if still uploading!
    - Mark tagged stuff if uploading!
    - No reentrant hashing
    - Avoid flashing by having the overall grid be redrawn on a different number of pages, and each page to be a reactive view based on the page itself.
+   - Handle >= 400 errors with snackbar on tagService and uploadService
 
-- Message and icon when page is empty (You're all done here!) (Tom)
-- Rename uploadService to pivService
+- Add version number to constants and also to error reporting
 - Remove edit & delete buttons after cancel or when tapping anywhere else
 - When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
-- Handle >= 400 errors with snackbar on tagService and uploadService
-- When clicking on month on time header, jump to relevant scroll position.
+- Rename uploadService to pivService
+
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
 - Tutorial (Tom)
