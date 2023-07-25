@@ -62,6 +62,8 @@ const kHouseIcon = FontAwesomeIcons.house;
 const kMobileScreenIcon = FontAwesomeIcons.mobileScreenButton;
 const kEyeIcon = FontAwesomeIcons.eye;
 const kSlashedEyeIcon = FontAwesomeIcons.eyeSlash;
+const mountainIcon = FontAwesomeIcons.mountain;
+const flagIcon = FontAwesomeIcons.solidFontAwesome;
 
 const tagColors = [
   kTagColor1,

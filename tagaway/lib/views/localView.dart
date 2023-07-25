@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -163,8 +164,7 @@ class _LocalViewState extends State<LocalView> {
         return Stack(
           children: [
             Grid(localPagesIndex: index),
-            TopRow(
-                localPagesIndex: index),
+            TopRow(localPagesIndex: index),
             Visibility(
                 visible: currentlyTagging != '' || currentlyDeleting,
                 child: Align(
@@ -741,8 +741,7 @@ class _GridState extends State<Grid> {
     super.initState();
     loadPivs();
     cancelListener = StoreService.instance
-        .listen(['localPage:' + widget.localPagesIndex.toString ()],
-            (v1) {
+        .listen(['localPage:' + widget.localPagesIndex.toString()], (v1) {
       setState(() {
         page = v1;
       });
@@ -771,7 +770,32 @@ class _GridState extends State<Grid> {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0, top: 180),
         child: page['pivs'].length == 0
-            ? Text('You\'re all done!')
+            ? const Center(
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 15.0),
+                    child: FaIcon(
+                      flagIcon,
+                      color: kAltoBlue,
+                      size: 20,
+                    ),
+                  ),
+                  FaIcon(
+                    mountainIcon,
+                    color: kAltoBlue,
+                    size: 40,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'You\'re all done!',
+                      style: kPlainTextBold,
+                    ),
+                  ),
+                ],
+              ))
             : SizedBox.expand(
                 child: Directionality(
                     textDirection: TextDirection.rtl,
@@ -828,9 +852,14 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['currentlyTaggingLocal', 'taggedPivCountLocal', 'displayMode', 'localPage:' + (widget.localPagesIndex - 1).toString (), 'localPage:' + widget.localPagesIndex.toString (), 'localPage:' + (widget.localPagesIndex + 1).toString ()],
-            (v1, v2, v3, v4, v5, v6) {
+    cancelListener = StoreService.instance.listen([
+      'currentlyTaggingLocal',
+      'taggedPivCountLocal',
+      'displayMode',
+      'localPage:' + (widget.localPagesIndex - 1).toString(),
+      'localPage:' + widget.localPagesIndex.toString(),
+      'localPage:' + (widget.localPagesIndex + 1).toString()
+    ], (v1, v2, v3, v4, v5, v6) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
@@ -873,8 +902,7 @@ class _TopRowState extends State<TopRow> {
                               value: page['total'] == 0
                                   ? 1
                                   : max(
-                                      (page['total'] -
-                                              page['left']) /
+                                      (page['total'] - page['left']) /
                                           page['total'],
                                       0.1),
                               color: kAltoBlue,
@@ -918,7 +946,7 @@ class _TopRowState extends State<TopRow> {
                         ],
                       )),
                   Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                      padding: const EdgeInsets.only(top: 10.0),
                       child: Row(
                         children: [
                           Expanded(
@@ -930,13 +958,12 @@ class _TopRowState extends State<TopRow> {
                         ],
                       )),
                   Padding(
-                    padding: EdgeInsets.only(top: 15.0),
+                    padding: const EdgeInsets.only(top: 15.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Text(
-                              next != '' ? next['title'] : '',
+                          child: Text(next != '' ? next['title'] : '',
                               textAlign: TextAlign.center,
                               style: kLeftAndRightPhoneGridTitle,
                               key: Key('left-title' + now().toString())),
@@ -947,8 +974,7 @@ class _TopRowState extends State<TopRow> {
                                 textAlign: TextAlign.center,
                                 key: Key('center-title' + now().toString()))),
                         Expanded(
-                            child: Text(
-                                prev != '' ? prev['title'] : '',
+                            child: Text(prev != '' ? prev['title'] : '',
                                 textAlign: TextAlign.center,
                                 style: kLeftAndRightPhoneGridTitle,
                                 key: Key('right-title' + now().toString()))),
