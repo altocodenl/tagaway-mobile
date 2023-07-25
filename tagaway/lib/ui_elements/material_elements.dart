@@ -1118,10 +1118,12 @@ class _GridItemSelectionState extends State<GridItemSelection> {
           var currentlyDeletingPivs = v7;
           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
+        // See organized pivs
         } else {
           var organized = type == 'uploaded'
               ? v1 != ''
-              : StoreService.instance.get('orgMap:' + v1.toString()) != '';
+              // If the piv is currently being uploaded (`v1 == true`) we consider it as organized.
+              : (v1 == true || StoreService.instance.get('orgMap:' + v1.toString()) != '');
           mode = organized ? 'green' : 'gray';
           if (type == 'local' && v4 != 'all') mode = 'none';
         }
@@ -1264,9 +1266,11 @@ class _DeleteButtonState extends State<DeleteButton> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        shouldDisplay = true;
-      });
+      if (mounted) {
+        setState(() {
+          shouldDisplay = true;
+        });
+      }
     });
   }
 
@@ -1310,9 +1314,11 @@ class _StartTaggingButtonState extends State<StartTaggingButton> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        shouldDisplay = true;
-      });
+      if (mounted) {
+        setState(() {
+          shouldDisplay = true;
+        });
+      }
     });
   }
 

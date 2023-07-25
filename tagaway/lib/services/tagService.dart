@@ -105,11 +105,13 @@ class TagService {
 
     updateLastNTags (tag);
 
+    // Piv is already uploaded.
     if (pivId != '' && pivId != true) {
       var code = await tagPivById (pivId, tag, del);
       if (type == 'uploaded') return;
+      // If we're here, we're dealing with local pivs.
 
-      // If piv still exists, we are done. Otherwise, we need to re-upload it.
+      // If piv still exists, we are done. If we got a 404, we need to re-upload it.
       if (code == 200) return;
       if (code == 404) {
          StoreService.instance.remove ('pivMap:' + id);
@@ -118,17 +120,26 @@ class TagService {
       // TODO: add error handling for non 200, non 404
     }
 
-    // If we're untagging a piv that's not uploaded yet, we only need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function
-    if (del) {
-       if ([true, ''].contains (StoreService.instance.get ('pivMap:' + id))) StoreService.instance.remove ('pivMap:' + id);
-       return;
-    }
-    UploadService.instance.queuePiv (assetOrPiv);
     var pendingTags = StoreService.instance.get ('pending:' + id);
     if (pendingTags == '') pendingTags = [];
     if (del) pendingTags.remove (tag);
     else     pendingTags.add    (tag);
-    StoreService.instance.set ('pendingTags:' + id, pendingTags, 'disk');
+    if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + id, pendingTags, 'disk');
+    else                        StoreService.instance.remove ('pendingTags:' + id, 'disk');
+
+    if (! del) return UploadService.instance.queuePiv (assetOrPiv);
+
+    // If we're untagging a piv that's not uploaded yet and we removed its last tag, we need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function. Also, we will remove it from the upload queue.
+    if (pendingTags.length == 0) {
+       StoreService.instance.remove ('pivMap:' + id);
+       var uploadQueueIndex;
+       UploadService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
+          if (queuedPiv.id == id) uploadQueueIndex = index;
+       });
+       if (uploadQueueIndex != null) {
+          UploadService.instance.uploadQueue.removeAt (uploadQueueIndex);
+       }
+     }
    }
 
    getTaggedPivs (String tag, String type) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
@@ -31,7 +32,8 @@ void main() {
       'exception': details.exception.toString(),
       'stackTrace': details.stack.toString(),
       'library': details.library,
-      'context': details.context.toString()
+      'context': details.context.toString(),
+      'version': version
     };
     debug(['CAUGHT ERROR', error]);
     // Save the error to disk in case we lose connectivity

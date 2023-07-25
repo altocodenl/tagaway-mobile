@@ -4,6 +4,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 const ENV = 'dev';
 // const ENV = 'prod';
 
+const version = '1.1.0';
+
 const kAltoURL = 'https://altocode.nl/' + (ENV == 'dev' ? 'dev' : '');
 const kTagawayURL = 'https://tagaway.nl/' + (ENV == 'dev' ? 'dev/' : '');
 const kAltoPicAppURL = kTagawayURL + 'app';

@@ -72,7 +72,7 @@ class _LocalViewState extends State<LocalView> {
   bool currentlyDeleting = false;
   bool currentlyDeletingModal = false;
 
-  dynamic localPages = [];
+  dynamic localPagesLength = 0;
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -93,7 +93,7 @@ class _LocalViewState extends State<LocalView> {
       'startTaggingModal',
       'renameTagLocal',
       'deleteTagLocal',
-      'localPages',
+      'localPagesLength',
       'currentlyDeletingLocal',
       'currentlyDeletingModalLocal'
     ], (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) {
@@ -129,7 +129,7 @@ class _LocalViewState extends State<LocalView> {
           renameTagLocal = v6;
           if (renameTagLocal != '') renameTagController.text = renameTagLocal;
           deleteTagLocal = v7;
-          localPages = v8;
+          localPagesLength = v8;
           currentlyDeleting = v9 != '';
           currentlyDeletingModal = v10 != '';
         }
@@ -157,18 +157,14 @@ class _LocalViewState extends State<LocalView> {
     return PageView.builder(
       reverse: true,
       controller: controller,
-      itemCount: localPages.length,
+      itemCount: localPagesLength == '' ? 0 : localPagesLength,
       pageSnapping: true,
       itemBuilder: (BuildContext context, int index) {
         return Stack(
           children: [
-            Grid(pivs: localPages[index]['pivs']),
+            Grid(localPagesIndex: index),
             TopRow(
-                page: localPages[index],
-                prev: index == 0 ? null : localPages[index - 1],
-                next: index == localPages.length - 1
-                    ? null
-                    : localPages[index + 1]),
+                localPagesIndex: index),
             Visibility(
                 visible: currentlyTagging != '' || currentlyDeleting,
                 child: Align(
@@ -726,22 +722,37 @@ class _LocalViewState extends State<LocalView> {
 class Grid extends StatefulWidget {
   const Grid({
     Key? key,
-    required this.pivs,
+    required this.localPagesIndex,
   }) : super(key: key);
 
-  final dynamic pivs;
+  final dynamic localPagesIndex;
 
   @override
   State<Grid> createState() => _GridState();
 }
 
 class _GridState extends State<Grid> {
+  dynamic cancelListener;
   bool localPivsLoaded = UploadService.instance.localPivsLoaded;
+  dynamic page = '';
 
   @override
   void initState() {
     super.initState();
     loadPivs();
+    cancelListener = StoreService.instance
+        .listen(['localPage:' + widget.localPagesIndex.toString ()],
+            (v1) {
+      setState(() {
+        page = v1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   loadPivs() async {
@@ -756,10 +767,10 @@ class _GridState extends State<Grid> {
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: localPivsLoaded,
+      visible: localPivsLoaded && page != '',
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0, top: 180),
-        child: widget.pivs.length == 0
+        child: page['pivs'].length == 0
             ? Text('You\'re all done!')
             : SizedBox.expand(
                 child: Directionality(
@@ -774,9 +785,9 @@ class _GridState extends State<Grid> {
                           mainAxisSpacing: 1,
                           crossAxisSpacing: 1,
                         ),
-                        itemCount: widget.pivs.length,
+                        itemCount: page['pivs'].length,
                         itemBuilder: (BuildContext context, index) {
-                          return LocalGridItem(widget.pivs[index]);
+                          return LocalGridItem(page['pivs'][index]);
                         })),
               ),
       ),
@@ -794,14 +805,10 @@ class _GridState extends State<Grid> {
 class TopRow extends StatefulWidget {
   const TopRow({
     Key? key,
-    required this.page,
-    required this.prev,
-    required this.next,
+    required this.localPagesIndex,
   }) : super(key: key);
 
-  final dynamic page;
-  final dynamic prev;
-  final dynamic next;
+  final dynamic localPagesIndex;
 
   @override
   State<TopRow> createState() => _TopRowState();
@@ -813,18 +820,24 @@ class _TopRowState extends State<TopRow> {
   String currentlyTagging = '';
   dynamic taggedPivCount = '';
   dynamic displayMode = '';
+  dynamic prev = '';
+  dynamic page = '';
+  dynamic next = '';
 
   @override
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
     cancelListener = StoreService.instance
-        .listen(['currentlyTaggingLocal', 'taggedPivCountLocal', 'displayMode'],
-            (v1, v2, v3) {
+        .listen(['currentlyTaggingLocal', 'taggedPivCountLocal', 'displayMode', 'localPage:' + (widget.localPagesIndex - 1).toString (), 'localPage:' + widget.localPagesIndex.toString (), 'localPage:' + (widget.localPagesIndex + 1).toString ()],
+            (v1, v2, v3, v4, v5, v6) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
         displayMode = v3;
+        prev = v4;
+        page = v5;
+        next = v6;
       });
     });
   }
@@ -857,12 +870,12 @@ class _TopRowState extends State<TopRow> {
                             width:
                                 SizeService.instance.screenWidth(context) * .7,
                             child: LinearProgressIndicator(
-                              value: widget.page['total'] == 0
+                              value: page['total'] == 0
                                   ? 1
                                   : max(
-                                      (widget.page['total'] -
-                                              widget.page['left']) /
-                                          widget.page['total'],
+                                      (page['total'] -
+                                              page['left']) /
+                                          page['total'],
                                       0.1),
                               color: kAltoBlue,
                               backgroundColor: Colors.white,
@@ -910,7 +923,7 @@ class _TopRowState extends State<TopRow> {
                         children: [
                           Expanded(
                             child: Text(
-                              widget.page['left'].toString() + ' left',
+                              page['left'].toString() + ' left',
                               style: kLookingAtText,
                             ),
                           ),
@@ -923,22 +936,22 @@ class _TopRowState extends State<TopRow> {
                       children: [
                         Expanded(
                           child: Text(
-                              widget.next != null ? widget.next['title'] : '',
+                              next != '' ? next['title'] : '',
                               textAlign: TextAlign.center,
                               style: kLeftAndRightPhoneGridTitle,
-                              key: Key('left-title')),
+                              key: Key('left-title' + now().toString())),
                         ),
                         Expanded(
-                            child: Text(widget.page['title'],
+                            child: Text(page['title'],
                                 style: kCenterPhoneGridTitle,
                                 textAlign: TextAlign.center,
-                                key: Key('center-title'))),
+                                key: Key('center-title' + now().toString()))),
                         Expanded(
                             child: Text(
-                                widget.prev != null ? widget.prev['title'] : '',
+                                prev != '' ? prev['title'] : '',
                                 textAlign: TextAlign.center,
                                 style: kLeftAndRightPhoneGridTitle,
-                                key: Key('right-title'))),
+                                key: Key('right-title' + now().toString()))),
                       ],
                     ),
                   )

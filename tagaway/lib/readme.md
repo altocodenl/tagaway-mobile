@@ -2,31 +2,25 @@
 
 ## TODO
 
+- Fix bug with ordering of pages in local.
+- Avoid flashing of the entire grid when a piv is hashed.
+- Handle >= 400 errors with snackbar on tagService and uploadService
+- Rename uploadService to pivService, reorganize files inside ui_elements
+- Message and icon when page is empty (You're all done here!) (Tom)
+- Remove edit & delete buttons after cancel or when tapping anywhere else.
+
 home:
    - add tabs for pinned vs recent
    - remove add hometags button if not on pinned
    - add query selector search button, big one, on the bottom
    - display tags in a different way, including the last piv
 home grid:
-   - options button that gives you delete, share & select all (also for phone grid)
-   - pared de ladrillos at top if nothing, or link to previous month, taking up one piv
-   - show only grid elements of that month, also in queries! do it by tag.
+   - go back home button
+   - show only grid elements of that month, also in queries! do it per tag on the background
    - When clicking on month on time header, refresh query
-phone
-   - Message and icon when page is empty (You're all done here!) (Tom)
-share
-   - liberate space, put icon, put "coming soon!"
-Bugs to fix:
-   - Dont delete local pics if still uploading!
-   - Mark tagged stuff if uploading!
-   - No reentrant hashing
-   - Avoid flashing by having the overall grid be redrawn on a different number of pages, and each page to be a reactive view based on the page itself.
-   - Handle >= 400 errors with snackbar on tagService and uploadService
-
-- Add version number to constants and also to error reporting
-- Remove edit & delete buttons after cancel or when tapping anywhere else
-- When untagging a piv on the upload queue (after checking that it has no other tags yet), remove it from the upload queue
-- Rename uploadService to pivService
+   - pared de ladrillos at top if nothing, or link to previous month, taking up one piv. pared de ladrillos at the end as well!
+   - options button that gives you delete, share & select all (also for phone grid) (Tom)
+   - liberate space on bottom navigation, put icon, put "coming soon!"
 
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
@@ -53,10 +47,12 @@ Bugs to fix:
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...]: list of the last N tags used to tag or untag, either on local or uploaded.
-- localPages <list>: `[{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}, ...]` - contains all the pages of local pivs to be shown, one per grid.
+- localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}` - contains all the pages of local pivs to be shown, one per grid.
+- localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
 - localYear <str>: displayed year in LocalView time header
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
+- pendingDeletion:<assetId> <true|undefined> [DISK]: if set, the piv must be deleted after it being uploaded.
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet - deleted on logout.
 - pivDate:<assetId> <int>: date of each local piv
 - pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`. They are temporarily set to `true` for pivs on the upload queue.

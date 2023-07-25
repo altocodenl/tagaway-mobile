@@ -64,6 +64,10 @@ class UploadService {
             }
          }
          StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
+         if (StoreService.instance.get ('pendingDeletion:' + piv.id)) {
+            deleteLocalPivs ([piv.id]);
+            StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
+         }
       }
       return response;
    }
@@ -147,7 +151,7 @@ class UploadService {
       queuePiv (null);
    }
 
-   loadLocalPivs () async {
+   loadLocalPivs ([reload = false]) async {
 
       FilterOptionGroup makeOption () {
          return FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false));
@@ -168,13 +172,15 @@ class UploadService {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
       }
 
-      // Check if we have uploads we should revive
-      reviveUploads ();
+      if (! reload) {
+         // Check if we have uploads we should revive
+         reviveUploads ();
 
-      // Compute hashes for local pivs
-      computeHashes ();
+         // Compute hashes for local pivs
+         computeHashes ();
 
-      computeLocalPages ();
+         computeLocalPages ();
+      }
    }
 
    reviveUploads () async {
@@ -236,6 +242,7 @@ class UploadService {
       // Compute hashes for local pivs that do not have them
       for (var piv in localPivs) {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+         // NOTE: in debug mode, running `flutterCompute` will trigger a general redraw.
          var hash = await flutterCompute (hashPiv, piv.id);
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
@@ -260,13 +267,15 @@ class UploadService {
 
       recomputeLocalPages = false;
 
+      DateTime tomorrow        = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch + 24 * 60 * 60 * 1000);
+      tomorrow                 = DateTime (tomorrow.year, tomorrow.month, tomorrow.year);
       DateTime now             = DateTime.now ();
       DateTime today           = DateTime (now.year, now.month, now.day);
       DateTime monday          = DateTime (now.year, now.month, now.day - (now.weekday - 1));
       DateTime firstDayOfMonth = DateTime (now.year, now.month, 1);
 
       var pages = [['Today', today], ['This week', monday], ['This month', firstDayOfMonth]].map ((pair) {
-         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (now)};
+         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow)};
       }).toList ();
 
       var displayMode = StoreService.instance.get ('displayMode');
@@ -302,8 +311,13 @@ class UploadService {
          });
       });
 
-      var existingPages = StoreService.instance.get ('localPages');
-      if (existingPages == '' || ! DeepCollectionEquality ().equals (existingPages, pages)) StoreService.instance.set ('localPages', pages);
+      if (StoreService.instance.get ('localPagesLength') != pages.length) StoreService.instance.set ('localPagesLength', pages.length);
+      pages.asMap ().forEach ((index, page) {
+         var existingPage = StoreService.instance.get ('localPage:' + index.toString ());
+         if (existingPage == '' || ! DeepCollectionEquality ().equals (existingPage, page)) {
+            StoreService.instance.set ('localPage:' + index.toString (), page);
+         }
+      });
 
       if (StoreService.instance.get ('localPagesListener') == '') {
         StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
@@ -321,10 +335,19 @@ class UploadService {
       computeLocalPages ();
    }
 
-  deleteLocalPivs (ids) async {
-    List<String> typedIds = ids.cast<String>();
-    await PhotoManager.editor.deleteWithIds (typedIds);
-    loadLocalPivs ();
-  }
+   deleteLocalPivs (ids) async {
+      var currentlyUploading = [];
+      uploadQueue.forEach ((queuedPiv) {
+         if (ids.contains (queuedPiv.id)) {
+            StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
+            ids.remove (queuedPiv.id);
+         }
+      });
 
+      if (ids.length == 0) return;
+
+      List<String> typedIds = ids.cast<String>();
+      await PhotoManager.editor.deleteWithIds (typedIds);
+      loadLocalPivs (true);
+  }
 }
