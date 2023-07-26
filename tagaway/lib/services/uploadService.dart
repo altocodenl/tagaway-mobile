@@ -164,6 +164,9 @@ class UploadService {
       final recentAlbum = albums.first;
 
       localPivs = await recentAlbum.getAssetListRange (start: 0, end: 1000000);
+      localPivs.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
+
+
       localPivsLoaded = true;
 
       StoreService.instance.set ('countLocal', localPivs.length);
@@ -301,8 +304,9 @@ class UploadService {
                if (! pivIsOrganized) page ['left'] = (page ['left'] as int) + 1;
             }
          });
+         if (! placed) debug (['adding page', shortMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (), pivDate]);
          if (! placed) pages.add ({
-            'title': longMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (),
+            'title': shortMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (),
             'total': 1,
             'pivs': showPiv ? [piv] : [],
             'left': pivIsOrganized ? 0 : 1,
