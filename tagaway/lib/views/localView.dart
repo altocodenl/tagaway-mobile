@@ -910,8 +910,12 @@ class _TopRowState extends State<TopRow> {
                             ),
                           ),
                           SizedBox(
-                            width:
-                                SizeService.instance.screenWidth(context) * .13,
+                            width: SizeService.instance.screenWidth(context) <=
+                                    375
+                                ? SizeService.instance.screenWidth(context) *
+                                    .11
+                                : SizeService.instance.screenWidth(context) *
+                                    .13,
                           ),
                           Visibility(
                             visible: displayMode == 'all',
