@@ -777,13 +777,13 @@ class _GridState extends State<Grid> {
                   Padding(
                     padding: EdgeInsets.only(left: 15.0),
                     child: FaIcon(
-                      flagIcon,
+                      kFlagIcon,
                       color: kAltoBlue,
                       size: 20,
                     ),
                   ),
                   FaIcon(
-                    mountainIcon,
+                    kMountainIcon,
                     color: kAltoBlue,
                     size: 40,
                   ),

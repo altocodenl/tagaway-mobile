@@ -700,8 +700,52 @@ class _UploadGridState extends State<UploadGrid> {
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
-              itemCount: queryResult['total'],
+              itemCount: queryResult['total'] + 1,
               itemBuilder: (BuildContext context, index) {
+                if (index == queryResult['total']) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(40, 40),
+                          backgroundColor: Colors.grey[50],
+                          shape: const CircleBorder(),
+                        ),
+                        child: const Icon(
+                          kSolidCircleUp,
+                          color: kAltoBlue,
+                          size: 40,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Next Month',
+                        style: kPlainTextBold,
+                      ),
+                    ],
+                  );
+                  // return const Column(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     FaIcon(
+                  //       kEndOfRoad,
+                  //       color: kAltoBlue,
+                  //       size: 40,
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //     Text(
+                  //       'End of Journey',
+                  //       style: kPlainTextBold,
+                  //     )
+                  //   ],
+                  // );
+                }
                 return VisibilityDetector(
                     key: Key('uploaded-' + index.toString()),
                     onVisibilityChanged: (VisibilityInfo info) {
