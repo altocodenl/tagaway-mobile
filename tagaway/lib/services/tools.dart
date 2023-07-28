@@ -35,6 +35,7 @@ Future<dynamic> ajax (String method, String path, [dynamic body]) async {
       response = await http.get (Uri.parse(kAltoPicAppURL + '/' + path),
           headers: {'cookie': cookie});
     } else {
+
       if (path != 'auth/login' &&
           path != 'auth/signup' &&
           path != 'auth/recover') {

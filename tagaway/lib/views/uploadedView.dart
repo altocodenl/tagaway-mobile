@@ -702,18 +702,10 @@ class _UploadGridState extends State<UploadGrid> {
               ),
               itemCount: queryResult['total'],
               itemBuilder: (BuildContext context, index) {
-                return VisibilityDetector(
+                return UploadedGridItem(
                     key: Key('uploaded-' + index.toString()),
-                    onVisibilityChanged: (VisibilityInfo info) {
-                      // If we're redrawing, we might try to get a piv that is out of range, so we prevent this by doing this check.
-                      if (queryResult['pivs'].length - 1 < index) return;
-                      TagService.instance.toggleTimeHeaderVisibility(
-                          'uploaded', index, info.visibleFraction > 0.2);
-                    },
-                    child: UploadedGridItem(
-                        //piv: queryResult['pivs'][index], pivs: queryResult['pivs']));
-                        pivIndex: index));
-              }),
+                    pivIndex: index);
+               })
         ),
       ),
     );
@@ -890,10 +882,7 @@ class _TopRowState extends State<TopRow> {
                                               : Colors.white,
                                           onTap: () {
                                             if (month[2] != 'white') {
-                                              // TODO: ADD JUMP LOGIC
-                                              // final double position = month [4] * SizeService.instance.thumbnailHeight (context);
-                                              // debug(['TODO JUMP TO', month[4], position]);
-                                              // StoreService.instance.get ('gridControllerUploaded').jumpTo (position);
+                                              TagService.instance.queryPivs(StoreService.instance.get('queryTags'), false, [month[0], shortMonthNames.indexOf (month[1]) + 1]);
                                             }
                                           }));
                                     });

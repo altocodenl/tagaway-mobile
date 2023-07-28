@@ -181,13 +181,14 @@ class TagService {
       StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), New.length);
    }
 
-   getUploadedTimeHeader () {
+   computeTimeHeader () {
       var localCount  = {};
       var remoteCount = {};
       var lastPivInMonth = {};
       var output      = [];
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
+      var currentMonth = StoreService.instance.get ('currentMonth');
       timeHeader.keys.forEach ((v) {
          var dates = v.split (':');
          dates = [int.parse (dates [0]), int.parse (dates [1])];
@@ -209,10 +210,10 @@ class TagService {
       for (var year = min [0]; year <= max [0]; year++) {
          for (var month = 1; month <= 12; month++) {
            var dateKey = year.toString () + ':' + month.toString ();
+           var isCurrentMonth = year == currentMonth [0] && month == currentMonth [1];
            if (timeHeader [dateKey] == null)       output.add ([year, shortMonthNames [month - 1], 'white', false]);
-           // TODO: add last piv in month or figure out alternative way to jump
-           else if (timeHeader [dateKey] == false) output.add ([year, shortMonthNames [month - 1], 'gray', false]);
-           else                                    output.add ([year, shortMonthNames [month - 1], 'green', false]);
+           else if (timeHeader [dateKey] == false) output.add ([year, shortMonthNames [month - 1], 'gray', isCurrentMonth]);
+           else                                    output.add ([year, shortMonthNames [month - 1], 'green', isCurrentMonth]);
          }
       }
       var semesters = [[]];
@@ -234,56 +235,105 @@ class TagService {
       }
 
       StoreService.instance.set ('timeHeader', semesters);
-      // The line below is a hack. A redraw we don't understand well yet is sometimes recalculating the uploaded time header, causing the selected months to be erased. By recomputing visibility, we overcome the problem.
-      toggleTimeHeaderVisibility ('update', null, false);
+
+      var newCurrentPage;
+      semesters.asMap ().forEach ((k, semester) {
+        semester.forEach ((month) {
+           if (month [0] == currentMonth [0] && shortMonthNames.indexOf (month [1]) + 1 == currentMonth [1]) {
+             // Pages are inverted, that's why we use this index and not `k` itself.
+             newCurrentPage = semesters.length - k - 1;
+           }
+        });
+      });
+
+      var currentPage = StoreService.instance.get ('timeHeaderPage');
+      if (currentPage != newCurrentPage) {
+         var pageController = StoreService.instance.get ('timeHeaderController');
+         // The conditional prevents scrolling semesters if the uploaded view is not active.
+         if (pageController.hasClients) {
+            pageController.animateToPage (newCurrentPage, duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
+         }
+      }
+
       StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
    }
 
-   queryPivs (dynamic tags, [refresh = false]) async {
+   queryPivs (dynamic tags, [refresh = false, currentMonth = false]) async {
       tags.sort ();
-      if (refresh == false && queryTags != '') {
-        // If query tags have not changed and we're not getting the `refresh` parameters, do not query again since we already have that result.
-        // We need to check if we have data loaded; we might not, if we just logged in.
+      if (refresh == false && queryTags != '' && currentMonth == false) {
+        // If query tags have not changed and we're not getting the `refresh` parameter nor the `currentMonth` parameter, do not query again since we already have that result.
+        // We need to check if we have data loaded; we might not, if we just logged in and we are querying for the first time in the current run of the app.
         if (listEquals (tags, queryTags) && StoreService.instance.get ('queryResult') != '') return;
       }
       queryTags = List.from (tags);
+      if (currentMonth == false) {
+         var response = await ajax ('post', 'query', {
+            'tags': tags,
+            'sort': 'newest',
+            'from': 1,
+            'to': 1,
+            'timeHeader': true
+         });
+
+         // TODO: NOTIFY ERRORS
+         if (response ['code'] != 200) return;
+
+         var queryResult = response ['body'];
+         if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
+
+         // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
+         if (! listEquals (queryTags, tags)) return;
+         // We do this update mutely so that we don't update yet the grid, since we have no pivs to show yet but we want the queryResult to be available to the computeTimeHeader function.
+         StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader'], 'total': queryResult ['total'], 'pivs': List.generate (queryResult ['total'], (v) => {})}, '', 'mute');
+
+         var lastMonth = [0, 0];
+         queryResult['timeHeader'].keys.forEach ((k) {
+            k = k.split (':');
+            k = [int.parse (k [0]), int.parse (k [1])];
+            if (lastMonth [0] < k [0]) return lastMonth = k;
+            if (lastMonth [0] == k [0] && lastMonth [1] < k [1]) lastMonth = k;
+         });
+         currentMonth = lastMonth;
+      }
+      StoreService.instance.set ('currentMonth', currentMonth);
+      computeTimeHeader ();
+
+      var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
+
       var firstLoadSize = 200;
       var response = await ajax ('post', 'query', {
-         'tags': tags,
+         'tags': [...tags]..addAll (currentMonthTags),
          'sort': 'newest',
          'from': 1,
          'to': firstLoadSize,
-         'timeHeader': true
       });
 
       // TODO: NOTIFY ERRORS
       if (response ['code'] != 200) return;
 
       var queryResult = response ['body'];
-      if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
 
-      // If query changed in the meantime, don't do anything else.
+      // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
       if (! listEquals (queryTags, tags)) return;
 
       if (queryResult ['total'] > firstLoadSize) {
         // We create n empty entries as placeholders for those pivs we haven't loaded yet
         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['total'] - firstLoadSize, (v) => {})];
       }
-
+      queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];
       StoreService.instance.set ('queryResult', queryResult);
-      getUploadedTimeHeader ();
 
       var orgIds;
       if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
       else {
          response = await ajax ('post', 'query', {
-            'tags': [...tags]..addAll (['o::']),
+            'tags': [...tags]..addAll (currentMonthTags)..addAll (['o::']),
             'sort': 'newest',
             'from': 1,
             'to': firstLoadSize,
             'idsOnly': true
          });
-         if (! listEquals (queryTags, tags)) return debug;
+         if (! listEquals (queryTags, tags)) return;
 
          // TODO: NOTIFY ERRORS
          if (response ['code'] != 200) return;
@@ -303,31 +353,32 @@ class TagService {
       if (queryResult ['total'] > firstLoadSize) {
 
          response = await ajax ('post', 'query', {
-            'tags': tags,
+            'tags': [...tags]..addAll (currentMonthTags),
             'sort': 'newest',
             'from': 1,
             // Load all pivs in the query, no time header needed
             'to': 100000
          });
-         if (! listEquals (queryTags, tags)) return debug;
+         if (! listEquals (queryTags, tags)) return;
 
          // TODO: NOTIFY ERRORS
          if (response ['code'] != 200) return;
 
          queryResult = response ['body'];
+         queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];
 
          StoreService.instance.set ('queryResult', queryResult, '', 'mute');
 
          if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
          else {
             response = await ajax ('post', 'query', {
-               'tags': [...tags]..addAll (['o::']),
+               'tags': [...tags]..addAll (currentMonthTags)..addAll (['o::']),
                'sort': 'newest',
                'from': 1,
                'to': 100000,
                'idsOnly': true
             });
-            if (! listEquals (queryTags, tags)) return debug;
+            if (! listEquals (queryTags, tags)) return;
 
             // TODO: NOTIFY ERRORS
             if (response ['code'] != 200) return;
@@ -372,76 +423,6 @@ class TagService {
        }
     }
     return response['code'];
-  }
-
-  toggleTimeHeaderVisibility (String view, dynamic piv, bool visible) async {
-
-     filter (dynamic list, String id, int date, bool visible) {
-        var existing;
-        list.forEach ((v) {
-           if (v['id'] == id) existing = v;
-        });
-        if (visible && existing == null)   list.add ({'id': id, 'date': date});
-        if (! visible && existing != null) list.remove (existing);
-     }
-
-     getDates (dynamic list) {
-       var dates = [];
-       list.forEach ((v) {
-         var date    = new DateTime.fromMillisecondsSinceEpoch (v['date']);
-         var dateKey = date.year.toString () + ':' + date.month.toString ();
-         if (! dates.contains (dateKey)) dates.add (dateKey);
-        });
-        dates.sort ();
-
-        return dates;
-     }
-
-     var activePages = [];
-
-     updateHeader (dynamic newDates) {
-        var header = StoreService.instance.get ('timeHeader');
-        header.asMap ().forEach ((k, semester) {
-          semester.forEach ((month) {
-             var monthKey = month [0].toString () + ':' + (shortMonthNames.indexOf (month [1]) + 1).toString ();
-             month [3] = newDates.contains (monthKey);
-             if (newDates.contains (monthKey)) {
-               // Pages are inverted, that's why we use this index and not `k` itself.
-               var page = header.length - k - 1;
-               if (! activePages.contains (page)) activePages.add (page);
-             }
-
-          });
-        });
-        StoreService.instance.set ('timeHeader', header);
-     }
-
-     activePages.sort ();
-
-     if (view == 'uploaded') {
-        var oldDates = getDates (uploadedVisible);
-        // In the case of uploaded, `piv` is an index.
-        piv = StoreService.instance.get ('queryResult')['pivs'] [piv];
-        filter (uploadedVisible, piv['id'], piv['date'], visible);
-        var newDates = getDates (uploadedVisible);
-        if (ListEquality ().equals (oldDates, newDates)) return;
-        updateHeader (newDates);
-        var currentPage = StoreService.instance.get ('timeHeaderPage');
-        if (activePages.length > 0 && ! activePages.contains (currentPage)) {
-           var pageController = StoreService.instance.get ('timeHeaderController');
-           // Prevent scrolling semesters if the uploaded view is not active.
-           if (pageController.hasClients) {
-              pageController.animateToPage (activePages [activePages.length - 1], duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
-           }
-        }
-     }
-
-     // This enables the hack of recalculating month visibility when computing the uploaded time header.
-     if (view == 'update') {
-       var newDates = getDates (uploadedVisible);
-       updateHeader (newDates);
-     }
-
   }
 
    renameTag (String from, String to) async {

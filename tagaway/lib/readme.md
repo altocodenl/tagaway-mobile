@@ -2,6 +2,12 @@
 
 ## TODO
 
+show only grid elements of one month at a time; when clicking on month on time header, refresh query.
+
+- bug when tagging/untagging in phone, page is not updated
+- no hashing if no cookie
+
+
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Rename uploadService to pivService, reorganize files inside ui_elements
 - Message and icon when page is empty (You're all done here!) (Tom)
@@ -14,8 +20,6 @@ home:
    - display tags in a different way, including the last piv
 home grid:
    - go back home button
-   - show only grid elements of that month, also in queries! do it per tag on the background
-   - When clicking on month on time header, refresh query
    - pared de ladrillos at top if nothing, or link to previous month, taking up one piv. pared de ladrillos at the end as well!
    - options button that gives you delete, share & select all (also for phone grid) (Tom)
    - liberate space on bottom navigation, put icon, put "coming soon!"
@@ -33,6 +37,7 @@ home grid:
 - count(Local|Uploaded) <str>: count of pivs shown in bottom navigation icon for that view
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
+- currentMonth `[<int (year)>, <int (month)>]`: if set, indicates the current month of the uploaded view.
 - currentlyTaggingPivs <list>: list of *local* piv ids currently being tagged, to avoid hiding them before the operation is complete.
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged in LocalView/UploadedView
 - currentlyDeleting(Local|Uploaded) <bool>: if set, we are in delete mode in LocalView/UploadedView

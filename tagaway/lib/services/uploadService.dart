@@ -304,7 +304,6 @@ class UploadService {
                if (! pivIsOrganized) page ['left'] = (page ['left'] as int) + 1;
             }
          });
-         if (! placed) debug (['adding page', shortMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (), pivDate]);
          if (! placed) pages.add ({
             'title': shortMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (),
             'total': 1,
