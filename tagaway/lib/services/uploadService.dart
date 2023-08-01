@@ -202,8 +202,7 @@ class UploadService {
 
    queryHashes (dynamic hashesToQuery) async {
       var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
-      // TODO: handle errors
-      if (response ['code'] != 200) return {};
+      if (response ['code'] != 200) return false;
 
       var output = {};
 
@@ -237,6 +236,9 @@ class UploadService {
       });
 
       var queriedHashes = await queryHashes (hashesToQuery);
+
+      // If we cannot query hashes, it may be that we don't have a valid session. We refrain from any further action until the user logs in.
+      if (queriedHashes == false) return;
 
       queriedHashes.forEach ((localId, uploadedId) {
          if (uploadedId == null) return;
