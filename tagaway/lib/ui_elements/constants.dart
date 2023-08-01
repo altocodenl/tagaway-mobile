@@ -66,7 +66,8 @@ const kEyeIcon = FontAwesomeIcons.eye;
 const kSlashedEyeIcon = FontAwesomeIcons.eyeSlash;
 const kMountainIcon = FontAwesomeIcons.mountain;
 const kFlagIcon = FontAwesomeIcons.solidFontAwesome;
-const kEndOfRoad = FontAwesomeIcons.roadCircleXmark;
+const kEndOfJourneyIcon = FontAwesomeIcons.roadCircleXmark;
+const kStartOfJourneyIcon = FontAwesomeIcons.roadCircleCheck;
 
 const tagColors = [
   kTagColor1,

@@ -703,36 +703,36 @@ class _UploadGridState extends State<UploadGrid> {
               itemCount: queryResult['total'] + 1,
               itemBuilder: (BuildContext context, index) {
                 if (index == queryResult['total']) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(40, 40),
-                          backgroundColor: Colors.grey[50],
-                          shape: const CircleBorder(),
-                        ),
-                        child: const Icon(
-                          kSolidCircleUp,
-                          color: kAltoBlue,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Next Month',
-                        style: kPlainTextBold,
-                      ),
-                    ],
-                  );
+                  // return Column(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     ElevatedButton(
+                  //       onPressed: () {},
+                  //       style: ElevatedButton.styleFrom(
+                  //         minimumSize: const Size(40, 40),
+                  //         backgroundColor: Colors.grey[50],
+                  //         shape: const CircleBorder(),
+                  //       ),
+                  //       child: const Icon(
+                  //         kSolidCircleUp,
+                  //         color: kAltoBlue,
+                  //         size: 40,
+                  //       ),
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //     Text(
+                  //       'Next Month',
+                  //       style: kPlainTextBold,
+                  //     ),
+                  //   ],
+                  // );
                   // return const Column(
                   //   mainAxisAlignment: MainAxisAlignment.center,
                   //   children: [
                   //     FaIcon(
-                  //       kEndOfRoad,
+                  //       kEndOfJourneyIcon,
                   //       color: kAltoBlue,
                   //       size: 40,
                   //     ),
@@ -745,6 +745,23 @@ class _UploadGridState extends State<UploadGrid> {
                   //     )
                   //   ],
                   // );
+                  return const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(
+                        kStartOfJourneyIcon,
+                        color: kAltoBlue,
+                        size: 40,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Start Journey',
+                        style: kPlainTextBold,
+                      )
+                    ],
+                  );
                 }
                 return VisibilityDetector(
                     key: Key('uploaded-' + index.toString()),
