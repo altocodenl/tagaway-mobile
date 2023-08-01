@@ -2,12 +2,7 @@
 
 ## TODO
 
-show only grid elements of one month at a time; when clicking on month on time header, refresh query.
-
-- bug when tagging/untagging in phone, page is not updated
 - no hashing if no cookie
-
-
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Rename uploadService to pivService, reorganize files inside ui_elements
 - Message and icon when page is empty (You're all done here!) (Tom)

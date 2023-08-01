@@ -166,7 +166,6 @@ class UploadService {
       localPivs = await recentAlbum.getAssetListRange (start: 0, end: 1000000);
       localPivs.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
 
-
       localPivsLoaded = true;
 
       StoreService.instance.set ('countLocal', localPivs.length);
@@ -177,13 +176,16 @@ class UploadService {
 
       if (! reload) {
          // Check if we have uploads we should revive
-         reviveUploads ();
+         await reviveUploads ();
 
-         // Compute hashes for local pivs
-         computeHashes ();
+         // Query & compute hashes for local pivs
+         // We won't await for the computation of hashes, but we will for querying the existing hashes.
+         await computeHashes ();
 
-         computeLocalPages ();
       }
+
+      await queryOrganizedIds ();
+      await computeLocalPages ();
    }
 
    reviveUploads () async {
@@ -213,12 +215,12 @@ class UploadService {
 
    computeHashes () async {
       // Get all hash entries and remove those that don't belong to a piv
+      // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
       var localPivIds = {};
       localPivs.forEach ((v) {
          localPivIds [v.id] = true;
       });
 
-      // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
          var id = k.replaceAll ('hashMap:', '');
@@ -243,19 +245,23 @@ class UploadService {
       });
 
       // Compute hashes for local pivs that do not have them
-      for (var piv in localPivs) {
-         if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
-         // NOTE: in debug mode, running `flutterCompute` will trigger a general redraw.
-         var hash = await flutterCompute (hashPiv, piv.id);
-         StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+      // We don't `await` for this because this will run in the background and might take a long time.
+      (() async {
 
-         // Check if the local piv we just hashed as an uploaded counterpart
-         var queriedHash = await queryHashes ({piv.id: hash});
-         if (queriedHash [piv.id] != null) {
-            StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
-            StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+         for (var piv in localPivs) {
+            if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+            // NOTE: in debug mode, running `flutterCompute` will trigger a general redraw.
+            var hash = await flutterCompute (hashPiv, piv.id);
+            StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+
+            // Check if the local piv we just hashed as an uploaded counterpart
+            var queriedHash = await queryHashes ({piv.id: hash});
+            if (queriedHash [piv.id] != null) {
+               StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
+               StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+            }
          }
-      }
+      }) ();
    }
 
    computeLocalPages () async {
@@ -353,4 +359,29 @@ class UploadService {
       await PhotoManager.editor.deleteWithIds (typedIds);
       loadLocalPivs (true);
   }
+
+   // Used only for local pivs
+   queryOrganizedIds () async {
+      var ids = [];
+      for (var piv in UploadService.instance.localPivs) {
+         var uploadedId = StoreService.instance.get ('pivMap:' + piv.id);
+         if (uploadedId != '') ids.add (uploadedId);
+      }
+
+      // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
+      var response = await ajax ('post', 'organized', {'ids': ids, 'csrf': 'foo'});
+      // TODO: handle errors
+      if (response ['code'] != 200) return;
+
+      var organizedIds = {};
+      response ['body'].forEach ((id) {
+         organizedIds [id] = true;
+      });
+
+      ids.forEach ((id) {
+         var desiredValue = organizedIds [id] == true ? true : '';
+         var currentValue = StoreService.instance.get ('orgMap:' + id);
+         if (currentValue != desiredValue) StoreService.instance.set ('orgMap:' + id, desiredValue);
+      });
+   }
 }
