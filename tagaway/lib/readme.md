@@ -4,7 +4,6 @@
 
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Rename uploadService to pivService, reorganize files inside ui_elements
-- Message and icon when page is empty (You're all done here!) (Tom)
 - Remove edit & delete buttons after cancel or when tapping anywhere else.
 
 home:
