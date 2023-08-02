@@ -39,6 +39,8 @@ const kUserTagIcon = FontAwesomeIcons.userTag;
 const kEmptyCircle = FontAwesomeIcons.circle;
 const kSolidCircleIcon = FontAwesomeIcons.solidCircle;
 const kCircleCheckIcon = FontAwesomeIcons.solidCircleCheck;
+const kSolidCircleUp = FontAwesomeIcons.solidCircleUp;
+const kSolidCircleDown = FontAwesomeIcons.solidCircleDown;
 const kClockIcon = FontAwesomeIcons.clock;
 const kLocationDotIcon = FontAwesomeIcons.locationDot;
 const kLocationPinIcon = FontAwesomeIcons.locationPin;
@@ -62,6 +64,10 @@ const kHouseIcon = FontAwesomeIcons.house;
 const kMobileScreenIcon = FontAwesomeIcons.mobileScreenButton;
 const kEyeIcon = FontAwesomeIcons.eye;
 const kSlashedEyeIcon = FontAwesomeIcons.eyeSlash;
+const kMountainIcon = FontAwesomeIcons.mountain;
+const kFlagIcon = FontAwesomeIcons.solidFontAwesome;
+const kEndOfJourneyIcon = FontAwesomeIcons.roadCircleXmark;
+const kStartOfJourneyIcon = FontAwesomeIcons.roadCircleCheck;
 
 const tagColors = [
   kTagColor1,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -650,6 +651,7 @@ class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
   dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
+  dynamic monthEdges = [true, true];
   final ScrollController gridController = ScrollController();
 
   dynamic visibleItems = [];
@@ -671,6 +673,7 @@ class _UploadGridState extends State<UploadGrid> {
       if (v1 != '')
         setState(() {
           queryResult = v1;
+          monthEdges = TagService.instance.getMonthEdges ();
         });
     });
   }
@@ -700,11 +703,82 @@ class _UploadGridState extends State<UploadGrid> {
                 mainAxisSpacing: 1,
                 crossAxisSpacing: 1,
               ),
-              itemCount: queryResult['total'],
+              itemCount: queryResult['total'] + 2,
               itemBuilder: (BuildContext context, index) {
+                // Return first tile, either Begin Journey or Previous Month
+                if (index == 0) {
+                  if (monthEdges [1] == true) return const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(
+                        kStartOfJourneyIcon,
+                        color: kAltoBlue,
+                        size: 40,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Start Journey',
+                        style: kPlainTextBold,
+                      )
+                    ],
+                  );
+                  else {
+                     // TODO: add previous month
+                     return const Column();
+                  }
+                }
+                // Return last tile, either End Journey or Next Month
+                if (index == queryResult['total'] + 1) {
+                  if (monthEdges [0] == true) return const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(
+                        kEndOfJourneyIcon,
+                        color: kAltoBlue,
+                        size: 40,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'End of Journey',
+                        style: kPlainTextBold,
+                      )
+                    ],
+                  );
+                  else return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                           // TODO Go to next month
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(40, 40),
+                          backgroundColor: Colors.grey[50],
+                          shape: const CircleBorder(),
+                        ),
+                        child: const Icon(
+                          kSolidCircleUp,
+                          color: kAltoBlue,
+                          size: 40,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Next Month',
+                        style: kPlainTextBold,
+                      ),
+                    ],
+                  );
+                }
                 return UploadedGridItem(
                     key: Key('uploaded-' + index.toString()),
-                    pivIndex: index);
+                    pivIndex: index - 1);
                })
         ),
       ),
@@ -876,13 +950,13 @@ class _TopRowState extends State<TopRow> {
                                           roundedIconColor: month[2] == 'green'
                                               ? kAltoOrganized
                                               : kGreyDarker,
-                                          month: month[1],
+                                          month: shortMonthNames [month[1] - 1],
                                           whiteOrAltoBlueDashIcon: month[3]
                                               ? kAltoBlue
                                               : Colors.white,
                                           onTap: () {
                                             if (month[2] != 'white') {
-                                              TagService.instance.queryPivs(StoreService.instance.get('queryTags'), false, [month[0], shortMonthNames.indexOf (month[1]) + 1]);
+                                              TagService.instance.queryPivs(StoreService.instance.get('queryTags'), false, [month[0], month[1]]);
                                             }
                                           }));
                                     });

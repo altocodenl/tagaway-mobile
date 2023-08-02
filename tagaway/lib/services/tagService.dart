@@ -210,9 +210,9 @@ class TagService {
          for (var month = 1; month <= 12; month++) {
            var dateKey = year.toString () + ':' + month.toString ();
            var isCurrentMonth = year == currentMonth [0] && month == currentMonth [1];
-           if (timeHeader [dateKey] == null)       output.add ([year, shortMonthNames [month - 1], 'white', false]);
-           else if (timeHeader [dateKey] == false) output.add ([year, shortMonthNames [month - 1], 'gray', isCurrentMonth]);
-           else                                    output.add ([year, shortMonthNames [month - 1], 'green', isCurrentMonth]);
+           if (timeHeader [dateKey] == null)       output.add ([year, month, 'white', false]);
+           else if (timeHeader [dateKey] == false) output.add ([year, month, 'gray', isCurrentMonth]);
+           else                                    output.add ([year, month, 'green', isCurrentMonth]);
          }
       }
       var semesters = [[]];
@@ -238,7 +238,7 @@ class TagService {
       var newCurrentPage;
       semesters.asMap ().forEach ((k, semester) {
         semester.forEach ((month) {
-           if (month [0] == currentMonth [0] && shortMonthNames.indexOf (month [1]) + 1 == currentMonth [1]) {
+           if (month [0] == currentMonth [0] && month [1] == currentMonth [1]) {
              // Pages are inverted, that's why we use this index and not `k` itself.
              newCurrentPage = semesters.length - k - 1;
            }
@@ -457,6 +457,25 @@ class TagService {
       if (! currentlyDeletingPivs.contains (id)) currentlyDeletingPivs.add (id);
       else currentlyDeletingPivs.remove (id);
       StoreService.instance.set (key, currentlyDeletingPivs);
+   }
+
+   // [true, true] represents a month that's the beginning and the end of the query; [true, false] represents the first month of many; [false, false] represents a month sandwiched by other months.
+   getMonthEdges () {
+      var currentMonth = StoreService.instance.get ('currentMonth');
+      var timeHeader = StoreService.instance.get ('timeHeader');
+      if (currentMonth == '' || timeHeader == '') return [true, true];
+      var index = -1;
+      var currentMonthIndex;
+      timeHeader.forEach ((semester) {
+         semester.forEach ((month) {
+           if (month [2] == 'white') return;
+           index++;
+           if (month [0] == currentMonth [0] && month [1] == currentMonth [1]) {
+             currentMonthIndex = index;
+           }
+         });
+      });
+      return [currentMonthIndex == 0, currentMonthIndex == index];
    }
 
 }
