@@ -673,7 +673,7 @@ class _UploadGridState extends State<UploadGrid> {
       if (v1 != '')
         setState(() {
           queryResult = v1;
-          monthEdges = TagService.instance.getMonthEdges ();
+          monthEdges = TagService.instance.getMonthEdges();
         });
     });
   }
@@ -692,95 +692,133 @@ class _UploadGridState extends State<UploadGrid> {
       padding: const EdgeInsets.only(bottom: 20.0, top: 180),
       child: SizedBox.expand(
         child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: GridView.builder(
-              controller: gridController,
-              reverse: true,
-              shrinkWrap: true,
-              cacheExtent: 50,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 1,
-                crossAxisSpacing: 1,
-              ),
-              itemCount: queryResult['total'] + 2,
-              itemBuilder: (BuildContext context, index) {
-                // Return first tile, either Begin Journey or Previous Month
-                if (index == 0) {
-                  if (monthEdges [1] == true) return const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FaIcon(
-                        kStartOfJourneyIcon,
-                        color: kAltoBlue,
-                        size: 40,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Start Journey',
-                        style: kPlainTextBold,
-                      )
-                    ],
-                  );
-                  else {
-                     // TODO: add previous month
-                     return const Column();
+            textDirection: TextDirection.rtl,
+            child: GridView.builder(
+                controller: gridController,
+                reverse: true,
+                shrinkWrap: true,
+                cacheExtent: 50,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 1,
+                  crossAxisSpacing: 1,
+                ),
+                itemCount: queryResult['total'] + 2,
+                itemBuilder: (BuildContext context, index) {
+                  // Return first tile, either Begin Journey or Previous Month
+                  if (index == 0) {
+                    if (monthEdges[1] == true)
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FaIcon(
+                            kStartOfJourneyIcon,
+                            color: kAltoBlue,
+                            size: 40,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'Start Journey',
+                            style:
+                                SizeService.instance.screenWidth(context) <= 375
+                                    ? kBottomNavigationText
+                                    : kPlainTextBold,
+                          )
+                        ],
+                      );
+                    else
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // TODO Go to next month
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(40, 40),
+                              backgroundColor: Colors.grey[50],
+                              shape: const CircleBorder(),
+                            ),
+                            child: const Icon(
+                              kSolidCircleDown,
+                              color: kAltoBlue,
+                              size: 40,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'Next Month',
+                            style:
+                                SizeService.instance.screenWidth(context) <= 375
+                                    ? kBottomNavigationText
+                                    : kPlainTextBold,
+                          ),
+                        ],
+                      );
                   }
-                }
-                // Return last tile, either End Journey or Next Month
-                if (index == queryResult['total'] + 1) {
-                  if (monthEdges [0] == true) return const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FaIcon(
-                        kEndOfJourneyIcon,
-                        color: kAltoBlue,
-                        size: 40,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'End of Journey',
-                        style: kPlainTextBold,
-                      )
-                    ],
-                  );
-                  else return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                           // TODO Go to next month
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(40, 40),
-                          backgroundColor: Colors.grey[50],
-                          shape: const CircleBorder(),
-                        ),
-                        child: const Icon(
-                          kSolidCircleUp,
-                          color: kAltoBlue,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Next Month',
-                        style: kPlainTextBold,
-                      ),
-                    ],
-                  );
-                }
-                return UploadedGridItem(
-                    key: Key('uploaded-' + index.toString()),
-                    pivIndex: index - 1);
-               })
-        ),
+                  // Return last tile, either End Journey or Next Month
+                  if (index == queryResult['total'] + 1) {
+                    if (monthEdges[0] == true)
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FaIcon(
+                            kEndOfJourneyIcon,
+                            color: kAltoBlue,
+                            size: 40,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'End of Journey',
+                            style:
+                                SizeService.instance.screenWidth(context) <= 375
+                                    ? kBottomNavigationText
+                                    : kPlainTextBold,
+                          )
+                        ],
+                      );
+                    else
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // TODO Go to previous month
+                            },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(40, 40),
+                              backgroundColor: Colors.grey[50],
+                              shape: const CircleBorder(),
+                            ),
+                            child: const Icon(
+                              kSolidCircleUp,
+                              color: kAltoBlue,
+                              size: 40,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            'Previous Month',
+                            style:
+                                SizeService.instance.screenWidth(context) <= 375
+                                    ? kBottomNavigationText
+                                    : kPlainTextBold,
+                          ),
+                        ],
+                      );
+                  }
+                  return UploadedGridItem(
+                      key: Key('uploaded-' + index.toString()),
+                      pivIndex: index - 1);
+                })),
       ),
     );
   }
@@ -950,13 +988,17 @@ class _TopRowState extends State<TopRow> {
                                           roundedIconColor: month[2] == 'green'
                                               ? kAltoOrganized
                                               : kGreyDarker,
-                                          month: shortMonthNames [month[1] - 1],
+                                          month: shortMonthNames[month[1] - 1],
                                           whiteOrAltoBlueDashIcon: month[3]
                                               ? kAltoBlue
                                               : Colors.white,
                                           onTap: () {
                                             if (month[2] != 'white') {
-                                              TagService.instance.queryPivs(StoreService.instance.get('queryTags'), false, [month[0], month[1]]);
+                                              TagService.instance.queryPivs(
+                                                  StoreService.instance
+                                                      .get('queryTags'),
+                                                  false,
+                                                  [month[0], month[1]]);
                                             }
                                           }));
                                     });
