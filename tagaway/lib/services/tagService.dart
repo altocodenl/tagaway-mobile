@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/uploadService.dart';
+import 'package:tagaway/services/pivService.dart';
 
 class TagService {
   TagService._privateConstructor ();
@@ -126,17 +126,17 @@ class TagService {
     if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + id, pendingTags, 'disk');
     else                        StoreService.instance.remove ('pendingTags:' + id, 'disk');
 
-    if (! del) return UploadService.instance.queuePiv (assetOrPiv);
+    if (! del) return PivService.instance.queuePiv (assetOrPiv);
 
     // If we're untagging a piv that's not uploaded yet and we removed its last tag, we need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function. Also, we will remove it from the upload queue.
     if (pendingTags.length == 0) {
        StoreService.instance.remove ('pivMap:' + id);
        var uploadQueueIndex;
-       UploadService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
+       PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
           if (queuedPiv.id == id) uploadQueueIndex = index;
        });
        if (uploadQueueIndex != null) {
-          UploadService.instance.uploadQueue.removeAt (uploadQueueIndex);
+          PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
        }
      }
    }

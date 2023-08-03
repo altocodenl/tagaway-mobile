@@ -3,17 +3,15 @@
 ## TODO
 
 - Handle >= 400 errors with snackbar on tagService and uploadService
-- Rename uploadService to pivService, reorganize files inside ui_elements
 - Remove edit & delete buttons after cancel or when tapping anywhere else.
 
-home:
+home changes:
    - add tabs for pinned vs recent
    - remove add hometags button if not on pinned
    - add query selector search button, big one, on the bottom
    - display tags in a different way, including the last piv
-home grid:
+home grid changes:
    - go back home button
-   - pared de ladrillos at top if nothing, or link to previous month, taking up one piv. pared de ladrillos at the end as well!
    - options button that gives you delete, share & select all (also for phone grid) (Tom)
    - liberate space on bottom navigation, put icon, put "coming soon!"
 

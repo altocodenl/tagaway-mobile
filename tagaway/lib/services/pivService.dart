@@ -9,9 +9,9 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 
-class UploadService {
-   UploadService._privateConstructor ();
-   static final UploadService instance = UploadService._privateConstructor ();
+class PivService {
+   PivService._privateConstructor ();
+   static final PivService instance = PivService._privateConstructor ();
 
    var uploadQueue = [];
    var upload      = {};
@@ -365,7 +365,7 @@ class UploadService {
    // Used only for local pivs
    queryOrganizedIds () async {
       var ids = [];
-      for (var piv in UploadService.instance.localPivs) {
+      for (var piv in PivService.instance.localPivs) {
          var uploadedId = StoreService.instance.get ('pivMap:' + piv.id);
          if (uploadedId != '') ids.add (uploadedId);
       }

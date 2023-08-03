@@ -8,7 +8,7 @@ import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/services/uploadService.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
@@ -181,7 +181,7 @@ class _LocalViewState extends State<LocalView> {
                           // We update the tag list in case we just created a new one.
                           TagService.instance.getTags();
                           // We update the list of organized pivs for those uploaded pivs that have a local counterpart
-                          UploadService.instance.queryOrganizedIds();
+                          PivService.instance.queryOrganizedIds();
                         } else {
                           if (StoreService.instance
                                   .get('currentlyDeletingPivsLocal') !=
@@ -669,7 +669,7 @@ class _LocalViewState extends State<LocalView> {
                               onTap: () {
                                 var pivsToDelete = StoreService.instance
                                     .get('currentlyDeletingPivsLocal');
-                                UploadService.instance
+                                PivService.instance
                                     .deleteLocalPivs(pivsToDelete);
                                 StoreService.instance
                                     .remove('currentlyDeletingLocal');
@@ -735,7 +735,7 @@ class Grid extends StatefulWidget {
 
 class _GridState extends State<Grid> {
   dynamic cancelListener;
-  bool localPivsLoaded = UploadService.instance.localPivsLoaded;
+  bool localPivsLoaded = PivService.instance.localPivsLoaded;
   dynamic page = '';
 
   @override
@@ -758,7 +758,7 @@ class _GridState extends State<Grid> {
 
   loadPivs() async {
     if (!localPivsLoaded) {
-      while (UploadService.instance.localPivsLoaded == false) {
+      while (PivService.instance.localPivsLoaded == false) {
         await Future.delayed(const Duration(milliseconds: 50));
       }
     }
