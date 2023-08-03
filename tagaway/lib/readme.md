@@ -86,7 +86,7 @@ home grid changes:
 - Create new key or use an existing one
 - If creating a new key, check on box for remember password
 - Use release & create
-- When it's done, build will be in android + app + release
+- When it's done, build will be in the `android/app/release` folder.
 
 ## Annotated source code
 
