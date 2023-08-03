@@ -651,7 +651,7 @@ class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
   dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
-  dynamic monthEdges = [true, true];
+  dynamic monthEdges = {'previousMonth': '', 'nextMonth': ''};
   final ScrollController gridController = ScrollController();
 
   dynamic visibleItems = [];
@@ -707,7 +707,7 @@ class _UploadGridState extends State<UploadGrid> {
                 itemBuilder: (BuildContext context, index) {
                   // Return first tile, either Begin Journey or Previous Month
                   if (index == 0) {
-                    if (monthEdges[1] == true)
+                    if (monthEdges['nextMonth'] == '')
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -734,7 +734,10 @@ class _UploadGridState extends State<UploadGrid> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              // TODO Go to next month
+                              TagService.instance.queryPivs(
+                                  StoreService.instance.get('queryTags'),
+                                  false,
+                                  monthEdges['nextMonth']);
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(40, 40),
@@ -742,7 +745,7 @@ class _UploadGridState extends State<UploadGrid> {
                               shape: const CircleBorder(),
                             ),
                             child: const Icon(
-                              kSolidCircleDown,
+                              kSolidCircleRight,
                               color: kAltoBlue,
                               size: 40,
                             ),
@@ -762,7 +765,7 @@ class _UploadGridState extends State<UploadGrid> {
                   }
                   // Return last tile, either End Journey or Next Month
                   if (index == queryResult['total'] + 1) {
-                    if (monthEdges[0] == true)
+                    if (monthEdges['previousMonth'] == '')
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -789,7 +792,10 @@ class _UploadGridState extends State<UploadGrid> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              // TODO Go to previous month
+                              TagService.instance.queryPivs(
+                                  StoreService.instance.get('queryTags'),
+                                  false,
+                                  monthEdges['previousMonth']);
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(40, 40),
@@ -797,7 +803,7 @@ class _UploadGridState extends State<UploadGrid> {
                               shape: const CircleBorder(),
                             ),
                             child: const Icon(
-                              kSolidCircleUp,
+                              kSolidCircleLeft,
                               color: kAltoBlue,
                               size: 40,
                             ),

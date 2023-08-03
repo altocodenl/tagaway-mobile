@@ -459,11 +459,12 @@ class TagService {
       StoreService.instance.set (key, currentlyDeletingPivs);
    }
 
-   // [true, true] represents a month that's the beginning and the end of the query; [true, false] represents the first month of many; [false, false] represents a month sandwiched by other months.
+   // This is for the uploaded grid only
    getMonthEdges () {
       var currentMonth = StoreService.instance.get ('currentMonth');
       var timeHeader = StoreService.instance.get ('timeHeader');
-      if (currentMonth == '' || timeHeader == '') return [true, true];
+      if (currentMonth == '' || timeHeader == '') return {'previousMonth': '', 'nextMonth': ''};
+      var nonWhiteMonths = [];
       var index = -1;
       var currentMonthIndex;
       timeHeader.forEach ((semester) {
@@ -473,9 +474,12 @@ class TagService {
            if (month [0] == currentMonth [0] && month [1] == currentMonth [1]) {
              currentMonthIndex = index;
            }
+           nonWhiteMonths.add ([month [0], month [1]]);
          });
       });
-      return [currentMonthIndex == 0, currentMonthIndex == index];
+      var previousMonth = currentMonthIndex == 0     ? '' : nonWhiteMonths [currentMonthIndex - 1];
+      var nextMonth     = currentMonthIndex == index ? '' : nonWhiteMonths [currentMonthIndex + 1];
+      return {'previousMonth': previousMonth, 'nextMonth': nextMonth};
    }
 
 }

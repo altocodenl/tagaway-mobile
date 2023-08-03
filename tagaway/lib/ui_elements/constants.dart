@@ -32,15 +32,14 @@ const kTagColor5 = Color(0xFFffec5b);
 const kTagColor6 = Color(0xFF80762e);
 const kSelectedTag = Color(0xFFc1d4ff);
 
-// FontAwesomeIcons.circleCheck
 const kTagIcon = FontAwesomeIcons.tag;
 const kTagsIcon = FontAwesomeIcons.tags;
 const kUserTagIcon = FontAwesomeIcons.userTag;
 const kEmptyCircle = FontAwesomeIcons.circle;
 const kSolidCircleIcon = FontAwesomeIcons.solidCircle;
 const kCircleCheckIcon = FontAwesomeIcons.solidCircleCheck;
-const kSolidCircleUp = FontAwesomeIcons.solidCircleUp;
-const kSolidCircleDown = FontAwesomeIcons.solidCircleDown;
+const kSolidCircleLeft = FontAwesomeIcons.solidCircleLeft;
+const kSolidCircleRight = FontAwesomeIcons.solidCircleRight;
 const kClockIcon = FontAwesomeIcons.clock;
 const kLocationDotIcon = FontAwesomeIcons.locationDot;
 const kLocationPinIcon = FontAwesomeIcons.locationPin;
