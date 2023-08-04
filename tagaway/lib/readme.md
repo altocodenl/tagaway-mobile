@@ -2,19 +2,24 @@
 
 ## TODO
 
-- Handle >= 400 errors with snackbar on tagService and uploadService
-- Remove edit & delete buttons after cancel or when tapping anywhere else.
-
-home changes:
-   - add tabs for pinned vs recent
-   - remove add hometags button if not on pinned
+- Fixes
+   - Handle >= 400 errors with snackbar on tagService and uploadService
+   - Load of local page: circular indicator; replicate why sometimes in mid-use it doesn't load
+   - Send debug info
+   - Show pivs being uploaded in the queries, with a cloud icon
+   - Better way to show number of uploaded pivs (Tom)
+   - Open local pivs & remove Start Tagging modal (Tom/Mono)
+Home changes
    - add query selector search button, big one, on the bottom
+   - add tabs for pinned vs recent, remove add hometags button if not on pinned
    - display tags in a different way, including the last piv
-home grid changes:
+Home grid changes
    - go back home button
    - options button that gives you delete, share & select all (also for phone grid) (Tom)
    - liberate space on bottom navigation, put icon, put "coming soon!"
 
+- Create settings view with Change Password and enabled/disable geotagging
+- Remove edit & delete buttons after cancel or when tapping anywhere else.
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
 - Tutorial (Tom)
