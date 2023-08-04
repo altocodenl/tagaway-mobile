@@ -301,7 +301,8 @@ class TagService {
 
       var firstLoadSize = 200;
       var response = await ajax ('post', 'query', {
-         'tags': [...tags]..addAll (currentMonthTags),
+          // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
+         'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
          'sort': 'newest',
          'from': 1,
          'to': firstLoadSize,
@@ -326,7 +327,8 @@ class TagService {
       if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
       else {
          response = await ajax ('post', 'query', {
-            'tags': [...tags]..addAll (currentMonthTags)..addAll (['o::']),
+            // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
+            'tags': ([...tags]..addAll (currentMonthTags)..addAll (['o::'])).toSet ().toList (),
             'sort': 'newest',
             'from': 1,
             'to': firstLoadSize,
@@ -352,7 +354,8 @@ class TagService {
       if (queryResult ['total'] > firstLoadSize) {
 
          response = await ajax ('post', 'query', {
-            'tags': [...tags]..addAll (currentMonthTags),
+            // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
+            'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
             'sort': 'newest',
             'from': 1,
             // Load all pivs in the query, no time header needed
@@ -371,7 +374,8 @@ class TagService {
          if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
          else {
             response = await ajax ('post', 'query', {
-               'tags': [...tags]..addAll (currentMonthTags)..addAll (['o::']),
+               // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
+               'tags': ([...tags]..addAll (currentMonthTags)..addAll (['o::'])).toSet ().toList (),
                'sort': 'newest',
                'from': 1,
                'to': 100000,
