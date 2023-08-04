@@ -367,7 +367,8 @@ class PivService {
       var ids = [];
       for (var piv in PivService.instance.localPivs) {
          var uploadedId = StoreService.instance.get ('pivMap:' + piv.id);
-         if (uploadedId != '') ids.add (uploadedId);
+         // If piv exists and is not being uploaded, add it.
+         if (uploadedId != '' && uploadedId != true) ids.add (uploadedId);
       }
 
       // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
