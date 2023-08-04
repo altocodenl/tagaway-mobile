@@ -188,6 +188,12 @@ const kSelectAllButton = TextStyle(
   fontWeight: FontWeight.bold,
 );
 
+const kStartButton = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 16,
+  fontWeight: FontWeight.bold,
+);
+
 const kGoToWebButton = TextStyle(
     fontFamily: 'Montserrat',
     fontSize: 14,

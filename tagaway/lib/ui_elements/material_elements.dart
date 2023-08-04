@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -1118,12 +1117,13 @@ class _GridItemSelectionState extends State<GridItemSelection> {
           var currentlyDeletingPivs = v7;
           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
-        // See organized pivs
+          // See organized pivs
         } else {
           var organized = type == 'uploaded'
               ? v1 != ''
               // If the piv is currently being uploaded (`v1 == true`) we consider it as organized.
-              : (v1 == true || StoreService.instance.get('orgMap:' + v1.toString()) != '');
+              : (v1 == true ||
+                  StoreService.instance.get('orgMap:' + v1.toString()) != '');
           mode = organized ? 'green' : 'gray';
           if (type == 'local' && v4 != 'all') mode = 'none';
         }
@@ -1278,7 +1278,7 @@ class _DeleteButtonState extends State<DeleteButton> {
   Widget build(BuildContext context) {
     return shouldDisplay
         ? Align(
-            alignment: const Alignment(.92, .75),
+            alignment: const Alignment(0, .45),
             child: FloatingActionButton(
               heroTag: null,
               elevation: 10,
@@ -1292,22 +1292,19 @@ class _DeleteButtonState extends State<DeleteButton> {
   }
 }
 
-class StartTaggingButton extends StatefulWidget {
-  const StartTaggingButton({
+class TagButton extends StatefulWidget {
+  const TagButton({
     Key? key,
-    required this.buttonText,
-    required this.buttonKey,
     required this.onPressed,
   }) : super(key: key);
-  final String buttonText;
-  final Key buttonKey;
-  final VoidCallback onPressed;
+
+  final Function onPressed;
 
   @override
-  State<StartTaggingButton> createState() => _StartTaggingButtonState();
+  _TagButtonState createState() => _TagButtonState();
 }
 
-class _StartTaggingButtonState extends State<StartTaggingButton> {
+class _TagButtonState extends State<TagButton> {
   bool shouldDisplay = false;
 
   @override
@@ -1326,13 +1323,75 @@ class _StartTaggingButtonState extends State<StartTaggingButton> {
   Widget build(BuildContext context) {
     return shouldDisplay
         ? Align(
-            alignment: const Alignment(0, .92),
-            child: FloatingActionButton.extended(
+            alignment: const Alignment(0, .68),
+            child: FloatingActionButton(
               heroTag: null,
-              key: Key(widget.buttonKey.toString()),
-              onPressed: widget.onPressed,
+              elevation: 10,
+              key: const Key('tag'),
+              onPressed: widget.onPressed(),
               backgroundColor: kAltoBlue,
-              label: Text(widget.buttonText, style: kSelectAllButton),
+              child: const Icon(kTagIcon),
+            ),
+          )
+        : Container();
+  }
+}
+
+class StartButton extends StatefulWidget {
+  const StartButton({
+    Key? key,
+    required this.buttonText,
+    required this.buttonKey,
+    required this.onPressed,
+  }) : super(key: key);
+  final String buttonText;
+  final Key buttonKey;
+  final VoidCallback onPressed;
+
+  @override
+  State<StartButton> createState() => _StartButtonState();
+}
+
+class _StartButtonState extends State<StartButton> {
+  bool shouldDisplay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          shouldDisplay = true;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return shouldDisplay
+        ? Align(
+            alignment: const Alignment(0, .9),
+            child: Visibility(
+              visible: false,
+              child: FloatingActionButton.extended(
+                extendedPadding: const EdgeInsets.only(left: 20, right: 20),
+                heroTag: null,
+                key: Key(widget.buttonKey.toString()),
+                onPressed: widget.onPressed,
+                backgroundColor: kAltoBlue,
+                elevation: 20,
+                label: Text(widget.buttonText, style: kStartButton),
+              ),
+              replacement: FloatingActionButton(
+                onPressed: () {},
+                backgroundColor: Colors.white,
+                child: const Icon(
+                  Icons.close,
+                  size: 30,
+                  color: kAltoBlue,
+                ),
+              ),
             ),
           )
         : Container();
