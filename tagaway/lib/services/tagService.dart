@@ -265,6 +265,7 @@ class TagService {
         if (listEquals (tags, queryTags) && StoreService.instance.get ('queryResult') != '') return;
       }
       queryTags = List.from (tags);
+      var tagsResult;
       if (currentMonth == false) {
          var response = await ajax ('post', 'query', {
             'tags': tags,
@@ -278,6 +279,7 @@ class TagService {
          if (response ['code'] != 200) return;
 
          var queryResult = response ['body'];
+         tagsResult  = queryResult ['tags'];
          if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
 
          // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
@@ -321,6 +323,8 @@ class TagService {
         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['total'] - firstLoadSize, (v) => {})];
       }
       queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];
+      if (tagsResult == null) tagsResult  = queryResult ['tags'];
+      else                    queryResult ['tags'] = tagsResult;
       StoreService.instance.set ('queryResult', queryResult);
 
       var orgIds;
@@ -368,6 +372,7 @@ class TagService {
 
          queryResult = response ['body'];
          queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];
+         queryResult ['tags']       = tagsResult;
 
          StoreService.instance.set ('queryResult', queryResult, '', 'mute');
 
