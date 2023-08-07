@@ -73,7 +73,7 @@ class _LocalViewState extends State<LocalView> {
   bool currentlyDeleting = false;
   bool currentlyDeletingModal = false;
 
-  dynamic localPagesLength = 0;
+  dynamic localPagesLength = StoreService.instance.get ('localPagesLength') == '' ? 0 : StoreService.instance.get ('localPagesLength');
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
