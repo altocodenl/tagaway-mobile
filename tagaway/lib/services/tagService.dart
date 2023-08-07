@@ -265,27 +265,27 @@ class TagService {
         if (listEquals (tags, queryTags) && StoreService.instance.get ('queryResult') != '') return;
       }
       queryTags = List.from (tags);
-      var tagsResult;
+      var response = await ajax ('post', 'query', {
+         'tags': tags,
+         'sort': 'newest',
+         'from': 1,
+         'to': 1,
+         'timeHeader': true
+      });
+
+      // TODO: NOTIFY ERRORS
+      if (response ['code'] != 200) return;
+
+      var queryResult = response ['body'];
+      var firstQueryResult = queryResult;
+      if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
+
+      // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
+      if (! listEquals (queryTags, tags)) return;
+      // We do this update mutely so that we don't update yet the grid, since we have no pivs to show yet but we want the queryResult to be available to the computeTimeHeader function.
+      StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader'], 'total': queryResult ['total'], 'pivs': List.generate (queryResult ['total'], (v) => {})}, '', 'mute');
+
       if (currentMonth == false) {
-         var response = await ajax ('post', 'query', {
-            'tags': tags,
-            'sort': 'newest',
-            'from': 1,
-            'to': 1,
-            'timeHeader': true
-         });
-
-         // TODO: NOTIFY ERRORS
-         if (response ['code'] != 200) return;
-
-         var queryResult = response ['body'];
-         tagsResult  = queryResult ['tags'];
-         if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
-
-         // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
-         if (! listEquals (queryTags, tags)) return;
-         // We do this update mutely so that we don't update yet the grid, since we have no pivs to show yet but we want the queryResult to be available to the computeTimeHeader function.
-         StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader'], 'total': queryResult ['total'], 'pivs': List.generate (queryResult ['total'], (v) => {})}, '', 'mute');
 
          var lastMonth = [0, 0];
          queryResult['timeHeader'].keys.forEach ((k) {
@@ -302,7 +302,7 @@ class TagService {
       var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
 
       var firstLoadSize = 200;
-      var response = await ajax ('post', 'query', {
+      response = await ajax ('post', 'query', {
           // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
          'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
          'sort': 'newest',
@@ -313,7 +313,7 @@ class TagService {
       // TODO: NOTIFY ERRORS
       if (response ['code'] != 200) return;
 
-      var queryResult = response ['body'];
+      queryResult = response ['body'];
 
       // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
       if (! listEquals (queryTags, tags)) return;
@@ -323,8 +323,8 @@ class TagService {
         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['total'] - firstLoadSize, (v) => {})];
       }
       queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];
-      if (tagsResult == null) tagsResult  = queryResult ['tags'];
-      else                    queryResult ['tags'] = tagsResult;
+      queryResult ['tags']  = firstQueryResult ['tags'];
+      queryResult ['total'] = firstQueryResult ['total'];
       StoreService.instance.set ('queryResult', queryResult);
 
       var orgIds;
@@ -372,7 +372,8 @@ class TagService {
 
          queryResult = response ['body'];
          queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];
-         queryResult ['tags']       = tagsResult;
+         queryResult ['tags']  = firstQueryResult ['tags'];
+         queryResult ['total'] = firstQueryResult ['total'];
 
          StoreService.instance.set ('queryResult', queryResult, '', 'mute');
 

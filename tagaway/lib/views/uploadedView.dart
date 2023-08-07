@@ -703,7 +703,7 @@ class _UploadGridState extends State<UploadGrid> {
                   mainAxisSpacing: 1,
                   crossAxisSpacing: 1,
                 ),
-                itemCount: queryResult['total'] + 2,
+                itemCount: queryResult['pivs'].length + 2,
                 itemBuilder: (BuildContext context, index) {
                   // Return first tile, either Begin Journey or Previous Month
                   if (index == 0) {
@@ -764,7 +764,7 @@ class _UploadGridState extends State<UploadGrid> {
                       );
                   }
                   // Return last tile, either End Journey or Next Month
-                  if (index == queryResult['total'] + 1) {
+                  if (index == queryResult['pivs'].length + 1) {
                     if (monthEdges['previousMonth'] == '')
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
