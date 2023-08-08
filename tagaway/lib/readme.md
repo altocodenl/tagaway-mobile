@@ -2,10 +2,17 @@
 
 ## TODO
 
-- Fixes
-   - Handle >= 400 errors with snackbar on tagService and uploadService
-   - Send debug info
-   - Open local pivs & remove Start Tagging modal (Tom/Mono)
+- Handle >= 400 errors with snackbar on tagService and uploadService
+- Send debug info
+- Open local pivs (Tom/Mono)
+- Go back home button on top left of cloud grid (Tom)
+- Create settings view with Change Password and enabled/disable geotagging (Tom)
+- Options button that gives you delete, share (also for phone grid) (Tom)
+Home changes
+   - add query selector search button, big one, on the bottom
+   - add tabs for pinned vs recent, remove add hometags button if not on pinned
+   - display tags in a different way, including the last piv
+   - liberate space on bottom navigation, put icon, put "coming soon!"
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
@@ -22,16 +29,7 @@
       - Delete: remove from queue
       - Tag/untag: change pendingTags
    - Icon
-Home changes
-   - add query selector search button, big one, on the bottom
-   - add tabs for pinned vs recent, remove add hometags button if not on pinned
-   - display tags in a different way, including the last piv
-Home grid changes
-   - go back home button
-   - options button that gives you delete, share & select all (also for phone grid) (Tom)
-   - liberate space on bottom navigation, put icon, put "coming soon!"
 
-- Create settings view with Change Password and enabled/disable geotagging (Tom)
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
@@ -75,7 +73,6 @@ Home grid changes
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
-- startTaggingModal (boolean): used to determine blue popup to start tagging on LocalView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
 - taggedPivCount(Local|Uploaded) (int): shows how many pivs are tagged with the current tag on LocalView/UploadedView
