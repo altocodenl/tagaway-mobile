@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -1118,12 +1117,13 @@ class _GridItemSelectionState extends State<GridItemSelection> {
           var currentlyDeletingPivs = v7;
           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
-        // See organized pivs
+          // See organized pivs
         } else {
           var organized = type == 'uploaded'
               ? v1 != ''
               // If the piv is currently being uploaded (`v1 == true`) we consider it as organized.
-              : (v1 == true || StoreService.instance.get('orgMap:' + v1.toString()) != '');
+              : (v1 == true ||
+                  StoreService.instance.get('orgMap:' + v1.toString()) != '');
           mode = organized ? 'green' : 'gray';
           if (type == 'local' && v4 != 'all') mode = 'none';
         }
@@ -1200,7 +1200,8 @@ class UploadingNumber extends StatefulWidget {
 
 class _UploadingNumberState extends State<UploadingNumber> {
   dynamic cancelListener;
-  int numeroli = 0;
+  int numeroli = 14234;
+// RETURN TO 0 AFTERWARDS
 
   @override
   void initState() {
@@ -1220,26 +1221,30 @@ class _UploadingNumberState extends State<UploadingNumber> {
   Widget build(BuildContext context) {
     if (numeroli == 0) return const Text('');
     return Positioned(
-      right: SizeService.instance.screenWidth(context) * .08,
-      top: 2,
-      child: Container(
-        width: 25,
-        height: 25,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(100),
-            border: Border.all(color: kAltoBlue, width: 2)),
+      right: SizeService.instance.screenWidth(context) * .29,
+      top: 10,
+      child: SizedBox(
+        height: 30,
         child: Center(
-          child: Text(
-            numeroli.toString(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: const TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: kAltoBlue),
+          child: Column(
+            children: [
+              Text(
+                numeroli.toString(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: kAltoBlue),
+              ),
+              const Icon(
+                kArrowRightLong,
+                color: kAltoBlue,
+                size: 15,
+              ),
+            ],
           ),
         ),
       ),

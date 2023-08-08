@@ -67,6 +67,7 @@ const kMountainIcon = FontAwesomeIcons.mountain;
 const kFlagIcon = FontAwesomeIcons.solidFontAwesome;
 const kEndOfJourneyIcon = FontAwesomeIcons.roadCircleXmark;
 const kStartOfJourneyIcon = FontAwesomeIcons.roadCircleCheck;
+const kArrowRightLong = FontAwesomeIcons.arrowRightLong;
 
 const tagColors = [
   kTagColor1,
