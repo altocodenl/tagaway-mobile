@@ -62,6 +62,7 @@ class _UploadedViewState extends State<UploadedView> {
   bool currentlyDeletingModal = false;
   String renameTagUploaded = '';
   String deleteTagUploaded = '';
+  bool showButtons = false;
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -82,8 +83,9 @@ class _UploadedViewState extends State<UploadedView> {
       'renameTagUploaded',
       'deleteTagUploaded',
       'currentlyDeletingUploaded',
-      'currentlyDeletingModalUploaded'
-    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
+      'currentlyDeletingModalUploaded',
+      'showButtonsUploaded'
+    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9) {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
       if (currentView == 2 && v2 == '' && currentlyTagging != '')
@@ -122,6 +124,7 @@ class _UploadedViewState extends State<UploadedView> {
         deleteTagUploaded = v6;
         currentlyDeleting = v7 != '';
         currentlyDeletingModal = v8 != '';
+        showButtons = v9 == true;
       });
     });
   }
@@ -178,10 +181,30 @@ class _UploadedViewState extends State<UploadedView> {
             visible: currentlyTagging == '' && !currentlyDeleting,
             child: StartButton(
                 buttonKey: Key('uploaded-start-tagging'),
-                buttonText: 'Add More Tags',
-                onPressed: () {
+                buttonText: 'Organize',
+                showButtonsKey: 'showButtonsUploaded')),
+        Visibility(
+            visible: showButtons,
+            child: DeleteButton(
+              onPressed: () {
+                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                return () {
+                  StoreService.instance.set('currentlyDeletingUploaded', true);
+                  StoreService.instance.set('showButtonsUploaded', false);
+                };
+              },
+            )),
+        Visibility(
+            visible: showButtons,
+            child: TagButton(
+              onPressed: () {
+                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                return () {
                   StoreService.instance.set('swipedUploaded', true);
-                })),
+                  StoreService.instance.set('showButtonsUploaded', false);
+                };
+              },
+            )),
         Visibility(
             visible: currentlyTagging == '',
             child: Align(
@@ -890,24 +913,7 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
-                      Visibility(
-                          visible: !currentlyDeleting,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              StoreService.instance
-                                  .set('currentlyDeletingUploaded', true);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(40, 40),
-                              backgroundColor: kAltoRed,
-                              shape: const CircleBorder(),
-                            ),
-                            child: const Icon(
-                              kTrashCanIcon,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          )),
+                      // TODO: add go back home button here
                       const Expanded(
                         child: Align(
                             alignment: Alignment(0.5, .9),

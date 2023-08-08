@@ -3,7 +3,6 @@
 ## TODO
 
 - Handle >= 400 errors with snackbar on tagService and uploadService
-- Send debug info
 - Open local pivs (Tom/Mono)
 - Go back home button on top left of cloud grid (Tom)
 - Create settings view with Change Password and enabled/disable geotagging (Tom)
@@ -73,6 +72,7 @@ Home changes
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
+- showButtons(Local|Uploaded) (boolean): if true, shows buttons to perform actions in LocalView/UploadedView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
 - taggedPivCount(Local|Uploaded) (int): shows how many pivs are tagged with the current tag on LocalView/UploadedView

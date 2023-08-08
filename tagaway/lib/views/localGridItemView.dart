@@ -41,7 +41,7 @@ class LocalGridItem extends StatelessWidget {
                     StoreService.instance.get('currentlyTaggingLocal'),
                     'local');
               } else {
-                 // TODO: open local piv
+                // TODO: open local piv
               }
             },
             child: Stack(

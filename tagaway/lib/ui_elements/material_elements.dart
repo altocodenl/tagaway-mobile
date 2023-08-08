@@ -1264,35 +1264,24 @@ class DeleteButton extends StatefulWidget {
 }
 
 class _DeleteButtonState extends State<DeleteButton> {
-  bool shouldDisplay = false;
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          shouldDisplay = true;
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return shouldDisplay
-        ? Align(
-            alignment: const Alignment(0, .45),
-            child: FloatingActionButton(
-              heroTag: null,
-              elevation: 10,
-              key: const Key('delete'),
-              onPressed: widget.onPressed(),
-              backgroundColor: kAltoRed,
-              child: const Icon(kTrashCanIcon),
-            ),
-          )
-        : Container();
+    return Align(
+      alignment: const Alignment(0, .45),
+      child: FloatingActionButton(
+        heroTag: null,
+        elevation: 10,
+        key: const Key('delete'),
+        onPressed: widget.onPressed(),
+        backgroundColor: kAltoRed,
+        child: const Icon(kTrashCanIcon),
+      ),
+    );
   }
 }
 
@@ -1309,35 +1298,24 @@ class TagButton extends StatefulWidget {
 }
 
 class _TagButtonState extends State<TagButton> {
-  bool shouldDisplay = false;
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          shouldDisplay = true;
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return shouldDisplay
-        ? Align(
-            alignment: const Alignment(0, .68),
-            child: FloatingActionButton(
-              heroTag: null,
-              elevation: 10,
-              key: const Key('tag'),
-              onPressed: widget.onPressed(),
-              backgroundColor: kAltoBlue,
-              child: const Icon(kTagIcon),
-            ),
-          )
-        : Container();
+    return Align(
+      alignment: const Alignment(0, .68),
+      child: FloatingActionButton(
+        heroTag: null,
+        elevation: 10,
+        key: const Key('tag'),
+        onPressed: widget.onPressed(),
+        backgroundColor: kAltoBlue,
+        child: const Icon(kTagIcon),
+      ),
+    );
   }
 }
 
@@ -1346,11 +1324,11 @@ class StartButton extends StatefulWidget {
     Key? key,
     required this.buttonText,
     required this.buttonKey,
-    required this.onPressed,
+    required this.showButtonsKey,
   }) : super(key: key);
   final String buttonText;
   final Key buttonKey;
-  final VoidCallback onPressed;
+  final String showButtonsKey;
 
   @override
   State<StartButton> createState() => _StartButtonState();
@@ -1358,10 +1336,19 @@ class StartButton extends StatefulWidget {
 
 class _StartButtonState extends State<StartButton> {
   bool shouldDisplay = false;
+  bool showButtons = false;
+  dynamic cancelListener;
 
   @override
   void initState() {
     super.initState();
+    cancelListener =
+        StoreService.instance.listen([widget.showButtonsKey], (v1) {
+      setState(() {
+        showButtons = v1 == true;
+      });
+    });
+
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
@@ -1372,23 +1359,35 @@ class _StartButtonState extends State<StartButton> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return shouldDisplay
         ? Align(
             alignment: const Alignment(0, .9),
             child: Visibility(
-              visible: false,
+              visible: !showButtons,
               child: FloatingActionButton.extended(
                 extendedPadding: const EdgeInsets.only(left: 20, right: 20),
                 heroTag: null,
                 key: Key(widget.buttonKey.toString()),
-                onPressed: widget.onPressed,
+                onPressed: () {
+                  StoreService.instance.set(widget.showButtonsKey, true);
+                },
                 backgroundColor: kAltoBlue,
                 elevation: 20,
                 label: Text(widget.buttonText, style: kStartButton),
               ),
               replacement: FloatingActionButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    StoreService.instance.set(widget.showButtonsKey, false);
+                  });
+                },
                 backgroundColor: Colors.white,
                 child: const Icon(
                   Icons.close,

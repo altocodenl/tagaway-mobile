@@ -65,6 +65,7 @@ class _LocalViewState extends State<LocalView> {
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
+  bool showButtons = false;
 
   String renameTagLocal = '';
   String deleteTagLocal = '';
@@ -90,12 +91,13 @@ class _LocalViewState extends State<LocalView> {
       'currentlyTaggingLocal',
       'swipedLocal',
       'tagFilterLocal',
+      'showButtonsLocal',
       'renameTagLocal',
       'deleteTagLocal',
       'localPagesLength',
       'currentlyDeletingLocal',
       'currentlyDeletingModalLocal'
-    ], (v1, v2, v3, v4, v6, v7, v8, v9, v10) {
+    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -124,6 +126,7 @@ class _LocalViewState extends State<LocalView> {
             currentScrollableSize = initialScrollableSize;
           if (swiped == true && currentScrollableSize < 0.77)
             currentScrollableSize = 0.77;
+          showButtons = v5 == true;
           renameTagLocal = v6;
           if (renameTagLocal != '') renameTagController.text = renameTagLocal;
           deleteTagLocal = v7;
@@ -200,24 +203,29 @@ class _LocalViewState extends State<LocalView> {
                 child: StartButton(
                     buttonKey: const Key('local-start-tagging'),
                     buttonText: 'Start',
-                    onPressed: () {
-                      StoreService.instance.set('swipedLocal', true);
-                    })),
+                    showButtonsKey: 'showButtonsLocal'
+                )),
             Visibility(
-                visible: true,
-                // currentlyTagging == '' && !currentlyDeleting,
+                visible: showButtons,
                 child: DeleteButton(
                   onPressed: () {
                     // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                     return () {
                       StoreService.instance.set('currentlyDeletingLocal', true);
+                      StoreService.instance.set('showButtonsLocal', false);
                     };
                   },
                 )),
             Visibility(
-                visible: true,
+                visible: showButtons,
                 child: TagButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                    return () {
+                      StoreService.instance.set('swipedLocal', true);
+                      StoreService.instance.set('showButtonsLocal', false);
+                    };
+                  },
                 )),
             Visibility(
                 visible: currentlyTagging == '',
