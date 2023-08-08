@@ -64,7 +64,7 @@ class PivService {
             }
          }
          StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
-         if (StoreService.instance.get ('pendingDeletion:' + piv.id)) {
+         if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') {
             deleteLocalPivs ([piv.id]);
             StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
          }
