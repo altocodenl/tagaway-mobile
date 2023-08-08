@@ -4,11 +4,26 @@
 
 - Fixes
    - Handle >= 400 errors with snackbar on tagService and uploadService
-   - Load of local page: circular indicator; replicate why sometimes in mid-use it doesn't load
+   - Load of local page: circular indicator
    - Send debug info
-   - Show pivs being uploaded in the queries, with a cloud icon
    - Better way to show number of uploaded pivs (Tom)
    - Open local pivs & remove Start Tagging modal (Tom/Mono)
+- Show pivs being uploaded in the queries, with a cloud icon
+   - When querying, add logic after first 200 items return (with o:: result)
+      - Get list
+         - Iterate pending.
+         - If tag, filter out by tag.
+         - If tag with date, filter out by date.
+         - Also filter out by date to the current month.
+      - Generate piv entry with different features:
+         - id: PENDING:...
+         - date
+      - Sort into existing pivs
+   - Do this again after getting long list
+   - Ops on piv:
+      - Delete: remove from queue
+      - Tag/untag: change pendingTags
+   - Icon
 Home changes
    - add query selector search button, big one, on the bottom
    - add tabs for pinned vs recent, remove add hometags button if not on pinned
@@ -18,8 +33,8 @@ Home grid changes
    - options button that gives you delete, share & select all (also for phone grid) (Tom)
    - liberate space on bottom navigation, put icon, put "coming soon!"
 
-- Create settings view with Change Password and enabled/disable geotagging
-- Remove edit & delete buttons after cancel or when tapping anywhere else.
+- Create settings view with Change Password and enabled/disable geotagging (Tom)
+- Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
 - Tutorial (Tom)
@@ -28,7 +43,7 @@ Home grid changes
 ## Store structure
 
 ```
-- account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED , geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
+- account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
 - count(Local|Uploaded) <str>: count of pivs shown in bottom navigation icon for that view
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
