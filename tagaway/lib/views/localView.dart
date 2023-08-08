@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
@@ -200,15 +200,16 @@ class _LocalViewState extends State<LocalView> {
                     ))),
             Visibility(
                 visible: currentlyTagging == '' && !currentlyDeleting,
-                child: StartTaggingButton(
+                child: StartButton(
                     buttonKey: const Key('local-start-tagging'),
-                    buttonText: 'Start Tagging',
+                    buttonText: 'Start',
                     onPressed: () {
                       StoreService.instance.set('swipedLocal', true);
                       StoreService.instance.set('startTaggingModal', false);
                     })),
             Visibility(
-                visible: currentlyTagging == '' && !currentlyDeleting,
+                visible: true,
+                // currentlyTagging == '' && !currentlyDeleting,
                 child: DeleteButton(
                   onPressed: () {
                     // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
@@ -216,6 +217,11 @@ class _LocalViewState extends State<LocalView> {
                       StoreService.instance.set('currentlyDeletingLocal', true);
                     };
                   },
+                )),
+            Visibility(
+                visible: true,
+                child: TagButton(
+                  onPressed: () {},
                 )),
             Visibility(
                 visible: currentlyTagging == '',

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class YearUploaded extends StatefulWidget {
   const YearUploaded({Key? key}) : super(key: key);
@@ -178,7 +176,7 @@ class _UploadedViewState extends State<UploadedView> {
                 ))),
         Visibility(
             visible: currentlyTagging == '' && !currentlyDeleting,
-            child: StartTaggingButton(
+            child: StartButton(
                 buttonKey: Key('uploaded-start-tagging'),
                 buttonText: 'Add More Tags',
                 onPressed: () {
