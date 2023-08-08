@@ -5,7 +5,6 @@
 - Fixes
    - Handle >= 400 errors with snackbar on tagService and uploadService
    - Send debug info
-   - Better way to show number of uploaded pivs (Tom)
    - Open local pivs & remove Start Tagging modal (Tom/Mono)
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
