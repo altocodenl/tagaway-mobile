@@ -1200,8 +1200,7 @@ class UploadingNumber extends StatefulWidget {
 
 class _UploadingNumberState extends State<UploadingNumber> {
   dynamic cancelListener;
-  int numeroli = 14234;
-// RETURN TO 0 AFTERWARDS
+  int numeroli = 0;
 
   @override
   void initState() {
