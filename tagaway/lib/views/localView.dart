@@ -65,7 +65,6 @@ class _LocalViewState extends State<LocalView> {
   dynamic usertags = [];
   String currentlyTagging = '';
   bool swiped = false;
-  dynamic startTaggingModal = '';
 
   String renameTagLocal = '';
   String deleteTagLocal = '';
@@ -91,13 +90,12 @@ class _LocalViewState extends State<LocalView> {
       'currentlyTaggingLocal',
       'swipedLocal',
       'tagFilterLocal',
-      'startTaggingModal',
       'renameTagLocal',
       'deleteTagLocal',
       'localPagesLength',
       'currentlyDeletingLocal',
       'currentlyDeletingModalLocal'
-    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) {
+    ], (v1, v2, v3, v4, v6, v7, v8, v9, v10) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -126,7 +124,6 @@ class _LocalViewState extends State<LocalView> {
             currentScrollableSize = initialScrollableSize;
           if (swiped == true && currentScrollableSize < 0.77)
             currentScrollableSize = 0.77;
-          startTaggingModal = v5;
           renameTagLocal = v6;
           if (renameTagLocal != '') renameTagController.text = renameTagLocal;
           deleteTagLocal = v7;
@@ -205,7 +202,6 @@ class _LocalViewState extends State<LocalView> {
                     buttonText: 'Start',
                     onPressed: () {
                       StoreService.instance.set('swipedLocal', true);
-                      StoreService.instance.set('startTaggingModal', false);
                     })),
             Visibility(
                 visible: true,
@@ -235,7 +231,6 @@ class _LocalViewState extends State<LocalView> {
                         StoreService.instance.set('swipedLocal', false);
                       if (state.extent > (0.77 - 0.0001))
                         StoreService.instance.set('swipedLocal', true);
-                      StoreService.instance.set('startTaggingModal', false);
                       return true;
                     },
                     child: DraggableScrollableSheet(
@@ -264,8 +259,6 @@ class _LocalViewState extends State<LocalView> {
                                         onTap: () {
                                           StoreService.instance
                                               .set('swipedLocal', true);
-                                          StoreService.instance
-                                              .set('startTaggingModal', false);
                                         },
                                         child: const Center(
                                           child: Padding(
@@ -397,42 +390,6 @@ class _LocalViewState extends State<LocalView> {
                         }),
                   )),
                 )),
-            Visibility(
-                visible: startTaggingModal == true,
-                child: Center(
-                    child: Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12),
-                  child: Container(
-                    height: 180,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: kAltoBlue,
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    child: Column(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(
-                              top: 20.0, right: 15, left: 15, bottom: 10),
-                          child: Text(
-                            'Your pics will backup as you tag them',
-                            textAlign: TextAlign.center,
-                            style: kWhiteSubtitle,
-                          ),
-                        ),
-                        Center(
-                            child: WhiteRoundedButton(
-                                title: 'Start tagging',
-                                onPressed: () {
-                                  StoreService.instance
-                                      .set('swipedLocal', true);
-                                  StoreService.instance
-                                      .set('startTaggingModal', false);
-                                }))
-                      ],
-                    ),
-                  ),
-                ))),
             // Rename tag modal
             Visibility(
                 visible: renameTagLocal != '',

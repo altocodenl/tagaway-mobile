@@ -181,7 +181,6 @@ class _UploadedViewState extends State<UploadedView> {
                 buttonText: 'Add More Tags',
                 onPressed: () {
                   StoreService.instance.set('swipedUploaded', true);
-                  StoreService.instance.set('startTaggingModal', false);
                 })),
         Visibility(
             visible: currentlyTagging == '',
