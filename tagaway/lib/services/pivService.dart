@@ -151,7 +151,9 @@ class PivService {
       queuePiv (null);
    }
 
-   loadLocalPivs ([reload = false]) async {
+   loadLocalPivs ([initialLoad = true]) async {
+
+      var firstLoadSize = 500;
 
       FilterOptionGroup makeOption () {
          return FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false));
@@ -163,7 +165,7 @@ class PivService {
       if (albums.length == 0) return localPivsLoaded = true;
       final recentAlbum = albums.first;
 
-      localPivs = await recentAlbum.getAssetListRange (start: 0, end: 1000000);
+      localPivs = await recentAlbum.getAssetListRange (start: 0, end: initialLoad ? firstLoadSize : 100000);
       localPivs.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
 
       localPivsLoaded = true;
@@ -174,18 +176,24 @@ class PivService {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
       }
 
-      if (! reload) {
+      if (initialLoad) {
          // Check if we have uploads we should revive
          await reviveUploads ();
 
-         // Query & compute hashes for local pivs
-         // We won't await for the computation of hashes, but we will for querying the existing hashes.
-         await computeHashes ();
-
+         // Query for local pivs
+         await queryExistingHashes ();
       }
 
       await queryOrganizedIds ();
-      await computeLocalPages ();
+      // We cannot await this function, we just run it.
+      computeLocalPages ();
+
+      // If more pivs to load, call itself recursively
+      if (initialLoad && localPivs.length == firstLoadSize) return loadLocalPivs (false);
+
+      // We won't await for the computation of hashes, but we will for querying the existing hashes.
+      // We only compute hashes once all pivs are loaded
+      computeHashes ();
    }
 
    reviveUploads () async {
@@ -212,7 +220,7 @@ class PivService {
       return output;
    }
 
-   computeHashes () async {
+   queryExistingHashes () async {
       // Get all hash entries and remove those that don't belong to a piv
       // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
       var localPivIds = {};
@@ -245,27 +253,30 @@ class PivService {
          StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
          StoreService.instance.set ('rpivMap:' + uploadedId, localId);
       });
+   }
+
+   computeHashes () async {
 
       // Compute hashes for local pivs that do not have them
       // We don't `await` for this because this will run in the background and might take a long time.
-      (() async {
 
-         for (var piv in localPivs) {
-            if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
-            // NOTE: in debug mode, running `flutterCompute` will trigger a general redraw.
-            var hash = await flutterCompute (hashPiv, piv.id);
-            StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+      for (var piv in localPivs) {
+         if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+         // NOTE: in debug mode, running `flutterCompute` will trigger a general redraw.
+         var hash = await flutterCompute (hashPiv, piv.id);
+         StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
-            // Check if the local piv we just hashed as an uploaded counterpart
-            var queriedHash = await queryHashes ({piv.id: hash});
-            if (queriedHash [piv.id] != null) {
-               StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
-               StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
-            }
+         // Check if the local piv we just hashed as an uploaded counterpart
+         var queriedHash = await queryHashes ({piv.id: hash});
+         if (queriedHash [piv.id] != null) {
+            StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
+            StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
          }
-      }) ();
+      }
    }
 
+   // This function cannot be awaited, because it will keep you waiting forever! It runs periodically at its own pace.
+   // It calls itself recursively rather than being called explicitly because it depends on a listener
    computeLocalPages () async {
 
       var t = DateTime.now ();
@@ -359,7 +370,11 @@ class PivService {
 
       List<String> typedIds = ids.cast<String>();
       await PhotoManager.editor.deleteWithIds (typedIds);
-      loadLocalPivs (true);
+      for (var piv in localPivs) {
+         if (ids.contains (piv.id)) localPivs.remove (piv);
+      }
+      // We cannot await for computeLocalPages
+      computeLocalPages ();
   }
 
    // Used only for local pivs

@@ -4,7 +4,6 @@
 
 - Fixes
    - Handle >= 400 errors with snackbar on tagService and uploadService
-   - Load of local page: circular indicator
    - Send debug info
    - Better way to show number of uploaded pivs (Tom)
    - Open local pivs & remove Start Tagging modal (Tom/Mono)
