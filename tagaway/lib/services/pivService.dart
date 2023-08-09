@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:collection/collection.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -185,7 +186,7 @@ class PivService {
       }
 
       await queryOrganizedIds ();
-      // We cannot await this function, we just run it.
+      // No need to await this function since it's sync.
       computeLocalPages ();
 
       // If more pivs to load, call itself recursively
@@ -279,22 +280,14 @@ class PivService {
    // It calls itself recursively rather than being called explicitly because it depends on a listener
    computeLocalPages () async {
 
-      var t = DateTime.now ();
-
-      // If there's no need to recompute, just await and return.
-      if (! recomputeLocalPages) {
-         await Future.delayed (Duration (milliseconds: 50));
-         return computeLocalPages ();
-      }
-
       recomputeLocalPages = false;
 
       DateTime tomorrow        = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch + 24 * 60 * 60 * 1000);
       tomorrow                 = DateTime (tomorrow.year, tomorrow.month, tomorrow.year);
-      DateTime now             = DateTime.now ();
-      DateTime today           = DateTime (now.year, now.month, now.day);
-      DateTime monday          = DateTime (now.year, now.month, now.day - (now.weekday - 1));
-      DateTime firstDayOfMonth = DateTime (now.year, now.month, 1);
+      DateTime Now             = DateTime.now ();
+      DateTime today           = DateTime (Now.year, Now.month, Now.day);
+      DateTime monday          = DateTime (Now.year, Now.month, Now.day - (Now.weekday - 1));
+      DateTime firstDayOfMonth = DateTime (Now.year, Now.month, 1);
 
       var pages = [['Today', today], ['This week', monday], ['This month', firstDayOfMonth]].map ((pair) {
          return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow)};
@@ -351,10 +344,14 @@ class PivService {
          ], (v1, v2, v3, v4, v5) {
             recomputeLocalPages = true;
          }));
+
+         // We also set a timer to periodically check if `recomputeLocalPages` is set to `true` and, if so, execute computeLocalPages.
+         // This will be done only once.
+         Timer.periodic(Duration(milliseconds: 200), (timer) {
+            if (recomputeLocalPages == true) computeLocalPages ();
+         });
       }
 
-      await Future.delayed (Duration (milliseconds: 50));
-      computeLocalPages ();
    }
 
    deleteLocalPivs (ids) async {
@@ -373,8 +370,7 @@ class PivService {
       for (var piv in localPivs) {
          if (ids.contains (piv.id)) localPivs.remove (piv);
       }
-      // We cannot await for computeLocalPages
-      computeLocalPages ();
+      recomputeLocalPages = true;
   }
 
    // Used only for local pivs
