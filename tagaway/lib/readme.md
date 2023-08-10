@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Move up to 7 tags
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Open local pivs (Tom/Mono)
 - Go back home button on top left of cloud grid (Tom)
@@ -11,7 +12,7 @@ Home changes
    - add query selector search button, big one, on the bottom
    - add tabs for pinned vs recent, remove add hometags button if not on pinned
    - display tags in a different way, including the last piv
-   - liberate space on bottom navigation, put icon, put "coming soon!"
+- Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put icon, put "coming soon!"
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list

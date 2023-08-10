@@ -367,9 +367,13 @@ class PivService {
 
       List<String> typedIds = ids.cast<String>();
       await PhotoManager.editor.deleteWithIds (typedIds);
-      for (var piv in localPivs) {
-         if (ids.contains (piv.id)) localPivs.remove (piv);
+      var indexesToDelete = [];
+      for (int k = 0; k < localPivs.length; k++) {
+         if (ids.contains (localPivs [k].id)) indexesToDelete.add (k);
       }
+      indexesToDelete.reversed.forEach ((k) {
+         localPivs.removeAt (k);
+      });
       recomputeLocalPages = true;
   }
 
