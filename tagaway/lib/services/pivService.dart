@@ -276,9 +276,7 @@ class PivService {
       }
    }
 
-   // This function cannot be awaited, because it will keep you waiting forever! It runs periodically at its own pace.
-   // It calls itself recursively rather than being called explicitly because it depends on a listener
-   computeLocalPages () async {
+   computeLocalPages () {
 
       recomputeLocalPages = false;
 
@@ -298,10 +296,8 @@ class PivService {
       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
 
       localPivs.forEach ((piv) {
-         // Piv is considered as organized if it has a matching orgMap entry or if it has a pending tag. Since we always mark as organized when tagging, the latter is qeuivalent of the former.
-         // We convert the pivMap:ID to string in case it's `true` (which denotes an ongoing upload)
-         var pivIsOrganized = StoreService.instance.get ('orgMap:' + StoreService.instance.get ('pivMap:' + piv.id).toString ()) != '';
-         if (! pivIsOrganized) pivIsOrganized = StoreService.instance.get ('pendingTags:' + piv.id) != '';
+         var cloudId        = StoreService.instance.get ('pivMap:' + piv.id);
+         var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 
@@ -326,7 +322,9 @@ class PivService {
          });
       });
 
-      if (StoreService.instance.get ('localPagesLength') != pages.length) StoreService.instance.set ('localPagesLength', pages.length);
+      if (StoreService.instance.get ('localPagesLength') != pages.length) {
+         StoreService.instance.set ('localPagesLength', pages.length);
+      }
       pages.asMap ().forEach ((index, page) {
          var existingPage = StoreService.instance.get ('localPage:' + index.toString ());
          if (existingPage == '' || ! DeepCollectionEquality ().equals (existingPage, page)) {
@@ -335,13 +333,12 @@ class PivService {
       });
 
       if (StoreService.instance.get ('localPagesListener') == '') {
-        StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
-          'pivMap:*',
-          'orgMap:*',
-          'pendingTags:*',
-          'displayMode',
-          'currentlyTaggingPivs'
-         ], (v1, v2, v3, v4, v5) {
+         StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
+            'currentlyTaggingPivs',
+            'displayMode',
+            'pivMap:*',
+            'orgMap:*',
+         ], (v1, v2, v3, v4) {
             recomputeLocalPages = true;
          }));
 
@@ -351,7 +348,6 @@ class PivService {
             if (recomputeLocalPages == true) computeLocalPages ();
          });
       }
-
    }
 
    deleteLocalPivs (ids) async {

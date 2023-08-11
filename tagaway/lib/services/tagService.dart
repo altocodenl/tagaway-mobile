@@ -79,7 +79,8 @@ class TagService {
       return StoreService.instance.set ('lastNTags', lastNTags);
     }
 
-    var N = 3;
+    // Inspired by old phone numbers
+    var N = 7;
     if (lastNTags.contains (tag)) {
        lastNTags.remove (tag);
     }
@@ -88,57 +89,57 @@ class TagService {
     StoreService.instance.set ('lastNTags', lastNTags);
   }
 
-  tagPiv (dynamic assetOrPiv, String tag, String type) async {
-    String id = type == 'uploaded' ? assetOrPiv['id'] : assetOrPiv.id;
-    dynamic pivId = type == 'uploaded' ? id : StoreService.instance.get ('pivMap:' + id);
-    bool   del   = StoreService.instance.get ('tagMap:' + id) != '';
-    StoreService.instance.set ('tagMap:' + id, del ? '' : true);
-    StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (del ? -1 : 1));
+   tagPiv (dynamic piv, String tag, String type) async {
+      var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
+      var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 
-    if (! del && type == 'local') {
-       var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
-       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
-       currentlyTaggingPivs.add (id);
-       StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
-    }
+      var untag = StoreService.instance.get ('tagMap:' + pivId) != '';
+      StoreService.instance.set ('tagMap:' + pivId, untag ? '' : true);
+      StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (untag ? -1 : 1));
 
-    updateLastNTags (tag);
-
-    // Piv is already uploaded.
-    if (pivId != '' && pivId != true) {
-      var code = await tagPivById (pivId, tag, del);
-      if (type == 'uploaded') return;
-      // If we're here, we're dealing with local pivs.
-
-      // If piv still exists, we are done. If we got a 404, we need to re-upload it.
-      if (code == 200) return;
-      if (code == 404) {
-         StoreService.instance.remove ('pivMap:' + id);
-         StoreService.instance.remove ('rpivMap:' + pivId);
+      if (! untag && type == 'local') {
+         var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
+         if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+         currentlyTaggingPivs.add (pivId);
+         StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
       }
-      // TODO: add error handling for non 200, non 404
-    }
 
-    var pendingTags = StoreService.instance.get ('pending:' + id);
-    if (pendingTags == '') pendingTags = [];
-    if (del) pendingTags.remove (tag);
-    else     pendingTags.add    (tag);
-    if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + id, pendingTags, 'disk');
-    else                        StoreService.instance.remove ('pendingTags:' + id, 'disk');
+      updateLastNTags (tag);
 
-    if (! del) return PivService.instance.queuePiv (assetOrPiv);
+      if (cloudId != '' && cloudId != true) {
+         var code = await tagPivById (cloudId, tag, untag);
+         if (type == 'uploaded') return;
+         // If we're here, we're dealing with local pivs.
 
-    // If we're untagging a piv that's not uploaded yet and we removed its last tag, we need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function. Also, we will remove it from the upload queue.
-    if (pendingTags.length == 0) {
-       StoreService.instance.remove ('pivMap:' + id);
-       var uploadQueueIndex;
-       PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
-          if (queuedPiv.id == id) uploadQueueIndex = index;
-       });
-       if (uploadQueueIndex != null) {
-          PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
-       }
-     }
+         // If piv still exists, we are done. If we got a 404, we need to re-upload it.
+         if (code == 200) return;
+         if (code == 404) {
+            StoreService.instance.remove ('pivMap:' + pivId);
+            StoreService.instance.remove ('rpivMap:' + cloudId);
+         }
+         // TODO: add error handling for non 200, non 404
+      }
+
+      var pendingTags = StoreService.instance.get ('pending:' + pivId);
+      if (pendingTags == '') pendingTags = [];
+      if (untag) pendingTags.remove (tag);
+      else     pendingTags.add    (tag);
+      if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + pivId, pendingTags, 'disk');
+      else                        StoreService.instance.remove ('pendingTags:' + pivId, 'disk');
+
+      if (! untag) return PivService.instance.queuePiv (piv);
+
+      // If we're untagging a piv that's not uploaded yet and we removed its last tag, we need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function. Also, we will remove it from the upload queue.
+      if (pendingTags.length == 0) {
+         StoreService.instance.remove ('pivMap:' + pivId);
+         var uploadQueueIndex;
+         PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
+            if (queuedPiv.id == pivId) uploadQueueIndex = index;
+         });
+         if (uploadQueueIndex != null) {
+            PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
+         }
+      }
    }
 
    getTaggedPivs (String tag, String type) async {

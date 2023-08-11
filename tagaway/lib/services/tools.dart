@@ -17,15 +17,16 @@ int ms (date) {
 
 int initT = now ();
 
-void debug (List params) {
+void debug (dynamic params, [sendToServer = false]) {
   String acc = 'DEBUG (' + (now () - initT).toString () + 'ms)';
   params.forEach ((v) => acc += ' ' + v.toString ());
   print (acc);
+  if (sendToServer) ajax ('post', 'debug', {'DEBUG': [(now () - initT).toString () + 'ms', ...params]});
 }
 
 bool ajaxLogs = true;
 
-Future<dynamic> ajax (String method, String path, [dynamic body]) async {
+Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = const {}]) async {
   // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
   String cookie = await StoreService.instance.getBeforeLoad('cookie');
   int start = now ();
@@ -36,10 +37,8 @@ Future<dynamic> ajax (String method, String path, [dynamic body]) async {
           headers: {'cookie': cookie});
     } else {
 
-      if (path != 'auth/login' &&
-          path != 'auth/signup' &&
-          path != 'auth/recover') {
-        body ['csrf'] = await StoreService.instance.get('csrf');
+      if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover') {
+        body ['csrf'] = await StoreService.instance.get ('csrf');
       }
       var httpOperation = method == 'post' ? http.post : http.put;
       response = await httpOperation(Uri.parse(kAltoPicAppURL + '/' + path),
