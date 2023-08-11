@@ -20,6 +20,9 @@ import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
+// Used to access content in the service
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
     // Ignore this annoying dev error.
@@ -54,6 +57,7 @@ class Tagaway extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,

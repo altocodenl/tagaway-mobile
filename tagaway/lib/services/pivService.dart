@@ -108,7 +108,9 @@ class PivService {
          if (! AuthService.instance.isLogged ()) return;
          if (result ['code'] == 200) {
             // Success, remove from queue and keep on going.
-            uploadQueue.removeAt (0);
+            // It could be that an untagging just removed the piv from the queue, so we check.
+            // TODO: iterate and make sure we're removing the proper one, in case an untagging just removed the one we just uploaded.
+            if (uploadQueue.length > 0) uploadQueue.removeAt (0);
             updateUploadQueue ();
          }
          else if (result ['code'] > 400) {

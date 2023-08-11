@@ -64,7 +64,7 @@ class TagService {
          await queryPivs (StoreService.instance.get ('queryTags'));
        }
     }
-    return response['code'];
+    return response ['code'];
   }
 
   updateLastNTags (var tag, [bool refreshExistingList = false]) {
@@ -108,22 +108,24 @@ class TagService {
 
       if (cloudId != '' && cloudId != true) {
          var code = await tagPivById (cloudId, tag, untag);
-         if (type == 'uploaded') return;
-         // If we're here, we're dealing with local pivs.
+         var unexpectedCode = type == 'local' ? (code != 200 && code != 404) : code != 200;
+         if (unexpectedCode) {
+            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'local' ? 'L' : 'C') + code.toString (), 'yellow');
+         }
 
-         // If piv still exists, we are done. If we got a 404, we need to re-upload it.
          if (code == 200) return;
+
          if (code == 404) {
-            StoreService.instance.remove ('pivMap:' + pivId);
+            StoreService.instance.remove ('pivMap:'  + pivId);
             StoreService.instance.remove ('rpivMap:' + cloudId);
          }
-         // TODO: add error handling for non 200, non 404
       }
 
       var pendingTags = StoreService.instance.get ('pending:' + pivId);
       if (pendingTags == '') pendingTags = [];
-      if (untag) pendingTags.remove (tag);
-      else     pendingTags.add    (tag);
+
+      untag ? pendingTags.remove (tag) : pendingTags.add (tag);
+
       if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + pivId, pendingTags, 'disk');
       else                        StoreService.instance.remove ('pendingTags:' + pivId, 'disk');
 

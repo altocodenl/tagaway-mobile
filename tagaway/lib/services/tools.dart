@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
+import 'package:tagaway/main.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/services/storeService.dart';
 
 int now () {
@@ -228,4 +230,9 @@ hashPiv (dynamic pivId) async {
    }
    if (remainder.length > 0) hash = murmurhashV3 (Uint8List.fromList (remainder), 0, hash, fileLength);
    return hash.toString () + ':' + fileLength.toString ();
+}
+
+showSnackbar (String message, String color) {
+   var context = navigatorKey.currentState?.context;
+   SnackBarGlobal.buildSnackBar (context!, message, color);
 }
