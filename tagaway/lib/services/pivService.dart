@@ -59,6 +59,8 @@ class PivService {
          StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash']);
          var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
          if (pendingTags != '') {
+            // Done preventively before tagPivById
+            StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
             for (var tag in pendingTags) {
                // We don't await for this, we keep on going to fire the tag operations as quickly as possible without delaying further uploads.
                TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
