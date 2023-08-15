@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Update orgMap when untagging by checking against server.
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Open local pivs (Tom/Mono)
 - Go back home button on top left of cloud grid (Tom)
