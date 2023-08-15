@@ -1,18 +1,17 @@
 import 'dart:io';
 import 'dart:async';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
 
 class PivService {
-   PivService._privateConstructor ();
-   static final PivService instance = PivService._privateConstructor ();
+   PivService._ ();
+   static final PivService instance = PivService._ ();
 
    var uploadQueue = [];
    var upload      = {};
@@ -355,7 +354,6 @@ class PivService {
    }
 
    deleteLocalPivs (ids) async {
-      var currentlyUploading = [];
       uploadQueue.forEach ((queuedPiv) {
          if (ids.contains (queuedPiv.id)) {
             StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');

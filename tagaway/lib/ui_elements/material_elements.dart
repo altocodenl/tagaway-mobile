@@ -1085,7 +1085,7 @@ class GridItemSelection extends StatefulWidget {
 
   @override
   State<GridItemSelection> createState() =>
-      _GridItemSelectionState(this.id, this.type);
+      _GridItemSelectionState(id, type);
 }
 
 class _GridItemSelectionState extends State<GridItemSelection> {

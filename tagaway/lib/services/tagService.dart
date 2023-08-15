@@ -2,7 +2,6 @@ import 'dart:core';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
@@ -184,9 +183,6 @@ class TagService {
    }
 
    computeTimeHeader () {
-      var localCount  = {};
-      var remoteCount = {};
-      var lastPivInMonth = {};
       var output      = [];
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];

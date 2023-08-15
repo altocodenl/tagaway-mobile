@@ -198,7 +198,11 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         childAspectRatio: 4,
                         children: (() {
                           List<Widget> output = [];
-                          if (queryResult['tags']['u::'] > 0)
+                          // In rare cases, an exception is thrown when queryResult['tags']['u::'] is `null`.
+                          // This is likely a client error, since the server always a tags object with `u::` inside.
+                          // The same goes for t:: and o:: below.
+                          // TODO: eliminate the root cause of this bug.
+                          if ((queryResult['tags']['u::'] ?? 0) > 0)
                             output.add(QuerySelectionTagElement(
                               onTap: () {
                                 TagService.instance.toggleQueryTag('u::');
@@ -211,7 +215,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                               iconColor: kGrey,
                               tagTitle: 'Untagged',
                             ));
-                          if (queryResult['tags']['t::'] > 0)
+                          if ((queryResult['tags']['t::'] ?? 0) > 0)
                             output.add(QuerySelectionTagElement(
                               onTap: () {
                                 TagService.instance.toggleQueryTag('t::');
@@ -224,7 +228,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                               iconColor: kGrey,
                               tagTitle: 'To Organize',
                             ));
-                          if (queryResult['tags']['o::'] > 0)
+                          if ((queryResult['tags']['o::'] ?? 0) > 0)
                             output.add(QuerySelectionTagElement(
                               onTap: () {
                                 TagService.instance.toggleQueryTag('o::');

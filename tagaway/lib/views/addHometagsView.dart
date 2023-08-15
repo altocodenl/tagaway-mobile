@@ -137,7 +137,7 @@ class CustomSearchDelegate extends SearchDelegate {
   dynamic potentialHometags = [];
 
   CustomSearchDelegate(dynamic potentialHometags)
-      : this.potentialHometags = potentialHometags;
+      : potentialHometags = potentialHometags;
 
   @override
   List<Widget> buildActions(BuildContext context) {

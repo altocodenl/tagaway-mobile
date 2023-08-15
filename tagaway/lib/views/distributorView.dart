@@ -1,8 +1,6 @@
 import 'dart:core';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/permissionService.dart';
 import 'package:tagaway/services/storeService.dart';

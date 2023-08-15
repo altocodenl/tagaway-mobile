@@ -552,5 +552,3 @@ This concludes the function.
       }
    }
 ```
-
-

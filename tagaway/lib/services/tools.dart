@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
 import 'package:photo_manager/photo_manager.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
+
 import 'package:tagaway/main.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -213,7 +214,7 @@ hashPiv (dynamic pivId) async {
    var fileLength = await file.length ();
    var inputStream = file.openRead ();
 
-   var hash = null;
+   var hash;
    var remainder = <int>[];
    int processedBytes = 0;
    await for (var data in inputStream) {

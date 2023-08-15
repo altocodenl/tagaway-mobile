@@ -65,11 +65,11 @@ class StoreService {
       }
       // We load prefs directly to have them already available.
       var prefs = await SharedPreferences.getInstance ();
-      var keys = await prefs.getKeys ().toList ();
+      var keys = prefs.getKeys ().toList ();
       keys.sort ();
       for (var k in keys) {
          store [k] = await jsonDecode (prefs.getString (k) ?? '""');
-      };
+      }
       if (showLogs) keys.forEach ((k) => debug (['STORE LOAD', k, jsonEncode (store [k])]));
       if (showLogs) debug (['STORE LOAD COMPLETE']);
       loaded = true;
@@ -82,7 +82,7 @@ class StoreService {
       store [key] = value;
       if (mute != 'mute') updateStream.add (key);
       // Some fields should not be stored, we want these to be in-memory only
-      if (disk == 'disk') await prefs.setString (key, jsonEncode (value));
+      if (disk == 'disk') prefs.setString (key, jsonEncode (value));
    }
 
    get (String key) {
@@ -96,7 +96,7 @@ class StoreService {
       if (! loaded) {
          // We load prefs directly to have them already available.
          var prefs = await SharedPreferences.getInstance ();
-         var value = await prefs.getString (key);
+         var value = prefs.getString (key);
          var decoded = jsonDecode (value ?? '""');
          if (showLogs) debug (['STORE GET', key, jsonEncode (decoded)]);
          return decoded;
@@ -128,11 +128,11 @@ class StoreService {
   }
 
    cleanupDeprecatedKeys () async {
-      var keys = await prefs.getKeys ().toList ();
+      var keys = prefs.getKeys ().toList ();
       // We no longer store pivMap: and rpivMap: keys on disk
       for (var k in keys) {
          if (RegExp ('^r?pivMap:').hasMatch (k)) await prefs.remove (k);
-      };
+      }
    }
 
 }
