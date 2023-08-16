@@ -1,75 +1,81 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 
 class PivService {
    PivService._ ();
    static final PivService instance = PivService._ ();
 
-   var uploadQueue = [];
-   var upload      = {};
    var localPivs   = [];
-   var localPivsLoaded = false;
-   bool uploading  = false;
-   var recomputeLocalPages = true;
+   var upload      = {};
+   var uploadQueue = [];
+
+   bool localPivsLoaded     = false;
+   bool recomputeLocalPages = true;
+   bool uploading           = false;
 
    startUpload () async {
-      // Reuse existing upload if it has been used less than nine minutes ago.
       if (upload ['time'] != null && (upload ['time'] + 9 * 60 * 1000 >= now ())) {
          upload ['time'] = now ();
          return upload ['id'];
       }
+
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
+
+      if (response ['code'] != 200) {
+         showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + response ['code'].toString (), 'yellow');
+         return false;
+      }
+
       upload = {'id': response ['body'] ['id'], 'time': now ()};
       return upload ['id'];
-      // TODO: handle errors
    }
 
    completeUpload () async {
-      if (upload ['time'] == null) return;
-      var response = await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
+      await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
       upload = {};
-      return response ['code'];
    }
 
    uploadPiv (dynamic piv) async {
       File file = await piv.originFile;
 
+      var uploadId = await startUpload ();
+      if (uploadId == false) return;
+
       var response = await ajaxMulti ('piv', {
-         // TODO: handle error in startUpload
-         'id':           await startUpload (),
+         'id':           uploadId,
          'tags':         '[]',
          'lastModified': piv.createDateTime.millisecondsSinceEpoch
       }, file.path);
 
-      if (! AuthService.instance.isLogged ()) return;
+      if (response ['code'] != 200) return response;
 
-      if (response ['code'] == 200) {
-         StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
-         StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
-         // We set the hashMap in case it wasn't already locally set. If we overwrite it, it shouldn't matter, since the server and the client compute them in the same way.
-         StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash']);
-         var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
-         if (pendingTags != '') {
-            // Done preventively before tagPivById
-            StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
-            for (var tag in pendingTags) {
-               // We don't await for this, we keep on going to fire the tag operations as quickly as possible without delaying further uploads.
-               TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
-            }
+      StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
+      StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+
+      StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash'], 'disk');
+
+      var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
+      if (pendingTags != '') {
+         StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
+         for (var tag in pendingTags) {
+            TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
          }
-         StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
-         if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') {
-            deleteLocalPivs ([piv.id]);
-            StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
-         }
+      }
+
+      StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
+      if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') {
+         deleteLocalPivs ([piv.id]);
+         StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
       }
       return response;
    }
@@ -146,7 +152,6 @@ class PivService {
       }
 
       if (uploadQueue.length == 0) {
-         // TODO: handle error in completeUpload
          await completeUpload ();
          return uploading = false;
       }
@@ -375,17 +380,17 @@ class PivService {
       recomputeLocalPages = true;
   }
 
-   // Used only for local pivs
-   queryOrganizedIds () async {
-      var ids = [];
-      for (var piv in PivService.instance.localPivs) {
-         var uploadedId = StoreService.instance.get ('pivMap:' + piv.id);
-         // If piv exists and is not being uploaded, add it.
-         if (uploadedId != '' && uploadedId != true) ids.add (uploadedId);
+   queryOrganizedIds ([id = null]) async {
+      var ids = id == null ? [] : [id];
+      if (id == null) {
+         for (var piv in PivService.instance.localPivs) {
+            var uploadedId = StoreService.instance.get ('pivMap:' + piv.id);
+            // If piv exists and is not being uploaded, add it.
+            if (uploadedId != '' && uploadedId != true) ids.add (uploadedId);
+         }
       }
 
-      // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
-      var response = await ajax ('post', 'organized', {'ids': ids, 'csrf': 'foo'});
+      var response = await ajax ('post', 'organized', {'ids': ids});
       // TODO: handle errors
       if (response ['code'] != 200) return;
 

@@ -50,18 +50,20 @@ class TagService {
 
   tagPivById (String id, String tag, bool del) async {
     var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
-    if (response['code'] == 200) {
-       var hometags = StoreService.instance.get ('hometags');
-       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
-       await queryPivs (StoreService.instance.get ('queryTags'), true);
-       var total = StoreService.instance.get ('queryResult')['total'];
+    if (response['code'] != 200) return response ['code'];
 
-       if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
-         StoreService.instance.set('swipedUploaded', false);
-         StoreService.instance.set('currentlyTaggingUploaded', '');
-         StoreService.instance.set ('queryTags', []);
-         await queryPivs (StoreService.instance.get ('queryTags'));
-       }
+    await PivService.instance.queryOrganizedIds (id);
+
+    var hometags = StoreService.instance.get ('hometags');
+    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+    await queryPivs (StoreService.instance.get ('queryTags'), true);
+    var total = StoreService.instance.get ('queryResult')['total'];
+
+    if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+      StoreService.instance.set('swipedUploaded', false);
+      StoreService.instance.set('currentlyTaggingUploaded', '');
+      StoreService.instance.set ('queryTags', []);
+      await queryPivs (StoreService.instance.get ('queryTags'));
     }
     return response ['code'];
   }
@@ -412,8 +414,7 @@ class TagService {
   }
 
   deleteUploadedPivs (dynamic ids) async {
-    // TODO: Why do we need to pass 'csrf' here? We don't do it on any other ajax calls! And yet, if we don't, the ajax call fails with a type error. Madness.
-    var response = await ajax ('post', 'delete', {'ids': ids, 'csrf': 'foo'});
+    var response = await ajax ('post', 'delete', {'ids': ids});
     ids.forEach ((id) {
        var localPivId = StoreService.instance.get ('rpivMap:' + id);
        if (localPivId != '') {

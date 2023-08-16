@@ -3,6 +3,8 @@
 ## TODO
 
 - Update orgMap when untagging by checking against server.
+
+- Hide pivs with pendingDeletion
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Open local pivs (Tom/Mono)
 - Go back home button on top left of cloud grid (Tom)
@@ -109,9 +111,241 @@ For now, we only have annotated fragments of the code. This might be expanded co
 
 ### `services/pivService.dart`
 
+The pivService is concerned with operations concerning local pivs. Some of them don't involve the server, and others do.
+
+We start by importing native packages, then libraries, and finally other parts of our code.
+
+```dart
+import 'dart:async';
+import 'dart:io';
+
+import 'package:collection/collection.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
+import 'package:photo_manager/photo_manager.dart';
+
+import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
+```
+
+We initialize the class `PivService`.
+
+```dart
+class PivService {
+```
+
+PivService, like the rest of our services, will be initialized as a singleton. That means that the class will only be initialized once, so for practical purposes the class and its instance are the same thing. The class will expose itself through its `instance` property. Other services will be able to use its methods and access its properties through `PivService.instance`.
+
+```dart
+   PivService._ ();
+   static final PivService instance = PivService._ ();
+```
+
 The function `computeLocalPages` will create each of the "pages" of the local view. Each page represents a time period and contains zero or more local pivs.
 
 The function takes no arguments, since it gets all its info from the store. While the function is synchronous, it will set up a couple of asynchronous operation the first time is executed.
+
+PivService has three properties that hold data:
+
+- `localPivs`, an array with all local pivs, sorted with the most recent ones first.
+- `upload`, an upload object of the form `{'id': ..., 'time': INT}`, which indicates the id of the last upload object created from this client. The `time` entry indicates when the upload object was last used, since the server makes them expire after 10 minutes of inactivity.
+- `uploadQueue`, which contains the pivs to be uploaded.
+
+```dart
+   var localPivs   = [];
+   var upload      = {};
+   var uploadQueue = [];
+```
+
+
+PivService has also three properties that are flags:
+
+- `localPivsLoaded`, which is set to `true` if the local pivs have been loaded already. Since the loading of pivs can take several seconds, it is important to signal when the operation has concluded.
+- `recomputeLocalPages`, a flag that is set to `true` if we need to recompute the local pages. The local pages are data objects that determine how many months - and which pivs - are visible in the Local view.
+- `uploading`, a flag that is set to `true` if we are currently uploading a piv.
+
+```dart
+   bool localPivsLoaded     = false;
+   bool recomputeLocalPages = true;
+   bool uploading           = false;
+```
+
+We now define `startUpload`. The tagaway server groups multiple uploaded pivs into a single upload group. This function doesn't actually perform a piv upload, but instead create a new upload group with the server - or reuses an existing one, if it's still active.
+
+The concept of upload group makes much more sense for the web version of tagaway, where users upload things in batch; grouping uploads in the context of a mobile app is much more arbitrary, since the only thing binding uploads together is their proximity in time; but we continue with this logic to be consistent with the web version - and it sure looks nicer than creating an individual upload group for each uploaded piv.
+
+```dart
+   startUpload () async {
+```
+
+If there's an existing upload that has been used less than nine minutes ago, the function will update its `time` property and return the id of the upload. While the server allows for 10 minutes of inactivity, we remove one minute to have a margin of error.
+
+```dart
+      if (upload ['time'] != null && (upload ['time'] + 9 * 60 * 1000 >= now ())) {
+         upload ['time'] = now ();
+         return upload ['id'];
+      }
+```
+
+We make a call to `POST /upload` indicating the `'start'` operation, sending no tags (since the tags will be added after each individual upload), and indicating that the total is 1; the total as 1 will be plain wrong if the user uplaods more than one piv on this upload group, but it's a required value.
+
+```dart
+      var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
+```
+
+If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error.
+
+```dart
+      if (response ['code'] != 200) {
+         showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
+         return false;
+      }
+```
+
+We set the `upload` property of PivService to a new object with the `id` we just obtained, as well as the current time.
+
+```dart
+      upload = {'id': response ['body'] ['id'], 'time': now ()};
+```
+
+We return the `id` and close the function.
+
+```dart
+      return upload ['id'];
+   }
+```
+
+We now define `completeUpload`, the converse operation of `startUpload`. This function will let the server know that a given upload group is finished. Later we will see that this function is executed when the upload queue is empty and there are no more pivs left to upload.
+
+
+```dart
+   completeUpload () async {
+```
+
+We will simply make the call to the server. If the upload queue just finished processing, there should be an upload group id, so we shouldn't check whether there is one or not.
+
+```dart
+      await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
+```
+
+We update the `upload` property to an empty object to indicate that a new upload group has to be created in future uploads. This closes the function.
+
+```dart
+      upload = {};
+   }
+```
+
+We define `uploadPiv`, the function that will actually upload a piv to the server. It takes a single piv - this will be one of the pivs inside `localPivs`. It's typed as dynamic because of my blatant disregard for Dart's type system.
+
+```dart
+   uploadPiv (dynamic piv) async {
+```
+
+We get the actual file of the piv. This functionality is provided by PhotoManager.
+
+```dart
+      File file = await piv.originFile;
+```
+
+We get the `uploadId` from `startUpload`, which will either give us an existing upload group id or make a new one; if we get `false`, the operation failed and we cannot proceed, so we don't do anything else. In this case, we don't even print an error, since that will have been done by `startUpload`.
+
+```dart
+      var uploadId = await startUpload ();
+      if (uploadId == false) return;
+```
+
+We send the actual piv to the server using the `ajaxMulti` function. Besides the piv itself, we send three text fields:
+
+- `id`, the upload group id.
+- `tags`, an empty list of tags that should be applied to this piv. We send none, since the piv will be tagged later, after it is uploaded.
+- `lastModified`, the create time of the piv converted to milliseconds.
+
+```dart
+      var response = await ajaxMulti ('piv', {
+         'id':           uploadId,
+         'tags':         '[]',
+         'lastModified': piv.createDateTime.millisecondsSinceEpoch
+      }, file.path);
+```
+
+If we do not get a 200, we return the response and do not do anything else. The calling function, `queuePiv` (which we'll define later) will handle any errors.
+
+```dart
+      if (response ['code'] != 200) return response;
+```
+
+We set a `pivMap` entry for this piv, mapping it to the id of the freshly uploaded piv. We also add a reverse entry (`rpivMap`) connecting the freshly uploaded piv with its local counterpart.
+
+```dart
+      StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
+      StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+```
+
+We set the `hashMap` for this piv. The client and the server determine this hash in the same way using the same algorithm, so if we overwrite our local entry, it should make no difference. The reason we write this `hashMap` here is that if we are uploading a piv that hasn't been hashed by the client yet, we can already set it and save the client the expense of hashing the piv.
+
+Note the `hashMap` entry is stored in disk and will persist if the app restarts.
+
+```dart
+      StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash'], 'disk');
+```
+
+After the piv is successfully added, it is now time to tag it. If there are tags that should be applied to it, they will be at the `pendingTags:ID` key.
+
+```dart
+      var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
+```
+
+If there are pending tags, then we will start by setting `orgMap:ID` (the `orgMap` entry for the uploaded counterpart of this local piv) to `true`. The rationale is the following: if the piv will be tagged, we automatically consider it as tagged. Therefore, it is correct to set this entry.
+
+The practical reason for preventively setting this entry is that the tagging operation will take anywhere between 100ms and a second - in that time, the piv can briefly reappear in the local pivs page, since it will be considered uploaded but not organized yet.
+
+```dart
+      if (pendingTags != '') {
+         StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
+```
+
+We now iterate the tags in `pendingTags` and invoke `tagPivById`. Rather than `await`ing for these operations, we fire them concurrently since we want to continue the next upload as soon as possible.
+
+
+```dart
+         for (var tag in pendingTags) {
+            TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
+         }
+```
+
+This concludes the logic for tagging the uploaded piv.
+
+```dart
+      }
+```
+
+We remove the `pendingTags` key. Note we do this on disk as well, since that key needs to persist if the app is restarted.
+
+```dart
+      StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
+```
+
+If the piv was set to be deleted, but we couldn't delete it yet because it was queued to be uploaded first, it is now safe to delete it. We invoke `deleteLocalPivs` passing the piv id inside an array. We also remove the `pendingDeletion` key, also from disk.
+
+```dart
+      if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') {
+         deleteLocalPivs ([piv.id]);
+         StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
+      }
+```
+
+There's nothing else to do, so we return the response and close the function.
+
+```dart
+      return response;
+   }
+```
+
+
+
+
 
 ```dart
    computeLocalPages () {
@@ -440,7 +674,7 @@ Note: `cloudId` can be `true` for local pivs that are currently in the upload qu
       if (cloudId != '' && cloudId != true) {
 ```
 
-We invoke the `tagPivById` function, passing the `cloud`Id`, the `tag` itself and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
+We invoke the `tagPivById` function, passing the `cloudId`, the `tag` itself and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
 
 ```dart
          var code = await tagPivById (cloudId, tag, untag);
@@ -454,7 +688,7 @@ If we are tagging a cloud piv, a 404 is considerably more unlikely, because the 
          var unexpectedError = type == 'local' ? (code != 200 && code != 404) : code != 200;
 ```
 
-If there was an unexpected error, we invoke the `showSnackbar` function with an error message indicating the erorr code. The error code will be `TAG:L:CODE` (for local pivs) and `TAG:C:CODE` for cloud pivs.
+If there was an unexpected error, we invoke the `showSnackbar` function with an error message indicating the error code. The error code will be `TAG:L:CODE` (for local pivs) and `TAG:C:CODE` for cloud pivs.
 
 ```dart
          if (unexpectedError) {
