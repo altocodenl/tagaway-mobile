@@ -52,7 +52,8 @@ class TagService {
     var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
     if (response['code'] != 200) return response ['code'];
 
-    await PivService.instance.queryOrganizedIds (id);
+    // we do this here because if we just uploaded a local piv, we don't know if its uploaded counterpart is in the current query.
+    await queryOrganizedIds ([id]);
 
     var hometags = StoreService.instance.get ('hometags');
     if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
@@ -328,33 +329,17 @@ class TagService {
       queryResult ['total'] = firstQueryResult ['total'];
       StoreService.instance.set ('queryResult', queryResult);
 
-      var orgIds;
-      if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
-      else {
-         response = await ajax ('post', 'query', {
-            // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
-            'tags': ([...tags]..addAll (currentMonthTags)..addAll (['o::'])).toSet ().toList (),
-            'sort': 'newest',
-            'from': 1,
-            'to': firstLoadSize,
-            'idsOnly': true
+      if (tags.contains ('o::')) {
+         // Iterate only returned pivs, since only those will be shown initially
+         queryResult ['pivs'].forEach ((piv) {
+            // Ignore the empty entries created by our array with empty objects as placeholders for what's not loaded yet
+            if (piv ['id'] != null) StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
-         if (! listEquals (queryTags, tags)) return;
-
-         // TODO: NOTIFY ERRORS
-         if (response ['code'] != 200) return;
-         orgIds = response['body'];
+      }
+      else {
+         await queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).where ((id) => id != null).toList ());
       }
 
-      // Iterate only returned pivs, since only those will be shown initially
-      queryResult ['pivs'].forEach ((piv) {
-         // Ignore the empty entries created by our array with empty objects as placeholders for what's not loaded yet
-         if (piv ['id'] == null) return;
-         var wasOrganized = StoreService.instance.get ('orgMap:' + piv ['id']) != '';
-         var isOrganized = orgIds.contains (piv ['id']);
-         if (! wasOrganized && isOrganized) StoreService.instance.set ('orgMap:' + piv ['id'], true);
-         if (wasOrganized && ! isOrganized) StoreService.instance.remove ('orgMap:' + piv ['id']);
-      });
 
       if (queryResult ['total'] > firstLoadSize) {
 
@@ -378,29 +363,14 @@ class TagService {
 
          StoreService.instance.set ('queryResult', queryResult, '', 'mute');
 
-         if (tags.contains ('o::')) orgIds = queryResult ['pivs'].map ((v) => v['id']);
-         else {
-            response = await ajax ('post', 'query', {
-               // If there's a month or year tag (or both) in the query, by converting the list into a set and then a list we remove duplicates.
-               'tags': ([...tags]..addAll (currentMonthTags)..addAll (['o::'])).toSet ().toList (),
-               'sort': 'newest',
-               'from': 1,
-               'to': 100000,
-               'idsOnly': true
-            });
-            if (! listEquals (queryTags, tags)) return;
-
-            // TODO: NOTIFY ERRORS
-            if (response ['code'] != 200) return;
-            orgIds = response['body'];
-
-            // Iterate all pivs now, since only those will be shown initially
+         if (tags.contains ('o::')) {
+            // Iterate only returned pivs, since only those will be shown initially
             queryResult ['pivs'].forEach ((piv) {
-               var wasOrganized = StoreService.instance.get ('orgMap:' + piv ['id']) != '';
-               var isOrganized = orgIds.contains (piv ['id']);
-               if (! wasOrganized && isOrganized) StoreService.instance.set ('orgMap:' + piv ['id'], true);
-               if (wasOrganized && ! isOrganized) StoreService.instance.remove ('orgMap:' + piv ['id']);
+               StoreService.instance.set ('orgMap:' + piv ['id'], true);
             });
+         }
+         else {
+            await queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']));
          }
       }
       return {'code': response ['code'], 'body': response ['body']};
@@ -492,4 +462,18 @@ class TagService {
       return {'previousMonth': previousMonth, 'nextMonth': nextMonth};
    }
 
+   queryOrganizedIds (dynamic ids) async {
+      var response = await ajax ('post', 'organized', {'ids': ids});
+      // TODO: handle errors
+      if (response ['code'] != 200) return;
+
+      var organizedIds = {};
+      response ['body'].forEach ((id) {
+         organizedIds [id] = true;
+      });
+
+      ids.forEach ((id) {
+         StoreService.instance.set ('orgMap:' + id, organizedIds [id] == true ? true : '');
+      });
+   }
 }

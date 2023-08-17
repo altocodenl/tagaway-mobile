@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -193,7 +192,8 @@ class PivService {
          await queryExistingHashes ();
       }
 
-      await queryOrganizedIds ();
+      await queryOrganizedLocalPivs ();
+
       // No need to await this function since it's sync.
       computeLocalPages ();
 
@@ -203,6 +203,16 @@ class PivService {
       // We won't await for the computation of hashes, but we will for querying the existing hashes.
       // We only compute hashes once all pivs are loaded
       computeHashes ();
+   }
+
+   queryOrganizedLocalPivs () async {
+      var cloudIds = [];
+      for (var piv in localPivs) {
+         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+         // If piv exists and is not being uploaded, add it.
+         if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
+      }
+      await TagService.instance.queryOrganizedIds (cloudIds);
    }
 
    reviveUploads () async {
@@ -334,10 +344,7 @@ class PivService {
          StoreService.instance.set ('localPagesLength', pages.length);
       }
       pages.asMap ().forEach ((index, page) {
-         var existingPage = StoreService.instance.get ('localPage:' + index.toString ());
-         if (existingPage == '' || ! DeepCollectionEquality ().equals (existingPage, page)) {
-            StoreService.instance.set ('localPage:' + index.toString (), page);
-         }
+         StoreService.instance.set ('localPage:' + index.toString (), page);
       });
 
       if (StoreService.instance.get ('localPagesListener') == '') {
@@ -380,29 +387,4 @@ class PivService {
       recomputeLocalPages = true;
   }
 
-   queryOrganizedIds ([id = null]) async {
-      var ids = id == null ? [] : [id];
-      if (id == null) {
-         for (var piv in PivService.instance.localPivs) {
-            var uploadedId = StoreService.instance.get ('pivMap:' + piv.id);
-            // If piv exists and is not being uploaded, add it.
-            if (uploadedId != '' && uploadedId != true) ids.add (uploadedId);
-         }
-      }
-
-      var response = await ajax ('post', 'organized', {'ids': ids});
-      // TODO: handle errors
-      if (response ['code'] != 200) return;
-
-      var organizedIds = {};
-      response ['body'].forEach ((id) {
-         organizedIds [id] = true;
-      });
-
-      ids.forEach ((id) {
-         var desiredValue = organizedIds [id] == true ? true : '';
-         var currentValue = StoreService.instance.get ('orgMap:' + id);
-         if (currentValue != desiredValue) StoreService.instance.set ('orgMap:' + id, desiredValue);
-      });
-   }
 }

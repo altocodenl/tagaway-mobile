@@ -2,8 +2,6 @@
 
 ## TODO
 
-- Update orgMap when untagging by checking against server.
-
 - Hide pivs with pendingDeletion
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Open local pivs (Tom/Mono)
@@ -113,13 +111,12 @@ For now, we only have annotated fragments of the code. This might be expanded co
 
 The pivService is concerned with operations concerning local pivs. Some of them don't involve the server, and others do.
 
-We start by importing native packages, then libraries, and finally other parts of our code.
+We start by importing native packages, then libraries, and finally other parts of our app.
 
 ```dart
 import 'dart:async';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -532,24 +529,12 @@ We are now done constructing `pages` and are ready to perform updates in the sto
       if (StoreService.instance.get ('localPagesLength') != pages.length) StoreService.instance.set ('localPagesLength', pages.length);
 ```
 
-We iterate the pages, noting both the page itself and its index.
+We iterate the pages, noting both the page itself and its index. We then update `localPage:INDEX` with the new page.
 
 ```dart
       pages.asMap ().forEach ((index, page) {
-```
-
-We first get the existing page at the `index` position, which is stored at `localPage:INDEX`.
-
-```dart
-         var existingPage = StoreService.instance.get ('localPage:' + index.toString ());
-```
-
-If the page does not exist yet (and the store therefore returns an empty string), or if the old page is not exactly the same as the new page, we then update `localPage:INDEX` with the new page.
-
-```dart
-         if (existingPage == '' || ! DeepCollectionEquality ().equals (existingPage, page)) {
-            StoreService.instance.set ('localPage:' + index.toString (), page);
-         }
+         StoreService.instance.set ('localPage:' + index.toString (), page);
+      });
 ```
 
 This concludes the updating of the pages in the store.

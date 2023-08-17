@@ -181,7 +181,7 @@ class _LocalViewState extends State<LocalView> {
                           // We update the tag list in case we just created a new one.
                           TagService.instance.getTags();
                           // We update the list of organized pivs for those uploaded pivs that have a local counterpart
-                          PivService.instance.queryOrganizedIds();
+                          PivService.instance.queryOrganizedLocalPivs();
                         } else {
                           if (StoreService.instance
                                   .get('currentlyDeletingPivsLocal') !=

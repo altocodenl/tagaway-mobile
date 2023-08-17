@@ -1109,7 +1109,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
       'currentlyDeletingPivs' + (type == 'local' ? 'Local' : 'Uploaded')
     ], (v1, v2, v3, v4, v5, v6, v7) {
       setState(() {
-        // If currently tagging, set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
+        // Tagging mode: set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
         if (v3 != '')
           mode = v2 == '' ? 'gray' : 'green';
         // Delete mode
@@ -1117,7 +1117,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
           var currentlyDeletingPivs = v7;
           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
-          // See organized pivs
+          // Normal mode
         } else {
           var organized = type == 'uploaded'
               ? v1 != ''

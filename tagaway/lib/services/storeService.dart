@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:tagaway/services/tools.dart';
 
 class StoreService {
@@ -79,6 +82,8 @@ class StoreService {
    // It takes 'disk' as a third argument if you want the value to also be persisted to disk
    set (String key, dynamic value, [String disk = '', String mute = '']) async {
       if (showLogs) debug (['STORE SET', disk == 'disk' ? 'MEM & DISK' : 'MEM', key, jsonEncode (value)]);
+
+      if (DeepCollectionEquality ().equals (store [key], value)) return;
       store [key] = value;
       if (mute != 'mute') updateStream.add (key);
       // Some fields should not be stored, we want these to be in-memory only
@@ -114,8 +119,9 @@ class StoreService {
          return;
       }
       if (showLogs) debug (['STORE REMOVE', key]);
+      var existingValue = get (key);
       store [key] = '';
-      updateStream.add (key);
+      if (existingValue != '') updateStream.add (key);
       if (disk == 'disk') await prefs.remove (key);
    }
 
