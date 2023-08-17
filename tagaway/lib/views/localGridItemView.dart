@@ -2,7 +2,9 @@ import 'dart:io' show File;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -125,17 +127,69 @@ class ImageBig extends StatelessWidget {
           ),
         ),
       ),
-      body: Container(
-        color: kGreyDarkest,
-        alignment: Alignment.center,
-        child: FutureBuilder<File?>(
-          future: imageFile.file,
-          builder: (_, snapshot) {
-            final file = snapshot.data;
-            if (file == null) return Container();
-            return Image.file(file);
-          },
-        ),
+      body: Stack(
+        children: [
+          Container(
+            color: kGreyDarkest,
+            alignment: Alignment.center,
+            child: FutureBuilder<File?>(
+              future: imageFile.file,
+              builder: (_, snapshot) {
+                final file = snapshot.data;
+                if (file == null) return Container();
+                return Image.file(file);
+              },
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              color: kGreyDarkest,
+              child: SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: IconButton(
+                        onPressed: () async {
+                          WhiteSnackBar.buildSnackBar(
+                              context, 'Preparing your image for sharing...');
+                          final response = await imageFile.originBytes;
+                          final bytes = response;
+                          final temp = await getTemporaryDirectory();
+                          final path = '${temp.path}/image.jpg';
+                          File(path).writeAsBytesSync(bytes!);
+                          await Share.shareXFiles([XFile(path)]);
+                        },
+                        icon: const Icon(
+                          kShareArrownUpIcon,
+                          size: 25,
+                          color: kGreyLightest,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: IconButton(
+                        onPressed: () {
+                          // TagService.instance.deleteUploadedPivs([piv['id']]);
+                          // Local pivs delete
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          kTrashCanIcon,
+                          size: 25,
+                          color: kGreyLightest,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -211,13 +265,64 @@ class _VideoBigState extends State<VideoBig> {
           // If the video is initialized, display it
           ? Scaffold(
               backgroundColor: kGreyDarkest,
-              body: Center(
-                child: AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  // Use the VideoPlayer widget to display the video.
-                  child: VideoPlayer(_controller),
+              body: Stack(children: [
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    // Use the VideoPlayer widget to display the video.
+                    child: VideoPlayer(_controller),
+                  ),
                 ),
-              ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    color: kGreyDarkest,
+                    child: SafeArea(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: IconButton(
+                              onPressed: () async {
+                                WhiteSnackBar.buildSnackBar(context,
+                                    'Preparing your video for sharing...');
+                                final response =
+                                    await widget.videoFile.originBytes;
+                                final bytes = response;
+                                final temp = await getTemporaryDirectory();
+                                final path = '${temp.path}/video.mp4';
+                                File(path).writeAsBytesSync(bytes!);
+                                await Share.shareXFiles([XFile(path)]);
+                              },
+                              icon: const Icon(
+                                kShareArrownUpIcon,
+                                size: 25,
+                                color: kGreyLightest,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              onPressed: () {
+                                // TagService.instance.deleteUploadedPivs([piv['id']]);
+                                // Local pivs delete
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                kTrashCanIcon,
+                                size: 25,
+                                color: kGreyLightest,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
               floatingActionButton: FloatingActionButton(
                 backgroundColor: kAltoBlue,
                 onPressed: () {
