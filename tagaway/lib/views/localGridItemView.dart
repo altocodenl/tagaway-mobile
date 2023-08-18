@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -173,8 +174,7 @@ class ImageBig extends StatelessWidget {
                     Expanded(
                       child: IconButton(
                         onPressed: () {
-                          // TagService.instance.deleteUploadedPivs([piv['id']]);
-                          // Local pivs delete
+                          PivService.instance.deleteLocalPivs ([imageFile.id]);
                           Navigator.pop(context);
                         },
                         icon: const Icon(

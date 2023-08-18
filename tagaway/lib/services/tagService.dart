@@ -251,7 +251,8 @@ class TagService {
       if (currentPage != newCurrentPage) {
          var pageController = StoreService.instance.get ('timeHeaderController');
          // The conditional prevents scrolling semesters if the uploaded view is not active.
-         if (pageController.hasClients) {
+         // new current page might be null if suddenly there's no more pages due to untagging
+         if (pageController.hasClients && newCurrentPage != null) {
             pageController.animateToPage (newCurrentPage, duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
          }
       }
@@ -377,7 +378,8 @@ class TagService {
   }
 
   toggleQueryTag (String tag) {
-    var queryTags = StoreService.instance.get ('queryTags');
+    // We copy it to avoid the update not triggering anything
+    var queryTags = StoreService.instance.get ('queryTags').toList ();
     if (queryTags.contains (tag)) queryTags.remove (tag);
     else                          queryTags.add (tag);
     StoreService.instance.set ('queryTags', queryTags);
