@@ -2,7 +2,9 @@
 
 ## TODO
 
-- Hide pivs with pendingDeletion
+- Get the tick outside of the pivs so that they can be reused.
+- When not allowing pivs to be deleted, get that info so we do not remove them from localPivs.
+- Hide pivs with pendingDeletion.
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Open local pivs (Tom/Mono)
 - Go back home button on top left of cloud grid (Tom)
