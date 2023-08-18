@@ -436,6 +436,8 @@ class TagService {
       var key = 'currentlyDeletingPivs' + (view == 'local' ? 'Local' : 'Uploaded');
       var currentlyDeletingPivs = StoreService.instance.get (key);
       if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
+      // copy
+      currentlyDeletingPivs = currentlyDeletingPivs.toList ();
       if (! currentlyDeletingPivs.contains (id)) currentlyDeletingPivs.add (id);
       else currentlyDeletingPivs.remove (id);
       StoreService.instance.set (key, currentlyDeletingPivs);
