@@ -73,7 +73,9 @@ class _LocalViewState extends State<LocalView> {
   bool currentlyDeleting = false;
   bool currentlyDeletingModal = false;
 
-  dynamic localPagesLength = StoreService.instance.get ('localPagesLength') == '' ? 0 : StoreService.instance.get ('localPagesLength');
+  dynamic localPagesLength = StoreService.instance.get('localPagesLength') == ''
+      ? 0
+      : StoreService.instance.get('localPagesLength');
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
@@ -183,9 +185,10 @@ class _LocalViewState extends State<LocalView> {
                           // We update the list of organized pivs for those uploaded pivs that have a local counterpart
                           PivService.instance.queryOrganizedLocalPivs();
                         } else {
-                          if (StoreService.instance
-                                  .get('currentlyDeletingPivsLocal') !=
-                              '') {
+                          var currentlyDeleting = StoreService.instance
+                              .get('currentlyDeletingPivsLocal');
+                          if (currentlyDeleting != '' &&
+                              currentlyDeleting.length > 0) {
                             StoreService.instance
                                 .set('currentlyDeletingModalLocal', true);
                           } else {
@@ -203,8 +206,7 @@ class _LocalViewState extends State<LocalView> {
                 child: StartButton(
                     buttonKey: const Key('local-start-tagging'),
                     buttonText: 'Start',
-                    showButtonsKey: 'showButtonsLocal'
-                )),
+                    showButtonsKey: 'showButtonsLocal')),
             Visibility(
                 visible: showButtons,
                 child: DeleteButton(
