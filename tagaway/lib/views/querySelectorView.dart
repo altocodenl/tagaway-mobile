@@ -522,6 +522,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           child: FloatingActionButton.extended(
             onPressed: () {
               Navigator.pushReplacementNamed(context, 'bottomNavigation');
+              //  Now it is not enough to go back to 'bottomNavigation', but is has to go to 'bottomNavigation' with currentIndex = 2
             },
             backgroundColor: kAltoBlue,
             label: Text('See ' + queryResult['total'].toString() + ' pivs',
