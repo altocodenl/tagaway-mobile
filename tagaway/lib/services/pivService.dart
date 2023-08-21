@@ -40,7 +40,7 @@ class PivService {
    }
 
    completeUpload () async {
-      await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
+      if (upload ['id'] != null) await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
       upload = {};
    }
 
