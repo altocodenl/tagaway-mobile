@@ -2,15 +2,18 @@
 
 ## TODO
 
-- Get the tick outside of the pivs so that they can be reused.
-- When not allowing pivs to be deleted, get that info so we do not remove them from localPivs.
+- Go back home button on top left of cloud grid (Tom)
+- Home: add query selector search button, big one, on the bottom (Tom)
+- Carrousel of local pivs (Tom)
+- When entering text in query selector and then clicking on tag, keyboard should disappear (Tom)
+- In query selector, move selected tags up (Tom)
+- Persist last N tags to disk
+- Stop flickering when opening FAB or clicking on "done".
+- When not allowing pivs to be deleted, get that info so we do not remove them from localPivs (Tom).
 - Hide pivs with pendingDeletion.
 - Handle >= 400 errors with snackbar on tagService and uploadService
-- Open local pivs (Tom/Mono)
-- Go back home button on top left of cloud grid (Tom)
 - Create settings view with Change Password and enabled/disable geotagging (Tom)
-- Home: add query selector search button, big one, on the bottom
-- Home: Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put icon, put "coming soon!"
+- Home: Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Write a QA script (Tom)
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -223,10 +226,10 @@ We now define `completeUpload`, the converse operation of `startUpload`. This fu
    completeUpload () async {
 ```
 
-We will simply make the call to the server. If the upload queue just finished processing, there should be an upload group id, so we shouldn't check whether there is one or not.
+If we have an upload id, we will simply make the call to the server. If the upload queue just finished processing, there should be an upload group id, so we shouldn't check whether there is one or not.
 
 ```dart
-      await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
+      if (upload ['id'] != null) await ajax ('post', 'upload', {'op': 'complete', 'id': upload ['id']});
 ```
 
 We update the `upload` property to an empty object to indicate that a new upload group has to be created in future uploads. This closes the function.
