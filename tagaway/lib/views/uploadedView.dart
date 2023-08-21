@@ -913,6 +913,16 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(left: 20.0, right: 20),
                   child: Row(
                     children: [
+                      GestureDetector(
+                        onTap: () {
+                          //  call bottomNavigation but with currentIndex = 0
+                        },
+                        child: const Icon(
+                          kHomeIcon,
+                          color: kAltoBlue,
+                          size: 25,
+                        ),
+                      ),
                       // TODO: add go back home button here
                       const Expanded(
                         child: Align(
