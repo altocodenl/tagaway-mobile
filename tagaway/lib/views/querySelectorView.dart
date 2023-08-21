@@ -207,6 +207,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                               onTap: () {
                                 TagService.instance.toggleQueryTag('u::');
                                 searchQueryController.clear();
+                                FocusManager.instance.primaryFocus?.unfocus();
                               },
                               elementColor: queryTags.contains('u::')
                                   ? kSelectedTag
@@ -220,6 +221,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                               onTap: () {
                                 TagService.instance.toggleQueryTag('t::');
                                 searchQueryController.clear();
+                                FocusManager.instance.primaryFocus?.unfocus();
                               },
                               elementColor: queryTags.contains('t::')
                                   ? kSelectedTag
@@ -233,6 +235,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                               onTap: () {
                                 TagService.instance.toggleQueryTag('o::');
                                 searchQueryController.clear();
+                                FocusManager.instance.primaryFocus?.unfocus();
                               },
                               elementColor: queryTags.contains('o::')
                                   ? kSelectedTag
@@ -268,6 +271,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         onTap: () {
                           TagService.instance.toggleQueryTag(year);
                           searchQueryController.clear();
+                          FocusManager.instance.primaryFocus?.unfocus();
                         },
                         elementColor: queryTags.contains(year)
                             ? kSelectedTag
@@ -353,6 +357,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                           onTap: () {
                             TagService.instance.toggleQueryTag(month);
                             searchQueryController.clear();
+                            FocusManager.instance.primaryFocus?.unfocus();
                           },
                           elementColor: queryTags.contains(month)
                               ? kSelectedTag
@@ -396,6 +401,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                             onTap: () {
                               TagService.instance.toggleQueryTag(country);
                               searchQueryController.clear();
+                              FocusManager.instance.primaryFocus?.unfocus();
                             },
                             elementColor: queryTags.contains(country)
                                 ? kSelectedTag
@@ -469,6 +475,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                             onTap: () {
                               TagService.instance.toggleQueryTag(city);
                               searchQueryController.clear();
+                              FocusManager.instance.primaryFocus?.unfocus();
                             },
                             elementColor: queryTags.contains(city)
                                 ? kSelectedTag
@@ -506,6 +513,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         onTap: () {
                           TagService.instance.toggleQueryTag(tag);
                           searchQueryController.clear();
+                          FocusManager.instance.primaryFocus?.unfocus();
                         },
                         elementColor: queryTags.contains(tag)
                             ? kSelectedTag
@@ -521,6 +529,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           alignment: const Alignment(0.11, 1),
           child: FloatingActionButton.extended(
             onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
               Navigator.pushReplacementNamed(context, 'bottomNavigation');
             },
             backgroundColor: kAltoBlue,
