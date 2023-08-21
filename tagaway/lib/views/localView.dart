@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -717,6 +719,12 @@ class _GridState extends State<Grid> {
     loadPivs();
     cancelListener = StoreService.instance
         .listen(['localPage:' + widget.localPagesIndex.toString()], (v1) {
+      // If the list of ids in page['pivs'] is unchanged, we don't update the state to avoid redrawing the grid and experiencing a flicker.
+      if (page != '') {
+        var existingIds = page['pivs'].map((asset) => asset.id).toList();
+        var newIds = v1['pivs'].map((asset) => asset.id).toList();
+        if (DeepCollectionEquality().equals(existingIds, newIds)) return;
+      }
       setState(() {
         page = v1;
       });
