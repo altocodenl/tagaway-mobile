@@ -33,7 +33,7 @@ class UploadedGridItem extends StatelessWidget {
     return Stack(
       children: [
         CachedNetworkImage(
-            imageUrl: (kTagawayThumbSURL) + (piv['id']),
+            imageUrl: (kTagawayThumbMURL) + (piv['id']),
             httpHeaders: {'cookie': StoreService.instance.get('cookie')},
             placeholder: (context, url) => const Center(
                     child: CircularProgressIndicator(

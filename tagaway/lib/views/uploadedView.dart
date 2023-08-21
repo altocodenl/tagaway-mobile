@@ -719,7 +719,7 @@ class _UploadGridState extends State<UploadGrid> {
                 shrinkWrap: true,
                 cacheExtent: 50,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                  crossAxisCount: 2,
                   mainAxisSpacing: 1,
                   crossAxisSpacing: 1,
                 ),
