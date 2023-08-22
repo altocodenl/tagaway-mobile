@@ -68,10 +68,9 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 },
                 items: [
                   const BottomNavigationBarItem(
-                      icon: FaIcon(FontAwesomeIcons.house), label: ''),
+                      icon: FaIcon(kHomeIcon), label: ''),
                   const BottomNavigationBarItem(
-                      icon: FaIcon(FontAwesomeIcons.mobileScreenButton),
-                      label: 'Phone'),
+                      icon: FaIcon(kMobilePhoneIcon), label: 'Phone'),
                   BottomNavigationBarItem(
                       icon: const FaIcon(kCloudArrowUp), label: countUploaded),
                 ],

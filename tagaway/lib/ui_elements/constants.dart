@@ -68,6 +68,8 @@ const kFlagIcon = FontAwesomeIcons.solidFontAwesome;
 const kEndOfJourneyIcon = FontAwesomeIcons.roadCircleXmark;
 const kStartOfJourneyIcon = FontAwesomeIcons.roadCircleCheck;
 const kArrowRightLong = FontAwesomeIcons.arrowRightLong;
+const kHomeIcon = FontAwesomeIcons.house;
+const kMobilePhoneIcon = FontAwesomeIcons.mobileScreenButton;
 
 const tagColors = [
   kTagColor1,
