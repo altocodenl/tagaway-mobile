@@ -590,9 +590,6 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
     cancelListener();
   }
 
-  Function shorten =
-      (tag) => tag.length < 15 ? tag : tag.substring(0, 15) + '...';
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -638,59 +635,15 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                           ),
                           itemBuilder: (BuildContext context, index) {
                             var tag = queryTags[index];
-                            if (tag == 'u::')
-                              return const GridTagElement(
-                                gridTagElementIcon: kTagIcon,
-                                iconColor: kGrey,
-                                gridTagName: 'Untagged',
-                              );
-                            if (tag == 't::')
-                              return const GridTagElement(
-                                gridTagElementIcon: kBoxArchiveIcon,
-                                iconColor: kGrey,
-                                gridTagName: 'To Organize',
-                              );
-                            if (tag == 'o::')
-                              return const GridTagElement(
-                                gridTagElementIcon: kCircleCheckIcon,
-                                iconColor: kAltoOrganized,
-                                gridTagName: 'Organized',
-                              );
-                            // DATE TAG
-                            if (RegExp('^d::M').hasMatch(tag))
-                              return GridTagElement(
-                                  gridTagElementIcon: kClockIcon,
-                                  iconColor: kGreyDarker,
-                                  gridTagName: [
-                                    'Jan',
-                                    'Feb',
-                                    'Mar',
-                                    'Apr',
-                                    'May',
-                                    'Jun',
-                                    'Jul',
-                                    'Aug',
-                                    'Sep',
-                                    'Oct',
-                                    'Nov',
-                                    'Dec'
-                                  ][int.parse(tag.substring(4)) - 1]);
-                            if (RegExp('^d::').hasMatch(tag))
-                              return GridTagElement(
-                                  gridTagElementIcon: kClockIcon,
-                                  iconColor: kGreyDarker,
-                                  gridTagName: tag.substring(3));
-                            // GEO TAG
-                            if (RegExp('^g::').hasMatch(tag))
-                              return GridTagElement(
-                                  gridTagElementIcon: kLocationDotIcon,
-                                  iconColor: kGreyDarker,
-                                  gridTagName: tag.substring(3));
-                            // NORMAL TAG
-                            return GridTagElement(
-                                gridTagElementIcon: kTagIcon,
-                                iconColor: tagColor(tag),
-                                gridTagName: shorten(tag));
+                            return GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, 'querySelector');
+                                },
+                                child: GridTagElement(
+                                    gridTagElementIcon: tagIcon(tag),
+                                    iconColor: tagIconColor(tag),
+                                    gridTagName: tagTitle(tag)));
                           })
                     ],
                   ));
@@ -1084,8 +1037,7 @@ class GridItemSelection extends StatefulWidget {
   const GridItemSelection(this.id, this.type, {Key? key}) : super(key: key);
 
   @override
-  State<GridItemSelection> createState() =>
-      _GridItemSelectionState(id, type);
+  State<GridItemSelection> createState() => _GridItemSelectionState(id, type);
 }
 
 class _GridItemSelectionState extends State<GridItemSelection> {

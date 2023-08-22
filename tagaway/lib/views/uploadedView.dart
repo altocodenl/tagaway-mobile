@@ -1082,59 +1082,10 @@ class _TopRowState extends State<TopRow> {
                     queryTags.forEach((tag) {
                       // Show first two tags only
                       if (output.length > 1) return;
-                      if (tag == 'u::')
-                        return output.add(GridTagUploadedQueryElement(
-                          gridTagElementIcon: kTagIcon,
-                          iconColor: kGrey,
-                          gridTagName: 'Untagged',
-                        ));
-                      if (tag == 't::')
-                        return output.add(GridTagUploadedQueryElement(
-                          gridTagElementIcon: kBoxArchiveIcon,
-                          iconColor: kGrey,
-                          gridTagName: 'To Organize',
-                        ));
-                      if (tag == 'o::')
-                        return output.add(GridTagUploadedQueryElement(
-                          gridTagElementIcon: kCircleCheckIcon,
-                          iconColor: kAltoOrganized,
-                          gridTagName: 'Organized',
-                        ));
-                      // DATE TAG
-                      if (RegExp('^d::M').hasMatch(tag))
-                        return output.add(GridTagUploadedQueryElement(
-                            gridTagElementIcon: kClockIcon,
-                            iconColor: kGreyDarker,
-                            gridTagName: [
-                              'Jan',
-                              'Feb',
-                              'Mar',
-                              'Apr',
-                              'May',
-                              'Jun',
-                              'Jul',
-                              'Aug',
-                              'Sep',
-                              'Oct',
-                              'Nov',
-                              'Dec'
-                            ][int.parse(tag.substring(4)) - 1]));
-                      if (RegExp('^d::').hasMatch(tag))
-                        return output.add(GridTagUploadedQueryElement(
-                            gridTagElementIcon: kClockIcon,
-                            iconColor: kGreyDarker,
-                            gridTagName: tag.substring(3)));
-                      // GEO TAG
-                      if (RegExp('^g::').hasMatch(tag))
-                        return output.add(GridTagUploadedQueryElement(
-                            gridTagElementIcon: kLocationDotIcon,
-                            iconColor: kGreyDarker,
-                            gridTagName: tag.substring(3)));
-                      // NORMAL TAG
-                      output.add(GridTagUploadedQueryElement(
-                          gridTagElementIcon: kTagIcon,
-                          iconColor: tagColor(tag),
-                          gridTagName: tag));
+                      return output.add(GridTagUploadedQueryElement(
+                        gridTagElementIcon: tagIcon (tag),
+                        iconColor: tagIconColor (tag),
+                        gridTagName: tagTitle (tag)));
                     });
                     if (queryTags.isEmpty) {
                       output.add(Padding(
