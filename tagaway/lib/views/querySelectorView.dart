@@ -185,67 +185,112 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           children: [
+            const Text('Selected tags',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: kGreyDarker,
+                )),
+            Padding(
+              padding: const EdgeInsets.only(top: 20, bottom: 20),
+              child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: filteredYears.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 4,
+                  ),
+                  itemBuilder: (BuildContext context, index) {
+                    var year = filteredYears[index];
+                    return QuerySelectionTagElement(
+                        onTap: () {
+                          searchQueryController.clear();
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        elementColor: kSelectedTag,
+                        icon: kClockIcon,
+                        iconColor: kGreyDarker,
+                        tagTitle: year.substring(3));
+                  }),
+            ),
             Visibility(
                 visible: true,
-                child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: GridView.count(
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        shrinkWrap: true,
-                        childAspectRatio: 4,
-                        children: (() {
-                          List<Widget> output = [];
-                          // In rare cases, an exception is thrown when queryResult['tags']['u::'] is `null`.
-                          // This is likely a client error, since the server always a tags object with `u::` inside.
-                          // The same goes for t:: and o:: below.
-                          // TODO: eliminate the root cause of this bug.
-                          if ((queryResult['tags']['u::'] ?? 0) > 0)
-                            output.add(QuerySelectionTagElement(
-                              onTap: () {
-                                TagService.instance.toggleQueryTag('u::');
-                                searchQueryController.clear();
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              elementColor: queryTags.contains('u::')
-                                  ? kSelectedTag
-                                  : kGreyLighter,
-                              icon: kTagIcon,
-                              iconColor: kGrey,
-                              tagTitle: 'Untagged',
-                            ));
-                          if ((queryResult['tags']['t::'] ?? 0) > 0)
-                            output.add(QuerySelectionTagElement(
-                              onTap: () {
-                                TagService.instance.toggleQueryTag('t::');
-                                searchQueryController.clear();
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              elementColor: queryTags.contains('t::')
-                                  ? kSelectedTag
-                                  : kGreyLighter,
-                              icon: kBoxArchiveIcon,
-                              iconColor: kGrey,
-                              tagTitle: 'To Organize',
-                            ));
-                          if ((queryResult['tags']['o::'] ?? 0) > 0)
-                            output.add(QuerySelectionTagElement(
-                              onTap: () {
-                                TagService.instance.toggleQueryTag('o::');
-                                searchQueryController.clear();
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              elementColor: queryTags.contains('o::')
-                                  ? kSelectedTag
-                                  : kGreyLighter,
-                              icon: kCircleCheckIcon,
-                              iconColor: kAltoOrganized,
-                              tagTitle: 'Organized',
-                            ));
-                          return output;
-                        })()))),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Organization',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: kGreyDarker,
+                        )),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 20),
+                      child: GridView.count(
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          shrinkWrap: true,
+                          childAspectRatio: 4,
+                          children: (() {
+                            List<Widget> output = [];
+                            // In rare cases, an exception is thrown when queryResult['tags']['u::'] is `null`.
+                            // This is likely a client error, since the server always a tags object with `u::` inside.
+                            // The same goes for t:: and o:: below.
+                            // TODO: eliminate the root cause of this bug.
+                            if ((queryResult['tags']['u::'] ?? 0) > 0)
+                              output.add(QuerySelectionTagElement(
+                                onTap: () {
+                                  TagService.instance.toggleQueryTag('u::');
+                                  searchQueryController.clear();
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                elementColor: queryTags.contains('u::')
+                                    ? kSelectedTag
+                                    : kGreyLighter,
+                                icon: kTagIcon,
+                                iconColor: kGrey,
+                                tagTitle: 'Untagged',
+                              ));
+                            if ((queryResult['tags']['t::'] ?? 0) > 0)
+                              output.add(QuerySelectionTagElement(
+                                onTap: () {
+                                  TagService.instance.toggleQueryTag('t::');
+                                  searchQueryController.clear();
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                elementColor: queryTags.contains('t::')
+                                    ? kSelectedTag
+                                    : kGreyLighter,
+                                icon: kBoxArchiveIcon,
+                                iconColor: kGrey,
+                                tagTitle: 'To Organize',
+                              ));
+                            if ((queryResult['tags']['o::'] ?? 0) > 0)
+                              output.add(QuerySelectionTagElement(
+                                onTap: () {
+                                  TagService.instance.toggleQueryTag('o::');
+                                  searchQueryController.clear();
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                elementColor: queryTags.contains('o::')
+                                    ? kSelectedTag
+                                    : kGreyLighter,
+                                icon: kCircleCheckIcon,
+                                iconColor: kAltoOrganized,
+                                tagTitle: 'Organized',
+                              ));
+                            return output;
+                          })()),
+                    ),
+                  ],
+                )),
             const Text('Years',
                 style: TextStyle(
                   fontFamily: 'Montserrat',
