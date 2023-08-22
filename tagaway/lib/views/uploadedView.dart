@@ -915,7 +915,7 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          //  call bottomNavigation but with currentIndex = 0
+                          StoreService.instance.set('currentIndex', 0);
                         },
                         child: const Icon(
                           kHomeIcon,
