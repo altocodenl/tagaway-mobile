@@ -2,15 +2,14 @@
 
 ## TODO
 
-
-- tres puntitos
-- performance of query
-- fix issue with queryOrganizedIds
-
-- Carrousel of local pivs (Tom)
-- In query selector, move selected tags up (Tom)
-- Persist last N tags to disk
+- In query selector, when selected tags go up, remove them from below.
+- Performance of query: avoid double round trip for first draw of uploadedView.
+- Fix intermittent issue with queryOrganizedIds.
+- Fix ui not updating when adding/removing hometags..
+- Remove yourHomeTags and go directly to editHomeTags.
+- Persist last N tags to disk.
 - Stop flickering when opening FAB or clicking on "done".
+- Carrousel of local pivs (Tom)
 - When not allowing pivs to be deleted, get that info so we do not remove them from localPivs (Tom).
 - Hide pivs with pendingDeletion.
 - Handle >= 400 errors with snackbar on tagService and uploadService
