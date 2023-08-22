@@ -5,6 +5,7 @@
 
 - tres puntitos
 - performance of query
+- fix issue with queryOrganizedIds
 
 - Carrousel of local pivs (Tom)
 - In query selector, move selected tags up (Tom)

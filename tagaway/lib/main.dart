@@ -20,6 +20,8 @@ import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';
 import 'package:tagaway/views/yourHometagsView.dart';
 
+int initT = DateTime.now().millisecondsSinceEpoch;
+
 // Used to access content in the service
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 

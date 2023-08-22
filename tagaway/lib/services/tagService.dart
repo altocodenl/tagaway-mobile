@@ -371,6 +371,8 @@ class TagService {
             });
          }
          else {
+            // TODO: fix
+            // [VERBOSE-2:dart_vm_initializer.cc(41)] Unhandled Exception: Converting object to an encodable object failed: Instance of 'MappedListIterable<dynamic, dynamic>'
             await queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']));
          }
       }

@@ -18,8 +18,6 @@ int ms (date) {
   return date.millisecondsSinceEpoch;
 }
 
-int initT = now ();
-
 void debug (dynamic params, [sendToServer = false]) {
   String acc = 'DEBUG (' + (now () - initT).toString () + 'ms)';
   params.forEach ((v) => acc += ' ' + v.toString ());
@@ -32,7 +30,7 @@ bool ajaxLogs = true;
 // We need to specify <String, dynamic> because otherwise Dart will try to infer the type of all the keys of the body as being of the same type, which very often will not be the case.
 Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = const {}]) async {
   // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
-  String cookie = await StoreService.instance.getBeforeLoad('cookie');
+  String cookie = await StoreService.instance.getBeforeLoad ('cookie');
   int start = now ();
   var response;
   try {
