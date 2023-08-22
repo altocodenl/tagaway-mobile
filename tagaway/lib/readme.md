@@ -2,10 +2,11 @@
 
 ## TODO
 
-- Go back home button on top left of cloud grid (Tom)
-- Home: add query selector search button, big one, on the bottom (Tom)
+
+- tres puntitos
+- performance of query
+
 - Carrousel of local pivs (Tom)
-- When entering text in query selector and then clicking on tag, keyboard should disappear (Tom)
 - In query selector, move selected tags up (Tom)
 - Persist last N tags to disk
 - Stop flickering when opening FAB or clicking on "done".
