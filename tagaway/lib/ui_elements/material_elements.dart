@@ -904,15 +904,16 @@ class QuerySelectionTagElement extends StatelessWidget {
   }
 }
 
-class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({Key? key, required this.pivId}) : super(key: key);
+class CloudVideoPlayerWidget extends StatefulWidget {
+  const CloudVideoPlayerWidget({Key? key, required this.pivId})
+      : super(key: key);
   final String pivId;
 
   @override
-  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+  State<CloudVideoPlayerWidget> createState() => _CloudVideoPlayerWidgetState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
   late VideoPlayerController _controller;
   bool initialized = false;
 
@@ -1084,8 +1085,7 @@ class GridItemSelection extends StatefulWidget {
   const GridItemSelection(this.id, this.type, {Key? key}) : super(key: key);
 
   @override
-  State<GridItemSelection> createState() =>
-      _GridItemSelectionState(id, type);
+  State<GridItemSelection> createState() => _GridItemSelectionState(id, type);
 }
 
 class _GridItemSelectionState extends State<GridItemSelection> {
