@@ -221,21 +221,48 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ),
                   )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 12, top: 7),
-                    child: ListView(
-                        addAutomaticKeepAlives: false,
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        children: [
-                          for (var v in hometags)
-                            GestureDetector(
-                                onTap: () {
-                                  StoreService.instance.set('queryTags', [v]);
-                                  StoreService.instance.set('currentIndex', 2);
-                                },
-                                child: HomeCard(color: tagColor(v), title: v))
-                        ]))),
+                : Stack(
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.only(
+                              left: 12, right: 12, top: 7),
+                          child: ListView(
+                              addAutomaticKeepAlives: false,
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              children: [
+                                for (var v in hometags)
+                                  GestureDetector(
+                                      onTap: () {
+                                        StoreService.instance
+                                            .set('queryTags', [v]);
+                                        StoreService.instance
+                                            .set('currentIndex', 2);
+                                      },
+                                      child: HomeCard(
+                                          color: tagColor(v), title: v))
+                              ])),
+                      Align(
+                        alignment: const Alignment(0, .9),
+                        child: FloatingActionButton.extended(
+                            extendedPadding:
+                                const EdgeInsets.only(left: 20, right: 20),
+                            backgroundColor: kAltoBlue,
+                            elevation: 20,
+                            label: const Icon(
+                              kSearchIcon,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                            icon: const Text('Search', style: kButtonText),
+                            key: const Key('homeFabQuerySelector'),
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(
+                                  context, 'querySelector');
+                            }),
+                      )
+                    ],
+                  )),
       ),
       floatingActionButton: Visibility(
         visible: hometags.isNotEmpty,
