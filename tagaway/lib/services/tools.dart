@@ -9,6 +9,7 @@ import 'package:tagaway/main.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/authService.dart';
 
 int now () {
   return DateTime.now().millisecondsSinceEpoch;
@@ -66,8 +67,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
 
     // If we get a 403, it must be because the cookie is invalid. We delete it locally.
     if (response.statusCode == 403) {
-      await StoreService.instance.remove('cookie', 'disk');
-      await StoreService.instance.remove('csrf', 'disk');
+      await AuthService.instance.cleanupKeys ();
     }
 
     return {

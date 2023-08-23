@@ -78,7 +78,7 @@ class TagService {
       List.from (lastNTags).forEach ((tag) {
          if (! usertags.contains (tag)) lastNTags.remove (tag);
       });
-      return StoreService.instance.set ('lastNTags', lastNTags);
+      return StoreService.instance.set ('lastNTags', lastNTags, 'disk');
     }
 
     // Inspired by old phone numbers
@@ -88,7 +88,7 @@ class TagService {
     }
     lastNTags.insert (0, tag);
     if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
-    StoreService.instance.set ('lastNTags', lastNTags);
+    StoreService.instance.set ('lastNTags', lastNTags, 'disk');
   }
 
    tagPiv (dynamic piv, String tag, String type) async {

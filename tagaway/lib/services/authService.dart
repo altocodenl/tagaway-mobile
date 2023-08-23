@@ -30,16 +30,18 @@ class AuthService {
 
    Future <int> logout () async {
       var response = await ajax ('post', 'auth/logout', {});
-      if (response ['code'] == 200) {
-         await StoreService.instance.remove ('cookie',      'disk');
-         await StoreService.instance.remove ('csrf',        'disk');
-         await StoreService.instance.remove ('uploadQueue', 'disk');
-         await StoreService.instance.remove ('pendingTags:*',     'disk');
-         await StoreService.instance.remove ('pendingDeletion:*', 'disk');
-
-         StoreService.instance.store = {};
-      }
+      if (response ['code'] == 200) await cleanupKeys ();
       return response ['code'];
+   }
+
+   cleanupKeys () async {
+      await StoreService.instance.remove ('cookie',      'disk');
+      await StoreService.instance.remove ('csrf',        'disk');
+      await StoreService.instance.remove ('lastNTags',   'disk');
+      await StoreService.instance.remove ('uploadQueue', 'disk');
+      await StoreService.instance.remove ('pendingTags:*',     'disk');
+      await StoreService.instance.remove ('pendingDeletion:*', 'disk');
+      StoreService.instance.store = {};
    }
 
    Future <int> deleteAccount () async {

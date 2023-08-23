@@ -5,9 +5,8 @@
 - In query selector, when selected tags go up, remove them from below.
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Fix intermittent issue with queryOrganizedIds.
-- Fix ui not updating when adding/removing hometags..
+- Fix ui not updating when adding/removing hometags.
 - Remove yourHomeTags and go directly to editHomeTags.
-- Persist last N tags to disk.
 - Disaable scrolling when zooming in Local & Uploaded.
 - Stop flickering when opening FAB or clicking on "done".
 - When not allowing pivs to be deleted, get that info so we do not remove them from localPivs (Tom).
@@ -61,7 +60,7 @@
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
-- lastNTags [<str>, ...]: list of the last N tags used to tag or untag, either on local or uploaded.
+- lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded.
 - localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}` - contains all the pages of local pivs to be shown, one per grid.
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
