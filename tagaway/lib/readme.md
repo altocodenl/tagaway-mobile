@@ -8,8 +8,8 @@
 - Fix ui not updating when adding/removing hometags..
 - Remove yourHomeTags and go directly to editHomeTags.
 - Persist last N tags to disk.
+- Disaable scrolling when zooming in Local & Uploaded.
 - Stop flickering when opening FAB or clicking on "done".
-- Carrousel of local pivs (Tom)
 - When not allowing pivs to be deleted, get that info so we do not remove them from localPivs (Tom).
 - Hide pivs with pendingDeletion.
 - Handle >= 400 errors with snackbar on tagService and uploadService

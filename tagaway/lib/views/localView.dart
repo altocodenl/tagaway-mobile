@@ -794,7 +794,8 @@ class _GridState extends State<Grid> {
                         ),
                         itemCount: page['pivs'].length,
                         itemBuilder: (BuildContext context, index) {
-                          return LocalGridItem(page['pivs'][index]);
+                          return LocalGridItem(
+                              page['pivs'][index], page['pivs']);
                         })),
               ),
       ),

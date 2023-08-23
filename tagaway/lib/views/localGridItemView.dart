@@ -15,8 +15,9 @@ import 'package:video_player/video_player.dart';
 
 class LocalGridItem extends StatelessWidget {
   final AssetEntity asset;
+  final dynamic page;
 
-  const LocalGridItem(this.asset, {Key? key}) : super(key: key);
+  const LocalGridItem(this.asset, this.page, {Key? key}) : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
   //   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -47,11 +48,7 @@ class LocalGridItem extends StatelessWidget {
                     'local');
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  return LocalCarrousel(pivFile: asset);
-                  // if (asset.type == AssetType.image) {
-                  //   return ImageBig(imageFile: asset);
-                  // }
-                  // return VideoBig(videoFile: asset);
+                  return LocalCarrousel(pivFile: asset, page: page);
                 }));
               }
             },
@@ -98,7 +95,10 @@ class LocalGridItem extends StatelessWidget {
 
 class LocalCarrousel extends StatefulWidget {
   final AssetEntity pivFile;
-  const LocalCarrousel({Key? key, required this.pivFile}) : super(key: key);
+  final dynamic page;
+
+  const LocalCarrousel({Key? key, required this.pivFile, required this.page})
+      : super(key: key);
 
   @override
   State<LocalCarrousel> createState() => _LocalCarrouselState();
@@ -147,15 +147,17 @@ class _LocalCarrouselState extends State<LocalCarrousel>
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight
     ]);
+    var currentIndex = widget.page.indexOf(widget.pivFile);
     return PageView.builder(
         reverse: true,
         physics: const BouncingScrollPhysics(),
         controller: PageController(
-          initialPage: 0,
+          initialPage: currentIndex,
           keepPage: false,
         ),
-        itemCount: 5,
+        itemCount: widget.page.length,
         itemBuilder: (context, index) {
+          var piv = widget.page[index];
           return Scaffold(
             appBar: AppBar(
               iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
@@ -167,17 +169,17 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(widget.pivFile.createDateTime.day.toString()),
+                    Text(pad(piv.createDateTime.day)),
                     const Text(
                       '/',
                       style: kDarkBackgroundBigTitle,
                     ),
-                    Text(widget.pivFile.createDateTime.month.toString()),
+                    Text(pad(piv.createDateTime.month)),
                     const Text(
                       '/',
                       style: kDarkBackgroundBigTitle,
                     ),
-                    Text(widget.pivFile.createDateTime.year.toString()),
+                    Text(piv.createDateTime.year.toString()),
                   ],
                 ),
               ),
@@ -185,7 +187,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
             body: Stack(
               children: [
                 Visibility(
-                  visible: widget.pivFile.type == AssetType.image,
+                  visible: piv.type == AssetType.image,
                   child: Stack(
                     children: [
                       InteractiveViewer(
@@ -196,7 +198,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                           color: kGreyDarkest,
                           alignment: Alignment.center,
                           child: FutureBuilder<File?>(
-                            future: widget.pivFile.file,
+                            future: piv.file,
                             builder: (_, snapshot) {
                               final file = snapshot.data;
                               if (file == null) return Container();
@@ -220,8 +222,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                                     onPressed: () async {
                                       WhiteSnackBar.buildSnackBar(context,
                                           'Preparing your image for sharing...');
-                                      final response =
-                                          await widget.pivFile.originBytes;
+                                      final response = await piv.originBytes;
                                       final bytes = response;
                                       final temp =
                                           await getTemporaryDirectory();
@@ -240,7 +241,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                                   child: IconButton(
                                     onPressed: () {
                                       PivService.instance
-                                          .deleteLocalPivs([widget.pivFile.id]);
+                                          .deleteLocalPivs([piv.id]);
                                       Navigator.pop(context);
                                     },
                                     icon: const Icon(
@@ -258,7 +259,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                     ],
                   ),
                   replacement: LocalVideoPlayerWidget(
-                    videoFile: widget.pivFile,
+                    videoFile: piv,
                   ),
                 ),
               ],

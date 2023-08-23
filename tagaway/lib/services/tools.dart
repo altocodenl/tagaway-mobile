@@ -236,3 +236,5 @@ showSnackbar (String message, String color) {
    var context = navigatorKey.currentState?.context;
    SnackBarGlobal.buildSnackBar (context!, message, color);
 }
+
+var pad = (n) => n < 10 ? '0' + n.toString () : n.toString ();

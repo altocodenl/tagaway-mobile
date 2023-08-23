@@ -164,7 +164,6 @@ class _CarrouselViewState extends State<CarrouselView>
       itemBuilder: (context, index) {
         var piv = widget.pivs[index];
         var date = DateTime.fromMillisecondsSinceEpoch(piv['date']);
-        var pad = (n) => n < 10 ? '0' + n.toString() : n.toString();
         return Scaffold(
           appBar: AppBar(
             iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
