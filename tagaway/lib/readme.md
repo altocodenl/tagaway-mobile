@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Avoid rehashing of all pivs when logging out and logging in within the same app run.
 - In query selector, when selected tags go up, remove them from below.
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Fix intermittent issue with queryOrganizedIds.
@@ -9,10 +10,11 @@
 - Remove yourHomeTags and go directly to editHomeTags.
 - Disaable scrolling when zooming in Local & Uploaded.
 - Stop flickering when opening FAB or clicking on "done".
-- When not allowing pivs to be deleted, get that info so we do not remove them from localPivs (Tom).
 - Hide pivs with pendingDeletion.
 - Handle >= 400 errors with snackbar on tagService and uploadService
-- Create settings view with Change Password and enabled/disable geotagging (Tom)
+- Finish annotated source code.
+- Remove edit & delete tag buttons after cancel or when tapping anywhere else
+- Create settings view with Change Password and enable/disable geotagging (Tom)
 - Home: Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Write a QA script (Tom)
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -31,9 +33,10 @@
       - Delete: remove from queue
       - Tag/untag: change pendingTags
    - Icon
-- Remove edit & delete tag buttons after cancel or when tapping anywhere else
+-----
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
-- Home: display tags in a different way, including the last piv
+- Home: display tags in a better different way
+- When deleting a piv but repenting when the OS shows you the confirmation dialog, check if there is a way to get that info in Tagaway to decide whether to delete the piv or not from the list of local pivs (Tom).
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
 - Tutorial (Tom)
