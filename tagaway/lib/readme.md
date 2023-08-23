@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Avoid rehashing of all pivs when logging out and logging in within the same app run.
 - In query selector, when selected tags go up, remove them from below.
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Fix intermittent issue with queryOrganizedIds.
