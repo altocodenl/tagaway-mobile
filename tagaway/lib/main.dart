@@ -18,7 +18,6 @@ import 'package:tagaway/views/requestPermissionView.dart';
 import 'package:tagaway/views/signupFormView.dart';
 import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';
-import 'package:tagaway/views/yourHometagsView.dart';
 
 int initT = DateTime.now().millisecondsSinceEpoch;
 
