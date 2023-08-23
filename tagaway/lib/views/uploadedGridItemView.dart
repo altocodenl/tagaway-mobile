@@ -255,7 +255,7 @@ class _CarrouselViewState extends State<CarrouselView>
                     ? const VideoPending()
                     : (piv['vid'] == 'error'
                         ? const VideoError()
-                        : VideoPlayerWidget(
+                        : CloudVideoPlayerWidget(
                             pivId: piv['id'],
                           ))),
             Align(

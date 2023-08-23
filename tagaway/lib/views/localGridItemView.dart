@@ -1,12 +1,12 @@
 import 'dart:io' show File;
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -47,10 +47,11 @@ class LocalGridItem extends StatelessWidget {
                     'local');
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  if (asset.type == AssetType.image) {
-                    return ImageBig(imageFile: asset);
-                  }
-                  return VideoBig(videoFile: asset);
+                  return LocalCarrousel(pivFile: asset);
+                  // if (asset.type == AssetType.image) {
+                  //   return ImageBig(imageFile: asset);
+                  // }
+                  // return VideoBig(videoFile: asset);
                 }));
               }
             },
@@ -95,115 +96,188 @@ class LocalGridItem extends StatelessWidget {
   }
 }
 
-class ImageBig extends StatelessWidget {
-  final AssetEntity imageFile;
-  const ImageBig({Key? key, required this.imageFile}) : super(key: key);
+class LocalCarrousel extends StatefulWidget {
+  final AssetEntity pivFile;
+  const LocalCarrousel({Key? key, required this.pivFile}) : super(key: key);
+
+  @override
+  State<LocalCarrousel> createState() => _LocalCarrouselState();
+}
+
+class _LocalCarrouselState extends State<LocalCarrousel>
+    with SingleTickerProviderStateMixin {
+  late TransformationController controller;
+  late AnimationController animationController;
+  Animation<Matrix4>? animation;
+  OverlayEntry? entry;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TransformationController();
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )
+      ..addListener(() => controller.value = animation!.value)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          removeOverlay();
+        }
+      });
+  }
+
+  void removeOverlay() {
+    entry?.remove();
+    entry = null;
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: kGreyDarkest,
-        title: Padding(
-          padding: const EdgeInsets.only(right: 30.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(imageFile.createDateTime.day.toString(),
-                  style: kDarkBackgroundBigTitle),
-              const Text(
-                '/',
-                style: kDarkBackgroundBigTitle,
-              ),
-              Text(imageFile.createDateTime.month.toString(),
-                  style: kDarkBackgroundBigTitle),
-              const Text(
-                '/',
-                style: kDarkBackgroundBigTitle,
-              ),
-              Text(imageFile.createDateTime.year.toString(),
-                  style: kDarkBackgroundBigTitle),
-            ],
-          ),
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight
+    ]);
+    return PageView.builder(
+        reverse: true,
+        physics: const BouncingScrollPhysics(),
+        controller: PageController(
+          initialPage: 0,
+          keepPage: false,
         ),
-      ),
-      body: Stack(
-        children: [
-          Container(
-            color: kGreyDarkest,
-            alignment: Alignment.center,
-            child: FutureBuilder<File?>(
-              future: imageFile.file,
-              builder: (_, snapshot) {
-                final file = snapshot.data;
-                if (file == null) return Container();
-                return Image.file(file);
-              },
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              color: kGreyDarkest,
-              child: SafeArea(
+        itemCount: 5,
+        itemBuilder: (context, index) {
+          return Scaffold(
+            appBar: AppBar(
+              iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
+              centerTitle: true,
+              elevation: 0,
+              backgroundColor: kGreyDarkest,
+              title: Padding(
+                padding: const EdgeInsets.only(right: 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    Expanded(
-                      child: IconButton(
-                        onPressed: () async {
-                          WhiteSnackBar.buildSnackBar(
-                              context, 'Preparing your image for sharing...');
-                          final response = await imageFile.originBytes;
-                          final bytes = response;
-                          final temp = await getTemporaryDirectory();
-                          final path = '${temp.path}/image.jpg';
-                          File(path).writeAsBytesSync(bytes!);
-                          await Share.shareXFiles([XFile(path)]);
-                        },
-                        icon: const Icon(
-                          kShareArrownUpIcon,
-                          size: 25,
-                          color: kGreyLightest,
-                        ),
-                      ),
+                    Text(widget.pivFile.createDateTime.day.toString()),
+                    const Text(
+                      '/',
+                      style: kDarkBackgroundBigTitle,
                     ),
-                    Expanded(
-                      child: IconButton(
-                        onPressed: () {
-                          PivService.instance.deleteLocalPivs ([imageFile.id]);
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          kTrashCanIcon,
-                          size: 25,
-                          color: kGreyLightest,
-                        ),
-                      ),
-                    )
+                    Text(widget.pivFile.createDateTime.month.toString()),
+                    const Text(
+                      '/',
+                      style: kDarkBackgroundBigTitle,
+                    ),
+                    Text(widget.pivFile.createDateTime.year.toString()),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+            body: Stack(
+              children: [
+                Visibility(
+                  visible: widget.pivFile.type == AssetType.image,
+                  child: Stack(
+                    children: [
+                      InteractiveViewer(
+                        panEnabled: false,
+                        minScale: 1,
+                        maxScale: 8,
+                        child: Container(
+                          color: kGreyDarkest,
+                          alignment: Alignment.center,
+                          child: FutureBuilder<File?>(
+                            future: widget.pivFile.file,
+                            builder: (_, snapshot) {
+                              final file = snapshot.data;
+                              if (file == null) return Container();
+                              return Image.file(file);
+                            },
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          width: double.infinity,
+                          color: kGreyDarkest,
+                          child: SafeArea(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Expanded(
+                                  child: IconButton(
+                                    onPressed: () async {
+                                      WhiteSnackBar.buildSnackBar(context,
+                                          'Preparing your image for sharing...');
+                                      final response =
+                                          await widget.pivFile.originBytes;
+                                      final bytes = response;
+                                      final temp =
+                                          await getTemporaryDirectory();
+                                      final path = '${temp.path}/image.jpg';
+                                      File(path).writeAsBytesSync(bytes!);
+                                      await Share.shareXFiles([XFile(path)]);
+                                    },
+                                    icon: const Icon(
+                                      kShareArrownUpIcon,
+                                      size: 25,
+                                      color: kGreyLightest,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: IconButton(
+                                    onPressed: () {
+                                      PivService.instance
+                                          .deleteLocalPivs([widget.pivFile.id]);
+                                      Navigator.pop(context);
+                                    },
+                                    icon: const Icon(
+                                      kTrashCanIcon,
+                                      size: 25,
+                                      color: kGreyLightest,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  replacement: LocalVideoPlayerWidget(
+                    videoFile: widget.pivFile,
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
   }
 }
 
-class VideoBig extends StatefulWidget {
-  const VideoBig({Key? key, required this.videoFile}) : super(key: key);
+class LocalVideoPlayerWidget extends StatefulWidget {
+  const LocalVideoPlayerWidget({Key? key, required this.videoFile})
+      : super(key: key);
   final AssetEntity videoFile;
 
   @override
-  _VideoBigState createState() => _VideoBigState();
+  _LocalVideoPlayerWidgetState createState() => _LocalVideoPlayerWidgetState();
 }
 
-class _VideoBigState extends State<VideoBig> {
+class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
   late VideoPlayerController _controller;
   bool initialized = false;
 
@@ -235,32 +309,6 @@ class _VideoBigState extends State<VideoBig> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: kGreyDarkest,
-        title: Padding(
-          padding: const EdgeInsets.only(right: 30.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(widget.videoFile.createDateTime.day.toString(),
-                  style: kDarkBackgroundBigTitle),
-              const Text(
-                '/',
-                style: kDarkBackgroundBigTitle,
-              ),
-              Text(widget.videoFile.createDateTime.month.toString(),
-                  style: kDarkBackgroundBigTitle),
-              const Text(
-                '/',
-                style: kDarkBackgroundBigTitle,
-              ),
-              Text(widget.videoFile.createDateTime.year.toString(),
-                  style: kDarkBackgroundBigTitle),
-            ],
-          ),
-        ),
-      ),
       body: initialized
           // If the video is initialized, display it
           ? Scaffold(
