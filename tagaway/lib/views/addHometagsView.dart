@@ -100,7 +100,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
               padding: const EdgeInsets.only(top: 18, right: 12),
               child: GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, 'yourHomeTags');
+                    Navigator.pushReplacementNamed(context, 'editHomeTags');
                   },
                   child: const Text('Cancel', style: kPlainText)),
             )
@@ -122,7 +122,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
                       // Returning the desired behavior in a function solves the problem.
                       return () {
                         TagService.instance.editHometags(v, true);
-                        Navigator.pushReplacementNamed(context, 'yourHomeTags');
+                        Navigator.pushReplacementNamed(context, 'editHomeTags');
                       };
                     })
             ],
@@ -198,7 +198,7 @@ class CustomSearchDelegate extends SearchDelegate {
               // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
               return () {
                 TagService.instance.editHometags(result, true);
-                Navigator.pushReplacementNamed(context, 'yourHomeTags');
+                Navigator.pushReplacementNamed(context, 'editHomeTags');
               };
             });
       },

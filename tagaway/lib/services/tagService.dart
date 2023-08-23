@@ -35,7 +35,8 @@ class TagService {
     // Refresh hometag list first in case it was updated in another client
     await getTags ();
     tag = tag.trim ();
-    var hometags = StoreService.instance.get ('hometags');
+    // We copy it to avoid the update not triggering anything
+    var hometags = StoreService.instance.get ('hometags').toList ();
     if (hometags == '') hometags = [];
     if ((add && hometags.contains (tag)) || (!add && !hometags.contains (tag)))
       return;

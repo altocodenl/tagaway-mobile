@@ -8,7 +8,6 @@ import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/changePasswordView.dart';
-import 'package:tagaway/views/yourHometagsView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends StatefulWidget {
@@ -269,9 +268,8 @@ class _HomeViewState extends State<HomeView> {
         child: FloatingActionButton(
           heroTag: null,
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) {
-              return const YourHometagsView();
-            }));
+            Navigator.pushReplacementNamed(context, 'editHomeTags');
+            // TODO
           },
           backgroundColor: kAltoBlue,
           child: const Icon(Icons.create_rounded),

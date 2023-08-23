@@ -4,9 +4,6 @@
 
 - In query selector, when selected tags go up, remove them from below.
 - Performance of query: avoid double round trip for first draw of uploadedView.
-- Fix intermittent issue with queryOrganizedIds.
-- Fix ui not updating when adding/removing hometags.
-- Remove yourHomeTags and go directly to editHomeTags.
 - Disaable scrolling when zooming in Local & Uploaded.
 - Stop flickering when opening FAB or clicking on "done".
 - Hide pivs with pendingDeletion.
