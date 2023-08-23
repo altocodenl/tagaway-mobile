@@ -79,7 +79,6 @@ class Tagaway extends StatelessWidget {
         'deleteAccount': (context) => const DeleteAccount(),
         'addHomeTags': (context) => const AddHometagsView(),
         'editHomeTags': (context) => const EditHometagsView(),
-        'yourHomeTags': (context) => const YourHometagsView(),
         'local': (context) => const LocalView(),
         'uploaded': (context) => const UploadedView(),
         'querySelector': (context) => const QuerySelectorView(),
