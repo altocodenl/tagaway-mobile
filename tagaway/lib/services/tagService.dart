@@ -72,7 +72,9 @@ class TagService {
 
   updateLastNTags (var tag, [bool refreshExistingList = false]) {
     var lastNTags = StoreService.instance.get ('lastNTags');
+    // We copy it to avoid skipping the update
     if (lastNTags == '') lastNTags = [];
+    else lastNTags = lastNTags.toList ();
     if (refreshExistingList) {
       var usertags = StoreService.instance.get ('usertags');
       // We iterate a copy of the list to avoid Flutter complaining about modifying a list while it's being iterated
