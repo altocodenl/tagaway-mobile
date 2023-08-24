@@ -169,17 +169,20 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(pad(piv.createDateTime.day)),
+                    Text(pad(piv.createDateTime.day),
+                        style: kDarkBackgroundBigTitle),
                     const Text(
                       '/',
                       style: kDarkBackgroundBigTitle,
                     ),
-                    Text(pad(piv.createDateTime.month)),
+                    Text(pad(piv.createDateTime.month),
+                        style: kDarkBackgroundBigTitle),
                     const Text(
                       '/',
                       style: kDarkBackgroundBigTitle,
                     ),
-                    Text(piv.createDateTime.year.toString()),
+                    Text(piv.createDateTime.year.toString(),
+                        style: kDarkBackgroundBigTitle),
                   ],
                 ),
               ),
