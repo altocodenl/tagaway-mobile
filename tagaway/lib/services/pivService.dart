@@ -287,6 +287,10 @@ class PivService {
 
          // Check if the local piv we just hashed as an uploaded counterpart
          var queriedHash = await queryHashes ({piv.id: hash});
+
+         // If we cannot query hashes, it may be that we don't have a valid session. We refrain from any further action until the user logs in.
+         if (queriedHash == false) return;
+
          if (queriedHash [piv.id] != null) {
             StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
             StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
@@ -314,6 +318,9 @@ class PivService {
       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
 
       localPivs.forEach ((piv) {
+
+         if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') return;
+
          var cloudId        = StoreService.instance.get ('pivMap:' + piv.id);
          var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
 

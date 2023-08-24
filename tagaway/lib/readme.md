@@ -4,9 +4,8 @@
 
 - In query selector, when selected tags go up, remove them from below.
 - Performance of query: avoid double round trip for first draw of uploadedView.
-- Disaable scrolling when zooming in Local & Uploaded.
+- Disaable scrolling when zooming in Local & Uploaded (Tom).
 - Stop flickering when opening FAB or clicking on "done".
-- Hide pivs with pendingDeletion.
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Finish annotated source code.
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
@@ -418,6 +417,12 @@ We iterate `localPivs`, which is the list of all local pivs held by our `pivServ
 
 ```dart
       localPivs.forEach ((piv) {
+```
+
+If the piv is scheduled for deletion after it is uploaded, we do not consider it at all for any pages.
+
+```dart
+         if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') return;
 ```
 
 We determine whether the local piv is organized by checking if there's an `orgMap` entry for its cloud counterpart. We get the cloud counterpart of the local piv by querying `pivMap:ID`.
