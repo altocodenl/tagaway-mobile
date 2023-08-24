@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
+import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
+import 'package:tagaway/views/accountView.dart';
 import 'package:tagaway/views/addHometagsView.dart';
-import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/distributorView.dart';
 import 'package:tagaway/views/editHometagsView.dart';
@@ -74,7 +74,7 @@ class Tagaway extends StatelessWidget {
         'photoAccessNeeded': (context) => const PhotoAccessNeededView(),
         'bottomNavigation': (context) => const BottomNavigationView(),
         'home': (context) => const HomeView(),
-        'changePassword': (context) => const ChangePasswordView(),
+        'accountView': (context) => const AccountView(),
         'deleteAccount': (context) => const DeleteAccount(),
         'addHomeTags': (context) => const AddHometagsView(),
         'editHomeTags': (context) => const EditHometagsView(),
