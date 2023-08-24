@@ -263,12 +263,11 @@ class TagService {
 
    queryPivs (dynamic tags, [refresh = false, currentMonth = false]) async {
       tags.sort ();
-      if (refresh == false && queryTags != '' && currentMonth == false) {
-        // If query tags have not changed and we're not getting the `refresh` parameter nor the `currentMonth` parameter, do not query again since we already have that result.
-        // We need to check if we have data loaded; we might not, if we just logged in and we are querying for the first time in the current run of the app.
-        if (listEquals (tags, queryTags) && StoreService.instance.get ('queryResult') != '') return;
-      }
+
+      if (StoreService.instance.get ('queryResult') != '' && refresh == false && currentMonth == false && listEquals (tags, queryTags)) return;
+
       queryTags = List.from (tags);
+
       var response = await ajax ('post', 'query', {
          'tags': tags,
          'sort': 'newest',
@@ -277,8 +276,21 @@ class TagService {
          'timeHeader': true
       });
 
-      // TODO: NOTIFY ERRORS
-      if (response ['code'] != 200) return;
+      if (response ['code'] != 200) {
+         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:' + response ['code'].toString (), 'yellow');
+         return;
+      }
+
+      /*
+      // IF RESULT IS 0, be done
+      // IF RESULT filtered out something, you're also done after this block; no, wait, you need organized!
+      // If not, request more.
+      if (response ['body'] ['pivs'].length > 0) {
+        var lastDate = DateTime.fromMillisecondsSinceEpoch (response ['body'] ['pivs'] [0] ['date']);
+        var beginningOfTheMonth = DateTime (lastDate.year, lastDate.month, 1).millisecondsSinceEpoch;
+        var filteredPivs = request ['body'] ['pivs'] = request ['body'] ['pivs'].filter ((piv) => piv.date < beginningOfTheMonth).toList ();
+        if (request ['body'] ['pivs'].length
+      */
 
       var queryResult = response ['body'];
       var firstQueryResult = queryResult;
@@ -287,7 +299,7 @@ class TagService {
       // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
       if (! listEquals (queryTags, tags)) return;
       // We do this update mutely so that we don't update yet the grid, since we have no pivs to show yet but we want the queryResult to be available to the computeTimeHeader function.
-      StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader'], 'total': queryResult ['total'], 'pivs': List.generate (queryResult ['total'], (v) => {})}, '', 'mute');
+      StoreService.instance.set ('queryResult', {'tags': queryResult ['tags'], 'timeHeader': queryResult ['timeHeader'], 'total': queryResult ['total'], 'pivs': List.generate (queryResult ['total'], (v) => {})}, '', 'mute');
 
       if (currentMonth == false) {
 

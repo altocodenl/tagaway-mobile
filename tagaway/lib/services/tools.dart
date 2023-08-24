@@ -67,6 +67,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
 
     // If we get a 403, it must be because the cookie is invalid. We delete it locally.
     if (response.statusCode == 403) {
+      if (! RegExp ('^auth').hasMatch (path)) showSnackbar ('Your session has expired. Please log in.', 'yellow');
       await AuthService.instance.cleanupKeys ();
     }
 

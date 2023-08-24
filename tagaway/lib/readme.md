@@ -4,14 +4,16 @@
 
 - In query selector, when selected tags go up, remove them from below.
 - Performance of query: avoid double round trip for first draw of uploadedView.
-- Disaable scrolling when zooming in Local & Uploaded (Tom).
+
+- Disaable scrolling when zooming in Local & Uploaded (Tom)
+- Create settings view with Change Password and enable/disable geotagging (Tom)
+- Write a QA script (Tom)
+
 - Stop flickering when opening FAB or clicking on "done".
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Finish annotated source code.
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
-- Create settings view with Change Password and enable/disable geotagging (Tom)
 - Home: Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
-- Write a QA script (Tom)
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
@@ -779,4 +781,74 @@ This concludes the function.
 ```dart
       }
    }
+```
+
+TODO: add annotated source code between `tagPiv` and `queryPivs`.
+
+We now define `queryPivs`, the function that will query pivs and their associated tags from the server.
+
+This function takes three functions:
+- `tags`: a list of tags.
+- `refresh`: an optional flag, by default set to `false`, which indicates whether we should query the server with the same query we did on the last query.
+- `currentMonth`: an optional parameter of the form `[year, month]`, which indicates that the query should get only the pivs for a given month - by default it is set to `false`, which means that only the pivs for the last month will be retrieved.
+
+In general, this information will get the tags and total amount for all the pivs in the query, but only get the pivs for one month at a time; this is because we only show pivs one month a time.
+
+```dart
+   queryPivs (dynamic tags, [refresh = false, currentMonth = false]) async {
+```
+
+We sort the received the tags, because we'll need to compare them to the tags of a previous query; since the order of the tags doesn't affect the result of the query, we need to compare sorted list of tags to determine if the two lists are the same or not.
+
+```dart
+      tags.sort ();
+```
+
+We will determine now whether we can avoid querying the server at all. To avoid querying the server at all, five things need to happen at the same time!
+
+1. `queryResult`, the result of the last query, is not an empty string. If it is an empty string, we haven't yet performed the first query, so we definitely need to query the server.
+2. `refresh` is `false`, so we do not need to refresh the query.
+3. `currentMonth` is `false`; when it is not `false`, that means that the user wants to see the pivs of another month, therefore in that case we'd have to query the server again.
+4. `tags` is the same as `queryTags`.
+
+If all four conditions are true simultaneously, we will `return` since there's nothing else to do.
+
+In practice, this only happens when switching between the query selector view and the cloud view, where the query is already done but the view doesn't know whether the existing query is fresh.
+
+```dart
+      if (StoreService.instance.get ('queryResult') != '' && refresh == false && currentMonth == false && listEquals (tags, queryTags)) return;
+```
+
+We update `queryTags` with a copy of `tags`.
+
+```dart
+      queryTags = List.from (tags);
+```
+
+We query `POST /query`, passing the `tags`; note we only get a single piv, since we don't want the list of pivs yet. Note also we pass the `timeHeader` field set to `true`, since we want the time header.
+
+This query, the first we do, will give us the total amount of pivs, their associated tags, and the time header. Everything, except for the pivs themselves.
+
+```dart
+      var response = await ajax ('post', 'query', {
+         'tags': tags,
+         'sort': 'newest',
+         'from': 1,
+         'to': 1,
+         'timeHeader': true
+      });
+```
+
+If we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another snackbar already implemented in the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:A:CODE`.
+
+```dart
+      if (response ['code'] != 200) {
+         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+```
+
+Whatever the error is, we cannot continue the function, so we return.
+
+```dart
+         return;
+      }
 ```
