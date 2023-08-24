@@ -178,8 +178,6 @@ class PivService {
 
       localPivsLoaded = true;
 
-      StoreService.instance.set ('countLocal', localPivs.length);
-
       for (var piv in localPivs) {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
       }

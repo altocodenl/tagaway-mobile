@@ -277,10 +277,11 @@ class TagService {
       });
 
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:' + response ['code'].toString (), 'yellow');
+         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
          return;
       }
 
+      if (! listEquals (queryTags, tags)) return;
       /*
       // IF RESULT IS 0, be done
       // IF RESULT filtered out something, you're also done after this block; no, wait, you need organized!
@@ -294,10 +295,7 @@ class TagService {
 
       var queryResult = response ['body'];
       var firstQueryResult = queryResult;
-      if (tags.length == 0) StoreService.instance.set ('countUploaded', queryResult ['total']);
 
-      // If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed that's relevant.
-      if (! listEquals (queryTags, tags)) return;
       // We do this update mutely so that we don't update yet the grid, since we have no pivs to show yet but we want the queryResult to be available to the computeTimeHeader function.
       StoreService.instance.set ('queryResult', {'tags': queryResult ['tags'], 'timeHeader': queryResult ['timeHeader'], 'total': queryResult ['total'], 'pivs': List.generate (queryResult ['total'], (v) => {})}, '', 'mute');
 
@@ -326,8 +324,10 @@ class TagService {
          'to': firstLoadSize,
       });
 
-      // TODO: NOTIFY ERRORS
-      if (response ['code'] != 200) return;
+      if (response ['code'] != 200) {
+         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
+         return;
+      }
 
       queryResult = response ['body'];
 
@@ -367,8 +367,10 @@ class TagService {
          });
          if (! listEquals (queryTags, tags)) return;
 
-         // TODO: NOTIFY ERRORS
-         if (response ['code'] != 200) return;
+         if (response ['code'] != 200) {
+            if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:C:' + response ['code'].toString (), 'yellow');
+            return;
+         }
 
          queryResult = response ['body'];
          queryResult ['timeHeader'] = StoreService.instance.get ('queryResult') ['timeHeader'];

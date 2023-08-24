@@ -45,7 +45,6 @@
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
-- count(Local|Uploaded) <str>: count of pivs shown in bottom navigation icon for that view
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
 - currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentMonth `[<int (year)>, <int (month)>]`: if set, indicates the current month of the uploaded view.
@@ -851,4 +850,13 @@ Whatever the error is, we cannot continue the function, so we return.
 ```dart
          return;
       }
+```
+
+
+If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed concurrently that will be in charge of updating `queryResult`.
+
+This check is why we copied `tags` before setting it to `queryTags`, and why we hold `queryTags` as part of the class. Tagaway is very interactive and the queries can take over half a second, so it's perfectly possible for the user to trigger a new query before the results of the old query are available.
+
+```dart
+      if (! listEquals (queryTags, tags)) return;
 ```
