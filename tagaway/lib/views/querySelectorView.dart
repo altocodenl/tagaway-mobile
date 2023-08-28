@@ -63,34 +63,35 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
       if (v1 != '')
         setState(() {
           queryResult = v1;
-          years = queryResult['tags']
+          var queryTags = StoreService.instance.get('queryTags');
+          if (queryTags == '') queryTags = [];
+          var selectableTags = queryResult['tags']
               .keys
+              .where((tag) => !queryTags.contains(tag))
+              .toList();
+          years = selectableTags
               .where((tag) => RegExp('^d::[0-9]').hasMatch(tag))
               .where(matchFilter)
               .toList();
           years.sort();
-          months = queryResult['tags']
-              .keys
+          months = selectableTags
               .where((tag) => RegExp('^d::M').hasMatch(tag))
               .where(matchFilter)
               .toList();
           months.sort(
               (a, b) => int.parse(a.substring(4)) - int.parse(b.substring(4)));
-          countries = queryResult['tags']
-              .keys
+          countries = selectableTags
               .where((tag) => RegExp('^g::[A-Z]{2}').hasMatch(tag))
               .where(matchFilter)
               .toList();
           countries.sort();
-          cities = queryResult['tags']
-              .keys
+          cities = selectableTags
               .where((tag) =>
                   RegExp('^g::').hasMatch(tag) && !countries.contains(tag))
               .where(matchFilter)
               .toList();
           cities.sort();
-          usertags = queryResult['tags']
-              .keys
+          usertags = selectableTags
               .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
               .where(matchFilter)
               .toList();
@@ -224,8 +225,10 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                       ),
                     ])),
             Visibility(
-                visible: ((queryResult['tags']['u::'] ?? 0) > 0) ||
-                    ((queryResult['tags']['t::'] ?? 0) > 0),
+                visible: (queryResult['tags']['u::'] > 0 &&
+                        !queryTags.contains('u::')) ||
+                    (queryResult['tags']['t::'] > 0 &&
+                        !queryTags.contains('t::')),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -247,48 +250,41 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                           childAspectRatio: 4,
                           children: (() {
                             List<Widget> output = [];
-                            // In rare cases, an exception is thrown when queryResult['tags']['u::'] is `null`.
-                            // This is likely a client error, since the server always a tags object with `u::` inside.
-                            // The same goes for t:: and o:: below.
-                            // TODO: eliminate the root cause of this bug.
-                            if ((queryResult['tags']['u::'] ?? 0) > 0)
+                            if (queryResult['tags']['u::'] > 0 &&
+                                !queryTags.contains('u::'))
                               output.add(QuerySelectionTagElement(
                                 onTap: () {
                                   TagService.instance.toggleQueryTag('u::');
                                   searchQueryController.clear();
                                   FocusManager.instance.primaryFocus?.unfocus();
                                 },
-                                elementColor: queryTags.contains('u::')
-                                    ? kSelectedTag
-                                    : kGreyLighter,
+                                elementColor: kGreyLighter,
                                 icon: tagIcon('u::'),
                                 iconColor: tagIconColor('u::'),
                                 tagTitle: tagTitle('u::'),
                               ));
-                            if ((queryResult['tags']['t::'] ?? 0) > 0)
+                            if (queryResult['tags']['t::'] > 0 &&
+                                !queryTags.contains('t::'))
                               output.add(QuerySelectionTagElement(
                                 onTap: () {
                                   TagService.instance.toggleQueryTag('t::');
                                   searchQueryController.clear();
                                   FocusManager.instance.primaryFocus?.unfocus();
                                 },
-                                elementColor: queryTags.contains('t::')
-                                    ? kSelectedTag
-                                    : kGreyLighter,
+                                elementColor: kGreyLighter,
                                 icon: tagIcon('t::'),
                                 iconColor: tagIconColor('t::'),
                                 tagTitle: tagTitle('t::'),
                               ));
-                            if ((queryResult['tags']['o::'] ?? 0) > 0)
+                            if (queryResult['tags']['o::'] > 0 &&
+                                !queryTags.contains('o::'))
                               output.add(QuerySelectionTagElement(
                                 onTap: () {
                                   TagService.instance.toggleQueryTag('o::');
                                   searchQueryController.clear();
                                   FocusManager.instance.primaryFocus?.unfocus();
                                 },
-                                elementColor: queryTags.contains('o::')
-                                    ? kSelectedTag
-                                    : kGreyLighter,
+                                elementColor: kGreyLighter,
                                 icon: tagIcon('o::'),
                                 iconColor: tagIconColor('o::'),
                                 tagTitle: tagTitle('o::'),
@@ -298,41 +294,46 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     ),
                   ],
                 )),
-            const Text('Years',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: kGreyDarker,
+            Visibility(
+                visible: years.length > 0,
+                child: const Text('Years',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: kGreyDarker,
+                    ))),
+            Visibility(
+                visible: years.length > 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 10),
+                  child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: filteredYears.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                        childAspectRatio: 4,
+                      ),
+                      itemBuilder: (BuildContext context, index) {
+                        var year = filteredYears[index];
+                        return QuerySelectionTagElement(
+                            onTap: () {
+                              TagService.instance.toggleQueryTag(year);
+                              searchQueryController.clear();
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            elementColor: queryTags.contains(year)
+                                ? kSelectedTag
+                                : kGreyLighter,
+                            icon: tagIcon(year),
+                            iconColor: tagIconColor(year),
+                            tagTitle: tagTitle(year));
+                      }),
                 )),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: filteredYears.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 4,
-                  ),
-                  itemBuilder: (BuildContext context, index) {
-                    var year = filteredYears[index];
-                    return QuerySelectionTagElement(
-                        onTap: () {
-                          TagService.instance.toggleQueryTag(year);
-                          searchQueryController.clear();
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        },
-                        elementColor: queryTags.contains(year)
-                            ? kSelectedTag
-                            : kGreyLighter,
-                        icon: tagIcon(year),
-                        iconColor: tagIconColor(year),
-                        tagTitle: tagTitle(year));
-                  }),
-            ),
             Visibility(
                 visible: years.length > 4,
                 child: GestureDetector(
@@ -354,10 +355,11 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         )))),
             Visibility(
                 visible: queryTags
-                        .where((tag) => RegExp('^d::').hasMatch(tag))
-                        .toList()
-                        .length >
-                    0,
+                            .where((tag) => RegExp('^d::').hasMatch(tag))
+                            .toList()
+                            .length >
+                        0 &&
+                    months.length > 0,
                 child: const Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Text('Months',
@@ -370,10 +372,11 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 )),
             Visibility(
                 visible: queryTags
-                        .where((tag) => RegExp('^d::').hasMatch(tag))
-                        .toList()
-                        .length >
-                    0,
+                            .where((tag) => RegExp('^d::').hasMatch(tag))
+                            .toList()
+                            .length >
+                        0 &&
+                    months.length > 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 10),
                   child: GridView.builder(
@@ -472,10 +475,11 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                         )))),
             Visibility(
                 visible: queryTags
-                        .where((tag) => RegExp('^g::').hasMatch(tag))
-                        .toList()
-                        .length >
-                    0,
+                            .where((tag) => RegExp('^g::').hasMatch(tag))
+                            .toList()
+                            .length >
+                        0 &&
+                    cities.length > 0,
                 child: const Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Text('Cities',
@@ -488,10 +492,11 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 )),
             Visibility(
                 visible: queryTags
-                        .where((tag) => RegExp('^g::').hasMatch(tag))
-                        .toList()
-                        .length >
-                    0,
+                            .where((tag) => RegExp('^g::').hasMatch(tag))
+                            .toList()
+                            .length >
+                        0 &&
+                    cities.length > 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 10),
                   child: GridView.builder(
@@ -521,44 +526,49 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                             tagTitle: shorten(tagTitle(city)));
                       }),
                 )),
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: Text('Your tags',
-                  style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: kGreyDarker,
-                  )),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10),
-              child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 4,
-                  ),
-                  itemCount: usertags.length,
-                  itemBuilder: (BuildContext context, index) {
-                    var tag = usertags[index];
-                    return QuerySelectionTagElement(
-                        onTap: () {
-                          TagService.instance.toggleQueryTag(tag);
-                          searchQueryController.clear();
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        },
-                        elementColor: queryTags.contains(tag)
-                            ? kSelectedTag
-                            : kGreyLighter,
-                        icon: tagIcon(tag),
-                        iconColor: tagIconColor(tag),
-                        tagTitle: shorten(tagTitle(tag)));
-                  }),
-            ),
+            Visibility(
+                visible: usertags.length > 0,
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Text('Your tags',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: kGreyDarker,
+                      )),
+                )),
+            Visibility(
+                visible: usertags.length > 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 10),
+                  child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                        childAspectRatio: 4,
+                      ),
+                      itemCount: usertags.length,
+                      itemBuilder: (BuildContext context, index) {
+                        var tag = usertags[index];
+                        return QuerySelectionTagElement(
+                            onTap: () {
+                              TagService.instance.toggleQueryTag(tag);
+                              searchQueryController.clear();
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            elementColor: queryTags.contains(tag)
+                                ? kSelectedTag
+                                : kGreyLighter,
+                            icon: tagIcon(tag),
+                            iconColor: tagIconColor(tag),
+                            tagTitle: shorten(tagTitle(tag)));
+                      }),
+                )),
           ],
         )),
         floatingActionButton: Align(

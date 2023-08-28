@@ -2,7 +2,7 @@
 
 ## TODO
 
-- In query selector, when selected tags go up, remove them from below.
+- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags
 - Performance of query: avoid double round trip for first draw of uploadedView.
 
 - Disaable scrolling when zooming in Local & Uploaded (Tom)
@@ -32,7 +32,7 @@
    - Icon
 -----
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
-- Home: display tags in a better different way
+- Home: display tags in a better, different way
 - When deleting a piv but repenting when the OS shows you the confirmation dialog, check if there is a way to get that info in Tagaway to decide whether to delete the piv or not from the list of local pivs (Tom).
 - Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
