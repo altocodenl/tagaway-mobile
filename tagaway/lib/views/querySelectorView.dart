@@ -168,7 +168,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   onTap: () {
                     setState(() {
                       StoreService.instance.set('queryTags', []);
-                      //  THIS SHOULD ALSO CLEAR THE SEARCHBAR IN TEXTFIELD
+                      searchQueryController.clear();
                     });
                   },
                   child: const Text('Clear', style: kPlainTextBold)),
