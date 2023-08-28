@@ -115,6 +115,7 @@ class _CarrouselViewState extends State<CarrouselView>
   late AnimationController animationController;
   Animation<Matrix4>? animation;
   OverlayEntry? entry;
+  ScrollPhysics? pageBuilderScroll;
 
   @override
   void initState() {
@@ -154,10 +155,10 @@ class _CarrouselViewState extends State<CarrouselView>
     ]);
     return PageView.builder(
       reverse: true,
-      physics: const BouncingScrollPhysics(),
+      physics: pageBuilderScroll,
+      // physics: const ClampingScrollPhysics(),
       controller: PageController(
         initialPage: widget.initialPiv,
-        keepPage: false,
       ),
       // pageSnapping: true,
       itemCount: widget.pivs.length,
@@ -223,31 +224,46 @@ class _CarrouselViewState extends State<CarrouselView>
                       var top =
                           (askance ? -(height - width + 50) / 2 : 0).toDouble();
 
-                      return InteractiveViewer(
-                        transformationController: controller,
-                        clipBehavior: Clip.none,
-                        minScale: 1,
-                        maxScale: 8,
-                        child: Stack(children: [
-                          Positioned(
-                              left: left,
-                              top: top,
-                              child: Transform.rotate(
-                                angle: (piv['deg'] == null ? 0 : piv['deg']) *
-                                    math.pi /
-                                    180.0,
-                                child: Container(
-                                  color: kGreyDarkest,
-                                  height: height,
-                                  width: width,
-                                  child: Image(
-                                    alignment: Alignment.center,
-                                    fit: BoxFit.contain,
-                                    image: imageProvider,
-                                  ),
-                                ),
-                              ))
-                        ]),
+                      return ValueListenableBuilder(
+                        valueListenable: controller,
+                        builder: (context, Matrix4 matrix, child) {
+                          if (matrix != Matrix4.identity()) {
+                            print('Image Zoomed In');
+                            pageBuilderScroll =
+                                const NeverScrollableScrollPhysics();
+                          } else if (matrix == Matrix4.identity()) {
+                            print('Not Zoomed In');
+
+                            pageBuilderScroll = const BouncingScrollPhysics();
+                          }
+                          return InteractiveViewer(
+                            transformationController: controller,
+                            clipBehavior: Clip.none,
+                            minScale: 1,
+                            maxScale: 8,
+                            child: Stack(children: [
+                              Positioned(
+                                  left: left,
+                                  top: top,
+                                  child: Transform.rotate(
+                                    angle:
+                                        (piv['deg'] == null ? 0 : piv['deg']) *
+                                            math.pi /
+                                            180.0,
+                                    child: Container(
+                                      color: kGreyDarkest,
+                                      height: height,
+                                      width: width,
+                                      child: Image(
+                                        alignment: Alignment.center,
+                                        fit: BoxFit.contain,
+                                        image: imageProvider,
+                                      ),
+                                    ),
+                                  ))
+                            ]),
+                          );
+                        },
                       );
                     }),
                 replacement: piv['vid'] == 'pending'
