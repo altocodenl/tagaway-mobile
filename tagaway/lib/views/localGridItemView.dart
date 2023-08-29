@@ -110,6 +110,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
   late AnimationController animationController;
   Animation<Matrix4>? animation;
   OverlayEntry? entry;
+  ScrollPhysics? pageBuilderScroll;
 
   @override
   void initState() {
@@ -150,7 +151,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
     var currentIndex = widget.page.indexOf(widget.pivFile);
     return PageView.builder(
         reverse: true,
-        physics: const BouncingScrollPhysics(),
+        physics: pageBuilderScroll,
         controller: PageController(
           initialPage: currentIndex,
           keepPage: false,
@@ -194,6 +195,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                   child: Stack(
                     children: [
                       InteractiveViewer(
+                        transformationController: controller,
                         panEnabled: false,
                         minScale: 1,
                         maxScale: 8,

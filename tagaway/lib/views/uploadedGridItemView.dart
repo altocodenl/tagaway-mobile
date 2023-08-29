@@ -145,6 +145,15 @@ class _CarrouselViewState extends State<CarrouselView>
     super.dispose();
   }
 
+  bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
+    for (var i = 0; i < 16; i++) {
+      if ((a.storage[i] - b.storage[i]).abs() > epsilon) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -227,14 +236,13 @@ class _CarrouselViewState extends State<CarrouselView>
                       return ValueListenableBuilder(
                         valueListenable: controller,
                         builder: (context, Matrix4 matrix, child) {
-                          if (matrix != Matrix4.identity()) {
-                            print('Image Zoomed In');
+                          if (matrixAlmostEqual(matrix, Matrix4.identity())) {
+                            print("Image is not zoomed in anymore");
+                            pageBuilderScroll = const BouncingScrollPhysics();
+                          } else {
+                            print('image zoomed in');
                             pageBuilderScroll =
                                 const NeverScrollableScrollPhysics();
-                          } else if (matrix == Matrix4.identity()) {
-                            print('Not Zoomed In');
-
-                            pageBuilderScroll = const BouncingScrollPhysics();
                           }
                           return InteractiveViewer(
                             transformationController: controller,
