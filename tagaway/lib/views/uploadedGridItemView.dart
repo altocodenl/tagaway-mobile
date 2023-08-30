@@ -29,7 +29,8 @@ class UploadedGridItem extends StatelessWidget {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     var piv = StoreService.instance.get('queryResult')['pivs'][pivIndex];
     pivs = StoreService.instance.get('queryResult')['pivs'];
-    if (piv['id'] == null) return CircularProgressIndicator(color: kAltoBlue);
+    if (piv['id'] == null)
+      return const CircularProgressIndicator(color: kAltoBlue);
     return Stack(
       children: [
         CachedNetworkImage(
@@ -115,6 +116,7 @@ class _CarrouselViewState extends State<CarrouselView>
   late AnimationController animationController;
   Animation<Matrix4>? animation;
   OverlayEntry? entry;
+  ScrollPhysics? pageBuilderScroll;
 
   @override
   void initState() {
@@ -144,6 +146,15 @@ class _CarrouselViewState extends State<CarrouselView>
     super.dispose();
   }
 
+  bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
+    for (var i = 0; i < 16; i++) {
+      if ((a.storage[i] - b.storage[i]).abs() > epsilon) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -154,10 +165,9 @@ class _CarrouselViewState extends State<CarrouselView>
     ]);
     return PageView.builder(
       reverse: true,
-      physics: const BouncingScrollPhysics(),
+      physics: pageBuilderScroll,
       controller: PageController(
         initialPage: widget.initialPiv,
-        keepPage: false,
       ),
       // pageSnapping: true,
       itemCount: widget.pivs.length,
@@ -223,31 +233,55 @@ class _CarrouselViewState extends State<CarrouselView>
                       var top =
                           (askance ? -(height - width + 50) / 2 : 0).toDouble();
 
-                      return InteractiveViewer(
-                        transformationController: controller,
-                        clipBehavior: Clip.none,
-                        minScale: 1,
-                        maxScale: 8,
-                        child: Stack(children: [
-                          Positioned(
-                              left: left,
-                              top: top,
-                              child: Transform.rotate(
-                                angle: (piv['deg'] == null ? 0 : piv['deg']) *
-                                    math.pi /
-                                    180.0,
-                                child: Container(
-                                  color: kGreyDarkest,
-                                  height: height,
-                                  width: width,
-                                  child: Image(
-                                    alignment: Alignment.center,
-                                    fit: BoxFit.contain,
-                                    image: imageProvider,
-                                  ),
-                                ),
-                              ))
-                        ]),
+                      return ValueListenableBuilder(
+                        valueListenable: controller,
+                        builder: (context, Matrix4 matrix, child) {
+                          if (matrixAlmostEqual(matrix, Matrix4.identity())) {
+                            if (pageBuilderScroll is! BouncingScrollPhysics) {
+                              print("Image is not zoomed in anymore");
+                              Future.delayed(Duration.zero, () {
+                                setState(() => pageBuilderScroll =
+                                    const BouncingScrollPhysics());
+                              });
+                            }
+                          } else {
+                            if (pageBuilderScroll
+                                is! NeverScrollableScrollPhysics) {
+                              print('image zoomed in');
+                              Future.delayed(Duration.zero, () {
+                                setState(() => pageBuilderScroll =
+                                    const NeverScrollableScrollPhysics());
+                              });
+                            }
+                          }
+                          return InteractiveViewer(
+                            transformationController: controller,
+                            clipBehavior: Clip.none,
+                            minScale: 1,
+                            maxScale: 8,
+                            child: Stack(children: [
+                              Positioned(
+                                  left: left,
+                                  top: top,
+                                  child: Transform.rotate(
+                                    angle:
+                                        (piv['deg'] == null ? 0 : piv['deg']) *
+                                            math.pi /
+                                            180.0,
+                                    child: Container(
+                                      color: kGreyDarkest,
+                                      height: height,
+                                      width: width,
+                                      child: Image(
+                                        alignment: Alignment.center,
+                                        fit: BoxFit.contain,
+                                        image: imageProvider,
+                                      ),
+                                    ),
+                                  ))
+                            ]),
+                          );
+                        },
                       );
                     }),
                 replacement: piv['vid'] == 'pending'

@@ -110,6 +110,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
   late AnimationController animationController;
   Animation<Matrix4>? animation;
   OverlayEntry? entry;
+  ScrollPhysics? pageBuilderScroll;
 
   @override
   void initState() {
@@ -139,6 +140,15 @@ class _LocalCarrouselState extends State<LocalCarrousel>
     super.dispose();
   }
 
+  bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
+    for (var i = 0; i < 16; i++) {
+      if ((a.storage[i] - b.storage[i]).abs() > epsilon) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -150,7 +160,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
     var currentIndex = widget.page.indexOf(widget.pivFile);
     return PageView.builder(
         reverse: true,
-        physics: const BouncingScrollPhysics(),
+        physics: pageBuilderScroll,
         controller: PageController(
           initialPage: currentIndex,
           keepPage: false,
@@ -193,23 +203,47 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                   visible: piv.type == AssetType.image,
                   child: Stack(
                     children: [
-                      InteractiveViewer(
-                        panEnabled: false,
-                        minScale: 1,
-                        maxScale: 8,
-                        child: Container(
-                          color: kGreyDarkest,
-                          alignment: Alignment.center,
-                          child: FutureBuilder<File?>(
-                            future: piv.file,
-                            builder: (_, snapshot) {
-                              final file = snapshot.data;
-                              if (file == null) return Container();
-                              return Image.file(file);
-                            },
-                          ),
-                        ),
-                      ),
+                      ValueListenableBuilder(
+                          valueListenable: controller,
+                          builder: (context, Matrix4 matrix, child) {
+                            if (matrixAlmostEqual(matrix, Matrix4.identity())) {
+                              if (pageBuilderScroll is! BouncingScrollPhysics) {
+                                print("Image is not zoomed in anymore");
+                                Future.delayed(Duration.zero, () {
+                                  setState(() => pageBuilderScroll =
+                                      const BouncingScrollPhysics());
+                                });
+                              }
+                            } else {
+                              if (pageBuilderScroll
+                                  is! NeverScrollableScrollPhysics) {
+                                print('image zoomed in');
+                                Future.delayed(Duration.zero, () {
+                                  setState(() => pageBuilderScroll =
+                                      const NeverScrollableScrollPhysics());
+                                });
+                              }
+                            }
+                            return InteractiveViewer(
+                              transformationController: controller,
+                              clipBehavior: Clip.none,
+                              // panEnabled: false,
+                              minScale: 1,
+                              maxScale: 8,
+                              child: Container(
+                                color: kGreyDarkest,
+                                alignment: Alignment.center,
+                                child: FutureBuilder<File?>(
+                                  future: piv.file,
+                                  builder: (_, snapshot) {
+                                    final file = snapshot.data;
+                                    if (file == null) return Container();
+                                    return Image.file(file);
+                                  },
+                                ),
+                              ),
+                            );
+                          }),
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Container(
