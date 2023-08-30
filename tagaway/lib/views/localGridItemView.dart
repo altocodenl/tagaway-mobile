@@ -208,7 +208,6 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                           builder: (context, Matrix4 matrix, child) {
                             if (matrixAlmostEqual(matrix, Matrix4.identity())) {
                               if (pageBuilderScroll is! BouncingScrollPhysics) {
-                                print("Image is not zoomed in anymore");
                                 Future.delayed(Duration.zero, () {
                                   setState(() => pageBuilderScroll =
                                       const BouncingScrollPhysics());
@@ -217,7 +216,6 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                             } else {
                               if (pageBuilderScroll
                                   is! NeverScrollableScrollPhysics) {
-                                print('image zoomed in');
                                 Future.delayed(Duration.zero, () {
                                   setState(() => pageBuilderScroll =
                                       const NeverScrollableScrollPhysics());
