@@ -478,6 +478,8 @@ class TagService {
            nonWhiteMonths.add ([month [0], month [1]]);
          });
       });
+      // If no pivs, no current month. Return an object with neither previous nor next.
+      if (currentMonthIndex == null) return {'previousMonth': '', 'nextMonth': ''};
       var previousMonth = currentMonthIndex == 0     ? '' : nonWhiteMonths [currentMonthIndex - 1];
       var nextMonth     = currentMonthIndex == index ? '' : nonWhiteMonths [currentMonthIndex + 1];
       return {'previousMonth': previousMonth, 'nextMonth': nextMonth};

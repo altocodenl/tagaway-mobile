@@ -3,7 +3,7 @@
 ## TODO
 
 - Load up all pivs after deletion anyway.
-- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs
+- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags.
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Finish annotated source code.
@@ -198,7 +198,7 @@ We make a call to `POST /upload` indicating the `'start'` operation, sending no 
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
 ```
 
-If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error. Note however that we don't report the error if we get a 403, since another error message will be presented by another part of our code.
+If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error. Note however that we don't report the error if we get a 403, since an error message will be shown by the `ajax` function, defined elsewhere.
 
 ```dart
       if (response ['code'] != 200) {
@@ -453,7 +453,19 @@ We upload the piv through `uploadPiv` and await for the result.
       var result = await uploadPiv (nextPiv);
 ```
 
-If we obtained a 200, the piv was successfully uploaded. In this case, we simply remove the piv from the upload queue and update the dry upload queue.
+If we got a 403, it is almost certainly because our session has expired. This can happen when reopening the app after a few days, after leaving it with pivs in the queue. When the app is revived, the upload will be attempted and it will fail. In this case, an error message will be shown by our `ajaxMulti` function, which is defined elsewhere. We will not do anything else, leaving the piv in the queue.
+
+```dart
+      if (result ['code'] == 403) return;
+```
+
+For convenience's sake, we store the error that came in the body (if any) in a variable `error`. If there's no body, we will set it to an empty string.
+
+```dart
+      var error = result ['body'] != null ? result ['body'] ['error'] : '';
+```
+
+If we obtained a 200, the piv was successfully uploaded. In this case, we simply remove the piv from the upload queue and update the dry upload queue. We do not return since we will do further actions if we got a 200.
 
 ```dart
       if (result ['code'] == 200) {
@@ -462,15 +474,89 @@ If we obtained a 200, the piv was successfully uploaded. In this case, we simply
       }
 ```
 
-
-
-
-
-
-If we got a 403, almost certainly our session has expired. This can happen when reopening the app after a few days, after leaving it with pivs in the queue. When the app is revived, the upload will be attempted and it will fail. In this case, another error message will be presented by another part of our code. We will not do anything else, leaving the piv in the queue.
+If we obtained a 400, and the error is not one of the following: 1) invalid piv; 2) a piv that's too large; or 3) a piv in an unsupported format, then we have encountered an unexpected error. We report the error with code `UPLOAD:400` and set the `uploading` flag to `false`. We will return since in this case we don't want to perform any more actions. By setting the flag to `false` and not performing any more actions, we essentially freeze the upload queue until the issue is resolved.
 
 ```dart
-      if (result ['code'] == 403) return;
+      else if (result ['code'] == 400) {
+         if (! ['Invalid piv', 'tooLarge', 'format'].contains (error)) return uploading = false;
+            showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
+            return uploading = false;
+         }
+```
+
+If we obtained a 400 that falls under one of the three cases we covered, we report the error.
+
+```dart
+         if (error == 'Invalid piv') showSnackbar ('One of the pivs you tagged is invalid, so we cannot tag it or save it in the cloud - CODE UPLOAD:INVALID', 'yellow');
+         if (error == 'tooLarge')    showSnackbar ('One of the pivs you tagged is too large, so we cannot tag it or save it in the cloud - CODE UPLOAD:TOOLARGE', 'yellow');
+         if (error == 'format')      showSnackbar ('One of the pivs you tagged is in an unsupported format, so we cannot tag it or save it in the cloud - CODE UPLOAD:FORMAT', 'yellow');
+```
+
+We also remove the piv from the queue and update the dry upload queue - exactly as we did in the case of a 200. Note we don't return, since we will do further actions.
+
+```dart
+         uploadQueue.remove (nextPiv);
+         updateDryUploadQueue ();
+      }
+```
+
+If we got a 409 and it's because the user ran out of space:
+
+```dart
+      else if (result ['code'] == 409) {
+         if (error == 'capacity') {
+```
+
+We then clear the upload queue, update the dry upload queue, report the error and set `uploading` to `false`. We will also `return`, just like we did in the case of an unexpected 400.
+
+```dart
+            uploadQueue = [];
+            updateDryUploadQueue ();
+            showSnackbar ('Alas! You\'ve exceeded the maximum capacity for your account so you cannot upload any more pictures.', 'yellow');
+            return uploading = false;
+         }
+```
+
+If we encountered another 409 error, it has to do with the upload group expiring. In this case, we simply set `upload ['time']` to `null` and retry the upload by making a recursive call to `queuePiv`. The recursive call will retry this piv with a new upload group.
+
+```dart
+         else {
+            upload ['time'] = null;
+            return queuePiv (null);
+         }
+      }
+```
+
+If there was an unexpected error, we will report it, set `uploading` to `false` and return, as we did with unexpected 400 errors.
+
+```dart
+      else {
+         showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
+         return uploading = false;
+      }
+```
+
+If we're here we didn't find any errors that made us stop the upload queue.
+
+If there are no more pivs left in the queue, we invoke `completeUpload`, set `uploading` to `false` and return.
+
+```dart
+      if (uploadQueue.length == 0) {
+         await completeUpload ();
+         return uploading = false;
+      }
+```
+
+Otherwise, there are still more pivs to upload. We invoke `queuePiv` recursively, passing `null`. This will process the next piv. Note that recursive calls will not be halted by the `uploading` flag, so we know that this recursive call will pick up the next piv in the queue.
+
+```dart
+      queuePiv (null);
+```
+
+This concludes the function.
+
+```dart
+   }
 ```
 
 TODO: add annotated source code between these two functions.
@@ -1059,7 +1145,7 @@ This query, the first we do, will give us the total amount of pivs, their associ
       });
 ```
 
-If we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another snackbar already implemented in the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:A:CODE`.
+If we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another error message already shown by the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:A:CODE`.
 
 ```dart
       if (response ['code'] != 200) {
@@ -1072,7 +1158,6 @@ Whatever the error is, we cannot continue the function, so we return.
          return;
       }
 ```
-
 
 If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed concurrently that will be in charge of updating `queryResult`.
 

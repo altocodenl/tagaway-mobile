@@ -105,43 +105,43 @@ class PivService {
       var nextPiv = uploadQueue [0];
       var result = await uploadPiv (nextPiv);
 
+      if (result ['code'] == 403) return;
+
+      var error = result ['body'] != null ? result ['body'] ['error'] : '';
+
       if (result ['code'] == 200) {
          if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
          updateDryUploadQueue ();
       }
 
       else if (result ['code'] == 400) {
-         // Invalid piv
-         // tooLarge
-         // format
-         uploadQueue.removeAt (0);
-         // TODO: what about invalid upload?
-         // Invalid piv, remove from queue and keep on going
+         // Server error, connection error or unexpected error. Stop all uploads but do not clear the queue.
+         if (! ['Invalid piv', 'tooLarge', 'format'].contains (error)) {
+            showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
+            return uploading = false;
+         }
+
+         if (error == 'Invalid piv') showSnackbar ('One of the pivs you tagged is invalid, so we cannot tag it or save it in the cloud - CODE UPLOAD:INVALID', 'yellow');
+         if (error == 'tooLarge')    showSnackbar ('One of the pivs you tagged is too large, so we cannot tag it or save it in the cloud - CODE UPLOAD:TOOLARGE', 'yellow');
+         if (error == 'format')      showSnackbar ('One of the pivs you tagged is in an unsupported format, so we cannot tag it or save it in the cloud - CODE UPLOAD:FORMAT', 'yellow');
          uploadQueue.remove (nextPiv);
          updateDryUploadQueue ();
-         // TODO: report error
-      }
-      else if (result ['code'] == 403) {
-        return;
       }
       else if (result ['code'] == 409) {
-         if (result ['body'] ['error'] == 'capacity') {
-             // No space left, stop uploading all pivs and clear the queue
+         if (error == 'capacity') {
             uploadQueue = [];
             updateDryUploadQueue ();
+            showSnackbar ('Alas! You\'ve exceeded the maximum capacity for your account so you cannot upload any more pictures.', 'yellow');
             return uploading = false;
-            // TODO: report
          }
          else {
-            // Issue with the upload group, reinitialize the upload object and retry this piv
             upload ['time'] = null;
             return queuePiv (null);
          }
       }
       else {
-        // Server error, connection error or unexpected error. Stop all uploads but do not clear the queue.
-        return uploading = false;
-        // TODO: report
+         showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
+         return uploading = false;
       }
 
       if (uploadQueue.length == 0) {
@@ -149,9 +149,10 @@ class PivService {
          return uploading = false;
       }
 
-      // Recursive call to keep the ball rolling since we have further pivs in the queue
       queuePiv (null);
    }
+
+   // TODO: annotate the code below
 
    loadLocalPivs ([initialLoad = true]) async {
 
