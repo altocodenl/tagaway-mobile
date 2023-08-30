@@ -165,7 +165,6 @@ class _CarrouselViewState extends State<CarrouselView>
     return PageView.builder(
       reverse: true,
       physics: pageBuilderScroll,
-      // physics: const ClampingScrollPhysics(),
       controller: PageController(
         initialPage: widget.initialPiv,
       ),
@@ -237,12 +236,22 @@ class _CarrouselViewState extends State<CarrouselView>
                         valueListenable: controller,
                         builder: (context, Matrix4 matrix, child) {
                           if (matrixAlmostEqual(matrix, Matrix4.identity())) {
-                            print("Image is not zoomed in anymore");
-                            pageBuilderScroll = const BouncingScrollPhysics();
+                            if (pageBuilderScroll is! BouncingScrollPhysics) {
+                              print("Image is not zoomed in anymore");
+                              Future.delayed(Duration.zero, () {
+                                setState(() => pageBuilderScroll =
+                                    const BouncingScrollPhysics());
+                              });
+                            }
                           } else {
-                            print('image zoomed in');
-                            pageBuilderScroll =
-                                const NeverScrollableScrollPhysics();
+                            if (pageBuilderScroll
+                                is! NeverScrollableScrollPhysics) {
+                              print('image zoomed in');
+                              Future.delayed(Duration.zero, () {
+                                setState(() => pageBuilderScroll =
+                                    const NeverScrollableScrollPhysics());
+                              });
+                            }
                           }
                           return InteractiveViewer(
                             transformationController: controller,
