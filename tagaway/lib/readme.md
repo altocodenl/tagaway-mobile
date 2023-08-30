@@ -2,18 +2,21 @@
 
 ## TODO
 
-- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags
+- Load up all pivs after deletion anyway.
+- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs
 - Performance of query: avoid double round trip for first draw of uploadedView.
-
-- Disaable scrolling when zooming in Local & Uploaded (Tom)
-- Create settings view with Change Password and enable/disable geotagging (Tom)
-- Write a QA script (Tom)
-
-- Stop flickering when opening FAB or clicking on "done".
 - Handle >= 400 errors with snackbar on tagService and uploadService
 - Finish annotated source code.
+- Create settings view with Change Password and enable/disable geotagging: merge & dynamize
+- Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
-- Home: Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
+- Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
+
+- Disaable scrolling when zooming in Local & Uploaded (Tom)
+- Write a QA script (Tom)
+- Add cloud icon for pivs in cloud that are being uploaded (Tom)
+- When deleting a piv but repenting when the OS shows you the confirmation dialog, check if there is a way to get that info in Tagaway to decide whether to delete the piv or not from the list of local pivs (Tom)
+
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
@@ -31,10 +34,9 @@
       - Tag/untag: change pendingTags
    - Icon
 -----
+- Design distinctive icon for app (Tom)
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
 - Home: display tags in a better, different way
-- When deleting a piv but repenting when the OS shows you the confirmation dialog, check if there is a way to get that info in Tagaway to decide whether to delete the piv or not from the list of local pivs (Tom).
-- Design distinctive icon for app (Tom)
 - Draggable selection (Tom)
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
@@ -196,11 +198,11 @@ We make a call to `POST /upload` indicating the `'start'` operation, sending no 
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
 ```
 
-If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error.
+If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error. Note however that we don't report the error if we get a 403, since another error message will be presented by another part of our code.
 
 ```dart
       if (response ['code'] != 200) {
-         showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
+         if (response ['code'] != 403) showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
          return false;
       }
 ```
@@ -344,15 +346,142 @@ There's nothing else to do, so we return the response and close the function.
    }
 ```
 
+We now define `updateDryUploadQueue`, the function that is in charge of storing the upload queue in disk. If it wasn't for this function, the upload queue would be reset if the app was closed.
+
+The function is quite simple, but since it is used in multiple places, it is handy to define it.
+
+```dart
+   updateDryUploadQueue () async {
+```
+
+We iterate the pivs in `uploadQueue` and add their ids to a `dryUploadQueue` list.
+
+```dart
+      var dryUploadQueue = [];
+      uploadQueue.forEach ((v) => dryUploadQueue.add (v.id));
+```
+
+We store `dryUploadQueue` in the `uploadQueue` key; note we store this key in disk.
+
+This concludes the function.
+
+```dart
+      StoreService.instance.set ('uploadQueue', dryUploadQueue, 'disk');
+   }
+```
+
+We now define `queuePiv`, the function that adds pivs to the upload queue.
+
+This function takes an optional argument, `piv`, which is a piv to be uploaded.
+
+If no `piv` is passed, this is a recursive call done by `queuePiv` to itself, to keep uploads going. We will see how and why below.
+
+```dart
+   queuePiv (dynamic piv) async {
+```
+
+We first consider the case where an actual `piv` was passed.
+
+```dart
+      if (piv != null) {
+```
+
+As soon as the piv is placed in the queue, we want the interface to consider it as uploaded. The user should not have to wait for an upload to complete to see a piv as organized; if we did this, we would lose the essential instant feedback that makes the app valuable. Even if the user knew about this, it would be plain annoying to have the pivs slowly disappearing as they are uploaded.
+
+For this reason, we preemptively set `pivMap:ID` to `true`, to indicate that the piv is being uploaded. This entry will later be overwritten with the id of the cloud counterpart of the uploaded piv.
+
+Note however we do not unconditionally set `pivMap:ID` to `true`: if `pivMap:ID` is already set, we do not overwrite it. This precaution might be rarely useful, but not useless, if by chance the user tags a piv that just has completed uploading.
+
+```dart
+         if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
+```
+
+We check whether the piv is already in the upload queue.
+
+```dart
+         bool pivAlreadyInQueue = false;
+         uploadQueue.forEach ((queuedPiv) {
+            if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
+         });
+```
+
+If the piv is already in the queue, there's nothing else to do, so we return.
+
+```dart
+         if (pivAlreadyInQueue) return;
+```
+
+If the piv is not in the queue, we add it; we then immediately update the dry upload queue, to persist this change.
+
+
+```dart
+         uploadQueue.add (piv);
+         updateDryUploadQueue ();
+```
+
+If we are already uploading pivs, we return since this piv will be picked up later. The `uploading` property belongs to the class itself.
+
+```dart
+         if (uploading) return;
+```
+
+If we are not uploading yet, we set the `uploading` flag to `true`.
+
+```dart
+         uploading = true;
+```
+
+We close the body of the conditional that we entered if `piv` was present. If we're here, either we just added a piv to an empty upload queue, or we are in a recursive call to `queuePiv`.
+
+```dart
+      }
+```
+
+You might have suspected that `queuePiv` does more than just putting pivs in the queue. And you'd been right. This function is also in charge of picking up the next piv and uploading it, if there are no pivs being uploaded yet.
+
+The underlying design decision here is that there should only be a single concurrent upload at a time; that is, only one piv should be uploaded at a time. But as soon as that piv is uploaded, the next piv should be picked up from the queue (if any).
+
+We pick up the next piv from the queue.
+
+```dart
+      var nextPiv = uploadQueue [0];
+```
+
+We upload the piv through `uploadPiv` and await for the result.
+
+```dart
+      var result = await uploadPiv (nextPiv);
+```
+
+If we obtained a 200, the piv was successfully uploaded. In this case, we simply remove the piv from the upload queue and update the dry upload queue.
+
+```dart
+      if (result ['code'] == 200) {
+         if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
+         updateDryUploadQueue ();
+      }
+```
 
 
 
+
+
+
+If we got a 403, almost certainly our session has expired. This can happen when reopening the app after a few days, after leaving it with pivs in the queue. When the app is revived, the upload will be attempted and it will fail. In this case, another error message will be presented by another part of our code. We will not do anything else, leaving the piv in the queue.
+
+```dart
+      if (result ['code'] == 403) return;
+```
+
+TODO: add annotated source code between these two functions.
+
+We now define `computeLocalPages`, the function that will determine what is shown in the local view.
 
 ```dart
    computeLocalPages () {
 ```
 
-This function is not that cheap to execute; we will see later that there's a timer that periodically checks the `recomputeLocalPages` flag to see if it's necessary to compute the local pages again. If we are here, it means that `recomputeLocalPages` is set to `true`, so we will make `computeLocalPages` set it to `false` to indicate that the local pages will be updated now.
+This function is not cheap to execute; we will see later that there's a timer that periodically checks the `recomputeLocalPages` flag to see if it's necessary to compute the local pages again. If we are here, it means that `recomputeLocalPages` is set to `true`, so we will make `computeLocalPages` set it to `false` to indicate that the local pages will be updated now.
 
 ```dart
       recomputeLocalPages = false;
@@ -599,6 +728,98 @@ This concludes the initialization logic and the function itself.
 ```dart
       }
    }
+```
+
+We now define `deleteLocalPivs`, the function that will delete local pivs from the phone. It takes a single argument, `ids`, which is an array of the ids of the asssets to be deleted.
+
+```dart
+   deleteLocalPivs (ids) async {
+```
+
+We first start by iterating our `uploadQueue`, since it's *essential* that we do not delete pivs that are in the upload queue. If we didn't do this, users may well tag a piv, consider it uploaded (even if it's not) and then delete it, which would mean that the user would lose the file forever!
+
+```dart
+      uploadQueue.forEach ((queuedPiv) {
+```
+
+If a piv in the queue is not included in `ids`, we don't care about it.
+
+
+```dart
+         if (! ids.contains (queuedPiv.id)) return;
+```
+
+If we are here, this piv in the queue should also be deleted. If this is the case, we will set a key `pendingDeletion:ID`, which will mark it for deletion once it is uploaded. Note we set this key in the disk.
+
+```dart
+         StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
+```
+
+We will also remove this id from `ids`, since we don't want to delete it now.
+
+```dart
+         ids.remove (queuedPiv.id);
+      });
+```
+
+If there are no pivs that we want to delete now, there's nothing else to do.
+
+```dart
+      if (ids.length == 0) return;
+```
+
+We now delete the pivs from the phone, using a method from PhotoManager.
+
+```dart
+      List<String> typedIds = ids.cast<String>();
+      await PhotoManager.editor.deleteWithIds (typedIds);
+```
+
+We now remove the pivs from `localPivs`. While we could invoke `loadLocalPivs`, that could take many seconds in a phone with thousands of pivs, so we instead remove them quickly from `localPivs`.
+
+We start by creating a list of the indexes of the deleted pivs.
+
+```dart
+      var indexesToDelete = [];
+```
+
+We iterate `localPivs` to find the indexes of the deleted pivs, and add them to `indexesToDelete`.
+
+```dart
+      for (int k = 0; k < localPivs.length; k++) {
+         if (ids.contains (localPivs [k].id)) indexesToDelete.add (k);
+      }
+```
+
+We reverse `indexesToDelete` - this is because if we remove the first deleted pivs from `localPivs`, then all the indexes of the pivs to delete would have to be shifted! But if we delete the pivs in reverse order, deleting a piv will not affect the indexes of the other pivs that should be deleted.
+
+```dart
+      indexesToDelete.reversed.forEach ((k) {
+```
+
+For each index, we delete its corresponding piv from `localPivs`.
+
+```dart
+         localPivs.removeAt (k);
+      });
+```
+
+We finally set `recomputeLocalPages` to `true`, to indicate that we need to recompute them and update the local view.
+
+```dart
+      recomputeLocalPages = true;
+```
+
+This concludes the function.
+
+```dart
+  }
+```
+
+This concludes the `PivService` class.
+
+```dart
+}
 ```
 
 ### `services/tagService.dart`

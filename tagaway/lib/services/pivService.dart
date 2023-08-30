@@ -31,7 +31,7 @@ class PivService {
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
 
       if (response ['code'] != 200) {
-         showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + response ['code'].toString (), 'yellow');
+         if (response ['code'] != 403) showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
          return false;
       }
 
@@ -79,75 +79,69 @@ class PivService {
       return response;
    }
 
-   updateUploadQueue () async {
+   updateDryUploadQueue () async {
       var dryUploadQueue = [];
       uploadQueue.forEach ((v) => dryUploadQueue.add (v.id));
       StoreService.instance.set ('uploadQueue', dryUploadQueue, 'disk');
    }
 
-   // Calls with piv argument come from another service
-   // Calls with no piv argument are recursive to keep the ball rolling
-   // Recursive calls do not get blocked by the `uploading` flag.
    queuePiv (dynamic piv) async {
       if (piv != null) {
-         // If not set, we set pivMap:ID to `true` to mark the piv as uploaded already, to avoid confusion to the user.
-         if (StoreService.instance.get ('pivMap:' + piv.id) == '') {
-            StoreService.instance.set ('pivMap:' + piv.id, true);
-         }
+         if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
+
          bool pivAlreadyInQueue = false;
          uploadQueue.forEach ((queuedPiv) {
             if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
          });
          if (pivAlreadyInQueue) return;
+
          uploadQueue.add (piv);
-         updateUploadQueue ();
+         updateDryUploadQueue ();
 
          if (uploading) return;
          uploading = true;
       }
 
       var nextPiv = uploadQueue [0];
-      // If we don't have an entry in pivMap for this piv, we haven't already uploaded it earlier, so we upload it now. `true` entries are mere placeholders.
-      if (['', true].contains (StoreService.instance.get ('pivMap:' + nextPiv.id))) {
-         // If an upload takes over 9 minutes, it will become stalled and we'll simply create a new one. The logic in `startUpload` takes care of this. So we don't need to create a `setInterval` that keeps on sending `start` ops to POST /upload.
-         var result = await uploadPiv (nextPiv);
-         if (! AuthService.instance.isLogged ()) return;
-         if (result ['code'] == 200) {
-            // Success, remove from queue and keep on going.
-            // It could be that an untagging just removed the piv from the queue, so we check.
-            // TODO: iterate and make sure we're removing the proper one, in case an untagging just removed the one we just uploaded.
-            if (uploadQueue.length > 0) uploadQueue.removeAt (0);
-            updateUploadQueue ();
-         }
-         else if (result ['code'] > 400) {
-            // Invalid piv, remove from queue and keep on going
-            uploadQueue.removeAt (0);
-            updateUploadQueue ();
-            // TODO: report error
-         }
-         else if (result ['code'] == 409) {
-            if (result ['body'] ['error'] == 'capacity') {
-                // No space left, stop uploading all pivs and clear the queue
-               uploadQueue = [];
-               updateUploadQueue ();
-               return uploading = false;
-               // TODO: report
-            }
-            else {
-               // Issue with the upload group, reinitialize the upload object and retry this piv
-               upload ['time'] = null;
-               return queuePiv (null);
-            }
+      var result = await uploadPiv (nextPiv);
+
+      if (result ['code'] == 200) {
+         if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
+         updateDryUploadQueue ();
+      }
+
+      else if (result ['code'] == 400) {
+         // Invalid piv
+         // tooLarge
+         // format
+         uploadQueue.removeAt (0);
+         // TODO: what about invalid upload?
+         // Invalid piv, remove from queue and keep on going
+         uploadQueue.remove (nextPiv);
+         updateDryUploadQueue ();
+         // TODO: report error
+      }
+      else if (result ['code'] == 403) {
+        return;
+      }
+      else if (result ['code'] == 409) {
+         if (result ['body'] ['error'] == 'capacity') {
+             // No space left, stop uploading all pivs and clear the queue
+            uploadQueue = [];
+            updateDryUploadQueue ();
+            return uploading = false;
+            // TODO: report
          }
          else {
-           // Server error, connection error or unexpected error. Stop all uploads but do not clear the queue.
-           return uploading = false;
-           // TODO: report
+            // Issue with the upload group, reinitialize the upload object and retry this piv
+            upload ['time'] = null;
+            return queuePiv (null);
          }
       }
       else {
-         uploadQueue.removeAt (0);
-         updateUploadQueue ();
+        // Server error, connection error or unexpected error. Stop all uploads but do not clear the queue.
+        return uploading = false;
+        // TODO: report
       }
 
       if (uploadQueue.length == 0) {
@@ -193,6 +187,7 @@ class PivService {
       await queryOrganizedLocalPivs ();
 
       // No need to await this function since it's sync.
+      // By calling it, we set it in motion.
       computeLocalPages ();
 
       // If more pivs to load, call itself recursively
@@ -296,6 +291,8 @@ class PivService {
       }
    }
 
+   // TODO: annotate the code above
+
    computeLocalPages () {
 
       recomputeLocalPages = false;
@@ -372,10 +369,9 @@ class PivService {
 
    deleteLocalPivs (ids) async {
       uploadQueue.forEach ((queuedPiv) {
-         if (ids.contains (queuedPiv.id)) {
-            StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
-            ids.remove (queuedPiv.id);
-         }
+         if (! ids.contains (queuedPiv.id)) return;
+         StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
+         ids.remove (queuedPiv.id);
       });
 
       if (ids.length == 0) return;
@@ -390,6 +386,8 @@ class PivService {
          localPivs.removeAt (k);
       });
       recomputeLocalPages = true;
+
+
   }
 
 }

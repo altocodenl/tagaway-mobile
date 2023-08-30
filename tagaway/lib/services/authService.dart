@@ -67,9 +67,4 @@ class AuthService {
       }
       return response ['code'];
    }
-
-   bool isLogged () {
-      return StoreService.instance.get ('cookie') != '';
-   }
-
 }
