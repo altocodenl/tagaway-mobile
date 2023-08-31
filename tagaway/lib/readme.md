@@ -5,17 +5,18 @@
 - Load up all pivs after deletion anyway.
 - Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags.
 - Performance of query: avoid double round trip for first draw of uploadedView.
-- Handle >= 400 errors with snackbar on tagService and uploadService
+- Handle >= 400 errors with snackbar on tagService
 - Finish annotated source code.
+
 - Create settings view with Change Password and enable/disable geotagging: merge & dynamize
 - Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 
-- Disaable scrolling when zooming in Local & Uploaded (Tom)
+- Liberate space (Tom)
 - Write a QA script (Tom)
 - Add cloud icon for pivs in cloud that are being uploaded (Tom)
-- When deleting a piv but repenting when the OS shows you the confirmation dialog, check if there is a way to get that info in Tagaway to decide whether to delete the piv or not from the list of local pivs (Tom)
+- Draggable selection (Tom)
 
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -34,10 +35,8 @@
       - Tag/untag: change pendingTags
    - Icon
 -----
-- Design distinctive icon for app (Tom)
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
 - Home: display tags in a better, different way
-- Draggable selection (Tom)
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
@@ -163,14 +162,12 @@ PivService has three properties that hold data:
 ```
 
 
-PivService has also three properties that are flags:
+PivService has also two properties that are flags:
 
-- `localPivsLoaded`, which is set to `true` if the local pivs have been loaded already. Since the loading of pivs can take several seconds, it is important to signal when the operation has concluded.
 - `recomputeLocalPages`, a flag that is set to `true` if we need to recompute the local pages. The local pages are data objects that determine how many months - and which pivs - are visible in the Local view.
 - `uploading`, a flag that is set to `true` if we are currently uploading a piv.
 
 ```dart
-   bool localPivsLoaded     = false;
    bool recomputeLocalPages = true;
    bool uploading           = false;
 ```
@@ -559,7 +556,107 @@ This concludes the function.
    }
 ```
 
+We now define `loadLocalPivs`, a function that is a sort of entry point for loading up all the info required for the local view.
+
+The function takes an optional parameter, `initialLoad`, which if not present is initialized to `true`. The function might call itself recursively, in which case `initialLoad` will be set to `false`.
+
+```dart
+   loadLocalPivs ([initialLoad = true]) async {
+```
+
+The reason this function might be called multiple times is that loading up all the local pivs could take about 10 seconds on devices with thousands of local pivs. For this reason, if the amount of local pivs is greater than `firstLoadSize`, it will call itself recursively to load the rest of the pivs later.
+
+```dart
+      var firstLoadSize = 500;
+```
+
+This function will do the following things:
+
+- Load the local pivs using PhotoManager.
+- Set the `pivDate:ID` entries, using the dates coming from each of the pivs.
+- Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. This will be done only if `initialLoad` is `true`, since it only needs to be done once.
+- Invoke `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs are organized, and if so set the corresponding `orgMap:ID` entries.
+- Invoke `computeLocalPages`, the function that will determine what is shown in the local view.
+- Invoke `reviveUploads`, the function that will start re-uploading pivs from the dry upload queue. This will be done only if `initialLoad` is `true`, since it only needs to be done once.
+- Invoke `computeHashes`, the function that will compute the hashes for the local pivs for which we haven't done so yet. This will only be executed on the *last* time that `loadLocalPivs` is invoked.
+
+We start by loading the pivs from PhotoManager. By setting `onlyAll` to `true`, we access the `Recent` album, which contains all the photos/videos in the storage.
+
+```dart
+      final albums = await PhotoManager.getAssetPathList (onlyAll: true);
+```
+
+We get pivs from `albums.first` (which is the `Recent` album). How many pivs will depend on whether we are in the first invocation to `loadLocalPivs` or not: if we are in the first one, we only load `firstLoadSize` elements; otherwise we upload all of them (since we cannot pass infinity as an argument, we go with a million pivs, which should be enough to get all the pivs of any phone).
+
+We assign the result to `localPivs`, which is a data property of the service.
+
+```dart
+      localPivs = await albums.first.getAssetListRange (start: 0, end: initialLoad ? firstLoadSize : 1000000);
+```
+
+We sort `localPivs` by `createDateTime` and place the most recent pivs first.
+
+```dart
+      localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+```
+
+We iterate `localPivs`: for each of them, we will set `pivDate:ID` to the creation date of the piv, expressed in milliseconds.
+
+Since we don't store `pivDate:ID` entries in disk, we don't have to clean up old entries that might not belong to any local piv.
+
+```dart
+      for (var piv in localPivs) {
+         StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+      }
+```
+
+If this is the first time that `loadLocalPivs` was called, we invoke `queryExistingHashes`, to map the hashed local pivs to cloud pivs. We don't need to do this on a recursive call to `loadLocalPivs`, because loading more local pivs will not load up more hashes; rather, all the hashes are either computed or will continue to be computed - we'll see how later.
+
+```dart
+      if (initialLoad) await queryExistingHashes ();
+```
+
+For all the local pivs that have a cloud counterpart (that we know of), we check whether they are organized or not.
+
+```dart
+      await queryOrganizedLocalPivs ();
+```
+
+Now that we have a list of local pivs, that we have tried to map all of their existing hashes to cloud ids, and that we queried all of those matching cloud ids to see which ones are organized, we are in a position to create the list of local pages that will be shown! We will do this through `computeLocalPages`. There's no need to await this function, since it's synchronous.
+
+```dart
+      computeLocalPages ();
+```
+
+Now that we already showed the user a page of local pivs, we can do less urgent operations, like reviving the uploads in the dry queue. We only do this the first time we execute the function.
+
+```dart
+      if (initialLoad) await reviveUploads ();
+```
+
+If we are in the initial call to `loadLocalPivs`, and we loaded a number of local pivs equal to `firstLoadSize`, it may be the case that there are more pivs to be loaded. In that case, we invoke `loadLocalPivs` recursively, passing `false` to indicate that this won't be an initial load, but rather a recursive one. Note the return, which prevents us from executing code further done this function.
+
+```dart
+      if (initialLoad && localPivs.length == firstLoadSize) return loadLocalPivs (false);
+```
+
+We invoke `computeHashes`, to compute the hashes of any local pivs that don't have a hash. Note we do this at the end of the function, to ensure that this is done *after* all the local pivs are loaded into `localPivs`.
+
+We don't `await` for this function, since it can take a very long time to complete and it is meant to run in the background.
+
+```dart
+      computeHashes ();
+```
+
+This concludes the function.
+
+```dart
+   }
+```
+
+
 TODO: add annotated source code between these two functions.
+
 
 We now define `computeLocalPages`, the function that will determine what is shown in the local view.
 
@@ -804,7 +901,7 @@ Secondly, we set a timer that executes every 200ms. If `recomputeLocalPages` is 
 Why did we do this instead of calling `computeLocalPages` in the listener we defined above? For the following reason: `pivMap` and `orgMap` entries can be updated tens or even hundreds of times per second, depending on the loading patterns. Therefore it is prohibitively expensive to compute the local pages on every single change. By having a timer that executes periodically, we limit the frequency of recomputation to an acceptable value.
 
 ```dart
-         Timer.periodic(Duration(milliseconds: 200), (timer) {
+         Timer.periodic (Duration (milliseconds: 200), (timer) {
             if (recomputeLocalPages == true) computeLocalPages ();
          });
 ```

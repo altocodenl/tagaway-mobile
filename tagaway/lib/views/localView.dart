@@ -710,13 +710,11 @@ class Grid extends StatefulWidget {
 
 class _GridState extends State<Grid> {
   dynamic cancelListener;
-  bool localPivsLoaded = PivService.instance.localPivsLoaded;
   dynamic page = '';
 
   @override
   void initState() {
     super.initState();
-    loadPivs();
     cancelListener = StoreService.instance
         .listen(['localPage:' + widget.localPagesIndex.toString()], (v1) {
       // If the list of ids in page['pivs'] is unchanged, we don't update the state to avoid redrawing the grid and experiencing a flicker.
@@ -737,19 +735,10 @@ class _GridState extends State<Grid> {
     cancelListener();
   }
 
-  loadPivs() async {
-    if (!localPivsLoaded) {
-      while (PivService.instance.localPivsLoaded == false) {
-        await Future.delayed(const Duration(milliseconds: 50));
-      }
-    }
-    localPivsLoaded = true;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: localPivsLoaded && page != '',
+      visible: page != '',
       child: Padding(
         padding: const EdgeInsets.only(bottom: 20.0, top: 180),
         child: page['pivs'].length == 0

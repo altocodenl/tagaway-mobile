@@ -18,7 +18,6 @@ class PivService {
    var upload      = {};
    var uploadQueue = [];
 
-   bool localPivsLoaded     = false;
    bool recomputeLocalPages = true;
    bool uploading           = false;
 
@@ -158,44 +157,25 @@ class PivService {
 
       var firstLoadSize = 500;
 
-      FilterOptionGroup makeOption () {
-         return FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false));
-      }
+      final albums = await PhotoManager.getAssetPathList (onlyAll: true);
 
-      final option = makeOption ();
-      // Set onlyAll to true, to fetch only the 'Recent' album which contains all the photos/videos in the storage
-      final albums = await PhotoManager.getAssetPathList (onlyAll: true, filterOption: option);
-      if (albums.length == 0) return localPivsLoaded = true;
-      final recentAlbum = albums.first;
-
-      localPivs = await recentAlbum.getAssetListRange (start: 0, end: initialLoad ? firstLoadSize : 100000);
-      localPivs.sort((a, b) => b.createDateTime.compareTo(a.createDateTime));
-
-      localPivsLoaded = true;
+      localPivs = await albums.first.getAssetListRange (start: 0, end: initialLoad ? firstLoadSize : 1000000);
+      localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
 
       for (var piv in localPivs) {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
       }
 
-      if (initialLoad) {
-         // Check if we have uploads we should revive
-         await reviveUploads ();
-
-         // Query for local pivs
-         await queryExistingHashes ();
-      }
+      if (initialLoad) await queryExistingHashes ();
 
       await queryOrganizedLocalPivs ();
 
-      // No need to await this function since it's sync.
-      // By calling it, we set it in motion.
       computeLocalPages ();
 
-      // If more pivs to load, call itself recursively
+      if (initialLoad) await reviveUploads ();
+
       if (initialLoad && localPivs.length == firstLoadSize) return loadLocalPivs (false);
 
-      // We won't await for the computation of hashes, but we will for querying the existing hashes.
-      // We only compute hashes once all pivs are loaded
       computeHashes ();
    }
 
@@ -234,13 +214,13 @@ class PivService {
    }
 
    queryExistingHashes () async {
-      // Get all hash entries and remove those that don't belong to a piv
-      // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
       var localPivIds = {};
       localPivs.forEach ((v) {
          localPivIds [v.id] = true;
       });
 
+      // Get all hash entries and remove those that don't belong to a piv
+      // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
          var id = k.replaceAll ('hashMap:', '');
@@ -362,7 +342,7 @@ class PivService {
 
          // We also set a timer to periodically check if `recomputeLocalPages` is set to `true` and, if so, execute computeLocalPages.
          // This will be done only once.
-         Timer.periodic(Duration(milliseconds: 200), (timer) {
+         Timer.periodic (Duration (milliseconds: 200), (timer) {
             if (recomputeLocalPages == true) computeLocalPages ();
          });
       }
