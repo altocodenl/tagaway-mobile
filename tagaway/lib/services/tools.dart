@@ -30,8 +30,8 @@ bool ajaxLogs = true;
 
 // We need to specify <String, dynamic> because otherwise Dart will try to infer the type of all the keys of the body as being of the same type, which very often will not be the case.
 Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = const {}]) async {
-  // We use getBeforeLoad in case we make an ajax call before the store service is initialized.
-  String cookie = await StoreService.instance.getBeforeLoad ('cookie');
+  // Note the await
+  String cookie = await StoreService.instance.getAwait ('cookie');
   int start = now ();
   var response;
   try {
@@ -41,7 +41,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
     } else {
 
       if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover') {
-        body ['csrf'] = await StoreService.instance.get ('csrf');
+        body ['csrf'] = await StoreService.instance.getAwait ('csrf');
       }
       var httpOperation = method == 'post' ? http.post : http.put;
       response = await httpOperation(Uri.parse(kAltoPicAppURL + '/' + path),
@@ -93,8 +93,8 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
   var request =
       http.MultipartRequest('post', Uri.parse(kAltoPicAppURL + '/' + path));
 
-  request.headers['cookie'] = await StoreService.instance.get('cookie');
-  request.fields['csrf'] = await StoreService.instance.get('csrf');
+  request.headers['cookie'] = await StoreService.instance.getAwait('cookie');
+  request.fields['csrf'] = await StoreService.instance.getAwait('csrf');
 
   fields.forEach((k, v) => request.fields[k] = v.toString());
   request.files.add(await http.MultipartFile.fromPath('piv', filePath));

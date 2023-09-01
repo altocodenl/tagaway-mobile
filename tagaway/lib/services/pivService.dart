@@ -151,8 +151,6 @@ class PivService {
       queuePiv (null);
    }
 
-   // TODO: annotate the code below
-
    loadLocalPivs ([initialLoad = true]) async {
 
       var firstLoadSize = 500;
@@ -183,14 +181,13 @@ class PivService {
       var cloudIds = [];
       for (var piv in localPivs) {
          var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
-         // If piv exists and is not being uploaded, add it.
          if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
       }
       await TagService.instance.queryOrganizedIds (cloudIds);
    }
 
    reviveUploads () async {
-      var queue = await StoreService.instance.getBeforeLoad ('uploadQueue');
+      var queue = StoreService.instance.get ('uploadQueue');
 
       if (queue == '' || queue.length == 0) return;
 
@@ -203,7 +200,11 @@ class PivService {
 
    queryHashes (dynamic hashesToQuery) async {
       var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
-      if (response ['code'] != 200) return false;
+
+      if (response ['code'] != 200) {
+         if (response ['code'] != 403) showSnackbar ('There was an error getting data from the server - CODE HASHES:' + response ['code'].toString (), 'yellow');
+         return false;
+      }
 
       var output = {};
 
@@ -215,30 +216,22 @@ class PivService {
 
    queryExistingHashes () async {
       var localPivIds = {};
+
       localPivs.forEach ((v) {
          localPivIds [v.id] = true;
       });
 
-      // Get all hash entries and remove those that don't belong to a piv
-      // We do this in a loop instead of a `forEach` to make sure that the `await` will be waited for.
+      var hashesToQuery = {};
+
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
          var id = k.replaceAll ('hashMap:', '');
-         if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
+         if (localPivIds [id] == null) StoreService.instance.remove (k, 'disk');
+         else hashesToQuery [id] = StoreService.instance.get (k);
       }
-
-      // Query existing hashes
-      var hashesToQuery = {};
-
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (! RegExp ('^hashMap:').hasMatch (k)) return;
-         var id = k.replaceAll ('hashMap:', '');
-         hashesToQuery [id] = StoreService.instance.get (k);
-      });
 
       var queriedHashes = await queryHashes (hashesToQuery);
 
-      // If we cannot query hashes, it may be that we don't have a valid session. We refrain from any further action until the user logs in.
       if (queriedHashes == false) return;
 
       queriedHashes.forEach ((localId, uploadedId) {
@@ -247,6 +240,8 @@ class PivService {
          StoreService.instance.set ('rpivMap:' + uploadedId, localId);
       });
    }
+
+   // TODO: annotate the code below
 
    computeHashes () async {
 

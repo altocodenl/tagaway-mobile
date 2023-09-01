@@ -604,6 +604,8 @@ We iterate `localPivs`: for each of them, we will set `pivDate:ID` to the creati
 
 Since we don't store `pivDate:ID` entries in disk, we don't have to clean up old entries that might not belong to any local piv.
 
+Note: because this function is called by `distributorView`, and because `distributorView` awaits for the store service to finish loading up the store from disk, we can safely assume that the store service is fully loaded and we can set and get synchronously.
+
 ```dart
       for (var piv in localPivs) {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
@@ -649,6 +651,216 @@ We don't `await` for this function, since it can take a very long time to comple
 ```
 
 This concludes the function.
+
+```dart
+   }
+```
+
+We now define `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs (for those local pivs that have them) are organized.
+
+```dart
+   queryOrganizedLocalPivs () async {
+```
+
+We define a list `cloudIds` with all the ids of cloud pivs that we want to check.
+
+```dart
+      var cloudIds = [];
+```
+
+We iterate the local pivs.
+
+```dart
+      for (var piv in localPivs) {
+```
+
+We get the `pivMap:ID` entry, which can contain the id of the cloud counterpart of this local piv.
+
+```dart
+         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+```
+
+If the entry is empty, or it is set to `true`, we ignore it. Otherwise, we add it to `cloudIds`.
+
+Note: the entry will be `true` if the piv is currently being uploaded - as we saw above, this is done by `queuePiv`.
+
+```dart
+         if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
+      }
+```
+
+We will invoke `queryOrganizedIds`, a function that belongs to `TagService`, passing `cloudIds` as an argument. This concludes the function.
+
+```dart
+      await TagService.instance.queryOrganizedIds (cloudIds);
+   }
+```
+
+We now define `reviveUploads`, the function that restores the upload queue from disk and sets in motion the uploading of the queued pivs.
+
+```dart
+   reviveUploads () async {
+```
+
+We get the dry upload queue which will be in the `uploadQueue` key. If there's no entry at all, or if the entry returns an empty list, we don't do anything else.
+
+```dart
+      var queue = StoreService.instance.get ('uploadQueue');
+
+      if (queue == '' || queue.length == 0) return;
+```
+
+We iterate the local pivs and for each of them whose id is in the queue, we add them to `uploadQueue`. Note that this works because in the dry upload queue (the one stored at the `uploadQueue` key), we only store ids.
+
+Note also that this will not restore the upload queue in the same order than the dry upload queue had them. The reason is purely practical: if we don't care about the order, we can simply add the queued pivs in the order they appear in `localPivs`. If we had to do it in the original order, we'd have to create a dictionary mapping each id of a local piv to an index, and then add the local pivs to the queue using those indexes.
+
+```dart
+      localPivs.forEach ((v) {
+         if (queue.contains (v.id)) uploadQueue.add (v);
+      });
+```
+
+Once we have put all the pivs in the `uploadQueue`, we invoke `queuePiv` with `null` (to indicate that the next piv in the queue can be uploaded) and close the function.
+
+Note we do not `await` for `queuePiv`, since we want this function to start the uploads, not wait for them.
+
+```dart
+      queuePiv (null);
+   }
+```
+
+We now define `queryHashes`, a function that will take a list of hashes and check against the server which of those hashes belong to a cloud piv.
+
+Actually, `hashesToQuery` will not be a list, but an object (or map, if we use the Dart term) where the values are hashes.
+
+```dart
+   queryHashes (dynamic hashesToQuery) async {
+```
+
+We invoke `POST /idsFromHashes`, passing the values in the map as a list, in the key `hashes`.
+
+```dart
+      var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
+```
+
+If we didn't obtain a 200, we will return `false`. If the error was not a 403, we will show an error with code `HASHES:CODE`. If this was a 403, `ajax` will already have shown a snackbar with a generic error.
+
+```dart
+      if (response ['code'] != 200) {
+         if (response ['code'] != 403) showSnackbar ('There was an error getting data from the server - CODE HASHES:' + response ['code'].toString (), 'yellow');
+         return false;
+      }
+```
+
+If we're here, the request was successful. We will now build an output object/map.
+
+```dart
+      var output = {};
+```
+
+We will iterate `hashesToQuery`. This object, which we received as the sole parameter to the function, has the ids of local pivs as its keys, and their corresponding hashes as values.
+
+What we will do here is construct `output` in a way where the keys of output - like those of `hashesToQuery` also are the ids of local pivs, but its values - unlike those of `hashesToQuery` are the ids of cloud pivs. This information is what we wanted in the first place. In effect, this allows us to map a given local piv to a cloud piv through their hash, which is the same in the client and the server.
+
+```dart
+      hashesToQuery.forEach ((localId, hash) {
+         output [localId] = response ['body'] [hash];
+      });
+```
+
+We return `output` and close the function.
+
+```dart
+      return output;
+   }
+```
+
+We now define `queryExistingHashes`, a function that will get, for each of the hashes of the local pivs, their cloud counterparts.
+
+```dart
+   queryExistingHashes () async {
+```
+
+We first construct an object/map where each key is the id of a local piv. The value is set to `true` as a mere placeholder.
+
+```dart
+      var localPivIds = {};
+      localPivs.forEach ((v) {
+         localPivIds [v.id] = true;
+      });
+```
+
+We will create another object/map where each key is the id of a local piv that has a hash already computed.
+
+```dart
+      var hashesToQuery = {};
+```
+
+We are now going to iterate the existing `hashMap` entries, to see which entries exist.
+
+```dart
+      for (var k in StoreService.instance.store.keys.toList ()) {
+```
+
+If this entry is not a hashMap, we ignore it.
+
+```dart
+         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+```
+
+We extract the piv id from `hashMap:ID`.
+
+```dart
+         var id = k.replaceAll ('hashMap:', '');
+```
+
+If there is no longer a local piv with this id, we remove this hashMap entry. This is useful for clear up hashMap entries for pivs that were deleted. Note that the key is removed from disk. Note also that we don't `await` for this operation, since we want to keep on going as fast as possible in order to get the info from the server, which is necessary to do the first draw of the local view.
+
+```dart
+         if (localPivIds [id] == null) StoreService.instance.remove (k, 'disk');
+```
+
+If there is a local piv with this id, we will set the key `id` of `hashesToQuery` to the value of the hash of this piv.
+
+```dart
+         else hashesToQuery [id] = StoreService.instance.get (k);
+      }
+```
+
+We query the hashes using `queryHashes`.
+
+```dart
+      var queriedHashes = await queryHashes (hashesToQuery);
+```
+
+If we got a `false`, it may be that we don't have a valid session, or there was another error. In any case, the error will already have been reported already. We cannot do anything else, so we return.
+
+
+```dart
+      if (queriedHashes == false) return;
+```
+
+We iterate the queried hashes. Each of them will connect the id of a local piv with the id of a cloud piv. If there's no cloud piv, instead of the id of a cloud piv there will be a `null`.
+
+```dart
+      queriedHashes.forEach ((localId, uploadedId) {
+```
+
+If there is no cloud piv that matches this piv, there's nothing to do.
+
+```dart
+         if (uploadedId == null) return;
+```
+
+Otherwise, we set the `pivMap:ID` and `rpivMap:ID` for this pair of pivs. `pivMap` points from a local id to a cloud id, whereas `rpivMap` (the `r` stands for `reverse`) points from a cloud id to a local id.
+
+```dart
+         StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
+         StoreService.instance.set ('rpivMap:' + uploadedId, localId);
+      });
+```
+
+There's nothing else to do, so we close the function.
 
 ```dart
    }

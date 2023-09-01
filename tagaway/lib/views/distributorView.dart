@@ -23,11 +23,11 @@ class _DistributorState extends State<Distributor> {
   }
 
   distributor() async {
-    var cookie = await StoreService.instance.getBeforeLoad('cookie');
+    // By awaiting here, we also ensure that subsequent gets to the store service will not have to await, since it will be already loaded.
+    var cookie = await StoreService.instance.getAwait('cookie');
     if (cookie == '') {
       // If user has no cookie...
-      var recurringUser =
-          await StoreService.instance.getBeforeLoad('recurringUser');
+      var recurringUser = StoreService.instance.get('recurringUser');
       // If user is recurring, send to login; otherwise, send to signup.
       return Navigator.pushReplacementNamed(
           context, recurringUser == true ? 'login' : 'signup');
@@ -41,8 +41,7 @@ class _DistributorState extends State<Distributor> {
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');
     }
 
-    var userWasAskedPermission =
-        await StoreService.instance.getBeforeLoad('userWasAskedPermission');
+    var userWasAskedPermission = StoreService.instance.get('userWasAskedPermission');
     return Navigator.pushReplacementNamed(
         context,
         userWasAskedPermission == true

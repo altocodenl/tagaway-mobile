@@ -16,14 +16,14 @@ class StoreService {
   StoreService._privateConstructor () {
      getPrefs ();
   }
-  static final StoreService instance = StoreService._privateConstructor ();
+   static final StoreService instance = StoreService._privateConstructor ();
 
-  bool showLogs = false;
-  bool loaded   = false;
+   bool showLogs = false;
+   bool loaded   = false;
 
-  var updateStream = StreamController<String>.broadcast ();
+   var updateStream = StreamController<String>.broadcast ();
 
-  var store = {};
+   var store = {};
 
    listen (dynamic list, Function fun) {
       Function updater = () async {
@@ -96,19 +96,11 @@ class StoreService {
       return value;
    }
 
-   // Necessary function if you're trying to get things before the prefs get initialized
-   getBeforeLoad (String key) async {
-      if (! loaded) {
-         // We load prefs directly to have them already available.
-         var prefs = await SharedPreferences.getInstance ();
-         var value = prefs.getString (key);
-         var decoded = jsonDecode (value ?? '""');
-         if (showLogs) debug (['STORE GET', key, jsonEncode (decoded)]);
-         return decoded;
+   getAwait (String key) async {
+      while (! loaded) {
+        await Future.delayed (Duration (milliseconds: 10));
       }
-      var value = store [key] == null ? '' : store [key];
-      if (showLogs) debug (['STORE GET', key, jsonEncode (value)]);
-      return value;
+      return get (key);
    }
 
    remove (String key, [String disk = '']) async {
@@ -126,7 +118,7 @@ class StoreService {
    }
 
    reportPreviousError () async {
-    var previousError = await getBeforeLoad ('previousError');
+    var previousError = await getAwait ('previousError');
     if (previousError != '') {
       ajax ('post', 'error', previousError);
       remove ('previousError', 'disk');
