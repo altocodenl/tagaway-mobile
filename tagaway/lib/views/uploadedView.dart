@@ -923,7 +923,6 @@ class _TopRowState extends State<TopRow> {
                           size: 25,
                         ),
                       ),
-                      // TODO: add go back home button here
                       const Expanded(
                         child: Align(
                             alignment: Alignment(0.5, .9),

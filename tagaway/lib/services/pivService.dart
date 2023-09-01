@@ -241,24 +241,16 @@ class PivService {
       });
    }
 
-   // TODO: annotate the code below
-
    computeHashes () async {
-
-      // Compute hashes for local pivs that do not have them
-      // We don't `await` for this because this will run in the background and might take a long time.
 
       for (var piv in localPivs) {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
-         // NOTE: in debug mode, running `flutterCompute` will trigger a general redraw.
+
          var hash = await flutterCompute (hashPiv, piv.id);
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
-         // Check if the local piv we just hashed as an uploaded counterpart
          var queriedHash = await queryHashes ({piv.id: hash});
-
-         // If we cannot query hashes, it may be that we don't have a valid session. We refrain from any further action until the user logs in.
-         if (queriedHash == false) return;
+         if (queriedHash == false) continue;
 
          if (queriedHash [piv.id] != null) {
             StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
@@ -266,8 +258,6 @@ class PivService {
          }
       }
    }
-
-   // TODO: annotate the code above
 
    computeLocalPages () {
 

@@ -2,7 +2,7 @@
 
 ## TODO
 
-- Load up all pivs after deletion anyway.
+- As soon as deletion is processed, await try/catch to see if deletion happened, and only remove from local pivs if that's the case.
 - Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags.
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Handle >= 400 errors with snackbar on tagService
@@ -866,9 +866,67 @@ There's nothing else to do, so we close the function.
    }
 ```
 
+We now define `computeHashes`, the function that will set in motion the hashing of local pivs.
 
-TODO: add annotated source code between these two functions.
+```dart
+   computeHashes () async {
+```
 
+We iterate the local pivs.
+
+```dart
+      for (var piv in localPivs) {
+```
+
+If there's no hashMap entry for the piv, we move on to the next piv.
+
+```dart
+         if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+```
+
+We invoke `hashPiv`, another function that performs the hashing for us and that is defined in `tools.dart`. Note that instead of executing this function directly, we do it through `flutterCompute`. This function, provided by the Flutter Isolate library, allows us to run this function in an isolate.
+
+By running this function in an isolate, we avoid blocking our main thread and can effectively hash pivs in the background.
+
+A side-effect of this is that when running the app in debug mode, each call to `flutterCompute` will trigger a general redraw. This will not happen in release mode.
+
+```dart
+         var hash = await flutterCompute (hashPiv, piv.id);
+```
+
+We set the `hashMap:ID` entry to the hash we just obtained. Note we do this in disk.
+
+```dart
+         StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+```
+
+We now check if the local piv we just hashed as an uploaded counterpart, by invoking `queryHashes`.
+
+```dart
+         var queriedHash = await queryHashes ({piv.id: hash});
+```
+
+If we got a `false`, it may be that we don't have a valid session, or there was another error. In any case, the error will already have been reported already. We will move on to the next piv to keep on hashing.
+
+```dart
+         if (queriedHash == false) continue;
+```
+
+If this local piv has a cloud counterpart, we will set the `pivMap` and `rpivMap` entries for it.
+
+```dart
+         if (queriedHash [piv.id] != null) {
+            StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
+            StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+         }
+```
+
+We close the loop and the function.
+
+```dart
+      }
+   }
+```
 
 We now define `computeLocalPages`, the function that will determine what is shown in the local view.
 

@@ -269,7 +269,6 @@ class _HomeViewState extends State<HomeView> {
           heroTag: null,
           onPressed: () {
             Navigator.pushReplacementNamed(context, 'editHomeTags');
-            // TODO
           },
           backgroundColor: kAltoBlue,
           child: const Icon(Icons.create_rounded),
