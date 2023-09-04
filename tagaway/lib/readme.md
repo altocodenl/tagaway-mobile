@@ -2,7 +2,6 @@
 
 ## TODO
 
-- As soon as deletion is processed, await try/catch to see if deletion happened, and only remove from local pivs if that's the case.
 - Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags.
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Handle >= 400 errors with snackbar on tagService
@@ -126,7 +125,6 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -195,11 +193,11 @@ We make a call to `POST /upload` indicating the `'start'` operation, sending no 
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
 ```
 
-If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error. Note however that we don't report the error if we get a 403, since an error message will be shown by the `ajax` function, defined elsewhere.
+If we receive anything other than a 200, we report the error in the snackbar and return. The error code will be `UGROUP:CODE`. We then return `false` to indicate an error. Note however that we don't report the error if we get a 0 code (no connection) or a 403 (unauthorized), since an error message will be shown by the `ajax` function, defined elsewhere.
 
 ```dart
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
          return false;
       }
 ```
@@ -450,10 +448,10 @@ We upload the piv through `uploadPiv` and await for the result.
       var result = await uploadPiv (nextPiv);
 ```
 
-If we got a 403, it is almost certainly because our session has expired. This can happen when reopening the app after a few days, after leaving it with pivs in the queue. When the app is revived, the upload will be attempted and it will fail. In this case, an error message will be shown by our `ajaxMulti` function, which is defined elsewhere. We will not do anything else, leaving the piv in the queue.
+If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. This can happen when reopening the app after a few days, after leaving it with pivs in the queue. When the app is revived, the upload will be attempted and it will fail. In the case of a 403, an error message will be shown by our `ajaxMulti` function, which is defined elsewhere. And if there's no connection, the user will be redirected to an `offline` view. We will not do anything else, leaving the piv in the queue.
 
 ```dart
-      if (result ['code'] == 403) return;
+      if (! [0, 403].contains (result ['code'])) return;
 ```
 
 For convenience's sake, we store the error that came in the body (if any) in a variable `error`. If there's no body, we will set it to an empty string.
@@ -743,11 +741,11 @@ We invoke `POST /idsFromHashes`, passing the values in the map as a list, in the
       var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
 ```
 
-If we didn't obtain a 200, we will return `false`. If the error was not a 403, we will show an error with code `HASHES:CODE`. If this was a 403, `ajax` will already have shown a snackbar with a generic error.
+If we didn't obtain a 200, we will return `false`. If the error was neither a 0 nor a 403, we will show an error with code `HASHES:CODE`. If this was a 0, the user will be redirected to an `offline` view. If this was a 403, `ajax` will already have shown a snackbar with a generic error.
 
 ```dart
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error getting data from the server - CODE HASHES:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting data from the server - CODE HASHES:' + response ['code'].toString (), 'yellow');
          return false;
       }
 ```
@@ -1224,11 +1222,51 @@ If there are no pivs that we want to delete now, there's nothing else to do.
 We now delete the pivs from the phone, using a method from PhotoManager.
 
 ```dart
-      List<String> typedIds = ids.cast<String>();
+      List<String> typedIds = ids.cast<String> ();
       await PhotoManager.editor.deleteWithIds (typedIds);
 ```
 
-We now remove the pivs from `localPivs`. While we could invoke `loadLocalPivs`, that could take many seconds in a phone with thousands of pivs, so we instead remove them quickly from `localPivs`.
+We now reach an interesting point. The user will be shown a dialog from the OS, asking whether they want to delete or not the pivs from the device. It is quite complicated for us to find out when the user will click on one of the options of this dialog, as well as their choice. To avoid this complication, we are going to do a workaround that will let us know what the user decided in the end.
+
+The trick consists on checking, for 60 seconds, whether the first of the pivs in the deleted batch was actually deleted or not. If it is, then we will consider it as deleted, and remove it from `localPivs` (along with the other pivs in the batch). Otherwise, if after 60 seconds the piv is still there, we will assume that the user cancelled the operation.
+
+If the user did indeed take long to click on an option on that dialog, and the user declined to delete the pivs, the UI will be out of sync and will show pivs that were already deleted. For now, we are OK with this solution.
+
+We initialize a `firstPivDeleted` flag set to `false`, as well as a time 60 seconds in the future where we will give up checking.
+
+```dart
+      var firstPivDeleted = false, giveUpAt = now () + 1000 * 60;
+```
+
+While the user has not deleted the first piv, nor the 60 seconds have elapsed:
+
+```dart
+      while (! firstPivDeleted && giveUpAt > now ()) {
+```
+
+We will wait 20 milliseconds between checks.
+
+```dart
+         await Future.delayed (Duration (milliseconds: 20));
+```
+
+If the piv was actually deleted, when attempting to get it by id, we will get a `null`. Therefore, we will set `firstPivDeleted` to whether the piv itself is now `null`. This concludes the loop.
+
+```dart
+         var deletedPiv = await AssetEntity.fromId (ids [0]);
+         firstPivDeleted = deletedPiv == null;
+      }
+```
+
+If we're here, either the user deleted the piv, or 60 seconds have elapsed.
+
+If `firstPivDeleted` is still `false`, it means that the 60 seconds have elapsed. We consider that the user has not deleted the piv, so we return, since there's nothing else to do.
+
+```dart
+      if (! firstPivDeleted) return;
+```
+
+If we're here, the user indeed deleted the first piv of the batch. We now proceed to remove the pivs from `localPivs`. While we could invoke `loadLocalPivs`, that could take many seconds in a phone with thousands of pivs, so we instead remove them quickly from `localPivs`.
 
 We start by creating a list of the indexes of the deleted pivs.
 
@@ -1236,11 +1274,27 @@ We start by creating a list of the indexes of the deleted pivs.
       var indexesToDelete = [];
 ```
 
-We iterate `localPivs` to find the indexes of the deleted pivs, and add them to `indexesToDelete`.
+We iterate `localPivs` to find the indexes of the deleted pivs.
 
 ```dart
       for (int k = 0; k < localPivs.length; k++) {
-         if (ids.contains (localPivs [k].id)) indexesToDelete.add (k);
+         if (ids.contains (localPivs [k].id)) {
+```
+
+If the piv should be deleted, we need to add its index to `indexesToDelete`.
+
+However, we only have the certainty that the *first* piv of the batch was deleted. Because of the 60 second delay, we cannot really know whether the first piv of the batch was deleted together with the other ones in this batch, or if the user cancelled that operation and, before 60 seconds elapsed, also selected a different set of pivs, using the same piv as the first one, and actually deleted those.
+
+For that reason, we need to re-check that the piv does no longer exist. We do this in the same way we did inside the `while` loop above.
+
+```dart
+            var existingPiv = await AssetEntity.fromId (localPivs [k].id);
+```
+
+If the piv does not exist, we add its index to `indexesToDelete`.
+
+```dart
+            if (existingPiv == null) indexesToDelete.add (k);
       }
 ```
 
@@ -1516,10 +1570,10 @@ If we didn't get back a 200 code, we have encountered an error. If we experience
 
 ```dart
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
 ```
 
-Whatever the error is, we cannot continue the function, so we return.
+Whatever the error is, we cannot continue executing the function, so we return.
 
 ```dart
          return;

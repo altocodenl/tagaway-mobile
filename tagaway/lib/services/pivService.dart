@@ -5,7 +5,6 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -30,7 +29,7 @@ class PivService {
       var response = await ajax ('post', 'upload', {'op': 'start', 'tags': [], 'total': 1});
 
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error uploading your piv - CODE UGROUP:' + response ['code'].toString (), 'yellow');
          return false;
       }
 
@@ -104,7 +103,7 @@ class PivService {
       var nextPiv = uploadQueue [0];
       var result = await uploadPiv (nextPiv);
 
-      if (result ['code'] == 403) return;
+      if (! [0, 403].contains (result ['code'])) return;
 
       var error = result ['body'] != null ? result ['body'] ['error'] : '';
 
@@ -202,7 +201,7 @@ class PivService {
       var response = await ajax ('post', 'idsFromHashes', {'hashes': hashesToQuery.values.toList ()});
 
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error getting data from the server - CODE HASHES:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting data from the server - CODE HASHES:' + response ['code'].toString (), 'yellow');
          return false;
       }
 
@@ -342,18 +341,30 @@ class PivService {
 
       if (ids.length == 0) return;
 
-      List<String> typedIds = ids.cast<String>();
+      List<String> typedIds = ids.cast<String> ();
       await PhotoManager.editor.deleteWithIds (typedIds);
+
+      var firstPivDeleted = false, giveUpAt = now () + 1000 * 60;
+
+      while (! firstPivDeleted && giveUpAt > now ()) {
+         await Future.delayed (Duration (milliseconds: 20));
+         var deletedPiv = await AssetEntity.fromId (ids [0]);
+         firstPivDeleted = deletedPiv == null;
+      }
+
+      if (! firstPivDeleted) return;
+
       var indexesToDelete = [];
       for (int k = 0; k < localPivs.length; k++) {
-         if (ids.contains (localPivs [k].id)) indexesToDelete.add (k);
+         if (ids.contains (localPivs [k].id)) {
+            var existingPiv = await AssetEntity.fromId (localPivs [k].id);
+            if (existingPiv == null) indexesToDelete.add (k);
+         }
       }
       indexesToDelete.reversed.forEach ((k) {
          localPivs.removeAt (k);
       });
       recomputeLocalPages = true;
-
-
   }
 
 }

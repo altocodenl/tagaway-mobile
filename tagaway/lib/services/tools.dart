@@ -85,6 +85,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
         (now() - start).toString() + 'ms',
         'Socket Exception'
       ]);
+    redirectToOfflineView ();
     return {'code': 0};
   }
 }
@@ -132,6 +133,7 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
         (now() - start).toString() + 'ms',
         'Socket Exception'
       ]);
+    redirectToOfflineView ();
     return {'code': 0};
   }
 }
@@ -243,6 +245,10 @@ hashPiv (dynamic pivId) async {
 showSnackbar (String message, String color) {
    var context = navigatorKey.currentState?.context;
    SnackBarGlobal.buildSnackBar (context!, message, color);
+}
+
+redirectToOfflineView () {
+   navigatorKey.currentState!.pushReplacementNamed ('offline');
 }
 
 var pad = (n) => n < 10 ? '0' + n.toString () : n.toString ();

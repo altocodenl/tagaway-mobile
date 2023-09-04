@@ -279,7 +279,7 @@ class TagService {
       });
 
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
          return;
       }
 
@@ -327,7 +327,7 @@ class TagService {
       });
 
       if (response ['code'] != 200) {
-         if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
          return;
       }
 
@@ -370,7 +370,7 @@ class TagService {
          if (! listEquals (queryTags, tags)) return;
 
          if (response ['code'] != 200) {
-            if (response ['code'] != 403) showSnackbar ('There was an error getting your pivs - CODE QUERY:C:' + response ['code'].toString (), 'yellow');
+            if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:C:' + response ['code'].toString (), 'yellow');
             return;
          }
 

@@ -21,7 +21,7 @@ class _OfflineViewState extends State<OfflineView> {
 
   @override
   void initState() {
-    onlineChecker = Timer.periodic(const Duration(seconds: 3), (timer) {
+    onlineChecker = Timer.periodic(const Duration(seconds: 1), (timer) {
       internetAvailabilityCheck();
     });
     super.initState();
@@ -34,7 +34,8 @@ class _OfflineViewState extends State<OfflineView> {
         Navigator.pushReplacementNamed(context, 'distributor');
         onlineChecker.cancel();
       }
-    } on SocketException catch (_) {}
+    } catch (error) {
+    }
   }
 
   @override

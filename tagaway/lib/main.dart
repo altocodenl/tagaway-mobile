@@ -7,6 +7,7 @@ import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/changePasswordView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/distributorView.dart';
+import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/editHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
@@ -66,6 +67,7 @@ class Tagaway extends StatelessWidget {
       home: const Distributor(),
       routes: {
         'distributor': (context) => const Distributor(),
+        'offline': (context) => const OfflineView(),
         'signup': (context) => const SignUpView(),
         'signupForm': (context) => const SignUpFormView(),
         'login': (context) => const LoginView(),
