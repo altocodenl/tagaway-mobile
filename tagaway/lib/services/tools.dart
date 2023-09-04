@@ -251,4 +251,14 @@ redirectToOfflineView () {
    navigatorKey.currentState!.pushReplacementNamed ('offline');
 }
 
-var pad = (n) => n < 10 ? '0' + n.toString () : n.toString ();
+pad (n) {
+   n < 10 ? '0' + n.toString () : n.toString ();
+}
+
+// `getTags` has a call that requires this to be typed
+List getList (dynamic key) {
+   var value = StoreService.instance.get (key);
+   if (value == '') return [];
+   // We return a copy.
+   return value.toList ();
+}

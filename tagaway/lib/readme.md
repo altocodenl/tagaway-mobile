@@ -2,7 +2,9 @@
 
 ## TODO
 
-- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags.
+- Forbid tagging with a::
+- trim tags
+- Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags. // remove invocation to getTags elsewhere
 - Performance of query: avoid double round trip for first draw of uploadedView.
 - Handle >= 400 errors with snackbar on tagService
 - Finish annotated source code.
@@ -304,12 +306,13 @@ The practical reason for preventively setting this entry is that the tagging ope
          StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
 ```
 
-We now iterate the tags in `pendingTags` and invoke `tagPivById`. Rather than `await`ing for these operations, we fire them concurrently since we want to continue the next upload as soon as possible.
+We now iterate the tags in `pendingTags` and invoke `tagCloudPiv`. Rather than `await`ing for these operations, we fire them concurrently since we want to continue the next upload as soon as possible.
 
+A drawback of not awaiting for the results of each tagging operation is that if there are any errors here, they will go unnoticed by the client.
 
 ```dart
          for (var tag in pendingTags) {
-            TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
+            TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
          }
 ```
 
@@ -1135,7 +1138,7 @@ This concludes the updating of the pages in the store.
 
 If this is the first time that `computeLocalPages` is executed, we will set up a listener that determines whether `computeLocalPages` should be executed again.
 
-Notice that we store the listener in the `localPagesListener` key of the store, so by checking whether `localPagesListener` is set, we will know whether this logic has been already executed or not.
+Notice that we store the listener in the `localPagesListener` key of the store, so by checking whether `localPagesListener` is set, we will know whether this logic has been already executed once or not.
 
 ```dart
       if (StoreService.instance.get ('localPagesListener') == '') {
@@ -1331,6 +1334,193 @@ This concludes the `PivService` class.
 
 ### `services/tagService.dart`
 
+The tagService is concerned with operations concerning tagging and querying. Almost every operation here involves the server.
+
+We start by importing native packages, then libraries, and finally other parts of our app.
+
+```dart
+import 'dart:core';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
+```
+
+We initialize the class `TagService`.
+
+```dart
+class TagService {
+```
+
+TagService, like the rest of our services, will be initialized as a singleton. That means that the class will only be initialized once, so for practical purposes the class and its instance are the same thing. The class will expose itself through its `instance` property. Other services will be able to use its methods and access its properties through `TagService.instance`.
+
+```dart
+   TagService._ ();
+   static final TagService instance = TagService._ ();
+```
+
+PivService has only properties that hold data: `queryTags`, which will be initialized to an empty string, but will be replaced by a list of tags when a query is done. The reason we keep it here, side by side with another list of tags that we keep in the store (in a key named `queryTags`) is that we want to compare the class property against the value in the store to see if the query changed - in that way, we can save a roundtrip to the server.
+
+```dart
+   dynamic queryTags = '';
+```
+
+We now define `getTags`, the function that will get the list of tags from the server.
+
+```dart
+   getTags () async {
+```
+
+We start by simply querying the server at `GET /tags`.
+
+```dart
+      var response = await ajax ('get', 'tags');
+```
+
+First we will cover the case in which we obtained an error.
+
+If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, other parts of the code will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `TAGS:CODE`.
+
+```dart
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + response ['code'].toString (), 'yellow');
+```
+
+If there was an error, there's nothing else to do, so we return.
+
+```dart
+         return;
+      }
+```
+
+If we're here, the request was successful. We set `hometags` and `tags` in the store. We update `hometags` as well since they also come from this server endpoint.
+
+```dart
+      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
+      StoreService.instance.set ('tags',     response ['body'] ['tags']);
+```
+
+We also set `usertags` in the store, taking all the tags and filtering out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally).
+
+Essentially, `usertags` will contain all the "normal" tags that a user can use.
+
+We store usertags in a local variable, because we'll use it repeatedly below.
+
+```dart
+      var usertags = response ['body'] ['tags'].where ((tag) {
+         return ! RegExp ('^[a-z]::').hasMatch (tag);
+      }).toList ());
+
+      StoreService.instance.set ('usertags', usertags);
+```
+
+We will now go through the tags inside the `lastNTags` key and remove those that are not included in `usertags`. The resulting list will be again set to `lastNTags`. Effectively, this gets rid of any stale tags inside `lastNTags`.
+
+Note we store `lastNTags` in disk, because we want the list to persist when the app is closed.
+
+```dart
+      StoreService.instance.set ('lastNTags', getList (StoreService.instance.get ('lastNTags')).where ((tag) {
+         return usertags.contains (tag);
+      }).toList (), 'disk');
+```
+
+We close the function.
+
+```dart
+   }
+```
+
+We now define `editHometags`, the function that will update the list of hometags in the server.
+
+This function takes two arguments, `tag` (the tag to be either added or removed), and `bool`, a flag that indicates whether we are adding or removing the tag from the hometags.
+
+```dart
+   editHometags (String tag, bool add) async {
+```
+
+We start by updating the current list of tags, in case it was updated from another client.
+
+```dart
+      await getTags ();
+```
+
+We get a copy of the hometags that are stored at the key `hometags`.
+
+```dart
+      var hometags = getList ('hometags');
+```
+
+If we want to add the tag to the hometags and it is already there, or we want to remove it from the hometags and it is already not there, then there's nothing else to do! We just return.
+
+```dart
+      if ((add && hometags.contains (tag)) || (! add && ! hometags.contains (tag))) return;
+```
+
+We invoke `POST /hometags` passing the updated hometags.
+
+```dart
+      var response = await ajax ('post', 'hometags', {'hometags': hometags});
+```
+
+First we will cover the case in which we obtained an error.
+
+If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, other parts of the code will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `HOMETAGS:CODE`.
+
+```dart
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error updating your hometags - CODE HOMETAGS:' + response ['code'].toString (), 'yellow');
+      }
+```
+
+If we're here, the operation was successful. We invoke `getTags` again to retrieve the updated hometags, and close the function.
+
+```dart
+      await getTags ();
+   }
+```
+
+We now define `updateLastNTags`, a function that updates the recently usertags used. This function takes a single argument, `tag`.
+
+```dart
+   updateLastNTags (tag) {
+```
+
+We start by getting a copy of `lastNTags`.
+
+```dart
+      var lastNTags = getList ('lastNTags');
+```
+
+If the tag is already in `lastNTags`, we remove it. We will then put it at the front of the list. If the tag wasn't in the list, we will put it at the front anyway.
+
+```dart
+      if (lastNTags.contains (tag)) lastNTags.remove (tag);
+      lastNTags.insert (0, tag);
+```
+
+Inspired by old phone numbers, we will remember up to seven tags.
+
+```dart
+      var N = 7;
+```
+
+If we have more than seven tags, we will remove the last one.
+
+```dart
+      if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
+```
+
+We update `lastNTags` in the store and close the function.
+
+```dart
+      StoreService.instance.set ('lastNTags', lastNTags, 'disk');
+  }
+```
+
+
 We now define `tagPiv`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
 
 The function takes three arguments:
@@ -1397,10 +1587,10 @@ Note: `cloudId` can be `true` for local pivs that are currently in the upload qu
       if (cloudId != '' && cloudId != true) {
 ```
 
-We invoke the `tagPivById` function, passing the `cloudId`, the `tag` itself and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
+We invoke the `tagCloudPiv` function, passing the `cloudId`, the `tag` itself and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
 
 ```dart
-         var code = await tagPivById (cloudId, tag, untag);
+         var code = await tagCloudPiv (cloudId, tag, untag);
 ```
 
 If we are tagging a local piv, we can expect either a 200 (success) or a 404. The latter will happen if the cloud counterpart of the local piv we are tagging was removed from another tagaway client (for example, a web browser).

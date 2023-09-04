@@ -1,98 +1,87 @@
 import 'dart:core';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 
 class TagService {
-  TagService._privateConstructor ();
-  static final TagService instance = TagService._privateConstructor ();
+   TagService._ ();
+   static final TagService instance = TagService._ ();
 
-  var localVisible = [];
-  var uploadedVisible = [];
-  // We use this to see whether queryTags has changed and based on that, query pivs again or use the last result.
-  dynamic queryTags = '';
+   dynamic queryTags = '';
 
-  getTags () async {
-    var response = await ajax ('get', 'tags');
-    if (response['code'] == 200) {
-      StoreService.instance.set ('hometags', response['body']['hometags']);
-      StoreService.instance.set ('tags', response['body']['tags']);
-      var usertags = [];
-      response['body']['tags'].forEach ((tag) {
-        if (!RegExp ('^[a-z]::').hasMatch (tag)) usertags.add (tag);
-      });
+   getTags () async {
+      var response = await ajax ('get', 'tags');
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + response ['code'].toString (), 'yellow');
+         return;
+      }
+
+      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
+      StoreService.instance.set ('tags',     response ['body'] ['tags']);
+
+      var usertags = response ['body'] ['tags'].where ((tag) {
+         return ! RegExp ('^[a-z]::').hasMatch (tag);
+      }).toList ();
+
       StoreService.instance.set ('usertags', usertags);
-      updateLastNTags (null, true);
-    }
-    // TODO: handle errors
-    return response['code'];
-  }
 
-  editHometags (String tag, bool add) async {
-    // Refresh hometag list first in case it was updated in another client
-    await getTags ();
-    tag = tag.trim ();
-    // We copy it to avoid the update not triggering anything
-    var hometags = StoreService.instance.get ('hometags').toList ();
-    if (hometags == '') hometags = [];
-    if ((add && hometags.contains (tag)) || (!add && !hometags.contains (tag)))
-      return;
-    add ? hometags.add (tag) : hometags.remove (tag);
-    var response = await ajax ('post', 'hometags', {'hometags': hometags});
-    if (response['code'] == 200) {
+      StoreService.instance.set ('lastNTags', getList ('lastNTags').where ((tag) {
+         return usertags.contains (tag);
+      }).toList (), 'disk');
+   }
+
+   editHometags (String tag, bool add) async {
       await getTags ();
-    }
-    // TODO: handle errors
-    return response['code'];
+
+      var hometags = getList ('hometags');
+      if ((add && hometags.contains (tag)) || (! add && ! hometags.contains (tag))) return;
+
+      add ? hometags.add (tag) : hometags.remove (tag);
+      var response = await ajax ('post', 'hometags', {'hometags': hometags});
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error updating your hometags - CODE HOMETAGS:' + response ['code'].toString (), 'yellow');
+      }
+
+      await getTags ();
+   }
+
+   updateLastNTags (tag) {
+      var lastNTags = getList ('lastNTags');
+
+      if (lastNTags.contains (tag)) lastNTags.remove (tag);
+      lastNTags.insert (0, tag);
+
+      var N = 7;
+      if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
+      StoreService.instance.set ('lastNTags', lastNTags, 'disk');
   }
 
-  tagPivById (String id, String tag, bool del) async {
-    var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
-    if (response['code'] != 200) return response ['code'];
+   tagCloudPiv (String id, String tag, bool del) async {
+      var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+      if (response ['code'] != 200) return response ['code'];
 
-    // we do this here because if we just uploaded a local piv, we don't know if its uploaded counterpart is in the current query.
-    await queryOrganizedIds ([id]);
+      // we do this here because if we just uploaded a local piv, we don't know if its uploaded counterpart is in the current query.
+      await queryOrganizedIds ([id]);
 
-    var hometags = StoreService.instance.get ('hometags');
-    if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
-    await queryPivs (StoreService.instance.get ('queryTags'), true);
-    var total = StoreService.instance.get ('queryResult')['total'];
+      var hometags = StoreService.instance.get ('hometags');
+      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+      await queryPivs (StoreService.instance.get ('queryTags'), true);
+      var total = StoreService.instance.get ('queryResult') ['total'];
 
-    if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
-      StoreService.instance.set('swipedUploaded', false);
-      StoreService.instance.set('currentlyTaggingUploaded', '');
-      StoreService.instance.set ('queryTags', []);
-      await queryPivs (StoreService.instance.get ('queryTags'));
-    }
-    return response ['code'];
-  }
-
-  updateLastNTags (var tag, [bool refreshExistingList = false]) {
-    var lastNTags = StoreService.instance.get ('lastNTags');
-    // We copy it to avoid skipping the update
-    if (lastNTags == '') lastNTags = [];
-    else lastNTags = lastNTags.toList ();
-    if (refreshExistingList) {
-      var usertags = StoreService.instance.get ('usertags');
-      // We iterate a copy of the list to avoid Flutter complaining about modifying a list while it's being iterated
-      List.from (lastNTags).forEach ((tag) {
-         if (! usertags.contains (tag)) lastNTags.remove (tag);
-      });
-      return StoreService.instance.set ('lastNTags', lastNTags, 'disk');
-    }
-
-    // Inspired by old phone numbers
-    var N = 7;
-    if (lastNTags.contains (tag)) {
-       lastNTags.remove (tag);
-    }
-    lastNTags.insert (0, tag);
-    if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
-    StoreService.instance.set ('lastNTags', lastNTags, 'disk');
-  }
+      if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+         StoreService.instance.set('swipedUploaded', false);
+         StoreService.instance.set('currentlyTaggingUploaded', '');
+         StoreService.instance.set ('queryTags', []);
+         await queryPivs (StoreService.instance.get ('queryTags'));
+      }
+      return response ['code'];
+   }
 
    tagPiv (dynamic piv, String tag, String type) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
@@ -112,7 +101,7 @@ class TagService {
       updateLastNTags (tag);
 
       if (cloudId != '' && cloudId != true) {
-         var code = await tagPivById (cloudId, tag, untag);
+         var code = await tagCloudPiv (cloudId, tag, untag);
          var unexpectedCode = type == 'local' ? (code != 200 && code != 404) : code != 200;
          if (unexpectedCode) {
             return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'local' ? 'L' : 'C') + code.toString (), 'yellow');

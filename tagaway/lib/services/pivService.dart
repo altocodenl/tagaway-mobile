@@ -65,7 +65,7 @@ class PivService {
       if (pendingTags != '') {
          StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
          for (var tag in pendingTags) {
-            TagService.instance.tagPivById (response ['body'] ['id'], tag, false);
+            TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
          }
       }
 
@@ -113,7 +113,6 @@ class PivService {
       }
 
       else if (result ['code'] == 400) {
-         // Server error, connection error or unexpected error. Stop all uploads but do not clear the queue.
          if (! ['Invalid piv', 'tooLarge', 'format'].contains (error)) {
             showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
             return uploading = false;
@@ -324,8 +323,6 @@ class PivService {
             recomputeLocalPages = true;
          }));
 
-         // We also set a timer to periodically check if `recomputeLocalPages` is set to `true` and, if so, execute computeLocalPages.
-         // This will be done only once.
          Timer.periodic (Duration (milliseconds: 200), (timer) {
             if (recomputeLocalPages == true) computeLocalPages ();
          });
@@ -365,6 +362,5 @@ class PivService {
          localPivs.removeAt (k);
       });
       recomputeLocalPages = true;
-  }
-
+   }
 }
