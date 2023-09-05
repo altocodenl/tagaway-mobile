@@ -70,6 +70,7 @@ const kStartOfJourneyIcon = FontAwesomeIcons.roadCircleCheck;
 const kArrowRightLong = FontAwesomeIcons.arrowRightLong;
 const kHomeIcon = FontAwesomeIcons.house;
 const kMobilePhoneIcon = FontAwesomeIcons.mobileScreenButton;
+const kBroomIcon = FontAwesomeIcons.broom;
 
 const tagColors = [
   kTagColor1,
@@ -148,6 +149,13 @@ const kPlainTextBold = TextStyle(
   fontSize: 16,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
+);
+
+const kPlainTextBoldDarkest = TextStyle(
+  fontFamily: 'Montserrat',
+  fontSize: 16,
+  fontWeight: FontWeight.w600,
+  color: Colors.black,
 );
 
 const kCenterPhoneGridTitle = TextStyle(
@@ -378,50 +386,52 @@ Color tagColor(String tag) {
   return tagColors[acc % tagColors.length];
 }
 
-String tagType (tag) {
-   if (tag == 'u::') return 'untagged';
-   if (tag == 't::') return 'toOrganize';
-   if (tag == 'o::') return 'organized';
-   if (RegExp('^d::[0-9]').hasMatch(tag)) return 'year';
-   if (RegExp('^d::M').hasMatch(tag)) return 'month';
-   if (RegExp('^g::').hasMatch(tag)) {
-      if (RegExp ('^g::[A-Z]{2}').hasMatch(tag)) return 'country';
-      else return 'city';
-   }
-   return 'usertag';
+String tagType(tag) {
+  if (tag == 'u::') return 'untagged';
+  if (tag == 't::') return 'toOrganize';
+  if (tag == 'o::') return 'organized';
+  if (RegExp('^d::[0-9]').hasMatch(tag)) return 'year';
+  if (RegExp('^d::M').hasMatch(tag)) return 'month';
+  if (RegExp('^g::').hasMatch(tag)) {
+    if (RegExp('^g::[A-Z]{2}').hasMatch(tag))
+      return 'country';
+    else
+      return 'city';
+  }
+  return 'usertag';
 }
 
-String tagTitle (tag) {
-   var type = tagType (tag);
-   if (type == 'untagged') return 'Untagged';
-   if (type == 'toOrganize') return 'To Organize';
-   if (type == 'organized') return 'Organized';
-   if (type == 'year' || type == 'country' || type == 'city') return tag.substring (3);
-   if (type == 'month') return shortMonthNames [int.parse (tag.substring (4)) - 1];
-   return tag;
+String tagTitle(tag) {
+  var type = tagType(tag);
+  if (type == 'untagged') return 'Untagged';
+  if (type == 'toOrganize') return 'To Organize';
+  if (type == 'organized') return 'Organized';
+  if (type == 'year' || type == 'country' || type == 'city')
+    return tag.substring(3);
+  if (type == 'month') return shortMonthNames[int.parse(tag.substring(4)) - 1];
+  return tag;
 }
 
-tagIcon (tag) {
-   var type = tagType (tag);
-   if (type == 'untagged') return kTagIcon;
-   if (type == 'toOrganize') return kBoxArchiveIcon;
-   if (type == 'organized') return kCircleCheckIcon;
-   if (type == 'year' || type == 'month') return kClockIcon;
-   if (type == 'country') return kLocationDotIcon;
-   if (type == 'city') return kLocationPinIcon;
-   return kTagIcon;
+tagIcon(tag) {
+  var type = tagType(tag);
+  if (type == 'untagged') return kTagIcon;
+  if (type == 'toOrganize') return kBoxArchiveIcon;
+  if (type == 'organized') return kCircleCheckIcon;
+  if (type == 'year' || type == 'month') return kClockIcon;
+  if (type == 'country') return kLocationDotIcon;
+  if (type == 'city') return kLocationPinIcon;
+  return kTagIcon;
 }
 
-Color tagIconColor (tag) {
-   var type = tagType (tag);
-   if (type == 'untagged' || type == 'toOrganize') return kGrey;
-   if (type == 'organized') return kAltoOrganized;
-   if (type == 'year' || type == 'month') return kGreyDarker;
-   if (type == 'country' || type == 'city') return kGreyDarker;
-   return tagColor (tag);
+Color tagIconColor(tag) {
+  var type = tagType(tag);
+  if (type == 'untagged' || type == 'toOrganize') return kGrey;
+  if (type == 'organized') return kAltoOrganized;
+  if (type == 'year' || type == 'month') return kGreyDarker;
+  if (type == 'country' || type == 'city') return kGreyDarker;
+  return tagColor(tag);
 }
 
-String shorten (tag) {
+String shorten(tag) {
   return tag.length < 15 ? tag : tag.substring(0, 15) + '...';
 }
-

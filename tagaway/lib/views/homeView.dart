@@ -150,6 +150,10 @@ class _HomeViewState extends State<HomeView> {
                 Navigator.pushReplacementNamed(context, 'deleteAccount');
               },
               textOnElement: 'Delete My Account'),
+          UserMenuElementKBlue(
+            onTap: () {},
+            textOnElement: 'Clear Up Space',
+          ),
           UserMenuElementDarkGrey(
               onTap: () {
                 // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.

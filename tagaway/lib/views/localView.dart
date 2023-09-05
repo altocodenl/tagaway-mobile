@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -205,8 +204,8 @@ class _LocalViewState extends State<LocalView> {
                     ))),
             Visibility(
                 visible: currentlyTagging == '' && !currentlyDeleting,
-                child: StartButton(
-                    buttonKey: const Key('local-start-tagging'),
+                child: const StartButton(
+                    buttonKey: Key('local-start-tagging'),
                     buttonText: 'Start',
                     showButtonsKey: 'showButtonsLocal')),
             Visibility(
@@ -688,7 +687,287 @@ class _LocalViewState extends State<LocalView> {
                       ),
                     ),
                   ),
-                ))
+                )),
+            Visibility(
+              visible: false,
+              child: Center(
+                child: Container(
+                  height: 400,
+                  width: 340,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child: FaIcon(
+                                  kBroomIcon,
+                                  color: kAltoBlue,
+                                ),
+                              ),
+                              Text(
+                                'Clean up space?',
+                                textAlign: TextAlign.center,
+                                style: kDoneEditText,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 10.0, right: 20, left: 20),
+                          child: Text(
+                            'You have '
+                            'X.X'
+                            ' GB of available space in your device.',
+                            textAlign: TextAlign.center,
+                            style: kPlainTextBold,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 10.0, right: 20, left: 20),
+                          child: Text(
+                            'Would you like to free up space by deleting your already organized photos and videos?',
+                            textAlign: TextAlign.center,
+                            style: kPlainTextBold,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 20.0, right: 20, left: 20),
+                          child: Text(
+                            'You will free up to ' 'X.X' ' GB of space.',
+                            textAlign: TextAlign.center,
+                            style: kPlainTextBold,
+                          ),
+                        ),
+                        Container(
+                          width: 200,
+                          decoration: BoxDecoration(
+                              color: kGreyDarker,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color: kGreyLight, width: .5)),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'No. Don’t ask me again.',
+                                textAlign: TextAlign.center,
+                                style: kButtonText,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Container(
+                          width: 200,
+                          decoration: BoxDecoration(
+                              color: kGreyDarker,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color: kGreyLight, width: .5)),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'Not now.',
+                                textAlign: TextAlign.center,
+                                style: kButtonText,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Container(
+                          width: 200,
+                          decoration: BoxDecoration(
+                              color: kAltoBlue,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color: kGreyLight, width: .5)),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'Tell me more.',
+                                textAlign: TextAlign.center,
+                                style: kButtonText,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Visibility(
+              visible: true,
+              child: Center(
+                child: Container(
+                  height: 450,
+                  width: 340,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 15.0),
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child: FaIcon(
+                                  kBroomIcon,
+                                  color: kAltoBlue,
+                                ),
+                              ),
+                              Text(
+                                'Tagaway Space Cleaner',
+                                textAlign: TextAlign.center,
+                                style: kDoneEditText,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Padding(
+                            padding: EdgeInsets.only(
+                                bottom: 10.0, right: 20, left: 20),
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Tagaway will delete ',
+                                style: kPlainTextBold, // default text style
+                                children: <TextSpan>[
+                                  TextSpan(
+                                      text: 'only ',
+                                      style: kPlainTextBoldDarkest),
+                                  TextSpan(
+                                      text:
+                                          'the photos and videos that you have organized.',
+                                      style: kPlainTextBold),
+                                ],
+                              ),
+                            )),
+                        const Padding(
+                            padding: EdgeInsets.only(
+                                bottom: 10.0, right: 20, left: 20),
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Your organized photos and videos are ',
+                                style: kPlainTextBold, // default text style
+                                children: <TextSpan>[
+                                  TextSpan(
+                                      text: 'safe in Tagaway’s cloud',
+                                      style: kPlainTextBoldDarkest),
+                                  TextSpan(
+                                      text:
+                                          ', which you can always access from this app or Tagaway Web (from web you can download the high-quality versions).',
+                                      style: kPlainTextBold),
+                                ],
+                              ),
+                            )),
+                        const Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 20.0, right: 20, left: 20),
+                          child: Text(
+                            'Delete your organized photos and videos from this device?',
+                            textAlign: TextAlign.center,
+                            style: kPlainTextBold,
+                          ),
+                        ),
+                        Container(
+                          width: 320,
+                          decoration: BoxDecoration(
+                              color: kGreyDarker,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color: kGreyLight, width: .5)),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'No, take me back.',
+                                textAlign: TextAlign.center,
+                                style: kButtonText,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Container(
+                          width: 320,
+                          decoration: BoxDecoration(
+                              color: kAltoBlue,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color: kGreyLight, width: .5)),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'Yes, but organized pivs 3 months or older.',
+                                textAlign: TextAlign.center,
+                                style: kButtonText,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Container(
+                          width: 320,
+                          decoration: BoxDecoration(
+                              color: kAltoBlue,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20)),
+                              border: Border.all(color: kGreyLight, width: .5)),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                              child: Text(
+                                'Yes, delete all organized pivs.',
+                                textAlign: TextAlign.center,
+                                style: kButtonText,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         );
       },

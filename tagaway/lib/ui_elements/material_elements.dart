@@ -731,6 +731,55 @@ class UserMenuElementLightGrey extends StatelessWidget {
   }
 }
 
+class UserMenuElementKBlue extends StatelessWidget {
+  const UserMenuElementKBlue({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kAltoBlue,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: FaIcon(
+                  kBroomIcon,
+                  color: Colors.white,
+                ),
+              ),
+              Center(
+                  child: Text(
+                textOnElement,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class UserMenuElementDarkGrey extends StatelessWidget {
   const UserMenuElementDarkGrey({
     Key? key,
@@ -1092,7 +1141,8 @@ class _GridItemSelectionState extends State<GridItemSelection> {
 
   @override
   Widget build(BuildContext context) {
-    if (mode == 'none') return Visibility(visible: false, child: Text(''));
+    if (mode == 'none')
+      return const Visibility(visible: false, child: Text(''));
     return Icon(
       mode == 'gray' ? kSolidCircleIcon : kCircleCheckIcon,
       color: mode == 'green'
