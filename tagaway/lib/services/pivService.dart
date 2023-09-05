@@ -64,9 +64,10 @@ class PivService {
       var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
       if (pendingTags != '') {
          StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
-         for (var tag in pendingTags) {
-            TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
-         }
+         pendingTags.forEach ((tag) async {
+            var code = await TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
+            if (! [0, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
+         });
       }
 
       StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');

@@ -60,23 +60,24 @@ class TagService {
       var N = 7;
       if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
       StoreService.instance.set ('lastNTags', lastNTags, 'disk');
-  }
+   }
 
    tagCloudPiv (String id, String tag, bool del) async {
       var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
       if (response ['code'] != 200) return response ['code'];
 
-      // we do this here because if we just uploaded a local piv, we don't know if its uploaded counterpart is in the current query.
       await queryOrganizedIds ([id]);
 
       var hometags = StoreService.instance.get ('hometags');
       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
-      await queryPivs (StoreService.instance.get ('queryTags'), true);
-      var total = StoreService.instance.get ('queryResult') ['total'];
 
+      var code = await queryPivs (StoreService.instance.get ('queryTags'), true);
+      if (code != 200) return;
+
+      var total = StoreService.instance.get ('queryResult') ['total'];
       if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
-         StoreService.instance.set('swipedUploaded', false);
-         StoreService.instance.set('currentlyTaggingUploaded', '');
+         StoreService.instance.set ('swipedUploaded', false);
+         StoreService.instance.set ('currentlyTaggingUploaded', '');
          StoreService.instance.set ('queryTags', []);
          await queryPivs (StoreService.instance.get ('queryTags'));
       }
@@ -125,7 +126,6 @@ class TagService {
 
       if (! untag) return PivService.instance.queuePiv (piv);
 
-      // If we're untagging a piv that's not uploaded yet and we removed its last tag, we need to unset `pivMap:ID`, which was temporarily set to `true` by the `queuePiv` function. Also, we will remove it from the upload queue.
       if (pendingTags.length == 0) {
          StoreService.instance.remove ('pivMap:' + pivId);
          var uploadQueueIndex;
@@ -269,7 +269,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
-         return;
+         return response ['code'];
       }
 
       if (! listEquals (queryTags, tags)) return;

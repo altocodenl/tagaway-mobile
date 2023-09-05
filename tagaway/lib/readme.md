@@ -2,7 +2,7 @@
 
 ## TODO
 
-- Forbid tagging with a::
+- Forbid tagging with x::
 - trim tags
 - Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags. // remove invocation to getTags elsewhere
 - Performance of query: avoid double round trip for first draw of uploadedView.
@@ -306,14 +306,15 @@ The practical reason for preventively setting this entry is that the tagging ope
          StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
 ```
 
-We now iterate the tags in `pendingTags` and invoke `tagCloudPiv`. Rather than `await`ing for these operations, we fire them concurrently since we want to continue the next upload as soon as possible.
+We now iterate the tags in `pendingTags` and invoke `tagCloudPiv`. Rather than waiting for each tagging operation to conclude, we fire them concurrently since we want to continue the next upload as soon as possible. This will be done by the `forEach`, which will not await for any `await` inside of it.
 
-A drawback of not awaiting for the results of each tagging operation is that if there are any errors here, they will go unnoticed by the client.
+However, if any of the tagging operation fails, we will report the error to the user when that operation concludes. We will only report if the error is neither a code 0 (no connection) or a 403 (invalid session).
 
 ```dart
-         for (var tag in pendingTags) {
-            TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
-         }
+         pendingTags.forEach ((tag) async {
+            var code = await TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
+            if (! [0, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
+         });
 ```
 
 This concludes the logic for tagging the uploaded piv.
@@ -322,7 +323,7 @@ This concludes the logic for tagging the uploaded piv.
       }
 ```
 
-We remove the `pendingTags` key. Note we do this on disk as well, since that key needs to persist if the app is restarted.
+We remove the `pendingTags` key. Note we do this on disk as well, since that key needs to persist if the app is restarted. A drawback of not awaiting for the results of each tagging operation is that if there are any errors in the tagging, the pending tags will be lost.
 
 ```dart
       StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
@@ -1517,9 +1518,90 @@ We update `lastNTags` in the store and close the function.
 
 ```dart
       StoreService.instance.set ('lastNTags', lastNTags, 'disk');
-  }
+   }
 ```
 
+We now define `tagCloudPiv`, the function that will tag (or untag) a cloud piv.
+
+The function takes three parameters:
+
+- `id`, the id of the cloud piv that we want to tag/untag.
+- `tag`, the tag itself.
+- `del`, a flag that if `true` indicates that we want to *untag*.
+
+```dart
+   tagCloudPiv (String id, String tag, bool del) async {
+```
+
+We start by calling the server at `POST /tag`. We pass the `tag`, the `id` wrapped in a list, and the `del` flag to indicate whether we're tagging or untagging. We also pass the `autoOrganize` flag set to `true`, since we want the autoorganize behavior, which means that every tagged piv is marked as organized, and if a piv has no tags, then it will be marked as unorganized.
+
+```dart
+      var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+```
+
+If we don't get a successful response from the server, we return the code.
+
+```dart
+      if (response ['code'] != 200) return response ['code'];
+```
+
+We pass a single id to `queryOrganizedIds` because if this cloud piv has a local counterpart, and the cloud piv is not in the current query, we need to know whether it is organized or not.
+
+```dart
+      await queryOrganizedIds ([id]);
+```
+
+We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add this tag to the hometags. This allows us to "seed" the hometags with a first tag.
+
+```dart
+      var hometags = StoreService.instance.get ('hometags');
+      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+```
+
+We invoke `queryPivs` passing to it the current `queryTags`, as well as the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query anyway.
+
+If there was an error while executing `queryPivs`, we will not do anything else - not even report an error, since that will have been done by `queryPivs` already.
+
+```dart
+      var code = await queryPivs (StoreService.instance.get ('queryTags'), true);
+      if (code != 200) return;
+```
+
+We will see how many pivs were returned by the query.
+
+```dart
+      var total = StoreService.instance.get ('queryResult') ['total'];
+```
+
+If we currently have tags in our query, and we got no pivs back, it means that through an untagging operation we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will do a number of things:
+
+- Set `swipedUploaded` to `false`.
+- Set `currentlyTaggingUploaded` to an empty string.
+
+These two actions will get the user out of tagging mode in the cloud view.
+
+```dart
+      if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
+         StoreService.instance.set ('swipedUploaded', false);
+         StoreService.instance.set ('currentlyTaggingUploaded', '');
+```
+
+But we're yet not done. We also will set `queryTags` to an empty array and invoke `queryPivs`. This will both reset the query and refresh it. This concludes the case where we want to get the user out of tagging mode in the cloud view.
+
+```dart
+         StoreService.instance.set ('queryTags', []);
+         await queryPivs (StoreService.instance.get ('queryTags'));
+      }
+```
+
+Why don't we do this in the local view? Because if the local view doesn't show you more pivs for a given period, it means you organized them all! Whereas with the cloud view, you always want to see pivs.
+
+There's nothing else to do but to return the response code (which will be a 200) and close the function.
+
+```dart
+      return response ['code'];
+   }
+```
 
 We now define `tagPiv`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
 
@@ -1763,10 +1845,10 @@ If we didn't get back a 200 code, we have encountered an error. If we experience
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
 ```
 
-Whatever the error is, we cannot continue executing the function, so we return.
+Whatever the error is, we cannot continue executing the function, so we return its response code.
 
 ```dart
-         return;
+         return response ['code'];
       }
 ```
 
