@@ -82,70 +82,84 @@ const tagColors = [
 ];
 
 const kAcpicSplash = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 50,
   color: kAltoBlue,
 );
 
 const kAcpicMain = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 30,
   color: kAltoBlue,
 );
 
 const kLocalYear = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontWeight: FontWeight.bold,
     fontSize: 25,
     color: kGrey);
 
 const kBigTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 25,
   color: kGreyDarker,
 );
 
 const kDarkBackgroundBigTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 25,
   color: kGreyLightest,
 );
 
 const kBigTitleOffline = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 25,
   color: kAltoBlue,
 );
 
 const kSubtitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 20,
+  color: kGreyDarker,
+);
+
+const kQuerySelectorSubtitles = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kGreyDarker,
 );
 
 const kWhiteSubtitle = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontWeight: FontWeight.bold,
     fontSize: 20,
     color: Colors.white);
 
 const kBlueAltocodeSubtitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kAltoBlue,
 );
 
+const kDeleteModalTitle = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontWeight: FontWeight.bold,
+  fontSize: 20,
+  color: kAltoRed,
+);
+
 const kPlainText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   color: kGreyDarker,
 );
 
 const kPlainTextBold = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
@@ -154,22 +168,15 @@ const kPlainTextBold = TextStyle(
 const kPlainTextBoldDarkest = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 16,
-  fontWeight: FontWeight.w600,
-  color: Colors.black,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
 );
 
 const kCenterPhoneGridTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
-  fontSize: 16,
+  fontSize: 18,
   color: kAltoBlue,
-);
-
-const kDeleteModalTitle = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 14,
-  fontWeight: FontWeight.bold,
-  color: kAltoRed,
 );
 
 const kPlainHypertext = TextStyle(
@@ -180,73 +187,73 @@ const kPlainHypertext = TextStyle(
 );
 
 const kButtonText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: Colors.white,
 );
 
 const kWhiteButtonText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoBlue,
 );
 
 const kSelectAllButton = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
 );
 
 const kStartButton = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
-  fontWeight: FontWeight.bold,
+  // fontWeight: FontWeight.bold,
 );
 
 const kGoToWebButton = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontSize: 14,
     fontWeight: FontWeight.bold,
     color: kAltoBlue);
 
 const kLogOutButton = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontSize: 14,
     fontWeight: FontWeight.bold,
     color: kAltoRed);
 
 const kLeftAndRightPhoneGridTitle = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 14,
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 16,
   fontWeight: FontWeight.bold,
   color: kGreyLight,
 );
 
 const kSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   color: kGreyDarkest,
 );
 
 const kWhiteSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   height: 1.5,
   color: kAltoBlue,
 );
 
 const kHomeEmptyText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 22,
   color: kGreyDarker,
 );
 
 const kSubPageAppBarTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 25,
   color: kGreyDarker,
@@ -260,89 +267,89 @@ const kHomeTagBoxText = TextStyle(
 );
 
 const kTagListElementText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 20,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kGridTagListElement = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kGridDeleteElement = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoRed,
 );
 
 const kGridTagListElementBlue = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoBlue,
 );
 
 const kDoneEditText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kAltoBlue,
 );
 
 const kHorizontalMonth = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
-  fontWeight: FontWeight.bold,
+  // fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kLookingAtText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 14,
   color: kGreyDarker,
 );
 
 const kOrganizedAmountOfPivs = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoOrganized,
 );
 
 const kUploadedAmountOfPivs = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kGridBottomRowText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   fontWeight: FontWeight.bold,
   color: kGreyDarkest,
 );
 
 const kBottomNavigationText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   fontWeight: FontWeight.bold,
 );
 
 const kTaglineText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   color: kGreyDarker,
 );
 
 const kTaglineTextBold = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,

@@ -404,11 +404,12 @@ class _LocalViewState extends State<LocalView> {
             // Rename tag modal
             Visibility(
                 visible: renameTagLocal != '',
+                // visible: true,
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 20, right: 20),
                     child: Container(
-                      height: 180,
+                      height: 200,
                       width: double.infinity,
                       decoration: BoxDecoration(
                           color: Colors.grey[50],
@@ -426,7 +427,7 @@ class _LocalViewState extends State<LocalView> {
                                 'Edit tag',
                                 textAlign: TextAlign.center,
                                 softWrap: true,
-                                style: kTaglineTextBold,
+                                style: kTagListElementText,
                               ),
                             ),
                             Padding(
@@ -436,13 +437,13 @@ class _LocalViewState extends State<LocalView> {
                                 child: TextFormField(
                                   autofocus: true,
                                   controller: renameTagController,
-                                  style: kTaglineTextBold,
+                                  style: kPlainTextBold,
                                   decoration: InputDecoration(
                                     contentPadding: const EdgeInsets.symmetric(
                                         vertical: 10.0, horizontal: 20.0),
                                     fillColor: kGreyLightest,
                                     hintMaxLines: 1,
-                                    hintStyle: kTaglineText,
+                                    hintStyle: kPlainText,
                                     border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: const BorderSide(
@@ -473,7 +474,7 @@ class _LocalViewState extends State<LocalView> {
                                   child: Text(
                                     'Done',
                                     textAlign: TextAlign.center,
-                                    style: kGridTagListElementBlue,
+                                    style: kBlueAltocodeSubtitle,
                                   ),
                                 ),
                               ),
@@ -490,7 +491,7 @@ class _LocalViewState extends State<LocalView> {
                                   child: Text(
                                     'Cancel',
                                     textAlign: TextAlign.center,
-                                    style: kGridTagListElement,
+                                    style: kTagListElementText,
                                   ),
                                 ),
                               ),
@@ -506,8 +507,8 @@ class _LocalViewState extends State<LocalView> {
                 visible: deleteTagLocal != '',
                 child: Center(
                   child: Container(
-                    height: 200,
-                    width: 225,
+                    height: 230,
+                    width: 340,
                     decoration: BoxDecoration(
                         color: Colors.grey[50],
                         borderRadius:
@@ -520,10 +521,22 @@ class _LocalViewState extends State<LocalView> {
                           const Padding(
                             padding: EdgeInsets.only(
                                 right: 15, left: 15, bottom: 10),
-                            child: Text(
-                              'Delete the tag ',
-                              textAlign: TextAlign.center,
-                              style: kTaglineText,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: FaIcon(
+                                    kTrashCanIcon,
+                                    color: kAltoRed,
+                                  ),
+                                ),
+                                Text(
+                                  'Delete the tag ',
+                                  textAlign: TextAlign.center,
+                                  style: kDeleteModalTitle,
+                                ),
+                              ],
                             ),
                           ),
                           Padding(
@@ -533,16 +546,16 @@ class _LocalViewState extends State<LocalView> {
                               deleteTagLocal + '?',
                               textAlign: TextAlign.center,
                               softWrap: true,
-                              style: kTaglineTextBold,
+                              style: kPlainTextBold,
                             ),
                           ),
                           const Padding(
                             padding: EdgeInsets.only(
-                                bottom: 10.0, right: 15, left: 15),
+                                bottom: 20.0, right: 15, left: 15),
                             child: Text(
                               'This will not delete any photos or videos, just the tag itself.',
                               textAlign: TextAlign.center,
-                              style: kTaglineText,
+                              style: kPlainTextBold,
                             ),
                           ),
                           Container(
@@ -563,7 +576,7 @@ class _LocalViewState extends State<LocalView> {
                                 child: Text(
                                   'Delete',
                                   textAlign: TextAlign.center,
-                                  style: kGridDeleteElement,
+                                  style: kDeleteModalTitle,
                                 ),
                               ),
                             ),
@@ -579,7 +592,7 @@ class _LocalViewState extends State<LocalView> {
                                 child: Text(
                                   'Cancel',
                                   textAlign: TextAlign.center,
-                                  style: kGridTagListElement,
+                                  style: kTagListElementText,
                                 ),
                               ),
                             ),
@@ -594,8 +607,8 @@ class _LocalViewState extends State<LocalView> {
                 visible: currentlyDeletingModal,
                 child: Center(
                   child: Container(
-                    height: 225,
-                    width: 225,
+                    height: 270,
+                    width: 340,
                     decoration: BoxDecoration(
                         color: Colors.grey[50],
                         borderRadius:
@@ -608,27 +621,39 @@ class _LocalViewState extends State<LocalView> {
                           const Padding(
                             padding: EdgeInsets.only(
                                 bottom: 20.0, right: 15, left: 15),
-                            child: Text(
-                              'Delete from your phone?',
-                              textAlign: TextAlign.center,
-                              style: kDeleteModalTitle,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: FaIcon(
+                                    kTrashCanIcon,
+                                    color: kAltoRed,
+                                  ),
+                                ),
+                                Text(
+                                  'Delete From Your Phone?',
+                                  textAlign: TextAlign.center,
+                                  style: kDeleteModalTitle,
+                                ),
+                              ],
                             ),
                           ),
                           const Padding(
                             padding: EdgeInsets.only(
-                                bottom: 10.0, right: 15, left: 15),
+                                bottom: 20.0, right: 15, left: 15),
                             child: Text(
                               'This action cannot be undone. This will permanently delete these photos and videos from your device.',
                               textAlign: TextAlign.center,
-                              style: kGridBottomRowText,
+                              style: kPlainTextBold,
                             ),
                           ),
                           const Padding(
-                            padding: EdgeInsets.only(bottom: 10.0),
+                            padding: EdgeInsets.only(bottom: 20.0),
                             child: Text(
                               'Are you sure?',
                               textAlign: TextAlign.center,
-                              style: kGridBottomRowText,
+                              style: kPlainTextBold,
                             ),
                           ),
                           Container(
@@ -678,7 +703,7 @@ class _LocalViewState extends State<LocalView> {
                                 child: Text(
                                   'Cancel',
                                   textAlign: TextAlign.center,
-                                  style: kGridTagListElement,
+                                  style: kTagListElementText,
                                 ),
                               ),
                             ),
@@ -695,7 +720,7 @@ class _LocalViewState extends State<LocalView> {
                   height: 400,
                   width: 340,
                   decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: Colors.white,
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                       border: Border.all(color: kGreyLight, width: .5)),
                   child: Padding(
@@ -821,7 +846,7 @@ class _LocalViewState extends State<LocalView> {
               ),
             ),
             Visibility(
-              visible: true,
+              visible: false,
               child: Center(
                 child: Container(
                   height: 450,

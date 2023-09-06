@@ -380,8 +380,8 @@ class _UploadedViewState extends State<UploadedView> {
             visible: currentlyDeletingModal,
             child: Center(
               child: Container(
-                height: 225,
-                width: 225,
+                height: 270,
+                width: 340,
                 decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -393,27 +393,39 @@ class _UploadedViewState extends State<UploadedView> {
                       const Padding(
                         padding:
                             EdgeInsets.only(bottom: 20.0, right: 15, left: 15),
-                        child: Text(
-                          'Delete from your cloud?',
-                          textAlign: TextAlign.center,
-                          style: kDeleteModalTitle,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: FaIcon(
+                                kTrashCanIcon,
+                                color: kAltoRed,
+                              ),
+                            ),
+                            Text(
+                              'Delete from your cloud?',
+                              textAlign: TextAlign.center,
+                              style: kDeleteModalTitle,
+                            ),
+                          ],
                         ),
                       ),
                       const Padding(
                         padding:
-                            EdgeInsets.only(bottom: 10.0, right: 15, left: 15),
+                            EdgeInsets.only(bottom: 20.0, right: 15, left: 15),
                         child: Text(
                           'This action cannot be undone. This will permanently delete these photos and videos from our servers.',
                           textAlign: TextAlign.center,
-                          style: kGridBottomRowText,
+                          style: kPlainTextBold,
                         ),
                       ),
                       const Padding(
-                        padding: EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.only(bottom: 20.0),
                         child: Text(
                           'Are you sure?',
                           textAlign: TextAlign.center,
-                          style: kGridBottomRowText,
+                          style: kPlainTextBold,
                         ),
                       ),
                       Container(
@@ -463,7 +475,7 @@ class _UploadedViewState extends State<UploadedView> {
                             child: Text(
                               'Cancel',
                               textAlign: TextAlign.center,
-                              style: kGridTagListElement,
+                              style: kTagListElementText,
                             ),
                           ),
                         ),
@@ -480,7 +492,7 @@ class _UploadedViewState extends State<UploadedView> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Container(
-                  height: 180,
+                  height: 200,
                   width: double.infinity,
                   decoration: BoxDecoration(
                       color: Colors.grey[50],
@@ -497,7 +509,7 @@ class _UploadedViewState extends State<UploadedView> {
                             'Edit tag',
                             textAlign: TextAlign.center,
                             softWrap: true,
-                            style: kTaglineTextBold,
+                            style: kTagListElementText,
                           ),
                         ),
                         Padding(
@@ -507,13 +519,13 @@ class _UploadedViewState extends State<UploadedView> {
                             child: TextFormField(
                               autofocus: true,
                               controller: renameTagController,
-                              style: kTaglineTextBold,
+                              style: kPlainTextBold,
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.symmetric(
                                     vertical: 10.0, horizontal: 20.0),
                                 fillColor: kGreyLightest,
                                 hintMaxLines: 1,
-                                hintStyle: kTaglineText,
+                                hintStyle: kPlainText,
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide:
@@ -541,7 +553,7 @@ class _UploadedViewState extends State<UploadedView> {
                               child: Text(
                                 'Done',
                                 textAlign: TextAlign.center,
-                                style: kGridTagListElementBlue,
+                                style: kBlueAltocodeSubtitle,
                               ),
                             ),
                           ),
@@ -557,7 +569,7 @@ class _UploadedViewState extends State<UploadedView> {
                               child: Text(
                                 'Cancel',
                                 textAlign: TextAlign.center,
-                                style: kGridTagListElement,
+                                style: kTagListElementText,
                               ),
                             ),
                           ),
@@ -944,7 +956,7 @@ class _TopRowState extends State<TopRow> {
                           child: const Row(
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(right: 8.0, bottom: 2),
+                                padding: EdgeInsets.only(right: 8.0),
                                 child: Text(
                                   'Search',
                                   style: kButtonText,
@@ -1082,9 +1094,9 @@ class _TopRowState extends State<TopRow> {
                       // Show first two tags only
                       if (output.length > 1) return;
                       return output.add(GridTagUploadedQueryElement(
-                        gridTagElementIcon: tagIcon (tag),
-                        iconColor: tagIconColor (tag),
-                        gridTagName: tagTitle (tag)));
+                          gridTagElementIcon: tagIcon(tag),
+                          iconColor: tagIconColor(tag),
+                          gridTagName: tagTitle(tag)));
                     });
                     if (queryTags.isEmpty) {
                       output.add(Padding(

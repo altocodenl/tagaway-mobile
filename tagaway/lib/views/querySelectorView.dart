@@ -232,13 +232,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Organization',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: kGreyDarker,
-                        )),
+                    const Text('Organization', style: kQuerySelectorSubtitles),
                     Padding(
                       padding: const EdgeInsets.only(top: 20, bottom: 20),
                       child: GridView.count(
@@ -296,13 +290,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 )),
             Visibility(
                 visible: years.length > 0,
-                child: const Text('Years',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: kGreyDarker,
-                    ))),
+                child: const Text('Years', style: kQuerySelectorSubtitles)),
             Visibility(
                 visible: years.length > 0,
                 child: Padding(
@@ -411,13 +399,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 visible: countries.length > 0,
                 child: const Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: Text('Geo',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: kGreyDarker,
-                      )),
+                  child: Text('Geo', style: kQuerySelectorSubtitles),
                 )),
             Visibility(
                 visible: countries.length > 0,
@@ -530,13 +512,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 visible: usertags.length > 0,
                 child: const Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: Text('Your tags',
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: kGreyDarker,
-                      )),
+                  child: Text('Your tags', style: kQuerySelectorSubtitles),
                 )),
             Visibility(
                 visible: usertags.length > 0,
