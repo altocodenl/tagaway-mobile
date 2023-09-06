@@ -104,7 +104,7 @@ class PivService {
       var nextPiv = uploadQueue [0];
       var result = await uploadPiv (nextPiv);
 
-      if (! [0, 403].contains (result ['code'])) return;
+      if ([0, 403].contains (result ['code'])) return;
 
       var error = result ['body'] != null ? result ['body'] ['error'] : '';
 
