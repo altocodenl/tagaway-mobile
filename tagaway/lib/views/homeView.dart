@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -98,9 +99,9 @@ class _HomeViewState extends State<HomeView> {
         ),
         title: Row(
           children: [
-            Expanded(flex: 2, child: Text('tagaway', style: kAcpicMain)),
+            const Expanded(flex: 2, child: Text('tagaway', style: kAcpicMain)),
             Padding(
-              padding: EdgeInsets.only(top: 1.0),
+              padding: const EdgeInsets.only(top: 1.0),
               child: Text(
                 account['username'],
                 style: kPlainText,
@@ -151,7 +152,9 @@ class _HomeViewState extends State<HomeView> {
               },
               textOnElement: 'Delete My Account'),
           UserMenuElementKBlue(
-            onTap: () {},
+            onTap: () {
+              StorageSpaceHelper.getAvailableStorage();
+            },
             textOnElement: 'Clear Up Space',
           ),
           UserMenuElementDarkGrey(
@@ -286,11 +289,11 @@ class _HomeViewState extends State<HomeView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Open Mail App"),
-          content: Text("No mail apps installed"),
+          title: const Text("Open Mail App"),
+          content: const Text("No mail apps installed"),
           actions: <Widget>[
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -299,5 +302,20 @@ class _HomeViewState extends State<HomeView> {
         );
       },
     );
+  }
+}
+
+class StorageSpaceHelper {
+  static const platform = MethodChannel('nl.tagaway/storage');
+
+  static Future<int?> getAvailableStorage() async {
+    try {
+      final int? result = await platform.invokeMethod('getAvailableStorage');
+      print(result);
+      return result;
+    } on PlatformException catch (e) {
+      print("Failed to get storage space: '${e.message}'.");
+      return null;
+    }
   }
 }
