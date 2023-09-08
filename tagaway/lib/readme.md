@@ -2,13 +2,13 @@
 
 ## TODO
 
-- Forbid tagging with x::
-- trim tags
+- If session expires, get one error instead of two? idsFromHashes and organized currently.
 - Why new tag doesn't appear immediately on search? update list of tags after each tagging before updating lastNTags: without await, fire off call to getTags from queryPivs. Make update of lastNTags directly in getTags. // remove invocation to getTags elsewhere
 - Performance of query: avoid double round trip for first draw of uploadedView.
-- Handle >= 400 errors with snackbar on tagService
-- Finish annotated source code.
+- Finish annotated source code & handle >= 400 errors with snackbar.
 
+- Forbid tagging with x::
+- Trim tags
 - Create settings view with Change Password and enable/disable geotagging: merge & dynamize
 - Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
@@ -313,7 +313,7 @@ However, if any of the tagging operation fails, we will report the error to the 
 ```dart
          pendingTags.forEach ((tag) async {
             var code = await TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
-            if (! [0, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
+            if (! [0, 200, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
          });
 ```
 
@@ -455,7 +455,7 @@ We upload the piv through `uploadPiv` and await for the result.
 If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. This can happen when reopening the app after a few days, after leaving it with pivs in the queue. When the app is revived, the upload will be attempted and it will fail. In the case of a 403, an error message will be shown by our `ajaxMulti` function, which is defined elsewhere. And if there's no connection, the user will be redirected to an `offline` view. We will not do anything else, leaving the piv in the queue.
 
 ```dart
-      if (! [0, 403].contains (result ['code'])) return;
+      if ([0, 403].contains (result ['code'])) return;
 ```
 
 For convenience's sake, we store the error that came in the body (if any) in a variable `error`. If there's no body, we will set it to an empty string.
@@ -950,7 +950,7 @@ We set up a few datetime variables:
 - `firstDayOfMonth`, which represents midnight of the first day of the month. In some cases, `firstDayOfMonth` might be further in the future than `monday`.
 
 ```dart
-      DateTime tomorrow        = DateTime.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch + 24 * 60 * 60 * 1000);
+      DateTime tomorrow        = DateTime.fromMillisecondsSinceEpoch (DateTime.now ().millisecondsSinceEpoch + 24 * 60 * 60 * 1000);
       tomorrow                 = DateTime (tomorrow.year, tomorrow.month, tomorrow.year);
       DateTime Now             = DateTime.now ();
       DateTime today           = DateTime (Now.year, Now.month, Now.day);
@@ -1560,11 +1560,11 @@ We get the list of hometags. If there are no hometags set yet, and we are taggin
 
 We invoke `queryPivs` passing to it the current `queryTags`, as well as the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query anyway.
 
-If there was an error while executing `queryPivs`, we will not do anything else - not even report an error, since that will have been done by `queryPivs` already.
+If there was an error while executing `queryPivs`, we will not do anything else - not even report an error, since that will have been done by `queryPivs` already. We will also return our original `response ['code']`, which was a 200.
 
 ```dart
       var code = await queryPivs (StoreService.instance.get ('queryTags'), true);
-      if (code != 200) return;
+      if (code != 200) return response ['code'];
 ```
 
 We will see how many pivs were returned by the query.
@@ -1803,12 +1803,12 @@ We sort the received the tags, because we'll need to compare them to the tags of
       tags.sort ();
 ```
 
-We will determine now whether we can avoid querying the server at all. To avoid querying the server at all, five things need to happen at the same time!
+We will determine now whether we can avoid querying the server at all. To avoid querying the server at all, four things need to happen at the same time!
 
 1. `queryResult`, the result of the last query, is not an empty string. If it is an empty string, we haven't yet performed the first query, so we definitely need to query the server.
 2. `refresh` is `false`, so we do not need to refresh the query.
 3. `currentMonth` is `false`; when it is not `false`, that means that the user wants to see the pivs of another month, therefore in that case we'd have to query the server again.
-4. `tags` is the same as `queryTags`.
+4. `tags` is equal to `queryTags`.
 
 If all four conditions are true simultaneously, we will `return` since there's nothing else to do.
 
@@ -1818,23 +1818,36 @@ In practice, this only happens when switching between the query selector view an
       if (StoreService.instance.get ('queryResult') != '' && refresh == false && currentMonth == false && listEquals (tags, queryTags)) return;
 ```
 
-We update `queryTags` with a copy of `tags`.
+We update `queryTags` to a copy of `tags`. We want to copy it because if we modify `tags`, those changes will also affect `queryTags`, and then we won't be able to know whether changes in `tags` took place when we compare it against `queryTags`.
 
 ```dart
       queryTags = List.from (tags);
 ```
 
-We query `POST /query`, passing the `tags`; note we only get a single piv, since we don't want the list of pivs yet. Note also we pass the `timeHeader` field set to `true`, since we want the time header.
+In our first query, we will load up to 300 pivs. This is because we want the query to be lighter in both execution time and network transfer time, so we can show pivs to the user as quickly as possible.
 
-This query, the first we do, will give us the total amount of pivs, their associated tags, and the time header. Everything, except for the pivs themselves.
+```dart
+      var firstLoadSize = 300;
+```
+
+We invoke `POST /query` in the server. We're going to pass the `tags` we received and get the latest pivs first. We also want to get the time header information, and we want to get the pivs starting from the first (which, in terms of dates, will be the last).
 
 ```dart
       var response = await ajax ('post', 'query', {
          'tags': tags,
          'sort': 'newest',
+         'timeHeader': true,
          'from': 1,
-         'to': 1,
-         'timeHeader': true
+```
+
+Here's where our roads diverge. If we don't have a `currentMonth` passed, we want to get the latest pivs. If that's the case, we can already get 300 pivs, since some of these latest pivs will belong to the last month.
+
+If, however, we pass `currentMonth`, most of the time the selected month will *not* be part of the last 300 pivs. For that reason, if that's the case, we only return 1 piv (we would ask for 0, but the server requires us to request at least one).
+
+Why bother at all to make this initial query if `currentMonth` is set? Quite simply, because we still need to get `total` (the total amount of pivs that match the query, even those pivs that don't belong to `currentMonth`); `tags` (likewise, but for tags); and the time header itself, which should also belong to the entire query, not just the specified month.
+
+```dart
+         'to': currentMonth == false ? firstLoadSize : 1,
       });
 ```
 
@@ -1852,10 +1865,116 @@ Whatever the error is, we cannot continue executing the function, so we return i
       }
 ```
 
-If the tags in the query changed in the meantime, don't do anything else, since there will be another instance of queryPivs being executed concurrently that will be in charge of updating `queryResult`.
+If the tags in the query changed in the meantime, we don't do anything else in this function execution, since there will be another instance of queryPivs being executed concurrently that will be in charge of updating `queryResult`. We do return a 409 to indicate that there was a conflict between this query and another one executed shortly afterwards.
 
-This check is why we copied `tags` before setting it to `queryTags`, and why we hold `queryTags` as part of the class. Tagaway is very interactive and the queries can take over half a second, so it's perfectly possible for the user to trigger a new query before the results of the old query are available.
+This check is a great example of why we copied `tags` before setting it to `queryTags`, and why we hold `queryTags` as part of the class. Tagaway is very interactive and the queries can take over half a second, so it's perfectly possible for the user to trigger a new query before the results of the old query are available.
 
 ```dart
-      if (! listEquals (queryTags, tags)) return;
+      if (! listEquals (queryTags, tags)) return 409;
 ```
+
+We return the result of the body in a local variable `queryResult`.
+
+```dart
+      var queryResult = response ['body'];
+```
+
+We will now put everything in place so that the time header can be computed. We start by setting the `timeHeader` inside `queryResult`. We do this just to put the data in there, but we don't want a redraw to be triggered yet, so we pass the `'mute'` flag.
+
+```dart
+      StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader']}, '', 'mute');
+```
+
+If `currentMonth` is not `false`, we update it in the store.
+
+```dart
+      if (currentMonth != false) StoreService.instance.set ('currentMonth', currentMonth);
+```
+
+If `currentMonth` is `false` and the server also didn't bring a last month, this must be a ronin query (a query without pivs). So we set `currentMonth` to an empty string.
+
+```dart
+      else if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
+```
+
+Otherwise, we extract the year and the month of the last month of the query, which will be present in the `lastMonth` key of the object returned by the server. We then set them in the `currentMonth` key of the store.
+
+```dart
+      else {
+         var lastMonth = queryResult ['lastMonth'] [0].split (':');
+         StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
+      }
+```
+
+Now that `queryResult.timeHeader` and `currentMonth` are placed, we can compute the time header by executing `computeTimeHeader`. The function is synchronous, so we do not need to await for it.
+
+```dart
+      computeTimeHeader ();
+```
+
+If we got the last 300 pivs, we might have gotten too many pivs! To know this, we look at the number of pivs belonging to the last month in `lastMonth`. If we have less than 300 pivs for the last month, we remove the extra pivs from `queryResult ['pivs']`.
+
+```dart
+      if (currentMonth == false && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
+         queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
+      }
+```
+
+We now check whether the returned pivs are organized or not. If the `'o::'` tag was inside `tags`, then we know that all the pivs returned by the query are organized, so we simply set an `orgMap:ID` entry to `true` for each of them.
+
+```dart
+      if (tags.contains ('o::')) {
+         queryResult ['pivs'].forEach ((piv) {
+            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+         });
+      }
+```
+
+Otherwise, we don't know whether they are organized or not, so we ask the server through `queryOrganizedids`. Note we don't `await` on purpose, since we don't want to wait for the end of this operation to do the next query to the server.
+
+```dart
+      else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
+```
+
+If we are getting the last pivs, and we have more pivs in the month than the pivs we brought, we will generate placeholder entries in `queryResult ['pivs']`. This will allow us later to add the missing pivs without triggering a redraw.
+
+```dart
+      if (currentMonth == false && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
+         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
+      }
+```
+
+
+
+
+
+
+
+
+If we received a `currentMonth` argument, we will add two tags into `currentMonthTags`: one for the year of the current month (`'d::DDDD'`) and one for the month itself (`'d::MDD'`) - in the last two expressions, `D` stands for digit. We need two tags because to query for a given year + month, tagaway requires a tag for each of them to be sent in the same query.
+
+We'll use `currentMonthTags` shortly afterwards.
+
+```dart
+      if (currentMonth != false) var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
+```
+
+We query `POST /query`, passing the `tags`. Note also we pass the `timeHeader` field set to `true`, since we want the time header.
+
+This query, the first we do, will give us the total amount of pivs, their associated tags, the time header, and the first 300 pivs. The only thing that could be missing is any pivs after the first 300, but we'll deal with that in a minute.
+
+Why do we preemptively get pivs, if we don't know how many they are? Quite simply, to avoid a double roundtrip to the server, which can add up for those far from our servers and/or with a slow internet connection.
+
+Now for the tricky part: if `currentMonth` is `false`, the `tags` we sent to the server simply need to be the `tags` we received. But if we have a `currentMonth` we want to query, we want to pass those two tags that specify it into `tags`. For doing this, we merge `tags` and `currentMonthTags`. But that's not all. To eliminate potential duplicates (if, say, there was in `tags` already a tag for the year of the current month), we convert the list into a set (which removes duplicates), and then we convert it back into a list.
+
+```dart
+      var response = await ajax ('post', 'query', {
+         'tags': currentMonth == false ? tags : ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
+         'sort': 'newest',
+         'from': 1,
+         'to': firstLoadSize,
+         'timeHeader': true
+      });
+```
+
+
