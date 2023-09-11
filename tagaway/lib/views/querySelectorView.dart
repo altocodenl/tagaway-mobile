@@ -46,7 +46,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
     cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
       if (v1 == '') v1 = [];
-      TagService.instance.queryPivs(v1);
+      TagService.instance.queryPivs();
       setState(() {
         queryTags = v1;
       });

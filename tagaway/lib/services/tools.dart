@@ -252,7 +252,7 @@ redirectToOfflineView () {
 }
 
 pad (n) {
-   n < 10 ? '0' + n.toString () : n.toString ();
+   return n < 10 ? '0' + n.toString () : n.toString ();
 }
 
 // `getTags` has a call that requires this to be typed

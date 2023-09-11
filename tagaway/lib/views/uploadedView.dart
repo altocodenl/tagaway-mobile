@@ -89,7 +89,7 @@ class _UploadedViewState extends State<UploadedView> {
       var currentView = StoreService.instance.get('currentIndex');
       // If on this view and just finished tagging, refresh the query
       if (currentView == 2 && v2 == '' && currentlyTagging != '')
-        TagService.instance.queryPivs(StoreService.instance.get('queryTags'));
+        TagService.instance.queryPivs();
       // Invoke the service only if local is not the current view
       if (v2 != '' && currentView != 1)
         TagService.instance.getTaggedPivs(v2, 'uploaded');
@@ -685,7 +685,7 @@ class _UploadGridState extends State<UploadGrid> {
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
     cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
       if (v1 == '') v1 = [];
-      TagService.instance.queryPivs(v1);
+      TagService.instance.queryPivs();
     });
     cancelListener2 = StoreService.instance.listen([
       'queryResult',
@@ -754,9 +754,7 @@ class _UploadGridState extends State<UploadGrid> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              TagService.instance.queryPivs(
-                                  StoreService.instance.get('queryTags'),
-                                  false,
+                              TagService.instance.queryPivsForMonth(
                                   monthEdges['nextMonth']);
                             },
                             style: ElevatedButton.styleFrom(
@@ -812,9 +810,7 @@ class _UploadGridState extends State<UploadGrid> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              TagService.instance.queryPivs(
-                                  StoreService.instance.get('queryTags'),
-                                  false,
+                              TagService.instance.queryPivsForMonth(
                                   monthEdges['previousMonth']);
                             },
                             style: ElevatedButton.styleFrom(
@@ -1012,10 +1008,7 @@ class _TopRowState extends State<TopRow> {
                                               : Colors.white,
                                           onTap: () {
                                             if (month[2] != 'white') {
-                                              TagService.instance.queryPivs(
-                                                  StoreService.instance
-                                                      .get('queryTags'),
-                                                  false,
+                                              TagService.instance.queryPivsForMonth(
                                                   [month[0], month[1]]);
                                             }
                                           }));

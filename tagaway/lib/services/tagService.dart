@@ -71,7 +71,7 @@ class TagService {
       var hometags = StoreService.instance.get ('hometags');
       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
 
-      var code = await queryPivs (StoreService.instance.get ('queryTags'), true);
+      var code = await queryPivs (true);
       if (code != 200) return response ['code'];
 
       var total = StoreService.instance.get ('queryResult') ['total'];
@@ -79,7 +79,7 @@ class TagService {
          StoreService.instance.set ('swipedUploaded', false);
          StoreService.instance.set ('currentlyTaggingUploaded', '');
          StoreService.instance.set ('queryTags', []);
-         await queryPivs (StoreService.instance.get ('queryTags'));
+         await queryPivs ();
       }
       return response ['code'];
    }
@@ -259,10 +259,12 @@ class TagService {
 
    // TODO: annotate the code above
 
-   queryPivs (dynamic tags, [refresh = false, currentMonth = false]) async {
+   queryPivs ([refresh = false]) async {
+
+      var tags = StoreService.instance.get ('queryTags');
       tags.sort ();
 
-      if (StoreService.instance.get ('queryResult') != '' && refresh == false && currentMonth == false && listEquals (tags, queryTags)) return;
+      if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
 
       queryTags = List.from (tags);
 
@@ -273,7 +275,7 @@ class TagService {
          'sort': 'newest',
          'timeHeader': true,
          'from': 1,
-         'to': currentMonth == false ? firstLoadSize : 1,
+         'to': firstLoadSize
       });
 
       if (response ['code'] != 200) {
@@ -287,15 +289,14 @@ class TagService {
 
       StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader']}, '', 'mute');
 
-      if (currentMonth != false) StoreService.instance.set ('currentMonth', currentMonth);
-      else if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
+      if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
       else {
          var lastMonth = queryResult ['lastMonth'] [0].split (':');
          StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
       }
       computeTimeHeader ();
 
-      if (currentMonth == false && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
+      if (queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
          queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 
@@ -306,29 +307,26 @@ class TagService {
       }
       else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
 
-      if (currentMonth == false && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
+      if (queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
-
-      // TODO: annotate from here
 
       StoreService.instance.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
-         'pivs':        currentMonth == false ? queryResult ['pivs'] : []
+         'pivs':        queryResult ['pivs']
       });
+
+      getTags ();
 
       if (queryResult ['pivs'].last ['placeholder'] == null) return 200;
 
-      // The streams join here. We get all the pivs for the month. We only care about the pivs.
-      var currentMonthTags = ['d::' + StoreService.instance.get ('currentMonth') [0].toString (), 'd::M' + StoreService.instance.get ('currentMonth') [1].toString ()];
-
       response = await ajax ('post', 'query', {
-         'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
+         'tags': tags,
          'sort': 'newest',
          'from': 1,
-         'to': 100000,
+         'to': queryResult ['lastMonth'] [1],
       });
 
       if (response ['code'] != 200) {
@@ -336,31 +334,77 @@ class TagService {
          return response ['code'];
       }
 
+      if (! listEquals (queryTags, tags)) return 409;
+
       var secondQueryResult = response ['body'];
 
       StoreService.instance.set ('queryResult', {
-         // TODO: only update the secondQueryResult
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
          'pivs':        secondQueryResult ['pivs']
-      // If currentMonth query or results changed, don't make the update mute, so we update everything
-      }, '', currentMonth != false || secondQueryResult ['total'] == queryResult ['lastMonth'] [1] ? '' : 'mute');
+      }, '', 'mute');
 
       if (tags.contains ('o::')) {
-         // Iterate only returned pivs, since only those will be shown initially
          secondQueryResult ['pivs'].forEach ((piv) {
             StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
       }
-      // Don't await on purpose
-      // Small inefficiency in querying again the first 300, but it doesn't matter really, it's small. Besides, if the list changed, we'd need to query them all.
       else queryOrganizedIds (secondQueryResult ['pivs'].map ((v) => v ['id']).toList ());
 
       return 200;
-  }
+   }
 
-  // TODO: annotate the code below
+   queryPivsForMonth (dynamic currentMonth) async {
+
+      var tags = StoreService.instance.get ('queryTags');
+      tags.sort ();
+
+      // The streams join here. We get all the pivs for the month. We only care about the pivs.
+      var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
+
+      // Do it quickly to show changes to the user before the roundtrip
+      StoreService.instance.set ('currentMonth', currentMonth);
+      computeTimeHeader ();
+
+      var response = await ajax ('post', 'query', {
+         'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
+         'sort': 'newest',
+         'from': 1,
+         'to': 100000
+      });
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+         return response ['code'];
+      }
+
+      if (! listEquals (queryTags, tags)) return 409;
+
+      var queryResult = response ['body'];
+
+      var oldQueryResult = StoreService.instance.get ('queryResult');
+
+      StoreService.instance.set ('queryResult', {
+         'total':       oldQueryResult ['total'],
+         'tags':        oldQueryResult ['tags'],
+         'timeHeader':  oldQueryResult ['timeHeader'],
+         'pivs':        queryResult ['pivs']
+      });
+      // Not mute on purpose!
+
+      if (tags.contains ('o::')) {
+         queryResult ['pivs'].forEach ((piv) {
+            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+         });
+      }
+      else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
+
+      getTags ();
+      return 200;
+   }
+
+   // TODO: annotate the code below
 
   toggleQueryTag (String tag) {
     // We copy it to avoid the update not triggering anything
@@ -381,11 +425,11 @@ class TagService {
     });
     StoreService.instance.remove ('currentlyDeletingPivsUploaded');
     if (response['code'] == 200) {
-       await queryPivs (StoreService.instance.get ('queryTags'), true);
+       await queryPivs (true);
        var total = StoreService.instance.get ('queryResult')['total'];
        if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
          StoreService.instance.set ('queryTags', []);
-         await queryPivs (StoreService.instance.get ('queryTags'));
+         await queryPivs ();
        }
     }
     return response['code'];
@@ -401,7 +445,7 @@ class TagService {
          queryTags.add (to);
       }
       StoreService.instance.set ('queryTags', queryTags);
-      await queryPivs (queryTags, true);
+      await queryPivs (true);
       // TODO: handle non-200 error
    }
 
@@ -410,10 +454,10 @@ class TagService {
       await getTags ();
       var queryTags = StoreService.instance.get ('queryTags');
       if (queryTags == '') queryTags = [];
+      // Is this conditional necessary?
       if (queryTags.contains (tag)) queryTags.remove (tag);
       StoreService.instance.set ('queryTags', queryTags);
-      await queryPivs (queryTags, true);
-      await queryPivs (StoreService.instance.get ('queryTags'), true);
+      await queryPivs (true);
       // TODO: handle non-200 error
    }
 
