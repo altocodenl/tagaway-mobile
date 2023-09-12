@@ -5,13 +5,15 @@
 - Finish annotated source code & handle >= 400 errors with snackbar.
 - Forbid tagging with x::
 - Trim tags
-- Create settings view with Change Password and enable/disable geotagging: merge & dynamize
+- Dynamize enable/disable geotagging
+- (server) default geotagging enabled
 - Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 
 - Liberate space (Tom)
-- Refersh query with scroll down (Tom)
+- Refresh query with scroll down (Tom)
+- Clean fields after password change (Tom)
 - Write a QA script (Tom)
 - Add cloud icon for pivs in cloud that are being uploaded (Tom)
 - Draggable selection (Tom)
