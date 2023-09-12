@@ -6,6 +6,7 @@ import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/accountView.dart';
@@ -153,13 +154,8 @@ class _HomeViewState extends State<HomeView> {
               textOnElement: 'Delete My Account'),
           UserMenuElementKBlue(
             onTap: () {
-              StorageSpaceHelper.getAvailableStorage();
-
-              //   if (Platform.isIOS) {
-              //     StorageSpaceHelper.getAvailableStorage();
-              //   } else if (Platform.isAndroid) {
-              //     StorageSpaceHelperAndroid.getAvailableStorage();
-              //   }
+              // TODO: open view
+              getAvailableStorage();
             },
             textOnElement: 'Clear Up Space',
           ),
@@ -308,20 +304,5 @@ class _HomeViewState extends State<HomeView> {
         );
       },
     );
-  }
-}
-
-class StorageSpaceHelper {
-  static const platform = MethodChannel('nl.tagaway/storage');
-
-  static Future<int?> getAvailableStorage() async {
-    try {
-      final int? result = await platform.invokeMethod('getAvailableStorage');
-      print('$result bytes');
-      return result;
-    } on PlatformException catch (e) {
-      print("Failed to get storage space: '${e.message}'.");
-      return null;
-    }
   }
 }

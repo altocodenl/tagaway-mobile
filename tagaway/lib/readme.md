@@ -3,6 +3,9 @@
 ## TODO
 
 - Liberate space
+   - Show modal logic
+   - Compute liberated space
+   - Delete
 - Finish annotated source code & handle >= 400 errors with snackbar.
 - Forbid tagging with x::
 - Trim tags

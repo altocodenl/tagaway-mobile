@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:photo_manager/photo_manager.dart';
+import 'package:flutter/services.dart';
 
 import 'package:tagaway/main.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -261,4 +262,16 @@ List getList (dynamic key) {
    if (value == '') return [];
    // We return a copy.
    return value.toList ();
+}
+
+Future<int?> getAvailableStorage() async {
+  const platform = MethodChannel('nl.tagaway/storage');
+  try {
+    final int? result = await platform.invokeMethod('getAvailableStorage');
+    print('$result bytes');
+    return result;
+  } catch (e) {
+    print(e);
+    return null;
+  }
 }
