@@ -7,8 +7,6 @@
    - Compute liberated space
    - Delete
 - Finish annotated source code & handle >= 400 errors with snackbar.
-- Forbid tagging with x::
-- Trim tags
 - Dynamize enable/disable geotagging
 - (server) default geotagging enabled
 - Stop flickering when opening FAB or clicking on "done".

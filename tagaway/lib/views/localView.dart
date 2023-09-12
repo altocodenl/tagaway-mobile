@@ -377,6 +377,7 @@ class _LocalViewState extends State<LocalView> {
                                                 .hasMatch(tag)) {
                                           actualTag = tag.replaceFirst(
                                               RegExp(' \\(new tag\\)\$'), '');
+                                          actualTag = actualTag.trim ();
                                         }
                                         return TagListElement(
                                           // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
@@ -387,6 +388,7 @@ class _LocalViewState extends State<LocalView> {
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
+                                              if (RegExp ('^[a-z]::').hasMatch (actualTag)) return showSnackbar ('Alas, you cannot use that tag.', 'yellow');
                                               StoreService.instance.set(
                                                   'currentlyTaggingLocal',
                                                   actualTag);
