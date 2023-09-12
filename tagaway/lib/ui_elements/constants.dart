@@ -70,6 +70,7 @@ const kStartOfJourneyIcon = FontAwesomeIcons.roadCircleCheck;
 const kArrowRightLong = FontAwesomeIcons.arrowRightLong;
 const kHomeIcon = FontAwesomeIcons.house;
 const kMobilePhoneIcon = FontAwesomeIcons.mobileScreenButton;
+const kBroomIcon = FontAwesomeIcons.broom;
 
 const tagColors = [
   kTagColor1,
@@ -81,69 +82,90 @@ const tagColors = [
 ];
 
 const kAcpicSplash = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 50,
   color: kAltoBlue,
 );
 
 const kAcpicMain = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 30,
   color: kAltoBlue,
 );
 
 const kLocalYear = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontWeight: FontWeight.bold,
     fontSize: 25,
     color: kGrey);
 
 const kBigTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 25,
   color: kGreyDarker,
 );
 
 const kDarkBackgroundBigTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 25,
   color: kGreyLightest,
 );
 
 const kBigTitleOffline = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 25,
   color: kAltoBlue,
 );
 
 const kSubtitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 20,
+  color: kGreyDarker,
+);
+
+const kQuerySelectorSubtitles = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kGreyDarker,
 );
 
 const kWhiteSubtitle = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontWeight: FontWeight.bold,
     fontSize: 20,
     color: Colors.white);
 
 const kBlueAltocodeSubtitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kAltoBlue,
 );
 
+const kDeleteModalTitle = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontWeight: FontWeight.bold,
+  fontSize: 20,
+  color: kAltoRed,
+);
+
 const kPlainText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   color: kGreyDarker,
 );
 
 const kPlainTextBold = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 16,
+  fontWeight: FontWeight.bold,
+  color: kGreyDarker,
+);
+
+const kPlainTextBoldDarkest = TextStyle(
   fontFamily: 'Montserrat',
   fontSize: 16,
   fontWeight: FontWeight.bold,
@@ -151,17 +173,10 @@ const kPlainTextBold = TextStyle(
 );
 
 const kCenterPhoneGridTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
-  fontSize: 16,
+  fontSize: 18,
   color: kAltoBlue,
-);
-
-const kDeleteModalTitle = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 14,
-  fontWeight: FontWeight.bold,
-  color: kAltoRed,
 );
 
 const kPlainHypertext = TextStyle(
@@ -172,73 +187,73 @@ const kPlainHypertext = TextStyle(
 );
 
 const kButtonText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: Colors.white,
 );
 
 const kWhiteButtonText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoBlue,
 );
 
 const kSelectAllButton = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
 );
 
 const kStartButton = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
-  fontWeight: FontWeight.bold,
+  // fontWeight: FontWeight.bold,
 );
 
 const kGoToWebButton = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontSize: 14,
     fontWeight: FontWeight.bold,
     color: kAltoBlue);
 
 const kLogOutButton = TextStyle(
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Regular',
     fontSize: 14,
     fontWeight: FontWeight.bold,
     color: kAltoRed);
 
 const kLeftAndRightPhoneGridTitle = TextStyle(
-  fontFamily: 'Montserrat',
-  fontSize: 14,
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 16,
   fontWeight: FontWeight.bold,
   color: kGreyLight,
 );
 
 const kSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   color: kGreyDarkest,
 );
 
 const kWhiteSnackBarText = TextStyle(
   fontWeight: FontWeight.bold,
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
   height: 1.5,
   color: kAltoBlue,
 );
 
 const kHomeEmptyText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 22,
   color: kGreyDarker,
 );
 
 const kSubPageAppBarTitle = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 25,
   color: kGreyDarker,
@@ -252,89 +267,89 @@ const kHomeTagBoxText = TextStyle(
 );
 
 const kTagListElementText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 20,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kGridTagListElement = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kGridDeleteElement = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoRed,
 );
 
 const kGridTagListElementBlue = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoBlue,
 );
 
 const kDoneEditText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 20,
   color: kAltoBlue,
 );
 
 const kHorizontalMonth = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 16,
-  fontWeight: FontWeight.bold,
+  // fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kLookingAtText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 14,
   color: kGreyDarker,
 );
 
 const kOrganizedAmountOfPivs = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kAltoOrganized,
 );
 
 const kUploadedAmountOfPivs = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
 );
 
 const kGridBottomRowText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   fontWeight: FontWeight.bold,
   color: kGreyDarkest,
 );
 
 const kBottomNavigationText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   fontWeight: FontWeight.bold,
 );
 
 const kTaglineText = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   color: kGreyDarker,
 );
 
 const kTaglineTextBold = TextStyle(
-  fontFamily: 'Montserrat',
+  fontFamily: 'Montserrat-Regular',
   fontSize: 12,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
@@ -378,50 +393,52 @@ Color tagColor(String tag) {
   return tagColors[acc % tagColors.length];
 }
 
-String tagType (tag) {
-   if (tag == 'u::') return 'untagged';
-   if (tag == 't::') return 'toOrganize';
-   if (tag == 'o::') return 'organized';
-   if (RegExp('^d::[0-9]').hasMatch(tag)) return 'year';
-   if (RegExp('^d::M').hasMatch(tag)) return 'month';
-   if (RegExp('^g::').hasMatch(tag)) {
-      if (RegExp ('^g::[A-Z]{2}').hasMatch(tag)) return 'country';
-      else return 'city';
-   }
-   return 'usertag';
+String tagType(tag) {
+  if (tag == 'u::') return 'untagged';
+  if (tag == 't::') return 'toOrganize';
+  if (tag == 'o::') return 'organized';
+  if (RegExp('^d::[0-9]').hasMatch(tag)) return 'year';
+  if (RegExp('^d::M').hasMatch(tag)) return 'month';
+  if (RegExp('^g::').hasMatch(tag)) {
+    if (RegExp('^g::[A-Z]{2}').hasMatch(tag))
+      return 'country';
+    else
+      return 'city';
+  }
+  return 'usertag';
 }
 
-String tagTitle (tag) {
-   var type = tagType (tag);
-   if (type == 'untagged') return 'Untagged';
-   if (type == 'toOrganize') return 'To Organize';
-   if (type == 'organized') return 'Organized';
-   if (type == 'year' || type == 'country' || type == 'city') return tag.substring (3);
-   if (type == 'month') return shortMonthNames [int.parse (tag.substring (4)) - 1];
-   return tag;
+String tagTitle(tag) {
+  var type = tagType(tag);
+  if (type == 'untagged') return 'Untagged';
+  if (type == 'toOrganize') return 'To Organize';
+  if (type == 'organized') return 'Organized';
+  if (type == 'year' || type == 'country' || type == 'city')
+    return tag.substring(3);
+  if (type == 'month') return shortMonthNames[int.parse(tag.substring(4)) - 1];
+  return tag;
 }
 
-tagIcon (tag) {
-   var type = tagType (tag);
-   if (type == 'untagged') return kTagIcon;
-   if (type == 'toOrganize') return kBoxArchiveIcon;
-   if (type == 'organized') return kCircleCheckIcon;
-   if (type == 'year' || type == 'month') return kClockIcon;
-   if (type == 'country') return kLocationDotIcon;
-   if (type == 'city') return kLocationPinIcon;
-   return kTagIcon;
+tagIcon(tag) {
+  var type = tagType(tag);
+  if (type == 'untagged') return kTagIcon;
+  if (type == 'toOrganize') return kBoxArchiveIcon;
+  if (type == 'organized') return kCircleCheckIcon;
+  if (type == 'year' || type == 'month') return kClockIcon;
+  if (type == 'country') return kLocationDotIcon;
+  if (type == 'city') return kLocationPinIcon;
+  return kTagIcon;
 }
 
-Color tagIconColor (tag) {
-   var type = tagType (tag);
-   if (type == 'untagged' || type == 'toOrganize') return kGrey;
-   if (type == 'organized') return kAltoOrganized;
-   if (type == 'year' || type == 'month') return kGreyDarker;
-   if (type == 'country' || type == 'city') return kGreyDarker;
-   return tagColor (tag);
+Color tagIconColor(tag) {
+  var type = tagType(tag);
+  if (type == 'untagged' || type == 'toOrganize') return kGrey;
+  if (type == 'organized') return kAltoOrganized;
+  if (type == 'year' || type == 'month') return kGreyDarker;
+  if (type == 'country' || type == 'city') return kGreyDarker;
+  return tagColor(tag);
 }
 
-String shorten (tag) {
+String shorten(tag) {
   return tag.length < 15 ? tag : tag.substring(0, 15) + '...';
 }
-
