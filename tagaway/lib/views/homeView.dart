@@ -7,7 +7,7 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/changePasswordView.dart';
+import 'package:tagaway/views/accountView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HomeView extends StatefulWidget {
@@ -130,10 +130,10 @@ class _HomeViewState extends State<HomeView> {
           UserMenuElementLightGrey(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return const ChangePasswordView();
+                return const AccountView();
               }));
             },
-            textOnElement: 'Change password',
+            textOnElement: 'Account',
           ),
           UserMenuElementLightGrey(
               onTap: () {

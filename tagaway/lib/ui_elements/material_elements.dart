@@ -97,13 +97,18 @@ class RoundedButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: ElevatedButton(
         onPressed: onPressed,
-        child: Text(title, style: kButtonText),
+        child: Text(title,
+            style: SizeService.instance.screenWidth(context) < 380
+                ? kBottomNavigationText
+                : kButtonText),
         style: ElevatedButton.styleFrom(
             backgroundColor: colour,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
-            minimumSize: const Size(200, 42)),
+            minimumSize: SizeService.instance.screenWidth(context) < 380
+                ? const Size(150, 42)
+                : const Size(200, 42)),
       ),
     );
   }
@@ -1063,10 +1068,9 @@ class _GridItemSelectionState extends State<GridItemSelection> {
     ], (v1, v2, v3, v4, v5, v6, v7) {
       setState(() {
         // Tagging mode: set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
-        if (v3 != '')
+        if (v3 != '') {
           mode = v2 == '' ? 'gray' : 'green';
-        // Delete mode
-        else if (v6 != '') {
+        } else if (v6 != '') {
           var currentlyDeletingPivs = v7;
           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
@@ -1092,7 +1096,8 @@ class _GridItemSelectionState extends State<GridItemSelection> {
 
   @override
   Widget build(BuildContext context) {
-    if (mode == 'none') return Visibility(visible: false, child: Text(''));
+    if (mode == 'none')
+      return const Visibility(visible: false, child: Text(''));
     return Icon(
       mode == 'gray' ? kSolidCircleIcon : kCircleCheckIcon,
       color: mode == 'green'
