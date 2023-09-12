@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
@@ -351,6 +352,7 @@ class _UploadedViewState extends State<UploadedView> {
                                                 .hasMatch(tag)) {
                                           actualTag = tag.replaceFirst(
                                               RegExp(' \\(new tag\\)\$'), '');
+                                          actualTag = actualTag.trim();
                                         }
                                         return TagListElement(
                                           // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
@@ -361,6 +363,11 @@ class _UploadedViewState extends State<UploadedView> {
                                           onTap: () {
                                             // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                             return () {
+                                              if (RegExp('^[a-z]::')
+                                                  .hasMatch(actualTag))
+                                                return showSnackbar(
+                                                    'Alas, you cannot use that tag.',
+                                                    'yellow');
                                               StoreService.instance.set(
                                                   'currentlyTaggingUploaded',
                                                   actualTag);
@@ -766,8 +773,8 @@ class _UploadGridState extends State<UploadGrid> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              TagService.instance.queryPivsForMonth(
-                                  monthEdges['nextMonth']);
+                              TagService.instance
+                                  .queryPivsForMonth(monthEdges['nextMonth']);
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(40, 40),
@@ -1020,8 +1027,9 @@ class _TopRowState extends State<TopRow> {
                                               : Colors.white,
                                           onTap: () {
                                             if (month[2] != 'white') {
-                                              TagService.instance.queryPivsForMonth(
-                                                  [month[0], month[1]]);
+                                              TagService.instance
+                                                  .queryPivsForMonth(
+                                                      [month[0], month[1]]);
                                             }
                                           }));
                                     });
