@@ -2,6 +2,7 @@
 
 ## TODO
 
+- Liberate space
 - Finish annotated source code & handle >= 400 errors with snackbar.
 - Forbid tagging with x::
 - Trim tags
@@ -11,7 +12,6 @@
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 
-- Liberate space (Tom)
 - Refresh query with scroll down (Tom)
 - Clean fields after password change (Tom)
 - Write a QA script (Tom)
