@@ -154,6 +154,12 @@ class _HomeViewState extends State<HomeView> {
           UserMenuElementKBlue(
             onTap: () {
               StorageSpaceHelper.getAvailableStorage();
+
+              //   if (Platform.isIOS) {
+              //     StorageSpaceHelper.getAvailableStorage();
+              //   } else if (Platform.isAndroid) {
+              //     StorageSpaceHelperAndroid.getAvailableStorage();
+              //   }
             },
             textOnElement: 'Clear Up Space',
           ),
@@ -311,7 +317,7 @@ class StorageSpaceHelper {
   static Future<int?> getAvailableStorage() async {
     try {
       final int? result = await platform.invokeMethod('getAvailableStorage');
-      print(result);
+      print('$result bytes');
       return result;
     } on PlatformException catch (e) {
       print("Failed to get storage space: '${e.message}'.");
