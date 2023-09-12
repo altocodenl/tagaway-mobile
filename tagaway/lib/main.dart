@@ -7,11 +7,11 @@ import 'package:tagaway/views/accountView.dart';
 import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/distributorView.dart';
-import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/editHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/loginView.dart';
+import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
@@ -24,6 +24,7 @@ int initT = DateTime.now().millisecondsSinceEpoch;
 
 // Used to access content in the service
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
