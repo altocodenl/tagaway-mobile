@@ -1,8 +1,8 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:open_mail_app/open_mail_app.dart';
+import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
@@ -91,6 +91,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.grey[50],
@@ -158,6 +159,7 @@ class _HomeViewState extends State<HomeView> {
               // TODO: open view
               getAvailableStorage();
               PivService.instance.deletePivsByRange ('all');
+              TagawaySpaceCleanerModal1(scaffoldKey.currentContext!);
             },
             textOnElement: 'Clear Up Space',
           ),
