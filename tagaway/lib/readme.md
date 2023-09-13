@@ -14,7 +14,6 @@
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 
 - Refresh query with scroll down (Tom)
-- Clean fields after password change (Tom)
 - Write a QA script (Tom)
 - Add cloud icon for pivs in cloud that are being uploaded (Tom)
 - Draggable selection (Tom)
