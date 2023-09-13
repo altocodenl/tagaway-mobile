@@ -242,6 +242,10 @@ class PivService {
 
    computeHashes () async {
 
+      debug (['DEBUG TOTAL LOCAL PIVS', localPivs.length]);
+
+      debug (['TOTAL HASHES TO COMPUTE', localPivs.where ((piv) => StoreService.instance.get ('hashMap:' + piv.id) == '').toList ().length]);
+
       for (var piv in localPivs) {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
 
@@ -363,5 +367,15 @@ class PivService {
          localPivs.removeAt (k);
       });
       recomputeLocalPages = true;
+   }
+
+   deletePivsByRange (deletionType, [delete = false]) async {
+      num totalSize = 0;
+      localPivs.forEach ((piv) {
+         var date = piv.createDateTime;
+         var size = piv.size;
+         totalSize += size;
+      });
+      debug (['SIZE', totalSize]);
    }
 }
