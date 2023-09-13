@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -156,6 +157,7 @@ class _HomeViewState extends State<HomeView> {
             onTap: () {
               // TODO: open view
               getAvailableStorage();
+              PivService.instance.deletePivsByRange ('all');
             },
             textOnElement: 'Clear Up Space',
           ),
