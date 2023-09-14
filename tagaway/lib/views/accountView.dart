@@ -173,6 +173,9 @@ class _AccountViewState extends State<AccountView> {
                                     'red');
                               }
                               if (value == 200) {
+                                _currentPasswordController.clear();
+                                _newPasswordController.clear();
+                                _repeatNewPasswordController.clear();
                                 return SnackBarGlobal.buildSnackBar(context,
                                     'Change password successful!', 'green');
                               }
