@@ -234,17 +234,21 @@ class PivService {
       if (queriedHashes == false) return;
 
       queriedHashes.forEach ((localId, uploadedId) {
-         if (uploadedId == null) return;
-         StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
-         StoreService.instance.set ('rpivMap:' + uploadedId, localId);
+         if (uploadedId != null) {
+            StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
+            StoreService.instance.set ('rpivMap:' + uploadedId, localId);
+         }
+         else {
+            var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
+            if (oldUploadedId != '') {
+               StoreService.instance.remove ('pivMap:'  + localId);
+               StoreService.instance.remove ('rpivMap:' + oldUploadedId);
+            }
+         }
       });
    }
 
    computeHashes () async {
-
-      debug (['DEBUG TOTAL LOCAL PIVS', localPivs.length]);
-
-      debug (['TOTAL HASHES TO COMPUTE', localPivs.where ((piv) => StoreService.instance.get ('hashMap:' + piv.id) == '').toList ().length]);
 
       for (var piv in localPivs) {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
@@ -369,13 +373,28 @@ class PivService {
       recomputeLocalPages = true;
    }
 
+   // TODO: annotate
    deletePivsByRange (deletionType, [delete = false]) async {
-      num totalSize = 0;
+
+      await queryExistingHashes ();
+
+      var totalSize = 0, pivsToDelete = [];
+
       localPivs.forEach ((piv) {
-         var date = piv.createDateTime;
-         var size = piv.size;
+         var hash = StoreService.instance.get ('hashMap:' + piv.id);
+         if (hash == '') return;
+         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+         if (cloudId == '') return;
+         if (deletionType == '3m') {
+            var date = piv.createDateTime.millisecondsSinceEpoch;
+            var limit = now () - 1000 * 60 * 60 * 24 * 10;
+            if (date > limit) return;
+         }
+         var size = int.parse (hash.split (':') [1]);
          totalSize += size;
+         pivsToDelete.add (piv);
       });
-      debug (['SIZE', totalSize]);
+
+      debug (['DEBUG SIZE', totalSize]);
    }
 }

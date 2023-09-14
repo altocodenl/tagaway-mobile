@@ -158,7 +158,7 @@ class _HomeViewState extends State<HomeView> {
             onTap: () {
               // TODO: open view
               getAvailableStorage();
-              PivService.instance.deletePivsByRange ('all');
+              PivService.instance.deletePivsByRange ('3m');
               TagawaySpaceCleanerModal1(scaffoldKey.currentContext!);
             },
             textOnElement: 'Clear Up Space',

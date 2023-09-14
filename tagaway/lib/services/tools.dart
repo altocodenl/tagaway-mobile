@@ -265,10 +265,9 @@ List getList (dynamic key) {
 }
 
 Future<int?> getAvailableStorage() async {
-  const platform = MethodChannel('nl.tagaway/storage');
+  const platform = MethodChannel ('nl.tagaway/storage');
   try {
-    final int? result = await platform.invokeMethod('getAvailableStorage');
-    print('$result bytes');
+    final int? result = await platform.invokeMethod ('getAvailableStorage');
     return result;
   } catch (e) {
     print(e);

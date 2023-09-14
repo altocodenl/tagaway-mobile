@@ -2,19 +2,25 @@
 
 ## TODO
 
+- Fix double issue with hashing:
+   - Rehashing happens on prod builds, why? Is it a persistence issue?
+   - When a piv is rehashed, why doesn't it disappear from the local pivs?
 - Liberate space
    - Show modal logic
    - Compute liberated space
    - Delete
-- Finish annotated source code & handle >= 400 errors with snackbar.
+- Temporary list of tags for pivs that are in the upload queue.
+- Priorize smaller pivs first in upload queue.
+- Fix delete from inside piv local.
+- Remove warning for: invalid vid atom (server)
 - Dynamize enable/disable geotagging
 - (server) default geotagging enabled
 - Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
+- Finish annotated source code & handle >= 400 errors with snackbar.
 
 - Refresh query with scroll down (Tom)
-- Clean fields after password change (Tom)
 - Write a QA script (Tom)
 - Add cloud icon for pivs in cloud that are being uploaded (Tom)
 - Draggable selection (Tom)
@@ -38,6 +44,8 @@
 -----
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
 - Home: display tags in a better, different way
+- Local: add more tags when tagging so you can tag with multiple tags at the same time
+- Scrollable selection
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
@@ -848,19 +856,29 @@ We iterate the queried hashes. Each of them will connect the id of a local piv w
       queriedHashes.forEach ((localId, uploadedId) {
 ```
 
-If there is no cloud piv that matches this piv, there's nothing to do.
-
-```dart
-         if (uploadedId == null) return;
-```
-
-Otherwise, we set the `pivMap:ID` and `rpivMap:ID` for this pair of pivs. `pivMap` points from a local id to a cloud id, whereas `rpivMap` (the `r` stands for `reverse`) points from a cloud id to a local id.
+If there is a cloud piv that matches this piv, we set the `pivMap:ID` and `rpivMap:ID` for this pair of pivs. `pivMap` points from a local id to a cloud id, whereas `rpivMap` (the `r` stands for `reverse`) points from a cloud id to a local id.
 
 ```dart
          StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
          StoreService.instance.set ('rpivMap:' + uploadedId, localId);
       });
 ```
+
+Otherwise, we will check whether we have a `pivMap:ID` entry. If we do, we remove the stale entries for `pivMap:ID` and `rpivMap:ID`.
+
+```dart
+         else {
+            var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
+            if (oldUploadedId != '') {
+               StoreService.instance.remove ('pivMap:'  + localId);
+               StoreService.instance.remove ('rpivMap:' + oldUploadedId);
+            }
+         }
+```
+
+Note: we do the removal of stale entries *only* because this function is used by another function that deletes local pivs that have been already uploaded. Because of how sensitive is the deletion of local pivs, we want to make sure that any piv that doesn't exist in the server should not be deleted. By removing stale `pivMap` entries, this function avoids the deletion of pivs that are no longer in the server.
+
+This will only be useful if the user has deleted a piv already uploaded *after* they opened the app, and only if they do this deletion from another tagaway client (whether mobile or web). So this is quite the corner case.
 
 There's nothing else to do, so we close the function.
 
