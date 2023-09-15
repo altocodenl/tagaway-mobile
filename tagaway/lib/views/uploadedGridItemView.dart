@@ -27,8 +27,10 @@ class UploadedGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    var piv = StoreService.instance.get('queryResult')['pivs'][pivIndex];
-    pivs = StoreService.instance.get('queryResult')['pivs'];
+    var pivs = [];
+    if (StoreService.instance.get('queryResult') != '') pivs = StoreService.instance.get ('queryResult')['pivs'];
+    var piv = {};
+    if (pivIndex < pivs.length) piv = pivs[pivIndex];
     if (piv['id'] == null)
       return const CircularProgressIndicator(color: kAltoBlue);
     return Stack(
