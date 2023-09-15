@@ -622,10 +622,10 @@ Note: because this function is called by `distributorView`, and because `distrib
       }
 ```
 
-If this is the first time that `loadLocalPivs` was called, we invoke `queryExistingHashes`, to map the hashed local pivs to cloud pivs. We don't need to do this on a recursive call to `loadLocalPivs`, because loading more local pivs will not load up more hashes; rather, all the hashes are either computed or will continue to be computed - we'll see how later.
+We invoke `queryExistingHashes`, to map the hashed local pivs to cloud pivs. If this is a recursive call to `loadLocalPivs`, or we got all the pivs that we need, we will pass a `true` first argument, to clear out stale hash entries. If, however, not all the local pivs have been loaded yet, we cannot clear out stale hash entries, so we pass `false` to `queryExistingHashes` instead.
 
 ```dart
-      if (initialLoad) await queryExistingHashes ();
+      await queryExistingHashes (! initialLoad || localPivs.length < firstLoadSize);
 ```
 
 For all the local pivs that have a cloud counterpart (that we know of), we check whether they are organized or not.
@@ -787,17 +787,21 @@ We return `output` and close the function.
 
 We now define `queryExistingHashes`, a function that will get, for each of the hashes of the local pivs, their cloud counterparts.
 
+This function takes an optional argument, `cleanupStaleHashes`, that if passed as `true` will clear up old `hashMap` entries. This argument will default to `false`.
+
 ```dart
-   queryExistingHashes () async {
+   queryExistingHashes ([cleanupStaleHashes = false]) async {
 ```
 
-We first construct an object/map where each key is the id of a local piv. The value is set to `true` as a mere placeholder.
+We first construct an object/map where each key is the id of a local piv. The value is set to `true` as a mere placeholder. We only set the keys in `localPivVids` if `cleanupStaleHashes` is `true` - otherwise we don't need it.
 
 ```dart
       var localPivIds = {};
-      localPivs.forEach ((v) {
-         localPivIds [v.id] = true;
-      });
+      if (cleanupStaleHashes) {
+         localPivs.forEach ((v) {
+            localPivIds [v.id] = true;
+         });
+      }
 ```
 
 We will create another object/map where each key is the id of a local piv that has a hash already computed.
@@ -824,16 +828,18 @@ We extract the piv id from `hashMap:ID`.
          var id = k.replaceAll ('hashMap:', '');
 ```
 
-If there is no longer a local piv with this id, we remove this hashMap entry. This is useful for clear up hashMap entries for pivs that were deleted. Note that the key is removed from disk. Note also that we don't `await` for this operation, since we want to keep on going as fast as possible in order to get the info from the server, which is necessary to do the first draw of the local view.
-
-```dart
-         if (localPivIds [id] == null) StoreService.instance.remove (k, 'disk');
-```
-
 If there is a local piv with this id, we will set the key `id` of `hashesToQuery` to the value of the hash of this piv.
 
 ```dart
-         else hashesToQuery [id] = StoreService.instance.get (k);
+         if (localPivIds [id] != null) return hashesToQuery [id] = StoreService.instance.get (k);
+```
+
+If there is no local piv with this id, and `cleanupStaleHashes` is `true`, we will remove this hashMap entry. This is useful for clear up hashMap entries for pivs that were deleted. Note that the key is removed from disk. Note also that we don't `await` for this operation, since we want to keep on going as fast as possible in order to get the info from the server, which is necessary to do the first draw of the local view.
+
+Note: the `return` in the previous line was added just to simplify the conditional in the line below.
+
+```dart
+         if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
       }
 ```
 
@@ -926,10 +932,10 @@ We now check if the local piv we just hashed as an uploaded counterpart, by invo
          var queriedHash = await queryHashes ({piv.id: hash});
 ```
 
-If we got a `false`, it may be that we don't have a valid session, or there was another error. In any case, the error will already have been reported already. We will move on to the next piv to keep on hashing.
+If we got a `false`, it may be that we don't have a valid session, we are offline, or there was another error. In any case, the error will already have been reported already. We will stop the hashing process altogether until the user has again the app in a normal state. When the user logs back in (or their connection comes back), the hashing process will start again through `loadLocalPivs`.
 
 ```dart
-         if (queriedHash == false) continue;
+         if (queriedHash == false) break;
 ```
 
 If this local piv has a cloud counterpart, we will set the `pivMap` and `rpivMap` entries for it.

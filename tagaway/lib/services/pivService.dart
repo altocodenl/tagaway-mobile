@@ -163,7 +163,7 @@ class PivService {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
       }
 
-      if (initialLoad) await queryExistingHashes ();
+      await queryExistingHashes (! initialLoad || localPivs.length < firstLoadSize);
 
       await queryOrganizedLocalPivs ();
 
@@ -213,20 +213,21 @@ class PivService {
       return output;
    }
 
-   queryExistingHashes () async {
+   queryExistingHashes ([cleanupStaleHashes = false]) async {
       var localPivIds = {};
-
-      localPivs.forEach ((v) {
-         localPivIds [v.id] = true;
-      });
+      if (cleanupStaleHashes) {
+         localPivs.forEach ((v) {
+            localPivIds [v.id] = true;
+         });
+      }
 
       var hashesToQuery = {};
 
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
          var id = k.replaceAll ('hashMap:', '');
-         if (localPivIds [id] == null) StoreService.instance.remove (k, 'disk');
-         else hashesToQuery [id] = StoreService.instance.get (k);
+         if (localPivIds [id] != null) return hashesToQuery [id] = StoreService.instance.get (k);
+         if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
       }
 
       var queriedHashes = await queryHashes (hashesToQuery);
@@ -257,7 +258,7 @@ class PivService {
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
          var queriedHash = await queryHashes ({piv.id: hash});
-         if (queriedHash == false) continue;
+         if (queriedHash == false) break;
 
          if (queriedHash [piv.id] != null) {
             StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
