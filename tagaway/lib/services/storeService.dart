@@ -87,7 +87,7 @@ class StoreService {
       store [key] = value;
       if (mute != 'mute') updateStream.add (key);
       // Some fields should not be stored, we want these to be in-memory only
-      if (disk == 'disk') prefs.setString (key, jsonEncode (value));
+      if (disk == 'disk') await prefs.setString (key, jsonEncode (value));
    }
 
    get (String key) {
