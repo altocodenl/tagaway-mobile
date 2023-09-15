@@ -226,8 +226,8 @@ class PivService {
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
          var id = k.replaceAll ('hashMap:', '');
-         if (localPivIds [id] != null) return hashesToQuery [id] = StoreService.instance.get (k);
-         if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
+         if (localPivIds [id] != null) hashesToQuery [id] = StoreService.instance.get (k);
+         else if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
       }
 
       var queriedHashes = await queryHashes (hashesToQuery);

@@ -831,15 +831,13 @@ We extract the piv id from `hashMap:ID`.
 If there is a local piv with this id, we will set the key `id` of `hashesToQuery` to the value of the hash of this piv.
 
 ```dart
-         if (localPivIds [id] != null) return hashesToQuery [id] = StoreService.instance.get (k);
+         if (localPivIds [id] != null) hashesToQuery [id] = StoreService.instance.get (k);
 ```
 
 If there is no local piv with this id, and `cleanupStaleHashes` is `true`, we will remove this hashMap entry. This is useful for clear up hashMap entries for pivs that were deleted. Note that the key is removed from disk. Note also that we don't `await` for this operation, since we want to keep on going as fast as possible in order to get the info from the server, which is necessary to do the first draw of the local view.
 
-Note: the `return` in the previous line was added just to simplify the conditional in the line below.
-
 ```dart
-         if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
+         else if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
       }
 ```
 
