@@ -12,6 +12,7 @@ const kAltoPicAppURL = kTagawayURL + 'app';
 const kTagawayThumbSURL = kTagawayURL + 'app/thumb/S/';
 const kTagawayThumbMURL = kTagawayURL + 'app/thumb/M/';
 const kTagawayVideoURL = kTagawayURL + 'app/piv/';
+const kAltoURLDomain = 'altocode.nl';
 const kAltoBlue = Color(0xFF5b6eff);
 const kAltoGreen = Color(0xFF04E762);
 const kAltoOrganized = Color(0xFF00992b);

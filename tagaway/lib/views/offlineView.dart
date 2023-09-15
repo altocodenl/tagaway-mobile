@@ -29,7 +29,7 @@ class _OfflineViewState extends State<OfflineView> {
 
   internetAvailabilityCheck() async {
     try {
-      final result = await InternetAddress.lookup(kAltoURL);
+      final result = await InternetAddress.lookup(kAltoURLDomain);
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         Navigator.pushReplacementNamed(context, 'distributor');
         onlineChecker.cancel();
