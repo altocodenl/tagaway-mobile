@@ -70,4 +70,14 @@ class AuthService {
       }
       return response ['code'];
    }
+
+   geotagging (String operation) async {
+      var response = await ajax ('post', 'geo', {'operation': operation});
+      if (response ['code'] == 200) {
+         showSnackbar ('Geotagging ' + operation + 'd successfully', 'green');
+         return getAccount ();
+      }
+      if (response ['code'] == 409) return showSnackbar ('The server is busy processing a recent geotagging request; please wait a couple of minutes and try again.', 'yellow');
+      showSnackbar ('There was an unexpected error concerning geotagging settings - CODE GEO:' + response ['code'].toString (), 'yellow');
+   }
 }

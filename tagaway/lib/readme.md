@@ -7,8 +7,6 @@
    - Compute liberated space
    - Delete
 - Temporary list of tags for pivs that are in the upload queue.
-- Remove warning for: invalid vid atom (server)
-- Dynamize enable/disable geotagging
 - (server) default geotagging enabled
 - Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
