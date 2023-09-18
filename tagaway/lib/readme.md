@@ -2,9 +2,6 @@
 
 ## TODO
 
-- Fix double issue with hashing:
-   - Rehashing happens on prod builds, why? Is it a persistence issue?
-   - When a piv is rehashed, why doesn't it disappear from the local pivs?
 - Liberate space
    - Show modal logic
    - Compute liberated space
@@ -942,6 +939,12 @@ If this local piv has a cloud counterpart, we will set the `pivMap` and `rpivMap
          if (queriedHash [piv.id] != null) {
             StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
             StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+```
+
+We will also invoke `queryOrganizedIds`, so that if this piv is organized, we will know it. Note we don't `await` for this since this update can happen in the background - we want to keep on hashing pivs as fast as possible.
+
+```dart
+            TagService.instance.queryOrganizedIds ([queriedHash [piv.id]]);
          }
 ```
 
@@ -1139,10 +1142,10 @@ Before we close the iteration on local pivs, you might ask: how do you know that
       });
 ```
 
-We are now done constructing `pages` and are ready to perform updates in the store. We first set `localPagesLength` to the length of local pages, but notice we only do the set if the amount changes. This is to avoid unnecessary updates which would make the  screen to be redrawn - and conequently, the UI to flash.
+We are now done constructing `pages` and are ready to perform updates in the store. We first set `localPagesLength` to the length of local pages.
 
 ```dart
-      if (StoreService.instance.get ('localPagesLength') != pages.length) StoreService.instance.set ('localPagesLength', pages.length);
+      StoreService.instance.set ('localPagesLength', pages.length);
 ```
 
 We iterate the pages, noting both the page itself and its index. We then update `localPage:INDEX` with the new page.

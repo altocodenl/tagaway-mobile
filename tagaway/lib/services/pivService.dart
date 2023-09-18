@@ -263,6 +263,7 @@ class PivService {
          if (queriedHash [piv.id] != null) {
             StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
             StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+            TagService.instance.queryOrganizedIds ([queriedHash [piv.id]]);
          }
       }
    }
@@ -316,9 +317,7 @@ class PivService {
          });
       });
 
-      if (StoreService.instance.get ('localPagesLength') != pages.length) {
-         StoreService.instance.set ('localPagesLength', pages.length);
-      }
+      StoreService.instance.set ('localPagesLength', pages.length);
       pages.asMap ().forEach ((index, page) {
          StoreService.instance.set ('localPage:' + index.toString (), page);
       });
