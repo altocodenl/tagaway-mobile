@@ -28,6 +28,15 @@ class TagService {
          return ! RegExp ('^[a-z]::').hasMatch (tag);
       }).toList ();
 
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+         var pendingTags = StoreService.instance.get (k);
+         if (pendingTags != '') pendingTags.forEach ((tag) {
+            if (! usertags.contains (tag)) usertags.add (tag);
+         });
+      });
+      usertags.sort ();
+
       StoreService.instance.set ('usertags', usertags);
 
       StoreService.instance.set ('lastNTags', getList ('lastNTags').where ((tag) {
@@ -296,7 +305,7 @@ class TagService {
       }
       computeTimeHeader ();
 
-      if (queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
+      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
          queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 
@@ -307,7 +316,7 @@ class TagService {
       }
       else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
 
-      if (queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
+      if (queryResult ['total'] > 0 && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
 
@@ -320,7 +329,7 @@ class TagService {
 
       getTags ();
 
-      if (queryResult ['pivs'].last ['placeholder'] == null) return 200;
+      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
 
       response = await ajax ('post', 'query', {
          'tags': tags,

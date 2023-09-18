@@ -6,8 +6,6 @@
    - Show modal logic
    - Compute liberated space
    - Delete
-- Temporary list of tags for pivs that are in the upload queue.
-- (server) default geotagging enabled
 - Stop flickering when opening FAB or clicking on "done".
 - Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
@@ -62,13 +60,13 @@
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
-- lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded.
+- lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
 - localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}` - contains all the pages of local pivs to be shown, one per grid.
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
 - localYear <str>: displayed year in LocalView time header
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
-- pendingDeletion:<assetId> <true|undefined> [DISK]: if set, the piv must be deleted after it being uploaded.
+- pendingDeletion:<assetId> <true|undefined> [DISK]: if set, the piv must be deleted after it being uploaded - deleted on logout.
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet - deleted on logout.
 - pivDate:<assetId> <int>: date of each local piv
 - pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`. They are temporarily set to `true` for pivs on the upload queue.
@@ -1449,9 +1447,7 @@ If we're here, the request was successful. We set `hometags` and `tags` in the s
       StoreService.instance.set ('tags',     response ['body'] ['tags']);
 ```
 
-We also set `usertags` in the store, taking all the tags and filtering out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally).
-
-Essentially, `usertags` will contain all the "normal" tags that a user can use.
+We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.
 
 We store usertags in a local variable, because we'll use it repeatedly below.
 
@@ -1459,7 +1455,34 @@ We store usertags in a local variable, because we'll use it repeatedly below.
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);
       }).toList ());
+```
 
+We iterate all the `pendingTags` entries to see if there are any usertags in there that are not in the server yet. This might be the case if a user tagged a queued piv with a new tag that is not on the server yet.
+
+```dart
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+         var pendingTags = StoreService.instance.get (k);
+```
+
+For each pending tag, if it is not contained in `usertags`, we add it.
+
+```dart
+         if (pendingTags != '') pendingTags.forEach ((tag) {
+            if (! usertags.contains (tag)) usertags.add (tag);
+         });
+      });
+```
+
+We sort the usertags so that they are ordered again, in case we added some from `pendingTags`.
+
+```dart
+      usertags.sort ();
+```
+
+We now set `usertags` in the store.
+
+```dart
       StoreService.instance.set ('usertags', usertags);
 ```
 
@@ -1955,10 +1978,10 @@ Now that `queryResult.timeHeader` and `currentMonth` are placed, we can compute 
       computeTimeHeader ();
 ```
 
-If we got the last 300 pivs, we might have gotten too many pivs! To know this, we look at the number of pivs belonging to the last month in `lastMonth`. If we have less than 300 pivs for the last month, we remove the extra pivs from `queryResult ['pivs']`.
+If we got the last 300 pivs, we might have gotten too many pivs! To know this, we look at the number of pivs belonging to the last month in `lastMonth`. If we have less than 300 pivs for the last month, we remove the extra pivs from `queryResult ['pivs']`. Note we do not do this if we get no pivs from the query.
 
 ```dart
-      if (queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
+      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
          queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 ```
@@ -1982,7 +2005,7 @@ Otherwise, we don't know whether they are organized or not, so we ask the server
 If we have more pivs in the month than the pivs we brought, we will generate placeholder entries in `queryResult ['pivs']` for those that we don't have yet. This will allow us later to add the missing pivs without triggering a redraw. We know how many pivs we're missing because that info comes back in `queryResult ['lastMonth'] [1]`.
 
 ```dart
-      if (queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
+      if (queryResult ['total'] > 0 && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
 ```
@@ -2004,12 +2027,12 @@ While we are at it, it's a good idea to refresh the list of tags. This is useful
       getTags ();
 ```
 
-If the last piv in `queryResult ['pivs']` is not a placeholder entry, then we loaded all the pivs we needed. We return 200.
+If the last piv in `queryResult ['pivs']` is not a placeholder entry, or if there are no pivs in the query, then we loaded all the pivs we needed. We return 200.
 
 Note: to know if we are missing pivs or not, we cannot compare the length of `queryResult ['pivs']` against `queryResult ['timeHeader'] [1]` because we already changed the length of the former!
 
 ```dart
-      if (queryResult ['pivs'].last ['placeholder'] == null) return 200;
+      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
 ```
 
 If we're here, we need to get all the pivs for the month. We do so by requesting all the pivs from 1 to the total number of pivs in the month.
