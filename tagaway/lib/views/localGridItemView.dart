@@ -390,8 +390,8 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
                           Expanded(
                             child: IconButton(
                               onPressed: () {
-                                // TagService.instance.deleteUploadedPivs([piv['id']]);
-                                // Local pivs delete
+                                PivService.instance
+                                  .deleteLocalPivs([widget.videoFile.id]);
                                 Navigator.pop(context);
                               },
                               icon: const Icon(

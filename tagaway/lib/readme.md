@@ -7,7 +7,6 @@
    - Compute liberated space
    - Delete
 - Temporary list of tags for pivs that are in the upload queue.
-- Fix delete from inside piv local.
 - Remove warning for: invalid vid atom (server)
 - Dynamize enable/disable geotagging
 - (server) default geotagging enabled
