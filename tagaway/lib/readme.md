@@ -7,7 +7,6 @@
    - Compute liberated space
    - Delete
 - Temporary list of tags for pivs that are in the upload queue.
-- Priorize smaller pivs first in upload queue.
 - Fix delete from inside piv local.
 - Remove warning for: invalid vid atom (server)
 - Dynamize enable/disable geotagging
@@ -445,7 +444,31 @@ You might have suspected that `queuePiv` does more than just putting pivs in the
 
 The underlying design decision here is that there should only be a single concurrent upload at a time; that is, only one piv should be uploaded at a time. But as soon as that piv is uploaded, the next piv should be picked up from the queue (if any).
 
-We pick up the next piv from the queue.
+Before we pick up the first piv from the queue, we will sort the queue to put the smallest pivs first. The objective is to upload pivs as quickly as possible, which is what is most useful from an organization perspective. It also gives the user a sense of progress.
+
+Getting the size of the piv is not as easy as it may seem; if we want to get the bytes, we need to call the OS which takes time. Instead, we are going to make use of the fact that most local pivs are already hashed. The second part of the hash is the size of the pivs in bytes.
+
+```dart
+      uploadQueue.sort ((a, b) {
+         var sizeA = StoreService.instance.get ('hashMap:' + a.id);
+         var sizeB = StoreService.instance.get ('hashMap:' + b.id);
+```
+
+If a piv has no hash cmoputed, we set its size (for the purposes of hashing) to a large number (1GB). Otherwise, we get the size from the second part of the hash.
+
+```dart
+         sizeA = sizeA == '' ? 1000 * 1000 * 1000 : int.parse (sizeA.split (':') [1]);
+         sizeB = sizeB == '' ? 1000 * 1000 * 1000 : int.parse (sizeB.split (':') [1]);
+```
+
+We sort the upload queue to contain the smallest pivs first.
+
+```dart
+         return sizeA.compareTo (sizeB);
+      });
+```
+
+Now that we sorted `uploadQueue`, we pick up the next piv from the queue.
 
 ```dart
       var nextPiv = uploadQueue [0];

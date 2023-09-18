@@ -355,6 +355,9 @@ class TagService {
       return 200;
    }
 
+   // TODO: annotate the code below
+
+
    queryPivsForMonth (dynamic currentMonth) async {
 
       var tags = StoreService.instance.get ('queryTags');
@@ -403,8 +406,6 @@ class TagService {
       getTags ();
       return 200;
    }
-
-   // TODO: annotate the code below
 
   toggleQueryTag (String tag) {
     // We copy it to avoid the update not triggering anything

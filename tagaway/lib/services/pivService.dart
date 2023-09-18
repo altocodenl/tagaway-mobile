@@ -101,7 +101,16 @@ class PivService {
          uploading = true;
       }
 
+      uploadQueue.sort ((a, b) {
+         var sizeA = StoreService.instance.get ('hashMap:' + a.id);
+         var sizeB = StoreService.instance.get ('hashMap:' + b.id);
+         sizeA = sizeA == '' ? 1000 * 1000 * 1000 : int.parse (sizeA.split (':') [1]);
+         sizeB = sizeB == '' ? 1000 * 1000 * 1000 : int.parse (sizeB.split (':') [1]);
+         return sizeA.compareTo (sizeB);
+      });
+
       var nextPiv = uploadQueue [0];
+
       var result = await uploadPiv (nextPiv);
 
       if ([0, 403].contains (result ['code'])) return;
