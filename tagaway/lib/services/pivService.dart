@@ -396,14 +396,14 @@ class PivService {
          if (cloudId == '') return;
          if (deletionType == '3m') {
             var date = piv.createDateTime.millisecondsSinceEpoch;
-            var limit = now () - 1000 * 60 * 60 * 24 * 10;
-            if (date > limit) return;
+            var limit = now () - 1000 * 60 * 60 * 24 * 90;
+            if (date > limit) return debug (['skipping', piv]);
          }
          var size = int.parse (hash.split (':') [1]);
          totalSize += size;
          pivsToDelete.add (piv);
       });
 
-      debug (['DEBUG SIZE', totalSize]);
+      debug (['DEBUG SIZE', totalSize, pivsToDelete.length]);
    }
 }
