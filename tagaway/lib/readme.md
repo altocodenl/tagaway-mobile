@@ -7,15 +7,8 @@
    - Compute liberated space
    - Delete
 - Stop flickering when opening FAB or clicking on "done".
-- Remove edit & delete tag buttons after cancel or when tapping anywhere else
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.
-
-- Refresh query with scroll down (Tom)
-- Write a QA script (Tom)
-- Add cloud icon for pivs in cloud that are being uploaded (Tom)
-- Draggable selection (Tom)
-
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
@@ -31,11 +24,17 @@
    - Ops on piv:
       - Delete: remove from queue
       - Tag/untag: change pendingTags
-   - Icon
+   - Add cloud icon for pivs in cloud that are being uploaded (Tom)
+   - Add icon
+
+- Refresh query with scroll down (Tom)
+- Write a QA script (Tom)
+- Draggable selection (Tom)
+
 -----
+- Local: add more tags when tagging so you can tag with multiple tags at the same time
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
 - Home: display tags in a better, different way
-- Local: add more tags when tagging so you can tag with multiple tags at the same time
 - Scrollable selection
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
