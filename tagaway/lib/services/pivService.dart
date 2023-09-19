@@ -54,6 +54,8 @@ class PivService {
          'lastModified': piv.createDateTime.millisecondsSinceEpoch
       }, file.path);
 
+      clearFile (file);
+
       if (response ['code'] != 200) return response;
 
       StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);

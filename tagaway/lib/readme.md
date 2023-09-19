@@ -264,6 +264,12 @@ We send the actual piv to the server using the `ajaxMulti` function. Besides the
       }, file.path);
 ```
 
+We invoke `clearFile` (defined in `tools.dart`) passing the `file` as argument, to clear it out from the phone's cache.
+
+```dart
+      clearFile (file);
+```
+
 If we do not get a 200, we return the response and do not do anything else. The calling function, `queuePiv` (which we'll define later) will handle any errors.
 
 ```dart

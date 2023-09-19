@@ -240,8 +240,19 @@ hashPiv (dynamic pivId) async {
       else                                                       hash = murmurhashV3 (Uint8List.fromList (currentData), 0, hash);
    }
    if (remainder.length > 0) hash = murmurhashV3 (Uint8List.fromList (remainder), 0, hash, fileLength);
+   // Note that we do not await for this, we just want to clear it out in the background.
+   clearFile (file);
    return hash.toString () + ':' + fileLength.toString ();
 }
+
+clearFile (dynamic file) async {
+   if (await file.exists () != true) return;
+   // https://github.com/fluttercandies/flutter_photo_manager/tree/main#cache-on-ios
+   if (Platform.isIOS) await file.delete ();
+   // https://github.com/fluttercandies/flutter_photo_manager/tree/main#clear-caches
+   await PhotoManager.clearFileCache ();
+}
+
 
 showSnackbar (String message, String color) {
    var context = navigatorKey.currentState?.context;
