@@ -2,11 +2,8 @@
 
 ## TODO
 
-- Liberate space
-   - Show modal logic
-   - Compute liberated space
-   - Delete
 - Stop flickering when opening FAB or clicking on "done".
+- Local: add more tags when tagging so you can tag with multiple tags at the same time
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -32,7 +29,6 @@
 - Draggable selection (Tom)
 
 -----
-- Local: add more tags when tagging so you can tag with multiple tags at the same time
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
 - Home: display tags in a better, different way
 - Scrollable selection
@@ -1229,8 +1225,10 @@ This concludes the initialization logic and the function itself.
 
 We now define `deleteLocalPivs`, the function that will delete local pivs from the phone. It takes a single argument, `ids`, which is an array of the ids of the asssets to be deleted.
 
+The function also takes an optional argument, `reportBytes`, which if present will be a number of bytes liberated by a successful deletion, which will be printed in a snackbar.
+
 ```dart
-   deleteLocalPivs (ids) async {
+   deleteLocalPivs (ids, [reportBytes = null]) async {
 ```
 
 We first start by iterating our `uploadQueue`, since it's *essential* that we do not delete pivs that are in the upload queue. If we didn't do this, users may well tag a piv, consider it uploaded (even if it's not) and then delete it, which would mean that the user would lose the file forever!
@@ -1363,10 +1361,101 @@ We finally set `recomputeLocalPages` to `true`, to indicate that we need to reco
       recomputeLocalPages = true;
 ```
 
+If `reportBytes` was passed to `deleteLocalPivs`, we print a message in the snackbar, using the `reportBytes` value. Note we use `printBytes`, a function defined in `tools.dart`, to format the number.
+
+```dart
+      if (reportBytes != null) showSnackbar ('You have freed up ' + printBytes (reportBytes) + ' of space!', 'green');
+```
+
 This concludes the function.
 
 ```dart
   }
+```
+
+We now define `deletePivsByRange`, a function that will be used to liberate space on the phone by potentially deleting local pivs that are already uploaded.
+
+The function takes two arguments, `deletionType` (which can be either `'3m'`, to signify pivs older than 90 days; or `'all'`, to signify all pivs); and an optional argument, `delete`, which will actually perform a deletion rather than just report on what would be deleted. By default, `delete` is set to `false`.
+
+```dart
+   deletePivsByRange (String deletionType, [delete = false]) async {
+```
+
+We start by invoking `queryExistingHashes`. This is critical if, since the last time that the user loaded the app, some pivs have been deleted from the cloud in another tagaway client (be it mobile or web). By making this call, we make sure to know which local pivs are currently also uploaded to the cloud.
+
+```dart
+      await queryExistingHashes ();
+```
+
+We create two accumulator variables, one for the total size of the pivs that can be deleted; and a list containing the ids of the pivs we will potentially delete.
+
+```dart
+      var totalSize = 0, pivsToDelete = [];
+```
+
+We iterate the local pivs.
+
+```dart
+      localPivs.forEach ((piv) {
+```
+
+If we have a `hashMap` entry for the piv, and we also have a `pivMap` entry for the piv, we are certain that the piv is also in the cloud.
+
+```dart
+         var hash = StoreService.instance.get ('hashMap:' + piv.id);
+         if (hash == '') return;
+         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+         if (cloudId == '') return;
+```
+
+You may ask: isn't it enough to check whether there is a `pivMap` entry? And you'd be right. However, we need to have the hash of the piv in order to know its size without having to check with the OS. So we take the shortcut of ignoring pivs without a `hashMap` entry; in any case, any local pivs uploaded through the app will already have a `hashMap` entry, so this should not exclude any pivs uploaded through the phone. This might only affect users that deleted the app and then reinstalled it, and who are using this functionality before the background process that hashes all pivs (`computeHashes`) is done.
+
+If `deletionType` is `'3m'` and the piv is not older than 90 days, we exclude it.
+
+```dart
+         if (deletionType == '3m') {
+            var date = piv.createDateTime.millisecondsSinceEpoch;
+            var limit = now () - 1000 * 60 * 60 * 24 * 90;
+            if (date > limit) return;
+         }
+```
+
+If we're here, we consider this piv for deletion. We first obtain the size of the piv in bytes from the second part of the hash.
+
+```dart
+         var size = int.parse (hash.split (':') [1]);
+```
+
+We increment `totalSize` by the size of the piv; we then add the piv's id to `pivsToDelete`. This concludes the loop over local pivs.
+
+```dart
+         totalSize += size;
+         pivsToDelete.add (piv.id);
+      });
+```
+
+If `delete` is `false`, we will just return the total size liberated.
+
+```dart
+      if (! delete) return totalSize;
+```
+
+If there are no pivs to delete, we will print a message in the snackbar.
+
+```dart
+      if (pivsToDelete.isEmpty) return showSnackbar ('Alas, there are no pivs to delete that are organized.', 'yellow');
+```
+
+If there are pivs to delete, we will invoke `deleteLocalPivs` with `pivsToDelete` and `totalSize` as arguments. `totalSize` is passed as well because the success snackbar can only happen only if the user actually deletes the pivs (and only after they do it), and the logic for detecting this resides in `deleteLocalPivs`.
+
+```dart
+      await deleteLocalPivs (pivsToDelete, totalSize);
+```
+
+This concludes the function.
+
+```dart
+   }
 ```
 
 This concludes the `PivService` class.

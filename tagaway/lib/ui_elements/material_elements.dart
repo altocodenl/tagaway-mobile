@@ -2,8 +2,10 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
@@ -1408,7 +1410,8 @@ class _StartButtonState extends State<StartButton> {
   }
 }
 
-void TagawaySpaceCleanerModal1(BuildContext context) {
+void TagawaySpaceCleanerModal1(
+    BuildContext context, int availableBytes, int potentialCleanup) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -1444,12 +1447,12 @@ void TagawaySpaceCleanerModal1(BuildContext context) {
                     ],
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
                   child: Text(
-                    'You have '
-                    'X.X'
-                    ' GB of available space in your device.',
+                    'You have ' +
+                        printBytes(availableBytes) +
+                        ' of available space in your device.',
                     textAlign: TextAlign.center,
                     style: kPlainTextBold,
                   ),
@@ -1462,10 +1465,12 @@ void TagawaySpaceCleanerModal1(BuildContext context) {
                     style: kPlainTextBold,
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
                   child: Text(
-                    'You will free up to ' 'X.X' ' GB of space.',
+                    'You will free up to ' +
+                        printBytes(potentialCleanup) +
+                        ' of space.',
                     textAlign: TextAlign.center,
                     style: kPlainTextBold,
                   ),
@@ -1653,7 +1658,10 @@ void TagawaySpaceCleanerModal2(BuildContext context) {
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                       border: Border.all(color: kGreyLight, width: .5)),
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      PivService.instance.deletePivsByRange('3m', true);
+                    },
                     child: const Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 10.0),
                       child: Text(
@@ -1674,7 +1682,10 @@ void TagawaySpaceCleanerModal2(BuildContext context) {
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                       border: Border.all(color: kGreyLight, width: .5)),
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      PivService.instance.deletePivsByRange('all', true);
+                    },
                     child: const Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 10.0),
                       child: Text(

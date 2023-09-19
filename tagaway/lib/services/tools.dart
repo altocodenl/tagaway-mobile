@@ -264,7 +264,7 @@ List getList (dynamic key) {
    return value.toList ();
 }
 
-Future<int?> getAvailableStorage() async {
+getAvailableStorage () async {
   const platform = MethodChannel ('nl.tagaway/storage');
   try {
     final int? result = await platform.invokeMethod ('getAvailableStorage');
@@ -273,4 +273,9 @@ Future<int?> getAvailableStorage() async {
     print(e);
     return null;
   }
+}
+
+printBytes (int bytes) {
+   if (bytes < 1000 * 1000 * 1000) return ((bytes / (1000 * 100)).round () / 10).toString () + 'MB';
+   return ((bytes / (1000 * 1000 * 100)).round () / 10).toString () + 'GB';
 }

@@ -49,6 +49,18 @@ class _HomeViewState extends State<HomeView> {
       if (statusCode == 403)
         Navigator.pushReplacementNamed(context, 'distributor');
     });
+    (() async {
+      // AVAILABILITY THRESHOLD TO SHOW MODAL: 1GB
+      var availableThreshold = 1000 * 1000 * 1000 * 1000;
+      // POTENTIAL THRESHOLD TO SHOW MODAL: 100MB
+      var potentialThreshold = 100 * 1000 * 1000;
+      var availableBytes = await getAvailableStorage();
+      var potentialCleanup = await PivService.instance.deletePivsByRange('all');
+      if (availableBytes < availableThreshold &&
+          potentialCleanup > potentialThreshold)
+        TagawaySpaceCleanerModal1(scaffoldKey.currentContext!, availableBytes,
+            potentialCleanup);
+    })();
   }
 
   @override
@@ -155,12 +167,12 @@ class _HomeViewState extends State<HomeView> {
               },
               textOnElement: 'Delete My Account'),
           UserMenuElementKBlue(
-            onTap: () {
-              // TODO: open view
-              getAvailableStorage();
-              PivService.instance.deletePivsByRange ('3m');
-              PivService.instance.deletePivsByRange ('all');
-              TagawaySpaceCleanerModal1(scaffoldKey.currentContext!);
+            onTap: () async {
+              var availableBytes = await getAvailableStorage();
+              var potentialCleanup =
+                  await PivService.instance.deletePivsByRange('all');
+              TagawaySpaceCleanerModal1(scaffoldKey.currentContext!,
+                  availableBytes, potentialCleanup);
             },
             textOnElement: 'Clear Up Space',
           ),

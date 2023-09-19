@@ -347,7 +347,7 @@ class PivService {
       }
    }
 
-   deleteLocalPivs (ids) async {
+   deleteLocalPivs (ids, [reportBytes = null]) async {
       uploadQueue.forEach ((queuedPiv) {
          if (! ids.contains (queuedPiv.id)) return;
          StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
@@ -380,10 +380,10 @@ class PivService {
          localPivs.removeAt (k);
       });
       recomputeLocalPages = true;
+      if (reportBytes != null) showSnackbar ('You have freed up ' + printBytes (reportBytes) + ' of space!', 'green');
    }
 
-   // TODO: annotate
-   deletePivsByRange (deletionType, [delete = false]) async {
+   deletePivsByRange (String deletionType, [delete = false]) async {
 
       await queryExistingHashes ();
 
@@ -397,13 +397,16 @@ class PivService {
          if (deletionType == '3m') {
             var date = piv.createDateTime.millisecondsSinceEpoch;
             var limit = now () - 1000 * 60 * 60 * 24 * 90;
-            if (date > limit) return debug (['skipping', piv]);
+            if (date > limit) return;
          }
          var size = int.parse (hash.split (':') [1]);
          totalSize += size;
-         pivsToDelete.add (piv);
+         pivsToDelete.add (piv.id);
       });
 
-      debug (['DEBUG SIZE', totalSize, pivsToDelete.length]);
+      if (! delete) return totalSize;
+
+      if (pivsToDelete.isEmpty) return showSnackbar ('Alas, there are no pivs to delete that are organized.', 'yellow');
+      await deleteLocalPivs (pivsToDelete, totalSize);
    }
 }
