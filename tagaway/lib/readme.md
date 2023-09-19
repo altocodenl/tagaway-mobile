@@ -2,7 +2,10 @@
 
 ## TODO
 
-- Stop flickering when opening FAB or clicking on "done".
+- Reduce flickering in local view by separating parts of it into their own widgets, lowering the state.
+   - "tag your pics and videos": depends on usertags
+   - toprow: already separated
+   - FAB buttons: put listener inside widget
 - Local: add more tags when tagging so you can tag with multiple tags at the same time
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.

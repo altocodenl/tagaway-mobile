@@ -168,6 +168,7 @@ class _LocalViewState extends State<LocalView> {
           children: [
             Grid(localPagesIndex: index),
             TopRow(localPagesIndex: index),
+            // Done button
             Visibility(
                 visible: currentlyTagging != '' || currentlyDeleting,
                 child: Align(
@@ -202,12 +203,14 @@ class _LocalViewState extends State<LocalView> {
                       label: const Text('Done', style: kSelectAllButton),
                       icon: const Icon(Icons.done),
                     ))),
+            // Start button
             Visibility(
                 visible: currentlyTagging == '' && !currentlyDeleting,
                 child: const StartButton(
                     buttonKey: Key('local-start-tagging'),
                     buttonText: 'Start',
                     showButtonsKey: 'showButtonsLocal')),
+            // Delete button
             Visibility(
                 visible: showButtons,
                 child: DeleteButton(
@@ -219,6 +222,7 @@ class _LocalViewState extends State<LocalView> {
                     };
                   },
                 )),
+            // Tag button
             Visibility(
                 visible: showButtons,
                 child: TagButton(
@@ -230,6 +234,7 @@ class _LocalViewState extends State<LocalView> {
                     };
                   },
                 )),
+            // Tag pivs scrollable list
             Visibility(
                 visible: currentlyTagging == '',
                 child: Align(
