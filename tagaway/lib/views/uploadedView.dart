@@ -732,12 +732,20 @@ class _UploadGridState extends State<UploadGrid> {
     gridController.dispose();
   }
 
+  Future<void> _refreshData() async {
+    await Future.delayed(const Duration(seconds: 4));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0, top: 180),
-      child: SizedBox.expand(
-        child: Directionality(
+      child: RefreshIndicator(
+        displacement: 70,
+        color: kAltoBlue,
+        onRefresh: _refreshData,
+        child: SizedBox.expand(
+          child: Directionality(
             textDirection: TextDirection.rtl,
             child: GridView.builder(
                 controller: gridController,
@@ -866,7 +874,9 @@ class _UploadGridState extends State<UploadGrid> {
                   return UploadedGridItem(
                       key: Key('uploaded-' + index.toString()),
                       pivIndex: index - 1);
-                })),
+                }),
+          ),
+        ),
       ),
     );
   }
