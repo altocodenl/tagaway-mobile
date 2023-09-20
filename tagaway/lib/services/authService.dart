@@ -43,7 +43,6 @@ class AuthService {
       await StoreService.instance.remove ('pendingTags:*',     'disk');
       await StoreService.instance.remove ('pendingDeletion:*', 'disk');
       StoreService.instance.store = {};
-      var context = navigatorKey.currentState?.context;
       navigatorKey.currentState!.pushReplacementNamed ('login');
       // We wait a full second because if we try to reload the store from disk while redraws are taking place after the logout, things break.
       // The only reason we need to reload is to avoid re-hashing if the user logs back in in the current run of the app.

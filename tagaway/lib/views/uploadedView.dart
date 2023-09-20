@@ -57,7 +57,7 @@ class _UploadedViewState extends State<UploadedView> {
   final TextEditingController renameTagController = TextEditingController();
 
   dynamic usertags = [];
-  String currentlyTagging = '';
+  dynamic currentlyTagging = '';
   bool swiped = false;
   bool currentlyDeleting = false;
   bool currentlyDeletingModal = false;
@@ -370,7 +370,10 @@ class _UploadedViewState extends State<UploadedView> {
                                                     'yellow');
                                               StoreService.instance.set(
                                                   'currentlyTaggingUploaded',
-                                                  actualTag);
+                                                  currentlyTagging == ''
+                                                      ? [actualTag]
+                                                      : currentlyTagging +
+                                                          [actualTag]);
                                             };
                                           },
                                         );
@@ -875,7 +878,7 @@ class TopRow extends StatefulWidget {
 class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
 
-  String currentlyTagging = '';
+  dynamic currentlyTagging = '';
   dynamic taggedPivCount = '';
   dynamic timeHeader = [];
   dynamic queryTags = [];
@@ -1052,29 +1055,30 @@ class _TopRowState extends State<TopRow> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 12, right: 12),
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Text(
-                          'Now tagging with',
-                          style: kLookingAtText,
-                        ),
+                  child: Row(children: (() {
+                    List<Widget> output = [];
+                    output.add(const Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        'Now tagging with',
+                        style: kLookingAtText,
                       ),
-                      GridTagElement(
-                        gridTagElementIcon: kTagIcon,
-                        iconColor: tagColor(currentlyTagging),
-                        gridTagName: currentlyTagging,
+                    ));
+                    currentlyTagging.forEach((tag) {
+                      output.add(GridTagUploadedQueryElement(
+                          gridTagElementIcon: tagIcon(tag),
+                          iconColor: tagIconColor(tag),
+                          gridTagName: tagTitle(tag)));
+                    });
+                    output.add(Expanded(
+                      child: Text(
+                        taggedPivCount.toString(),
+                        textAlign: TextAlign.right,
+                        style: kOrganizedAmountOfPivs,
                       ),
-                      Expanded(
-                        child: Text(
-                          taggedPivCount.toString(),
-                          textAlign: TextAlign.right,
-                          style: kOrganizedAmountOfPivs,
-                        ),
-                      )
-                    ],
-                  ),
+                    ));
+                    return output;
+                  })()),
                 ),
               )
             : Container(),

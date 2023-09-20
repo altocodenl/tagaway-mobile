@@ -71,17 +71,19 @@ class TagService {
       StoreService.instance.set ('lastNTags', lastNTags, 'disk');
    }
 
-   tagCloudPiv (String id, String tag, bool del) async {
-      var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
-      if (response ['code'] != 200) return response ['code'];
+   tagCloudPiv (String id, dynamic tags, bool del) async {
+      for (var tag in tags) {
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+         if (response ['code'] != 200) return response ['code'];
+      }
 
       await queryOrganizedIds ([id]);
 
       var hometags = StoreService.instance.get ('hometags');
-      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
 
       var code = await queryPivs (true);
-      if (code != 200) return response ['code'];
+      if (code != 200) return 200;
 
       var total = StoreService.instance.get ('queryResult') ['total'];
       if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
@@ -90,10 +92,10 @@ class TagService {
          StoreService.instance.set ('queryTags', []);
          await queryPivs ();
       }
-      return response ['code'];
+      return 200;
    }
 
-   tagPiv (dynamic piv, String tag, String type) async {
+   tagPiv (dynamic piv, dynamic tags, String type) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
       var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 
@@ -108,10 +110,10 @@ class TagService {
          StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
       }
 
-      updateLastNTags (tag);
+      tags.forEach ((tag) => updateLastNTags (tag));
 
       if (cloudId != '' && cloudId != true) {
-         var code = await tagCloudPiv (cloudId, tag, untag);
+         var code = await tagCloudPiv (cloudId, tags, untag);
          var unexpectedCode = type == 'local' ? (code != 200 && code != 404) : code != 200;
          if (unexpectedCode) {
             return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'local' ? 'L' : 'C') + code.toString (), 'yellow');
@@ -128,7 +130,7 @@ class TagService {
       var pendingTags = StoreService.instance.get ('pending:' + pivId);
       if (pendingTags == '') pendingTags = [];
 
-      untag ? pendingTags.remove (tag) : pendingTags.add (tag);
+      tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
 
       if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + pivId, pendingTags, 'disk');
       else                        StoreService.instance.remove ('pendingTags:' + pivId, 'disk');
@@ -149,18 +151,18 @@ class TagService {
 
    // TODO: annotate the code below
 
-   getTaggedPivs (String tag, String type) async {
+   getTaggedPivs (dynamic tags, String type) async {
       var existing = [], New = [];
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
          if (type == 'local') {
-            if (RegExp ('^pendingTags:').hasMatch (k)) {
-               if (StoreService.instance.get (k).contains (tag)) New.add (k.split (':') [1]);
+            if (RegExp ('^pendingTags:').hasMatch (k) && StoreService.instance.get (k) != '') {
+               if (StoreService.instance.get (k).any ((tag) => tags.contains (tag))) New.add (k.split (':') [1]);
             }
          }
       });
       var response = await ajax ('post', 'query', {
-         'tags':    [tag],
+         'tags':    tags,
          'sort':    'newest',
          'from':    1,
          'to':      100000,

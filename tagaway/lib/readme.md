@@ -6,7 +6,11 @@
    - "tag your pics and videos": depends on usertags
    - toprow: already separated
    - FAB buttons: put listener inside widget
-- Local: add more tags when tagging so you can tag with multiple tags at the same time
+- Local: add more tags when tagging so you can tag with multiple tags at the same time [only interface remaining]
+- Replace eye with settings with modal with two options:
+   - Eye with explanation
+   - Show camera pivs only vs show all pivs
+   - Implement logic for showing camera pivs only
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -309,15 +313,19 @@ The practical reason for preventively setting this entry is that the tagging ope
          StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
 ```
 
-We now iterate the tags in `pendingTags` and invoke `tagCloudPiv`. Rather than waiting for each tagging operation to conclude, we fire them concurrently since we want to continue the next upload as soon as possible. This will be done by the `forEach`, which will not await for any `await` inside of it.
+We now invoke `tagCloudPiv`, passing to it `pendingTags`, as well as the id of the cloud id.
 
-However, if any of the tagging operation fails, we will report the error to the user when that operation concludes. We will only report if the error is neither a code 0 (no connection) or a 403 (invalid session).
+We will only print an error if the error is neither a code 0 (no connection) or a 403 (invalid session).
 
 ```dart
-         pendingTags.forEach ((tag) async {
-            var code = await TagService.instance.tagCloudPiv (response ['body'] ['id'], tag, false);
-            if (! [0, 200, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
-         });
+         var code = await TagService.instance.tagCloudPiv (response ['body'] ['id'], pendingTags, false);
+         if (! [0, 200, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
+```
+
+If we experienced an error, we return the error code.
+
+```dart
+         if (code != 200) return {'code': code};
 ```
 
 This concludes the logic for tagging the uploaded piv.
@@ -1691,23 +1699,30 @@ We now define `tagCloudPiv`, the function that will tag (or untag) a cloud piv.
 The function takes three parameters:
 
 - `id`, the id of the cloud piv that we want to tag/untag.
-- `tag`, the tag itself.
+- `tags`, a list of tags.
 - `del`, a flag that if `true` indicates that we want to *untag*.
 
 ```dart
-   tagCloudPiv (String id, String tag, bool del) async {
+   tagCloudPiv (String id, dynamic tags, bool del) async {
 ```
 
-We start by calling the server at `POST /tag`. We pass the `tag`, the `id` wrapped in a list, and the `del` flag to indicate whether we're tagging or untagging. We also pass the `autoOrganize` flag set to `true`, since we want the autoorganize behavior, which means that every tagged piv is marked as organized, and if a piv has no tags, then it will be marked as unorganized.
+We iterate the tags.
 
 ```dart
-      var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+      for (var tag in tags) {
 ```
 
-If we don't get a successful response from the server, we return the code.
+We start by calling the server at `POST /tag`. We pass each of the tags (`tag`), the `id` wrapped in a list, and the `del` flag to indicate whether we're tagging or untagging. We also pass the `autoOrganize` flag set to `true`, since we want the autoorganize behavior, which means that every tagged piv is marked as organized, and if a piv has no tags, then it will be marked as unorganized.
 
 ```dart
-      if (response ['code'] != 200) return response ['code'];
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
+```
+
+If we don't get a successful response from the server, we return the code. This concludes the iteration of the tags.
+
+```dart
+         if (response ['code'] != 200) return response ['code'];
+      }
 ```
 
 We pass a single id to `queryOrganizedIds` because if this cloud piv has a local counterpart, and the cloud piv is not in the current query, we need to know whether it is organized or not.
@@ -1716,11 +1731,11 @@ We pass a single id to `queryOrganizedIds` because if this cloud piv has a local
       await queryOrganizedIds ([id]);
 ```
 
-We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add this tag to the hometags. This allows us to "seed" the hometags with a first tag.
+We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add the first tag in `tags` to the hometags. This allows us to "seed" the hometags with a first tag.
 
 ```dart
       var hometags = StoreService.instance.get ('hometags');
-      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tag, true);
+      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
 ```
 
 We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed.
@@ -1729,7 +1744,7 @@ If there was an error while executing `queryPivs`, we will not do anything else 
 
 ```dart
       var code = await queryPivs (true);
-      if (code != 200) return response ['code'];
+      if (code != 200) return 200;
 ```
 
 We will see how many pivs were returned by the query.
@@ -1761,10 +1776,10 @@ But we're yet not done. We also will set `queryTags` to an empty array and invok
 
 Why don't we do this in the local view? Because if the local view doesn't show you more pivs for a given period, it means you organized them all! Whereas with the cloud view, you always want to see pivs.
 
-There's nothing else to do but to return the response code (which will be a 200) and close the function.
+There's nothing else to do but to return the response code of the tagging operations (which was a 200) and close the function.
 
 ```dart
-      return response ['code'];
+      return 200;
    }
 ```
 
@@ -1772,11 +1787,11 @@ We now define `tagPiv`, the function that is in charge of handling the logic for
 
 The function takes three arguments:
 - A `piv`, which can be either a local piv or a cloud piv.
-- A `tag`, which is the tag to add (tag) or remove (untag) from the piv.
+- `tags`, which is a list of tags to add (tag) or remove (untag) from the piv.
 - The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs).
 
 ```dart
-   tagPiv (dynamic piv, String tag, String type) async {
+   tagPiv (dynamic piv, dynamic tags, String type) async {
 ```
 
 We first define two local variables, a `pivId` that will hold the id of the piv to be tagged; as well as a `cloudId`, which will be equal to `pivId` for a cloud piv, and which will be the cloud id of the cloud counterpart for a local id (if any).
@@ -1820,10 +1835,10 @@ We then the piv id to `currentlyTaggingPivs` and update the key in the store.
       }
 ```
 
-We invoke `updateLastNTags`, a function that will update the list of the last few used tags. We pass `tag` as the sole argument of the invocation.
+We invoke `updateLastNTags`, a function that will update the list of the last few used tags. We invoke the function with each of the `tags` in turn.
 
 ```dart
-      updateLastNTags (tag);
+      tags.forEach ((tag) => updateLastNTags (tag));
 ```
 
 If `cloudId` is neither an empty string nor `true`, then we are dealing either with a cloud piv or with a local piv that has a cloud counterpart. We deal with this case.
@@ -1834,10 +1849,10 @@ Note: `cloudId` can be `true` for local pivs that are currently in the upload qu
       if (cloudId != '' && cloudId != true) {
 ```
 
-We invoke the `tagCloudPiv` function, passing the `cloudId`, the `tag` itself and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
+We invoke the `tagCloudPiv` function, passing the `cloudId`, the `tags` and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
 
 ```dart
-         var code = await tagCloudPiv (cloudId, tag, untag);
+         var code = await tagCloudPiv (cloudId, tags, untag);
 ```
 
 If we are tagging a local piv, we can expect either a 200 (success) or a 404. The latter will happen if the cloud counterpart of the local piv we are tagging was removed from another tagaway client (for example, a web browser).
@@ -1887,10 +1902,10 @@ We get the key `pending:ID`; if it's an empty string, we initialize it to an arr
       if (pendingTags == '') pendingTags = [];
 ```
 
-If we are tagging, we add the tag to `pendingTags`; if we are untagging, we remove the tag from it.
+If we are tagging, we add each of the tags to `pendingTags`; if we are untagging, we remove each of the tags from it.
 
 ```dart
-      untag ? pendingTags.remove (tag) : pendingTags.add (tag);
+      tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
 ```
 
 If `pendingTags` has one or more tags in it, we store it in the store. Note we use the `'disk'` parameter since we want this data to persist even if the app is restarted. If the list has no tags, we directly remove the key from the store.

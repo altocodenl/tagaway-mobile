@@ -64,7 +64,7 @@ class _LocalViewState extends State<LocalView> {
 
   final PageController controller = PageController();
   dynamic usertags = [];
-  String currentlyTagging = '';
+  dynamic currentlyTagging = '';
   bool swiped = false;
   bool showButtons = false;
 
@@ -400,7 +400,10 @@ class _LocalViewState extends State<LocalView> {
                                                     'yellow');
                                               StoreService.instance.set(
                                                   'currentlyTaggingLocal',
-                                                  actualTag);
+                                                  currentlyTagging == ''
+                                                      ? [actualTag]
+                                                      : currentlyTagging +
+                                                          [actualTag]);
                                             };
                                           },
                                         );
@@ -849,7 +852,7 @@ class TopRow extends StatefulWidget {
 class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
 
-  String currentlyTagging = '';
+  dynamic currentlyTagging = '';
   dynamic taggedPivCount = '';
   dynamic displayMode = '';
   dynamic prev = '';
@@ -1009,29 +1012,30 @@ class _TopRowState extends State<TopRow> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(left: 12, right: 12),
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Text(
-                          'Now tagging with',
-                          style: kLookingAtText,
-                        ),
+                  child: Row(children: (() {
+                    List<Widget> output = [];
+                    output.add(const Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        'Now tagging with',
+                        style: kLookingAtText,
                       ),
-                      GridTagElement(
-                        gridTagElementIcon: kTagIcon,
-                        iconColor: tagColor(currentlyTagging),
-                        gridTagName: currentlyTagging,
+                    ));
+                    currentlyTagging.forEach((tag) {
+                      output.add(GridTagUploadedQueryElement(
+                          gridTagElementIcon: tagIcon(tag),
+                          iconColor: tagIconColor(tag),
+                          gridTagName: tagTitle(tag)));
+                    });
+                    output.add(Expanded(
+                      child: Text(
+                        taggedPivCount.toString(),
+                        textAlign: TextAlign.right,
+                        style: kOrganizedAmountOfPivs,
                       ),
-                      Expanded(
-                        child: Text(
-                          taggedPivCount.toString(),
-                          textAlign: TextAlign.right,
-                          style: kOrganizedAmountOfPivs,
-                        ),
-                      )
-                    ],
-                  ),
+                    ));
+                    return output;
+                  })()),
                 ),
               )
             : Container()
