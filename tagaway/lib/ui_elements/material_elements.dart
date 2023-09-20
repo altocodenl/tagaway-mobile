@@ -1263,23 +1263,40 @@ class _UploadingNumberState extends State<UploadingNumber> {
 class DeleteButton extends StatefulWidget {
   const DeleteButton({
     Key? key,
+    required this.showWhen,
     required this.onPressed,
   }) : super(key: key);
 
   final Function onPressed;
+  final String showWhen;
 
   @override
   State<DeleteButton> createState() => _DeleteButtonState();
 }
 
 class _DeleteButtonState extends State<DeleteButton> {
+  bool visible = false;
+  dynamic cancelListener;
+
   @override
   void initState() {
     super.initState();
+    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+      setState(() {
+        visible = v1 == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!visible) return Container();
     return Align(
       alignment: const Alignment(0, .45),
       child: FloatingActionButton(
@@ -1297,23 +1314,40 @@ class _DeleteButtonState extends State<DeleteButton> {
 class TagButton extends StatefulWidget {
   const TagButton({
     Key? key,
+    required this.showWhen,
     required this.onPressed,
   }) : super(key: key);
 
   final Function onPressed;
+  final String showWhen;
 
   @override
   _TagButtonState createState() => _TagButtonState();
 }
 
 class _TagButtonState extends State<TagButton> {
+  bool visible = false;
+  dynamic cancelListener;
+
   @override
   void initState() {
     super.initState();
+    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+      setState(() {
+        visible = v1 == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!visible) return Container();
     return Align(
       alignment: const Alignment(0, .68),
       child: FloatingActionButton(

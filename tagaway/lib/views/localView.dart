@@ -66,7 +66,6 @@ class _LocalViewState extends State<LocalView> {
   dynamic usertags = [];
   dynamic currentlyTagging = '';
   bool swiped = false;
-  bool showButtons = false;
 
   String renameTagLocal = '';
   String deleteTagLocal = '';
@@ -94,13 +93,12 @@ class _LocalViewState extends State<LocalView> {
       'currentlyTaggingLocal',
       'swipedLocal',
       'tagFilterLocal',
-      'showButtonsLocal',
       'renameTagLocal',
       'deleteTagLocal',
       'localPagesLength',
       'currentlyDeletingLocal',
       'currentlyDeletingModalLocal'
-    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) {
+    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
       if (v2 != '' && currentView != 2)
@@ -129,13 +127,12 @@ class _LocalViewState extends State<LocalView> {
             currentScrollableSize = initialScrollableSize;
           if (swiped == true && currentScrollableSize < 0.77)
             currentScrollableSize = 0.77;
-          showButtons = v5 == true;
-          renameTagLocal = v6;
+          renameTagLocal = v5;
           if (renameTagLocal != '') renameTagController.text = renameTagLocal;
-          deleteTagLocal = v7;
-          localPagesLength = v8;
-          currentlyDeleting = v9 != '';
-          currentlyDeletingModal = v10 != '';
+          deleteTagLocal = v6;
+          localPagesLength = v7;
+          currentlyDeleting = v8 != '';
+          currentlyDeletingModal = v9 != '';
         }
       });
     });
@@ -211,29 +208,27 @@ class _LocalViewState extends State<LocalView> {
                     buttonText: 'Start',
                     showButtonsKey: 'showButtonsLocal')),
             // Delete button
-            Visibility(
-                visible: showButtons,
-                child: DeleteButton(
-                  onPressed: () {
-                    // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                    return () {
-                      StoreService.instance.set('currentlyDeletingLocal', true);
-                      StoreService.instance.set('showButtonsLocal', false);
-                    };
-                  },
-                )),
+            DeleteButton(
+              showWhen: 'showButtonsLocal',
+              onPressed: () {
+                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                return () {
+                  StoreService.instance.set('currentlyDeletingLocal', true);
+                  StoreService.instance.set('showButtonsLocal', false);
+                };
+              },
+            ),
             // Tag button
-            Visibility(
-                visible: showButtons,
-                child: TagButton(
-                  onPressed: () {
-                    // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                    return () {
-                      StoreService.instance.set('swipedLocal', true);
-                      StoreService.instance.set('showButtonsLocal', false);
-                    };
-                  },
-                )),
+            TagButton(
+              showWhen: 'showButtonsLocal',
+              onPressed: () {
+                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                return () {
+                  StoreService.instance.set('swipedLocal', true);
+                  StoreService.instance.set('showButtonsLocal', false);
+                };
+              },
+            ),
             // Tag pivs scrollable list
             Visibility(
                 visible: currentlyTagging == '',
