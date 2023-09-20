@@ -3,9 +3,7 @@
 ## TODO
 
 - Reduce flickering in local view by separating parts of it into their own widgets, lowering the state.
-   - "tag your pics and videos": depends on usertags
-   - toprow: already separated
-   - FAB buttons: put listener inside widget
+   - Separate into a view: scrollable list of tags, deleteModal, done button
 - Local: add more tags when tagging so you can tag with multiple tags at the same time [only interface remaining]
 - Replace eye with settings with modal with two options:
    - Eye with explanation
