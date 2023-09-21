@@ -732,8 +732,12 @@ class _UploadGridState extends State<UploadGrid> {
     gridController.dispose();
   }
 
-  Future<void> _refreshData() async {
-    await Future.delayed(const Duration(seconds: 4));
+  Future<void> _refreshGrid() async {
+    var currentMonth = StoreService.instance.get('currentMonth');
+    if (currentMonth == '')
+      await TagService.instance.queryPivs(true);
+    else
+      await TagService.instance.queryPivsForMonth(currentMonth);
   }
 
   @override
@@ -743,7 +747,7 @@ class _UploadGridState extends State<UploadGrid> {
       child: RefreshIndicator(
         displacement: 70,
         color: kAltoBlue,
-        onRefresh: _refreshData,
+        onRefresh: _refreshGrid,
         child: SizedBox.expand(
           child: Directionality(
             textDirection: TextDirection.rtl,
