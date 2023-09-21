@@ -72,6 +72,7 @@ const kArrowRightLong = FontAwesomeIcons.arrowRightLong;
 const kHomeIcon = FontAwesomeIcons.house;
 const kMobilePhoneIcon = FontAwesomeIcons.mobileScreenButton;
 const kBroomIcon = FontAwesomeIcons.broom;
+const kPlusIcon = FontAwesomeIcons.plus;
 
 const tagColors = [
   kTagColor1,

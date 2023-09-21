@@ -200,6 +200,8 @@ class _LocalViewState extends State<LocalView> {
                       label: const Text('Done', style: kSelectAllButton),
                       icon: const Icon(Icons.done),
                     ))),
+            // Add more tags button
+            const Visibility(visible: false, child: AddMoreTagsButton()),
             // Start button
             Visibility(
                 visible: currentlyTagging == '' && !currentlyDeleting,
