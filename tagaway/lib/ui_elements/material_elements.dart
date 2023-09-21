@@ -1754,12 +1754,14 @@ class AddMoreTagsButton extends StatefulWidget {
 class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   bool visible = false;
   dynamic cancelListener;
+  String showWhen = '';
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
       setState(() {
+        showWhen = widget.showWhen;
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
         if (v1 != '' && v1.length == 1)
           visible = true;
@@ -1783,7 +1785,7 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
       child: FloatingActionButton.extended(
         onPressed: widget.onPressed,
         backgroundColor: kAltoBlue,
-        key: const Key('addMoreTags'),
+        key: Key('addMoreTags-' + showWhen),
         label: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

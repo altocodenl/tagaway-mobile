@@ -116,6 +116,8 @@ class _LocalViewState extends State<LocalView> {
               .toList();
           if (filter != '' && !usertags.contains(filter))
             usertags.insert(0, filter + ' (new tag)');
+          // Remove from usertags tags that already are in currentlyTagging
+          if (v2 != '') usertags = usertags.where ((tag) => !v2.contains(tag)).toList();
         }
         if (currentView != 2) {
           currentlyTagging = v2;
