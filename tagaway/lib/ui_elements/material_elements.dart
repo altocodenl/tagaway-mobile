@@ -1738,3 +1738,44 @@ void TagawaySpaceCleanerModal2(BuildContext context) {
     },
   );
 }
+
+class AddMoreTagsButton extends StatefulWidget {
+  const AddMoreTagsButton({Key? key}) : super(key: key);
+
+  @override
+  State<AddMoreTagsButton> createState() => _AddMoreTagsButtonState();
+}
+
+class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: const Alignment(-0.8, .9),
+      child: FloatingActionButton.extended(
+        onPressed: () {},
+
+        backgroundColor: kAltoBlue,
+        key: const Key('addMoreTags'),
+        // label: const Text('Add tags', style: kSelectAllButton),
+        label: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              kPlusIcon,
+              color: Colors.white,
+              size: 20,
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Icon(
+              kTagIcon,
+              color: Colors.white,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
