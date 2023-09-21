@@ -201,7 +201,13 @@ class _LocalViewState extends State<LocalView> {
                       icon: const Icon(Icons.done),
                     ))),
             // Add more tags button
-            const Visibility(visible: false, child: AddMoreTagsButton()),
+            AddMoreTagsButton(
+              showWhen: 'currentlyTaggingLocal',
+              onPressed: () {
+                StoreService.instance.set('swipedLocal', true);
+                StoreService.instance.set('showButtonsLocal', false);
+              },
+            ),
             // Start button
             Visibility(
                 visible: currentlyTagging == '' && !currentlyDeleting,
@@ -233,7 +239,7 @@ class _LocalViewState extends State<LocalView> {
             ),
             // Tag pivs scrollable list
             Visibility(
-                visible: currentlyTagging == '',
+                visible: swiped,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox.expand(
@@ -395,6 +401,8 @@ class _LocalViewState extends State<LocalView> {
                                                 return showSnackbar(
                                                     'Alas, you cannot use that tag.',
                                                     'yellow');
+                                              StoreService.instance
+                                                  .set('swipedLocal', false);
                                               StoreService.instance.set(
                                                   'currentlyTaggingLocal',
                                                   currentlyTagging == ''

@@ -181,6 +181,14 @@ class _UploadedViewState extends State<UploadedView> {
                 buttonKey: Key('uploaded-start-tagging'),
                 buttonText: 'Organize',
                 showButtonsKey: 'showButtonsUploaded')),
+        // Add more tags button
+        AddMoreTagsButton(
+          showWhen: 'currentlyTaggingUploaded',
+          onPressed: () {
+            StoreService.instance.set('swipedUploaded', true);
+            StoreService.instance.set('showButtonsUploaded', false);
+          },
+        ),
         // Start button
         Visibility(
             visible: currentlyTagging == '' && !currentlyDeleting,
@@ -211,7 +219,7 @@ class _UploadedViewState extends State<UploadedView> {
           },
         ),
         Visibility(
-            visible: currentlyTagging == '',
+            visible: swiped,
             child: Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox.expand(
@@ -372,6 +380,8 @@ class _UploadedViewState extends State<UploadedView> {
                                                 return showSnackbar(
                                                     'Alas, you cannot use that tag.',
                                                     'yellow');
+                                              StoreService.instance
+                                                  .set('swipedUploaded', false);
                                               StoreService.instance.set(
                                                   'currentlyTaggingUploaded',
                                                   currentlyTagging == ''

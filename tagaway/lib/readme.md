@@ -4,7 +4,6 @@
 
 - Reduce flickering in local view by separating parts of it into their own widgets, lowering the state.
    - Separate into a view: scrollable list of tags, deleteModal, done button
-- Local: add more tags when tagging so you can tag with multiple tags at the same time [only interface remaining]
 - Replace eye with settings with modal with two options:
    - Eye with explanation
    - Show camera pivs only vs show all pivs
@@ -29,7 +28,6 @@
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon
 
-- Refresh query with scroll down (Tom)
 - Write a QA script (Tom)
 - Draggable selection (Tom)
 

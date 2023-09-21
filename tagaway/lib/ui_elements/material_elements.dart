@@ -1378,7 +1378,7 @@ class StartButton extends StatefulWidget {
 }
 
 class _StartButtonState extends State<StartButton> {
-  bool shouldDisplay = false;
+  bool visible = false;
   bool showButtons = false;
   dynamic cancelListener;
 
@@ -1395,7 +1395,7 @@ class _StartButtonState extends State<StartButton> {
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
-          shouldDisplay = true;
+          visible = true;
         });
       }
     });
@@ -1409,38 +1409,37 @@ class _StartButtonState extends State<StartButton> {
 
   @override
   Widget build(BuildContext context) {
-    return shouldDisplay
-        ? Align(
-            alignment: const Alignment(0, .9),
-            child: Visibility(
-              visible: !showButtons,
-              child: FloatingActionButton.extended(
-                extendedPadding: const EdgeInsets.only(left: 20, right: 20),
-                heroTag: null,
-                key: Key(widget.buttonKey.toString()),
-                onPressed: () {
-                  StoreService.instance.set(widget.showButtonsKey, true);
-                },
-                backgroundColor: kAltoBlue,
-                elevation: 20,
-                label: Text(widget.buttonText, style: kStartButton),
-              ),
-              replacement: FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    StoreService.instance.set(widget.showButtonsKey, false);
-                  });
-                },
-                backgroundColor: Colors.white,
-                child: const Icon(
-                  Icons.close,
-                  size: 30,
-                  color: kAltoBlue,
-                ),
-              ),
-            ),
-          )
-        : Container();
+    if (!visible) return Container();
+    return Align(
+      alignment: const Alignment(0, .9),
+      child: Visibility(
+        visible: !showButtons,
+        child: FloatingActionButton.extended(
+          extendedPadding: const EdgeInsets.only(left: 20, right: 20),
+          heroTag: null,
+          key: Key(widget.buttonKey.toString()),
+          onPressed: () {
+            StoreService.instance.set(widget.showButtonsKey, true);
+          },
+          backgroundColor: kAltoBlue,
+          elevation: 20,
+          label: Text(widget.buttonText, style: kStartButton),
+        ),
+        replacement: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              StoreService.instance.set(widget.showButtonsKey, false);
+            });
+          },
+          backgroundColor: Colors.white,
+          child: const Icon(
+            Icons.close,
+            size: 30,
+            color: kAltoBlue,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -1740,23 +1739,51 @@ void TagawaySpaceCleanerModal2(BuildContext context) {
 }
 
 class AddMoreTagsButton extends StatefulWidget {
-  const AddMoreTagsButton({Key? key}) : super(key: key);
+  const AddMoreTagsButton({
+    Key? key,
+    required this.showWhen,
+    required this.onPressed,
+  }) : super(key: key);
+  final String showWhen;
+  final dynamic onPressed;
 
   @override
   State<AddMoreTagsButton> createState() => _AddMoreTagsButtonState();
 }
 
 class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
+  bool visible = false;
+  dynamic cancelListener;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+      setState(() {
+        // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
+        if (v1 != '' && v1.length == 1)
+          visible = true;
+        else
+          visible = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!visible) return Container();
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
-        onPressed: () {},
-
+        onPressed: widget.onPressed,
         backgroundColor: kAltoBlue,
         key: const Key('addMoreTags'),
-        // label: const Text('Add tags', style: kSelectAllButton),
         label: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
