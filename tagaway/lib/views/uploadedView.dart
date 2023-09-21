@@ -220,6 +220,7 @@ class _UploadedViewState extends State<UploadedView> {
             };
           },
         ),
+        // Tag pivs scrollable list
         Visibility(
             visible: swiped,
             child: Align(
