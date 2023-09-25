@@ -116,7 +116,8 @@ class _LocalViewState extends State<LocalView> {
           if (filter != '' && !usertags.contains(filter))
             usertags.insert(0, filter + ' (new tag)');
           // Remove from usertags tags that already are in currentlyTagging
-          if (v2 != '') usertags = usertags.where ((tag) => !v2.contains(tag)).toList();
+          if (v2 != '')
+            usertags = usertags.where((tag) => !v2.contains(tag)).toList();
         }
         if (currentView != 2) {
           currentlyTagging = v2;
@@ -401,7 +402,8 @@ class _LocalViewState extends State<LocalView> {
                                                 return showSnackbar(
                                                     'Alas, you cannot use that tag.',
                                                     'yellow');
-                                              StoreService.instance.set('tagFilterLocal', '');
+                                              StoreService.instance
+                                                  .set('tagFilterLocal', '');
                                               searchTagController.clear();
                                               StoreService.instance
                                                   .set('swipedLocal', false);

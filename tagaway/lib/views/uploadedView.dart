@@ -101,7 +101,8 @@ class _UploadedViewState extends State<UploadedView> {
           if (filter != '' && !usertags.contains(filter))
             usertags.insert(0, filter + ' (new tag)');
           // Remove from usertags tags that already are in currentlyTagging
-          if (v2 != '') usertags = usertags.where ((tag) => !v2.contains(tag)).toList();
+          if (v2 != '')
+            usertags = usertags.where((tag) => !v2.contains(tag)).toList();
         }
         if (currentView != 1) {
           currentlyTagging = v2;
@@ -215,6 +216,7 @@ class _UploadedViewState extends State<UploadedView> {
           },
         ),
         // Tag pivs scrollable list
+        // TagPivsScrollableList (view: 'Uploaded'),
         Visibility(
             visible: swiped,
             child: Align(
@@ -377,7 +379,8 @@ class _UploadedViewState extends State<UploadedView> {
                                                 return showSnackbar(
                                                     'Alas, you cannot use that tag.',
                                                     'yellow');
-                                              StoreService.instance.set('tagFilterUploaded', '');
+                                              StoreService.instance
+                                                  .set('tagFilterUploaded', '');
                                               searchTagController.clear();
                                               StoreService.instance
                                                   .set('swipedUploaded', false);
@@ -719,13 +722,15 @@ class _UploadGridState extends State<UploadGrid> {
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
 
-    cancelListener = StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
+    cancelListener =
+        StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
       // queryPivs will not make an invocation if `queryResult` changes because it will check if the tags have changed.
       TagService.instance.queryPivs();
-      if (v2 != '') setState(() {
-        queryResult = v2;
-        monthEdges = TagService.instance.getMonthEdges();
-      });
+      if (v2 != '')
+        setState(() {
+          queryResult = v2;
+          monthEdges = TagService.instance.getMonthEdges();
+        });
     });
   }
 

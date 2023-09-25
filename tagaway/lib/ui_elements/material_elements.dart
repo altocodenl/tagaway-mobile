@@ -1809,7 +1809,6 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   }
 }
 
-/*
 class TagPivsScrollableList extends StatefulWidget {
   const TagPivsScrollableList({
     Key? key,
@@ -1826,7 +1825,6 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
   final TextEditingController searchTagController = TextEditingController();
 
   dynamic usertags = [];
-  dynamic currentlyTagging = '';
   bool swiped = false;
 
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
@@ -1842,16 +1840,10 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
     super.initState();
     cancelListener = StoreService.instance.listen([
       'usertags',
-      'currentlyTagging' + widget.view,
       'swiped' + widget.view,
-    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
+    ], (v1, v2) {
       setState(() {
-        showWhen = widget.showWhen;
-        // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        if (v1 != '' && v1.length == 1)
-          visible = true;
-        else
-          visible = false;
+        swiped = v2 == true;
       });
     });
   }
@@ -1862,185 +1854,152 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
     cancelListener();
   }
 
-        Visibility(
-            visible: swiped,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox.expand(
-                child: NotificationListener<DraggableScrollableNotification>(
-                    onNotification: (state) {
-                      if (state.extent < (initialScrollableSize + 0.0001))
-                        StoreService.instance.set('swipedUploaded', false);
-                      if (state.extent > (0.77 - 0.0001))
-                        StoreService.instance.set('swipedUploaded', true);
-                      return true;
-                    },
-                    child: DraggableScrollableSheet(
-                        key: Key(currentScrollableSize.toString()),
-                        snap: true,
-                        initialChildSize: currentScrollableSize,
-                        minChildSize: initialScrollableSize,
-                        maxChildSize: 0.77,
-                        builder: (BuildContext context,
-                            ScrollController scrollController) {
-                          return ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(25),
-                              topRight: Radius.circular(25),
-                            ),
-                            child: Container(
-                              color: Colors.white,
-                              child: ListView(
-                                padding:
-                                    const EdgeInsets.only(left: 12, right: 12),
-                                controller: scrollController,
-                                children: [
-                                  Visibility(
-                                      visible: !swiped,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          StoreService.instance
-                                              .set('swipedUploaded', true);
-                                        },
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 8.0),
-                                            child: FaIcon(
-                                              FontAwesomeIcons.anglesUp,
-                                              color: kGrey,
-                                              size: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: !swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Swipe to start tagging',
-                                            style: kPlainTextBold,
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: swiped,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          StoreService.instance
-                                              .set('swipedUploaded', false);
-                                        },
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 8.0),
-                                            child: FaIcon(
-                                              FontAwesomeIcons.anglesDown,
-                                              color: kGrey,
-                                              size: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Tag your pics and videos',
-                                            style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
-                                                color: kAltoBlue),
-                                          ),
-                                        ),
-                                      )),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: SizedBox(
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchTagController,
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 10.0,
-                                                  horizontal: 20.0),
-                                          fillColor: kGreyLightest,
-                                          hintText: 'Create or search a tag',
-                                          hintMaxLines: 1,
-                                          hintStyle: kPlainTextBold,
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: kGreyDarker)),
-                                          prefixIcon: const Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 12, left: 12, top: 15),
-                                            child: FaIcon(
-                                              kSearchIcon,
-                                              size: 16,
-                                              color: kGreyDarker,
-                                            ),
-                                          ),
-                                        ),
-                                        onChanged: searchTag,
-                                      ),
-                                    ),
-                                  ),
-                                  ListView.builder(
-                                      itemCount: usertags.length,
-                                      padding: EdgeInsets.zero,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var tag = usertags[index];
-                                        var actualTag = tag;
-                                        if (index == 0 &&
-                                            RegExp(' \\(new tag\\)\$')
-                                                .hasMatch(tag)) {
-                                          actualTag = tag.replaceFirst(
-                                              RegExp(' \\(new tag\\)\$'), '');
-                                          actualTag = actualTag.trim();
-                                        }
-                                        return TagListElement(
-                                          // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
-                                          key: Key('uploaded-' + tag),
-                                          tagColor: tagColor(actualTag),
-                                          tagName: tag,
-                                          view: 'uploaded',
-                                          onTap: () {
-                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                            return () {
-                                              if (RegExp('^[a-z]::')
-                                                  .hasMatch(actualTag))
-                                                return showSnackbar(
-                                                    'Alas, you cannot use that tag.',
-                                                    'yellow');
-                                              StoreService.instance
-                                                  .set('swipedUploaded', false);
-                                              StoreService.instance.set(
-                                                  'currentlyTaggingUploaded',
-                                                  currentlyTagging == ''
-                                                      ? [actualTag]
-                                                      : currentlyTagging +
-                                                          [actualTag]);
-                                            };
-                                          },
-                                        );
-                                      })
-                                ],
+  bool searchTag(String query) {
+    StoreService.instance.set('tagFilter' + widget.view, query);
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!swiped) return Container();
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: SizedBox.expand(
+        child: NotificationListener<DraggableScrollableNotification>(
+            onNotification: (state) {
+              if (state.extent < (initialScrollableSize + 0.0001))
+                StoreService.instance.set('swiped' + widget.view, false);
+              if (state.extent > (0.77 - 0.0001))
+                StoreService.instance.set('swiped' + widget.view, true);
+              return true;
+            },
+            child: DraggableScrollableSheet(
+                key: Key(currentScrollableSize.toString()),
+                snap: true,
+                initialChildSize: currentScrollableSize,
+                minChildSize: initialScrollableSize,
+                maxChildSize: 0.77,
+                builder:
+                    (BuildContext context, ScrollController scrollController) {
+                  return ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                    child: Container(
+                      color: Colors.white,
+                      child: ListView(
+                        padding: const EdgeInsets.only(left: 12, right: 12),
+                        controller: scrollController,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              StoreService.instance
+                                  .set('swiped' + widget.view, false);
+                            },
+                            child: const Center(
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: FaIcon(
+                                  FontAwesomeIcons.anglesDown,
+                                  color: kGrey,
+                                  size: 16,
+                                ),
                               ),
                             ),
-                          );
-                        })),
-              ),
-            )),
-*/
+                          ),
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 8),
+                              child: Text(
+                                'Tag your pics and videos',
+                                style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: kAltoBlue),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: SizedBox(
+                              height: 50,
+                              child: TextField(
+                                controller: searchTagController,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 20.0),
+                                  fillColor: kGreyLightest,
+                                  hintText: 'Create or search a tag',
+                                  hintMaxLines: 1,
+                                  hintStyle: kPlainTextBold,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          const BorderSide(color: kGreyDarker)),
+                                  prefixIcon: const Padding(
+                                    padding: EdgeInsets.only(
+                                        right: 12, left: 12, top: 15),
+                                    child: FaIcon(
+                                      kSearchIcon,
+                                      size: 16,
+                                      color: kGreyDarker,
+                                    ),
+                                  ),
+                                ),
+                                onChanged: searchTag,
+                              ),
+                            ),
+                          ),
+                          ListView.builder(
+                              itemCount: usertags.length,
+                              padding: EdgeInsets.zero,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                var tag = usertags[index];
+                                var actualTag = tag;
+                                if (index == 0 &&
+                                    RegExp(' \\(new tag\\)\$').hasMatch(tag)) {
+                                  actualTag = tag.replaceFirst(
+                                      RegExp(' \\(new tag\\)\$'), '');
+                                  actualTag = actualTag.trim();
+                                }
+                                return TagListElement(
+                                  // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
+                                  key: Key(widget.view + '-' + tag),
+                                  tagColor: tagColor(actualTag),
+                                  tagName: tag,
+                                  view: widget.view.toLowerCase(),
+                                  onTap: () {
+                                    // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                                    return () {
+                                      if (RegExp('^[a-z]::')
+                                          .hasMatch(actualTag))
+                                        return showSnackbar(
+                                            'Alas, you cannot use that tag.',
+                                            'yellow');
+                                      StoreService.instance
+                                          .set('swiped' + widget.view, false);
+                                      var currentlyTagging =
+                                          StoreService.instance.get(
+                                              'currentlyTagging' + widget.view);
+                                      StoreService.instance.set(
+                                          'currentlyTagging' + widget.view,
+                                          currentlyTagging == ''
+                                              ? [actualTag]
+                                              : currentlyTagging + [actualTag]);
+                                    };
+                                  },
+                                );
+                              })
+                        ],
+                      ),
+                    ),
+                  );
+                })),
+      ),
+    );
+  }
+}
