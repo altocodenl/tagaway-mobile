@@ -101,8 +101,7 @@ class _LocalViewState extends State<LocalView> {
     ], (v1, v2, v3, v4, v5, v6, v7, v8, v9) {
       var currentView = StoreService.instance.get('currentIndex');
       // Invoke the service only if uploaded is not the current view
-      if (v2 != '' && currentView != 2)
-        TagService.instance.getTaggedPivs(v2, 'local');
+      if (v2 != '') TagService.instance.getTaggedPivs(v2, 'local');
       setState(() {
         if (v1 != '') {
           var filter = v4;
@@ -180,7 +179,6 @@ class _LocalViewState extends State<LocalView> {
                               .set('currentlyTaggingLocal', '');
                           StoreService.instance.set('tagFilterLocal', '');
                           StoreService.instance.remove('currentlyTaggingPivs');
-                          searchTagController.clear();
                           // We update the tag list in case we just created a new one.
                           TagService.instance.getTags();
                           // We update the list of organized pivs for those uploaded pivs that have a local counterpart
@@ -403,6 +401,8 @@ class _LocalViewState extends State<LocalView> {
                                                 return showSnackbar(
                                                     'Alas, you cannot use that tag.',
                                                     'yellow');
+                                              StoreService.instance.set('tagFilterLocal', '');
+                                              searchTagController.clear();
                                               StoreService.instance
                                                   .set('swipedLocal', false);
                                               StoreService.instance.set(

@@ -86,12 +86,7 @@ class _UploadedViewState extends State<UploadedView> {
       'currentlyDeletingModalUploaded',
     ], (v1, v2, v3, v4, v5, v6, v7, v8) {
       var currentView = StoreService.instance.get('currentIndex');
-      // If on this view and just finished tagging, refresh the query
-      if (currentView == 2 && v2 == '' && currentlyTagging != '')
-        TagService.instance.queryPivs();
-      // Invoke the service only if local is not the current view
-      if (v2 != '' && currentView != 1)
-        TagService.instance.getTaggedPivs(v2, 'uploaded');
+      if (v2 != '') TagService.instance.getTaggedPivs(v2, 'uploaded');
       setState(() {
         if (v1 != '') {
           var filter = v4;
@@ -157,7 +152,6 @@ class _UploadedViewState extends State<UploadedView> {
                     if (currentlyTagging != '') {
                       StoreService.instance.set('swipedUploaded', false);
                       StoreService.instance.set('currentlyTaggingUploaded', '');
-                      StoreService.instance.set('tagFilterUploaded', '');
                       searchTagController.clear();
                       // We update the tag list in case we just created a new one.
                       TagService.instance.getTags();
@@ -383,6 +377,8 @@ class _UploadedViewState extends State<UploadedView> {
                                                 return showSnackbar(
                                                     'Alas, you cannot use that tag.',
                                                     'yellow');
+                                              StoreService.instance.set('tagFilterUploaded', '');
+                                              searchTagController.clear();
                                               StoreService.instance
                                                   .set('swipedUploaded', false);
                                               StoreService.instance.set(
