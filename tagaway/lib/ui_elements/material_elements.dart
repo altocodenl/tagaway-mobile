@@ -1813,25 +1813,38 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
 class TagPivsScrollableList extends StatefulWidget {
   const TagPivsScrollableList({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
-  final String showWhen;
-  final dynamic onPressed;
+  final String view;
 
   @override
   State<TagPivsScrollableList> createState() => _TagPivsScrollableListState();
 }
 
 class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
-  bool visible = false;
   dynamic cancelListener;
-  String showWhen = '';
+  final TextEditingController searchTagController = TextEditingController();
+
+  dynamic usertags = [];
+  dynamic currentlyTagging = '';
+  bool swiped = false;
+
+  // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
+  // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
+  // For more info, refer to https://github.com/flutter/flutter/issues/45009
+  double initialScrollableSize =
+      StoreService.instance.get('initialScrollableSize');
+  double currentScrollableSize =
+      StoreService.instance.get('initialScrollableSize');
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener = StoreService.instance.listen([
+      'usertags',
+      'currentlyTagging' + widget.view,
+      'swiped' + widget.view,
+    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
       setState(() {
         showWhen = widget.showWhen;
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`

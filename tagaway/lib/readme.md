@@ -2,12 +2,14 @@
 
 ## TODO
 
+- Fix issue with change of month when tagging on non-last month (use currentMonth, or refactor that?)
 - Reduce flickering in local view by separating parts of it into their own widgets, lowering the state.
    - Separate into a view: scrollable list of tags, deleteModal, done button
 - Replace eye with settings with modal with two options:
    - Eye with explanation
    - Show camera pivs only vs show all pivs
    - Implement logic for showing camera pivs only
+- Fix issue with multiple heroes (Tom)
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -2059,10 +2061,15 @@ We return the result of the body in a local variable `queryResult`.
       var queryResult = response ['body'];
 ```
 
-We will now put everything in place so that the time header can be computed. We start by setting the `timeHeader` inside `queryResult`. We do this just to put the data in there, but we don't want a redraw to be triggered yet, so we pass the `'mute'` flag.
+We will now put everything in place so that the time header can be computed. We start by setting the `timeHeader` inside `queryResult`. We do this just to put the data in there, but we don't want a redraw to be triggered yet, so we pass the `'mute'` flag. We must also add placeholders for the other fields (`total`, `tags` and `pivs`), since if the query is slow and another change redraws the view, an error will be thrown by the view if these fields are missing from `queryResult`.
 
 ```dart
-      StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader']}, '', 'mute');
+      StoreService.instance.set ('queryResult', {
+         'timeHeader':  queryResult ['timeHeader'],
+         'total':       0
+         'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
+         'pivs':        []
+      }, '', 'mute');
 ```
 
 If the server also didn't bring a last month, this must be a ronin query (a query without pivs). So we set `currentMonth` to an empty string. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device.

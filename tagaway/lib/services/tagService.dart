@@ -298,7 +298,12 @@ class TagService {
 
       var queryResult = response ['body'];
 
-      StoreService.instance.set ('queryResult', {'timeHeader': queryResult ['timeHeader']}, '', 'mute');
+      StoreService.instance.set ('queryResult', {
+         'timeHeader':  queryResult ['timeHeader'],
+         'total':       0
+         'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
+         'pivs':        []
+      }, '', 'mute');
 
       if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
       else {
