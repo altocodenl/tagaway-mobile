@@ -17,11 +17,10 @@ class QuerySelectorView extends StatefulWidget {
 
 class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic cancelListener;
-  dynamic cancelListener2;
   final TextEditingController searchQueryController = TextEditingController();
 
   dynamic queryTags = [];
-  dynamic queryResult = {'total': 0, 'tags': {}};
+  dynamic queryResult = {'total': 0, 'tags': {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0}};
   dynamic years = [];
   dynamic months = [];
   dynamic countries = [];
@@ -44,65 +43,56 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
-    cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
-      if (v1 == '') v1 = [];
+    cancelListener = StoreService.instance.listen(['queryTags', 'queryResult', 'queryFilter'], (v1, v2, v3) {
+      // queryPivs will not make an invocation if `queryResult` or `queryFilter` change because it will check if the tags have changed.
       TagService.instance.queryPivs();
       setState(() {
-        queryTags = v1;
-      });
-    });
-    cancelListener2 = StoreService.instance.listen([
-      'queryResult',
-      'queryFilter',
-    ], (v1, v2) {
-      bool matchFilter(String tag) {
-        if (v2 == '' || queryTags.contains(tag)) return true;
-        return tag.toLowerCase().contains(v2.toLowerCase());
-      }
 
-      if (v1 != '')
-        setState(() {
-          queryResult = v1;
-          var queryTags = StoreService.instance.get('queryTags');
-          if (queryTags == '') queryTags = [];
-          var selectableTags = queryResult['tags']
-              .keys
-              .where((tag) => !queryTags.contains(tag))
-              .toList();
-          years = selectableTags
-              .where((tag) => RegExp('^d::[0-9]').hasMatch(tag))
-              .where(matchFilter)
-              .toList();
-          years.sort();
-          months = selectableTags
-              .where((tag) => RegExp('^d::M').hasMatch(tag))
-              .where(matchFilter)
-              .toList();
-          months.sort(
-              (a, b) => int.parse(a.substring(4)) - int.parse(b.substring(4)));
-          countries = selectableTags
-              .where((tag) => RegExp('^g::[A-Z]{2}').hasMatch(tag))
-              .where(matchFilter)
-              .toList();
-          countries.sort();
-          cities = selectableTags
-              .where((tag) =>
-                  RegExp('^g::').hasMatch(tag) && !countries.contains(tag))
-              .where(matchFilter)
-              .toList();
-          cities.sort();
-          usertags = selectableTags
-              .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
-              .where(matchFilter)
-              .toList();
-          usertags.sort();
-          filteredYears = (expandYears || years.length < 4)
-              ? years
-              : years.sublist(years.length - 4, years.length);
-          filteredCountries = (expandCountries || countries.length < 2)
-              ? countries
-              : countries.sublist(countries.length - 2, countries.length);
-        });
+        queryTags = v1;
+        bool matchFilter(String tag) {
+          if (v3 == '' || queryTags.contains(tag)) return true;
+          return tag.toLowerCase().contains(v3.toLowerCase());
+        }
+        if (v2 == '') return;
+        queryResult = v2;
+        var selectableTags = queryResult['tags']
+            .keys
+            .where((tag) => !queryTags.contains(tag))
+            .toList();
+        years = selectableTags
+            .where((tag) => RegExp('^d::[0-9]').hasMatch(tag))
+            .where(matchFilter)
+            .toList();
+        years.sort();
+        months = selectableTags
+            .where((tag) => RegExp('^d::M').hasMatch(tag))
+            .where(matchFilter)
+            .toList();
+        months.sort(
+            (a, b) => int.parse(a.substring(4)) - int.parse(b.substring(4)));
+        countries = selectableTags
+            .where((tag) => RegExp('^g::[A-Z]{2}').hasMatch(tag))
+            .where(matchFilter)
+            .toList();
+        countries.sort();
+        cities = selectableTags
+            .where((tag) =>
+                RegExp('^g::').hasMatch(tag) && !countries.contains(tag))
+            .where(matchFilter)
+            .toList();
+        cities.sort();
+        usertags = selectableTags
+            .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+            .where(matchFilter)
+            .toList();
+        usertags.sort();
+        filteredYears = (expandYears || years.length < 4)
+            ? years
+            : years.sublist(years.length - 4, years.length);
+        filteredCountries = (expandCountries || countries.length < 2)
+            ? countries
+            : countries.sublist(countries.length - 2, countries.length);
+      });
     });
   }
 
@@ -110,7 +100,6 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   void dispose() {
     super.dispose();
     cancelListener();
-    cancelListener2();
     searchQueryController.dispose();
     searchQueryController.removeListener(searchQueryChanged);
   }

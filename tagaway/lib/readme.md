@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Fix issue with change of month when tagging on non-last month (use currentMonth, or refactor that?)
 - Reduce flickering in local view by separating parts of it into their own widgets, lowering the state.
    - Separate into a view: scrollable list of tags, deleteModal, done button
 - Replace eye with settings with modal with two options:
@@ -1736,43 +1735,13 @@ We get the list of hometags. If there are no hometags set yet, and we are taggin
       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
 ```
 
-We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed.
+We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed. We will also pass it the `preserveMonth`, so that we don't change the month currently being displayed on the query.
 
-If there was an error while executing `queryPivs`, we will not do anything else - not even report an error, since that will have been done by `queryPivs` already. We will also return our original `response ['code']`, which was a 200.
-
-```dart
-      var code = await queryPivs (true);
-      if (code != 200) return 200;
-```
-
-We will see how many pivs were returned by the query.
+Note we do not await for the operation, since we want the query to happen in the background.
 
 ```dart
-      var total = StoreService.instance.get ('queryResult') ['total'];
+      queryPivs (true, true);
 ```
-
-If we currently have tags in our query, and we got no pivs back, it means that through an untagging operation we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will do a number of things:
-
-- Set `swipedUploaded` to `false`.
-- Set `currentlyTaggingUploaded` to an empty string.
-
-These two actions will get the user out of tagging mode in the cloud view.
-
-```dart
-      if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
-         StoreService.instance.set ('swipedUploaded', false);
-         StoreService.instance.set ('currentlyTaggingUploaded', '');
-```
-
-But we're yet not done. We also will set `queryTags` to an empty array and invoke `queryPivs`. This will both reset the query and refresh it. This concludes the case where we want to get the user out of tagging mode in the cloud view.
-
-```dart
-         StoreService.instance.set ('queryTags', []);
-         await queryPivs ();
-      }
-```
-
-Why don't we do this in the local view? Because if the local view doesn't show you more pivs for a given period, it means you organized them all! Whereas with the cloud view, you always want to see pivs.
 
 There's nothing else to do but to return the response code of the tagging operations (which was a 200) and close the function.
 
@@ -1964,7 +1933,9 @@ TODO: add annotated source code between `tagPiv` and `queryPivs`.
 
 We now define `queryPivs`, the function that will query pivs and their associated tags from the server.
 
-This function takes a single argument, `refresh`: an optional flag, by default set to `false`, which indicates whether we should query the server with the same query we did on the last query.
+This function takes two arguments:
+- `refresh`: an optional flag, by default set to `false`, which indicates whether we should query the server with the same query we did on the last query.
+- `preserveMonth`: an optional flag, by default set to `false`, which indicates whether we should preserve the `currentMonth` of the query.
 
 This function will essentially get two pieces of information:
 - The metainformation of the pivs that belong to the query.
@@ -1973,7 +1944,7 @@ This function will essentially get two pieces of information:
 We don't want to bring back all the information at once because 1) that takes significant processing time on the server; 2) it can potentially require a lot of bandwidth for the client; 3) both #1 and #2 will slow down the drawing of the grid. For this reason, this function is particularly written with performance in mind.
 
 ```dart
-   queryPivs ([refresh = false]) async {
+   queryPivs ([refresh = false, preserveMonth = false]) async {
 ```
 
 We get `queryTags` from the store.
@@ -2000,6 +1971,13 @@ In practice, this only happens when switching between the query selector view an
 
 ```dart
       if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
+```
+
+If `preserveMonth` is `true`, and `currentMonth` is also set, rather than continuing, we will just invoke `queryPivsForMonth` (a function defined below) passing the current month, and immediately return. This will refresn the query while preserving the current month.
+
+```dart
+      var currentMonth = StoreService.instance.get ('currentMonth');
+      if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
 ```
 
 We update `queryTags` to a copy of `tags`. We want to copy it because if we modify `tags`, those changes will also affect `queryTags`, and then we won't be able to know whether changes in `tags` took place when we compare it against `queryTags`.
@@ -2061,12 +2039,25 @@ We return the result of the body in a local variable `queryResult`.
       var queryResult = response ['body'];
 ```
 
+If we currently have tags in our query, and we got no pivs back, it may be the case that through an untagging operation, or a deletion, we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will set `currentlyTaggingUploaded` to an empty string, to get the user out of "tagging mode" in the uploaded view.
+
+We will also reset the query by setting `queryTags` to an empty list. There will be listeners in the views which, when we update `queryTags`, invoke `queryPivs` again, so we don't need to perform a recursive invocation to the function here.
+
+In this case, there is nothing else to do, so we `return`.
+
+```dart
+      if (queryResult ['total'] == 0 && tags.length > 0) {
+         StoreService.instance.set ('currentlyTaggingUploaded', '');
+         return StoreService.instance.set ('queryTags', []);
+      }
+```
+
 We will now put everything in place so that the time header can be computed. We start by setting the `timeHeader` inside `queryResult`. We do this just to put the data in there, but we don't want a redraw to be triggered yet, so we pass the `'mute'` flag. We must also add placeholders for the other fields (`total`, `tags` and `pivs`), since if the query is slow and another change redraws the view, an error will be thrown by the view if these fields are missing from `queryResult`.
 
 ```dart
       StoreService.instance.set ('queryResult', {
          'timeHeader':  queryResult ['timeHeader'],
-         'total':       0
+         'total':       0,
          'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
          'pivs':        []
       }, '', 'mute');

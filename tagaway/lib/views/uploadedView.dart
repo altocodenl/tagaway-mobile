@@ -704,7 +704,6 @@ class UploadGrid extends StatefulWidget {
 
 class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
-  dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
   dynamic monthEdges = {'previousMonth': '', 'nextMonth': ''};
   final ScrollController gridController = ScrollController();
@@ -714,22 +713,19 @@ class _UploadGridState extends State<UploadGrid> {
   @override
   void initState() {
     super.initState();
+
     StoreService.instance.set('gridControllerUploaded', gridController);
+
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
-    // The listeners are separated because we don't want to query pivs again once queryResult is updated.
-    cancelListener = StoreService.instance.listen(['queryTags'], (v1) {
-      if (v1 == '') v1 = [];
+
+    cancelListener = StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
+      // queryPivs will not make an invocation if `queryResult` changes because it will check if the tags have changed.
       TagService.instance.queryPivs();
-    });
-    cancelListener2 = StoreService.instance.listen([
-      'queryResult',
-    ], (v1) {
-      if (v1 != '')
-        setState(() {
-          queryResult = v1;
-          monthEdges = TagService.instance.getMonthEdges();
-        });
+      if (v2 != '') setState(() {
+        queryResult = v2;
+        monthEdges = TagService.instance.getMonthEdges();
+      });
     });
   }
 
@@ -737,16 +733,11 @@ class _UploadGridState extends State<UploadGrid> {
   void dispose() {
     super.dispose();
     cancelListener();
-    cancelListener2();
     gridController.dispose();
   }
 
   Future<void> _refreshGrid() async {
-    var currentMonth = StoreService.instance.get('currentMonth');
-    if (currentMonth == '')
-      await TagService.instance.queryPivs(true);
-    else
-      await TagService.instance.queryPivsForMonth(currentMonth);
+    await TagService.instance.queryPivs(true, true);
   }
 
   @override

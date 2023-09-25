@@ -82,16 +82,7 @@ class TagService {
       var hometags = StoreService.instance.get ('hometags');
       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
 
-      var code = await queryPivs (true);
-      if (code != 200) return 200;
-
-      var total = StoreService.instance.get ('queryResult') ['total'];
-      if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
-         StoreService.instance.set ('swipedUploaded', false);
-         StoreService.instance.set ('currentlyTaggingUploaded', '');
-         StoreService.instance.set ('queryTags', []);
-         await queryPivs ();
-      }
+      queryPivs (true, true);
       return 200;
    }
 
@@ -270,12 +261,15 @@ class TagService {
 
    // TODO: annotate the code above
 
-   queryPivs ([refresh = false]) async {
+   queryPivs ([refresh = false, preserveMonth = false]) async {
 
       var tags = StoreService.instance.get ('queryTags');
       tags.sort ();
 
       if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
+
+      var currentMonth = StoreService.instance.get ('currentMonth');
+      if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
 
       queryTags = List.from (tags);
 
@@ -298,9 +292,14 @@ class TagService {
 
       var queryResult = response ['body'];
 
+      if (queryResult ['total'] == 0 && tags.length > 0) {
+         StoreService.instance.set ('currentlyTaggingUploaded', '');
+         return StoreService.instance.set ('queryTags', []);
+      }
+
       StoreService.instance.set ('queryResult', {
          'timeHeader':  queryResult ['timeHeader'],
-         'total':       0
+         'total':       0,
          'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
          'pivs':        []
       }, '', 'mute');
@@ -373,7 +372,6 @@ class TagService {
 
    // TODO: annotate the code below
 
-
    queryPivsForMonth (dynamic currentMonth) async {
 
       var tags = StoreService.instance.get ('queryTags');
@@ -401,6 +399,11 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
+
+      if (queryResult ['total'] == 0 && tags.length > 0) {
+         if (StoreService.instance.get ('currentlyTaggingUploaded') != '') StoreService.instance.set ('currentlyTaggingUploaded', '');
+         return StoreService.instance.set ('queryTags', []);
+      }
 
       var oldQueryResult = StoreService.instance.get ('queryResult');
 
@@ -441,14 +444,7 @@ class TagService {
        }
     });
     StoreService.instance.remove ('currentlyDeletingPivsUploaded');
-    if (response['code'] == 200) {
-       await queryPivs (true);
-       var total = StoreService.instance.get ('queryResult')['total'];
-       if (total == 0 && StoreService.instance.get ('queryTags').length > 0) {
-         StoreService.instance.set ('queryTags', []);
-         await queryPivs ();
-       }
-    }
+    if (response['code'] == 200) await queryPivs (true, true);
     return response['code'];
   }
 
@@ -462,7 +458,7 @@ class TagService {
          queryTags.add (to);
       }
       StoreService.instance.set ('queryTags', queryTags);
-      await queryPivs (true);
+      await queryPivs (true, true);
       // TODO: handle non-200 error
    }
 
@@ -474,7 +470,7 @@ class TagService {
       // Is this conditional necessary?
       if (queryTags.contains (tag)) queryTags.remove (tag);
       StoreService.instance.set ('queryTags', queryTags);
-      await queryPivs (true);
+      await queryPivs (true, true);
       // TODO: handle non-200 error
    }
 
