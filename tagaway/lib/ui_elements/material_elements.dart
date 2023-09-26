@@ -1840,10 +1840,37 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
     super.initState();
     cancelListener = StoreService.instance.listen([
       'usertags',
+      'currentlyTagging' + widget.view,
+      'tagFilter' + widget.view,
       'swiped' + widget.view,
-    ], (v1, v2) {
+    ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
-        swiped = v2 == true;
+        if (Usertags != '') {
+          var lastNTags = StoreService.instance.get('lastNTags');
+          if (lastNTags == '') lastNTags = [];
+          usertags = List.from(lastNTags)
+            ..addAll(Usertags.where((tag) => !lastNTags.contains(tag)));
+          usertags = usertags
+              .where((tag) =>
+                  RegExp(TagFilter, caseSensitive: false).hasMatch(tag))
+              .toList();
+          if (TagFilter != '' && !usertags.contains(TagFilter))
+            usertags.insert(0, TagFilter + ' (new tag)');
+          // Remove from usertags tags that already are in currentlyTagging
+          if (CurrentlyTagging != '')
+            usertags = usertags
+                .where((tag) => !CurrentlyTagging.contains(tag))
+                .toList();
+        }
+
+        swiped = Swiped == true;
+        if (swiped == false) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
+        if (swiped == false && currentScrollableSize > initialScrollableSize)
+          currentScrollableSize = initialScrollableSize;
+        if (swiped == true && currentScrollableSize < 0.77)
+          currentScrollableSize = 0.77;
       });
     });
   }
@@ -1852,11 +1879,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
   void dispose() {
     super.dispose();
     cancelListener();
-  }
-
-  bool searchTag(String query) {
-    StoreService.instance.set('tagFilter' + widget.view, query);
-    return true;
+    searchTagController.dispose();
   }
 
   @override
@@ -1948,7 +1971,10 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                                     ),
                                   ),
                                 ),
-                                onChanged: searchTag,
+                                onChanged: (String query) {
+                                  StoreService.instance
+                                      .set('tagFilter' + widget.view, query);
+                                },
                               ),
                             ),
                           ),
@@ -1990,6 +2016,9 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                                           currentlyTagging == ''
                                               ? [actualTag]
                                               : currentlyTagging + [actualTag]);
+                                      StoreService.instance
+                                          .set('tagFilter' + widget.view, '');
+                                      searchTagController.clear();
                                     };
                                   },
                                 );

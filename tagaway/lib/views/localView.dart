@@ -59,83 +59,43 @@ class LocalView extends StatefulWidget {
 
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
-  final TextEditingController searchTagController = TextEditingController();
   final TextEditingController renameTagController = TextEditingController();
 
-  final PageController controller = PageController();
-  dynamic usertags = [];
   dynamic currentlyTagging = '';
-  bool swiped = false;
-
-  String renameTagLocal = '';
-  String deleteTagLocal = '';
-
   bool currentlyDeleting = false;
   bool currentlyDeletingModal = false;
+  String renameTag = '';
+  String deleteTag = '';
 
+  final PageController pageController = PageController();
   dynamic localPagesLength = StoreService.instance.get('localPagesLength') == ''
       ? 0
       : StoreService.instance.get('localPagesLength');
-
-  // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
-  // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
-  // For more info, refer to https://github.com/flutter/flutter/issues/45009
-  double initialScrollableSize =
-      StoreService.instance.get('initialScrollableSize');
-  double currentScrollableSize =
-      StoreService.instance.get('initialScrollableSize');
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
-      'usertags',
       'currentlyTaggingLocal',
-      'swipedLocal',
-      'tagFilterLocal',
       'renameTagLocal',
       'deleteTagLocal',
-      'localPagesLength',
       'currentlyDeletingLocal',
-      'currentlyDeletingModalLocal'
-    ], (v1, v2, v3, v4, v5, v6, v7, v8, v9) {
-      var currentView = StoreService.instance.get('currentIndex');
-      // Invoke the service only if uploaded is not the current view
-      if (v2 != '') TagService.instance.getTaggedPivs(v2, 'local');
+      'currentlyDeletingModalLocal',
+      'localPagesLength',
+    ], (CurrentlyTagging, RenameTag, DeleteTag, CurrentlyDeleting,
+        CurrentlyDeletingModal, LocalPagesLength) {
+      // Update the list of tagged pivs only if this is the active view.
+      if (CurrentlyTagging != '' && StoreService.instance.get ('currentIndex') == 1)
+        TagService.instance.getTaggedPivs(CurrentlyTagging, 'local');
+
       setState(() {
-        if (v1 != '') {
-          var filter = v4;
-          var lastNTags = StoreService.instance.get('lastNTags');
-          if (lastNTags == '') lastNTags = [];
-          usertags = List.from(lastNTags)
-            ..addAll(v1.where((tag) => !lastNTags.contains(tag)));
-          usertags = usertags
-              .where(
-                  (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
-              .toList();
-          if (filter != '' && !usertags.contains(filter))
-            usertags.insert(0, filter + ' (new tag)');
-          // Remove from usertags tags that already are in currentlyTagging
-          if (v2 != '')
-            usertags = usertags.where((tag) => !v2.contains(tag)).toList();
-        }
-        if (currentView != 2) {
-          currentlyTagging = v2;
-          if (v3 != '') swiped = v3;
-          if (swiped == false) {
-            FocusManager.instance.primaryFocus?.unfocus();
-          }
-          if (swiped == false && currentScrollableSize > initialScrollableSize)
-            currentScrollableSize = initialScrollableSize;
-          if (swiped == true && currentScrollableSize < 0.77)
-            currentScrollableSize = 0.77;
-          renameTagLocal = v5;
-          if (renameTagLocal != '') renameTagController.text = renameTagLocal;
-          deleteTagLocal = v6;
-          localPagesLength = v7;
-          currentlyDeleting = v8 != '';
-          currentlyDeletingModal = v9 != '';
-        }
+        currentlyTagging = CurrentlyTagging;
+        renameTag = RenameTag;
+        if (renameTag != '') renameTagController.text = renameTag;
+        deleteTag = DeleteTag;
+        currentlyDeleting = CurrentlyDeleting != '';
+        currentlyDeletingModal = CurrentlyDeletingModal != '';
+        localPagesLength = LocalPagesLength;
       });
     });
   }
@@ -143,15 +103,9 @@ class _LocalViewState extends State<LocalView> {
   @override
   void dispose() {
     super.dispose();
-    searchTagController.dispose();
-    renameTagController.dispose();
-    controller.dispose();
     cancelListener();
-  }
-
-  bool searchTag(String query) {
-    StoreService.instance.set('tagFilterLocal', query);
-    return true;
+    renameTagController.dispose();
+    pageController.dispose();
   }
 
   @override
@@ -159,7 +113,7 @@ class _LocalViewState extends State<LocalView> {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return PageView.builder(
       reverse: true,
-      controller: controller,
+      controller: pageController,
       itemCount: localPagesLength == '' ? 0 : localPagesLength,
       pageSnapping: true,
       itemBuilder: (BuildContext context, int index) {
@@ -239,194 +193,10 @@ class _LocalViewState extends State<LocalView> {
               },
             ),
             // Tag pivs scrollable list
-            Visibility(
-                visible: swiped,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SizedBox.expand(
-                      child:
-                          NotificationListener<DraggableScrollableNotification>(
-                    onNotification: (state) {
-                      if (state.extent < (initialScrollableSize + 0.0001))
-                        StoreService.instance.set('swipedLocal', false);
-                      if (state.extent > (0.77 - 0.0001))
-                        StoreService.instance.set('swipedLocal', true);
-                      return true;
-                    },
-                    child: DraggableScrollableSheet(
-                        key: Key(currentScrollableSize.toString()),
-                        snap: true,
-                        initialChildSize: currentScrollableSize,
-                        minChildSize: initialScrollableSize,
-                        maxChildSize: 0.77,
-                        builder: (BuildContext context,
-                            ScrollController scrollController) {
-                          return ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(25),
-                              topRight: Radius.circular(25),
-                            ),
-                            child: Container(
-                              color: Colors.white,
-                              child: ListView(
-                                padding:
-                                    const EdgeInsets.only(left: 12, right: 12),
-                                controller: scrollController,
-                                children: [
-                                  Visibility(
-                                      visible: !swiped,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          StoreService.instance
-                                              .set('swipedLocal', true);
-                                        },
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 8.0),
-                                            child: FaIcon(
-                                              FontAwesomeIcons.anglesUp,
-                                              color: kGrey,
-                                              size: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: !swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Swipe to start tagging',
-                                            style: kPlainTextBold,
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: swiped,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          StoreService.instance
-                                              .set('swipedLocal', false);
-                                        },
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 8.0),
-                                            child: FaIcon(
-                                              FontAwesomeIcons.anglesDown,
-                                              color: kGrey,
-                                              size: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Tag your pics and videos',
-                                            style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
-                                                color: kAltoBlue),
-                                          ),
-                                        ),
-                                      )),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: SizedBox(
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchTagController,
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 10.0,
-                                                  horizontal: 20.0),
-                                          fillColor: kGreyLightest,
-                                          hintText: 'Create or search a tag',
-                                          hintMaxLines: 1,
-                                          hintStyle: kPlainTextBold,
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: kGreyDarker)),
-                                          prefixIcon: const Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 12, left: 12, top: 15),
-                                            child: FaIcon(
-                                              kSearchIcon,
-                                              size: 16,
-                                              color: kGreyDarker,
-                                            ),
-                                          ),
-                                        ),
-                                        onChanged: searchTag,
-                                      ),
-                                    ),
-                                  ),
-                                  ListView.builder(
-                                      itemCount: usertags.length,
-                                      padding: EdgeInsets.zero,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var tag = usertags[index];
-                                        var actualTag = tag;
-                                        if (index == 0 &&
-                                            RegExp(' \\(new tag\\)\$')
-                                                .hasMatch(tag)) {
-                                          actualTag = tag.replaceFirst(
-                                              RegExp(' \\(new tag\\)\$'), '');
-                                          actualTag = actualTag.trim();
-                                        }
-                                        return TagListElement(
-                                          // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
-                                          key: Key('local-' + tag),
-                                          tagColor: tagColor(actualTag),
-                                          tagName: tag,
-                                          view: 'local',
-                                          onTap: () {
-                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                            return () {
-                                              if (RegExp('^[a-z]::')
-                                                  .hasMatch(actualTag))
-                                                return showSnackbar(
-                                                    'Alas, you cannot use that tag.',
-                                                    'yellow');
-                                              StoreService.instance
-                                                  .set('tagFilterLocal', '');
-                                              searchTagController.clear();
-                                              StoreService.instance
-                                                  .set('swipedLocal', false);
-                                              StoreService.instance.set(
-                                                  'currentlyTaggingLocal',
-                                                  currentlyTagging == ''
-                                                      ? [actualTag]
-                                                      : currentlyTagging +
-                                                          [actualTag]);
-                                            };
-                                          },
-                                        );
-                                      })
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                  )),
-                )),
+            TagPivsScrollableList(view: 'Local'),
             // Rename tag modal
             Visibility(
-                visible: renameTagLocal != '',
+                visible: renameTag != '',
                 // visible: true,
                 child: Center(
                   child: Padding(
@@ -487,7 +257,7 @@ class _LocalViewState extends State<LocalView> {
                               child: GestureDetector(
                                 onTap: () {
                                   TagService.instance.renameTag(
-                                      renameTagLocal, renameTagController.text);
+                                      renameTag, renameTagController.text);
                                   StoreService.instance
                                       .remove('renameTagLocal');
                                 },
@@ -527,7 +297,7 @@ class _LocalViewState extends State<LocalView> {
                 )),
             // Delete tag modal
             Visibility(
-                visible: deleteTagLocal != '',
+                visible: deleteTag != '',
                 child: Center(
                   child: Container(
                     height: 230,
@@ -566,7 +336,7 @@ class _LocalViewState extends State<LocalView> {
                             padding: const EdgeInsets.only(
                                 right: 15, left: 15, bottom: 10),
                             child: Text(
-                              deleteTagLocal + '?',
+                              deleteTag + '?',
                               textAlign: TextAlign.center,
                               softWrap: true,
                               style: kPlainTextBold,
@@ -591,7 +361,7 @@ class _LocalViewState extends State<LocalView> {
                             ),
                             child: GestureDetector(
                               onTap: () {
-                                TagService.instance.deleteTag(deleteTagLocal);
+                                TagService.instance.deleteTag(deleteTag);
                                 StoreService.instance.remove('deleteTagLocal');
                               },
                               child: const Padding(

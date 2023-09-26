@@ -53,74 +53,36 @@ class UploadedView extends StatefulWidget {
 
 class _UploadedViewState extends State<UploadedView> {
   dynamic cancelListener;
-  final TextEditingController searchTagController = TextEditingController();
   final TextEditingController renameTagController = TextEditingController();
 
-  dynamic usertags = [];
   dynamic currentlyTagging = '';
-  bool swiped = false;
   bool currentlyDeleting = false;
   bool currentlyDeletingModal = false;
-  String renameTagUploaded = '';
-  String deleteTagUploaded = '';
-
-  // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
-  // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
-  // For more info, refer to https://github.com/flutter/flutter/issues/45009
-  double initialScrollableSize =
-      StoreService.instance.get('initialScrollableSize');
-  double currentScrollableSize =
-      StoreService.instance.get('initialScrollableSize');
+  String renameTag = '';
+  String deleteTag = '';
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
-      'usertags',
       'currentlyTaggingUploaded',
-      'swipedUploaded',
-      'tagFilterUploaded',
       'renameTagUploaded',
       'deleteTagUploaded',
       'currentlyDeletingUploaded',
       'currentlyDeletingModalUploaded',
-    ], (v1, v2, v3, v4, v5, v6, v7, v8) {
-      var currentView = StoreService.instance.get('currentIndex');
-      if (v2 != '') TagService.instance.getTaggedPivs(v2, 'uploaded');
+    ], (CurrentlyTagging, RenameTag, DeleteTag, CurrentlyDeleting,
+        CurrentlyDeletingModal) {
+      // Update the list of tagged pivs only if this is the active view.
+      if (CurrentlyTagging != '' && StoreService.instance.get ('currentIndex') != 1)
+        TagService.instance.getTaggedPivs(CurrentlyTagging, 'uploaded');
+
       setState(() {
-        if (v1 != '') {
-          var filter = v4;
-          var lastNTags = StoreService.instance.get('lastNTags');
-          if (lastNTags == '') lastNTags = [];
-          usertags = List.from(lastNTags)
-            ..addAll(v1.where((tag) => !lastNTags.contains(tag)));
-          usertags = usertags
-              .where(
-                  (tag) => RegExp(filter, caseSensitive: false).hasMatch(tag))
-              .toList();
-          if (filter != '' && !usertags.contains(filter))
-            usertags.insert(0, filter + ' (new tag)');
-          // Remove from usertags tags that already are in currentlyTagging
-          if (v2 != '')
-            usertags = usertags.where((tag) => !v2.contains(tag)).toList();
-        }
-        if (currentView != 1) {
-          currentlyTagging = v2;
-          if (v3 != '') swiped = v3;
-          if (swiped == false) {
-            FocusManager.instance.primaryFocus?.unfocus();
-          }
-          if (swiped == false && currentScrollableSize > initialScrollableSize)
-            currentScrollableSize = initialScrollableSize;
-          if (swiped == true && currentScrollableSize < 0.77)
-            currentScrollableSize = 0.77;
-        }
-        renameTagUploaded = v5;
-        if (renameTagUploaded != '')
-          renameTagController.text = renameTagUploaded;
-        deleteTagUploaded = v6;
-        currentlyDeleting = v7 != '';
-        currentlyDeletingModal = v8 != '';
+        currentlyTagging = CurrentlyTagging;
+        renameTag = RenameTag;
+        if (renameTag != '') renameTagController.text = renameTag;
+        deleteTag = DeleteTag;
+        currentlyDeleting = CurrentlyDeleting != '';
+        currentlyDeletingModal = CurrentlyDeletingModal != '';
       });
     });
   }
@@ -129,13 +91,7 @@ class _UploadedViewState extends State<UploadedView> {
   void dispose() {
     super.dispose();
     cancelListener();
-    searchTagController.dispose();
     renameTagController.dispose();
-  }
-
-  bool searchTag(String query) {
-    StoreService.instance.set('tagFilterUploaded', query);
-    return true;
   }
 
   @override
@@ -144,6 +100,7 @@ class _UploadedViewState extends State<UploadedView> {
       children: [
         const UploadGrid(),
         const TopRow(),
+        // Done button
         Visibility(
             visible: currentlyTagging != '' || currentlyDeleting,
             child: Align(
@@ -151,9 +108,7 @@ class _UploadedViewState extends State<UploadedView> {
                 child: FloatingActionButton.extended(
                   onPressed: () {
                     if (currentlyTagging != '') {
-                      StoreService.instance.set('swipedUploaded', false);
                       StoreService.instance.set('currentlyTaggingUploaded', '');
-                      searchTagController.clear();
                       // We update the tag list in case we just created a new one.
                       TagService.instance.getTags();
                     } else {
@@ -216,191 +171,7 @@ class _UploadedViewState extends State<UploadedView> {
           },
         ),
         // Tag pivs scrollable list
-        // TagPivsScrollableList (view: 'Uploaded'),
-        Visibility(
-            visible: swiped,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox.expand(
-                child: NotificationListener<DraggableScrollableNotification>(
-                    onNotification: (state) {
-                      if (state.extent < (initialScrollableSize + 0.0001))
-                        StoreService.instance.set('swipedUploaded', false);
-                      if (state.extent > (0.77 - 0.0001))
-                        StoreService.instance.set('swipedUploaded', true);
-                      return true;
-                    },
-                    child: DraggableScrollableSheet(
-                        key: Key(currentScrollableSize.toString()),
-                        snap: true,
-                        initialChildSize: currentScrollableSize,
-                        minChildSize: initialScrollableSize,
-                        maxChildSize: 0.77,
-                        builder: (BuildContext context,
-                            ScrollController scrollController) {
-                          return ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(25),
-                              topRight: Radius.circular(25),
-                            ),
-                            child: Container(
-                              color: Colors.white,
-                              child: ListView(
-                                padding:
-                                    const EdgeInsets.only(left: 12, right: 12),
-                                controller: scrollController,
-                                children: [
-                                  Visibility(
-                                      visible: !swiped,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          StoreService.instance
-                                              .set('swipedUploaded', true);
-                                        },
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 8.0),
-                                            child: FaIcon(
-                                              FontAwesomeIcons.anglesUp,
-                                              color: kGrey,
-                                              size: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: !swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Swipe to start tagging',
-                                            style: kPlainTextBold,
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: swiped,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          StoreService.instance
-                                              .set('swipedUploaded', false);
-                                        },
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 8.0),
-                                            child: FaIcon(
-                                              FontAwesomeIcons.anglesDown,
-                                              color: kGrey,
-                                              size: 16,
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                  Visibility(
-                                      visible: swiped,
-                                      child: const Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              top: 8.0, bottom: 8),
-                                          child: Text(
-                                            'Tag your pics and videos',
-                                            style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
-                                                color: kAltoBlue),
-                                          ),
-                                        ),
-                                      )),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: SizedBox(
-                                      height: 50,
-                                      child: TextField(
-                                        controller: searchTagController,
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  vertical: 10.0,
-                                                  horizontal: 20.0),
-                                          fillColor: kGreyLightest,
-                                          hintText: 'Create or search a tag',
-                                          hintMaxLines: 1,
-                                          hintStyle: kPlainTextBold,
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: kGreyDarker)),
-                                          prefixIcon: const Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 12, left: 12, top: 15),
-                                            child: FaIcon(
-                                              kSearchIcon,
-                                              size: 16,
-                                              color: kGreyDarker,
-                                            ),
-                                          ),
-                                        ),
-                                        onChanged: searchTag,
-                                      ),
-                                    ),
-                                  ),
-                                  ListView.builder(
-                                      itemCount: usertags.length,
-                                      padding: EdgeInsets.zero,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        var tag = usertags[index];
-                                        var actualTag = tag;
-                                        if (index == 0 &&
-                                            RegExp(' \\(new tag\\)\$')
-                                                .hasMatch(tag)) {
-                                          actualTag = tag.replaceFirst(
-                                              RegExp(' \\(new tag\\)\$'), '');
-                                          actualTag = actualTag.trim();
-                                        }
-                                        return TagListElement(
-                                          // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
-                                          key: Key('uploaded-' + tag),
-                                          tagColor: tagColor(actualTag),
-                                          tagName: tag,
-                                          view: 'uploaded',
-                                          onTap: () {
-                                            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                                            return () {
-                                              if (RegExp('^[a-z]::')
-                                                  .hasMatch(actualTag))
-                                                return showSnackbar(
-                                                    'Alas, you cannot use that tag.',
-                                                    'yellow');
-                                              StoreService.instance
-                                                  .set('tagFilterUploaded', '');
-                                              searchTagController.clear();
-                                              StoreService.instance
-                                                  .set('swipedUploaded', false);
-                                              StoreService.instance.set(
-                                                  'currentlyTaggingUploaded',
-                                                  currentlyTagging == ''
-                                                      ? [actualTag]
-                                                      : currentlyTagging +
-                                                          [actualTag]);
-                                            };
-                                          },
-                                        );
-                                      })
-                                ],
-                              ),
-                            ),
-                          );
-                        })),
-              ),
-            )),
+        TagPivsScrollableList(view: 'Uploaded'),
         // Delete modal
         Visibility(
             visible: currentlyDeletingModal,
@@ -513,7 +284,7 @@ class _UploadedViewState extends State<UploadedView> {
             )),
         // Rename tag modal
         Visibility(
-            visible: renameTagUploaded != '',
+            visible: renameTag != '',
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
@@ -571,7 +342,7 @@ class _UploadedViewState extends State<UploadedView> {
                           child: GestureDetector(
                             onTap: () {
                               TagService.instance.renameTag(
-                                  renameTagUploaded, renameTagController.text);
+                                  renameTag, renameTagController.text);
                               StoreService.instance.remove('renameTagUploaded');
                             },
                             child: const Padding(
@@ -608,7 +379,7 @@ class _UploadedViewState extends State<UploadedView> {
             )),
         // Delete tag modal
         Visibility(
-            visible: deleteTagUploaded != '',
+            visible: deleteTag != '',
             child: Center(
               child: Container(
                 height: 200,
@@ -634,7 +405,7 @@ class _UploadedViewState extends State<UploadedView> {
                         padding:
                             EdgeInsets.only(right: 15, left: 15, bottom: 10),
                         child: Text(
-                          deleteTagUploaded + '?',
+                          deleteTag + '?',
                           textAlign: TextAlign.center,
                           softWrap: true,
                           style: kTaglineTextBold,
@@ -659,7 +430,7 @@ class _UploadedViewState extends State<UploadedView> {
                         ),
                         child: GestureDetector(
                           onTap: () {
-                            TagService.instance.deleteTag(deleteTagUploaded);
+                            TagService.instance.deleteTag(deleteTag);
                             StoreService.instance.remove('deleteTagUploaded');
                           },
                           child: const Padding(
