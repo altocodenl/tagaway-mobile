@@ -1273,13 +1273,14 @@ class DeleteButton extends StatefulWidget {
 }
 
 class _DeleteButtonState extends State<DeleteButton> {
-  bool visible = false;
   dynamic cancelListener;
+  bool visible = false;
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['showButtons' + widget.view], (v1) {
+    cancelListener =
+        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -1302,8 +1303,8 @@ class _DeleteButtonState extends State<DeleteButton> {
         elevation: 10,
         key: const Key('delete'),
         onPressed: () {
-                  StoreService.instance.set('currentlyDeleting' + widget.view, true);
-                  StoreService.instance.set('showButtons' + widget.view, false);
+          StoreService.instance.set('currentlyDeleting' + widget.view, true);
+          StoreService.instance.set('showButtons' + widget.view, false);
         },
         backgroundColor: kAltoRed,
         child: const Icon(kTrashCanIcon),
@@ -1325,13 +1326,14 @@ class TagButton extends StatefulWidget {
 }
 
 class _TagButtonState extends State<TagButton> {
-  bool visible = false;
   dynamic cancelListener;
+  bool visible = false;
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['showButtons' + widget.view], (v1) {
+    cancelListener =
+        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -1354,8 +1356,8 @@ class _TagButtonState extends State<TagButton> {
         elevation: 10,
         key: const Key('tag'),
         onPressed: () {
-                  StoreService.instance.set('swiped' + widget.view, true);
-                  StoreService.instance.set('showButtons' + widget.view, false);
+          StoreService.instance.set('swiped' + widget.view, true);
+          StoreService.instance.set('showButtons' + widget.view, false);
         },
         backgroundColor: kAltoBlue,
         child: const Icon(kTagIcon),
@@ -1743,32 +1745,26 @@ void TagawaySpaceCleanerModal2(BuildContext context) {
 class AddMoreTagsButton extends StatefulWidget {
   const AddMoreTagsButton({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
-  final String showWhen;
-  final dynamic onPressed;
+  final String view;
 
   @override
   State<AddMoreTagsButton> createState() => _AddMoreTagsButtonState();
 }
 
 class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
-  bool visible = false;
   dynamic cancelListener;
-  String showWhen = '';
+  bool visible = false;
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener = StoreService.instance
+        .listen(['currentlyTagging' + widget.view], (CurrentlyTagging) {
       setState(() {
-        showWhen = widget.showWhen;
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        if (v1 != '' && v1.length == 1)
-          visible = true;
-        else
-          visible = false;
+        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1;
       });
     });
   }
@@ -1785,9 +1781,12 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
-        onPressed: widget.onPressed,
+        onPressed: () {
+          StoreService.instance.set('swiped' + widget.view, true);
+          StoreService.instance.set('showButtons' + widget.view, false);
+        },
         backgroundColor: kAltoBlue,
-        key: Key('addMoreTags-' + showWhen),
+        key: Key('addMoreTags-' + widget.view),
         label: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

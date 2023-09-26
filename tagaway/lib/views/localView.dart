@@ -85,7 +85,8 @@ class _LocalViewState extends State<LocalView> {
     ], (CurrentlyTagging, RenameTag, DeleteTag, CurrentlyDeleting,
         CurrentlyDeletingModal, LocalPagesLength) {
       // Update the list of tagged pivs only if this is the active view.
-      if (CurrentlyTagging != '' && StoreService.instance.get ('currentIndex') == 1)
+      if (CurrentlyTagging != '' &&
+          StoreService.instance.get('currentIndex') == 1)
         TagService.instance.getTaggedPivs(CurrentlyTagging, 'local');
 
       setState(() {
@@ -156,13 +157,7 @@ class _LocalViewState extends State<LocalView> {
                       icon: const Icon(Icons.done),
                     ))),
             // Add more tags button
-            AddMoreTagsButton(
-              showWhen: 'currentlyTaggingLocal',
-              onPressed: () {
-                StoreService.instance.set('swipedLocal', true);
-                StoreService.instance.set('showButtonsLocal', false);
-              },
-            ),
+            AddMoreTagsButton(view: 'Local'),
             // Start button
             Visibility(
                 visible: currentlyTagging == '' && !currentlyDeleting,

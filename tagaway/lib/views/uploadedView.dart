@@ -73,7 +73,8 @@ class _UploadedViewState extends State<UploadedView> {
     ], (CurrentlyTagging, RenameTag, DeleteTag, CurrentlyDeleting,
         CurrentlyDeletingModal) {
       // Update the list of tagged pivs only if this is the active view.
-      if (CurrentlyTagging != '' && StoreService.instance.get ('currentIndex') != 1)
+      if (CurrentlyTagging != '' &&
+          StoreService.instance.get('currentIndex') != 1)
         TagService.instance.getTaggedPivs(CurrentlyTagging, 'uploaded');
 
       setState(() {
@@ -134,13 +135,7 @@ class _UploadedViewState extends State<UploadedView> {
                 buttonText: 'Organize',
                 showButtonsKey: 'showButtonsUploaded')),
         // Add more tags button
-        AddMoreTagsButton(
-          showWhen: 'currentlyTaggingUploaded',
-          onPressed: () {
-            StoreService.instance.set('swipedUploaded', true);
-            StoreService.instance.set('showButtonsUploaded', false);
-          },
-        ),
+        AddMoreTagsButton(view: 'Uploaded'),
         // Start button
         Visibility(
             visible: currentlyTagging == '' && !currentlyDeleting,
