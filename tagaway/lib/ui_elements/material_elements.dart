@@ -1263,12 +1263,10 @@ class _UploadingNumberState extends State<UploadingNumber> {
 class DeleteButton extends StatefulWidget {
   const DeleteButton({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
 
-  final Function onPressed;
-  final String showWhen;
+  final String view;
 
   @override
   State<DeleteButton> createState() => _DeleteButtonState();
@@ -1281,7 +1279,7 @@ class _DeleteButtonState extends State<DeleteButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener = StoreService.instance.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -1303,7 +1301,10 @@ class _DeleteButtonState extends State<DeleteButton> {
         heroTag: null,
         elevation: 10,
         key: const Key('delete'),
-        onPressed: widget.onPressed(),
+        onPressed: () {
+                  StoreService.instance.set('currentlyDeleting' + widget.view, true);
+                  StoreService.instance.set('showButtons' + widget.view, false);
+        },
         backgroundColor: kAltoRed,
         child: const Icon(kTrashCanIcon),
       ),
@@ -1314,12 +1315,10 @@ class _DeleteButtonState extends State<DeleteButton> {
 class TagButton extends StatefulWidget {
   const TagButton({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
 
-  final Function onPressed;
-  final String showWhen;
+  final String view;
 
   @override
   _TagButtonState createState() => _TagButtonState();
@@ -1332,7 +1331,7 @@ class _TagButtonState extends State<TagButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener = StoreService.instance.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -1354,7 +1353,10 @@ class _TagButtonState extends State<TagButton> {
         heroTag: null,
         elevation: 10,
         key: const Key('tag'),
-        onPressed: widget.onPressed(),
+        onPressed: () {
+                  StoreService.instance.set('swiped' + widget.view, true);
+                  StoreService.instance.set('showButtons' + widget.view, false);
+        },
         backgroundColor: kAltoBlue,
         child: const Icon(kTagIcon),
       ),
@@ -1808,6 +1810,85 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
     );
   }
 }
+
+// TODO
+/*
+class DoneButton extends StatefulWidget {
+  const DoneButton({
+    Key? key,
+    required this.showWhen,
+    required this.onPressed,
+  }) : super(key: key);
+  final String showWhen;
+  final dynamic onPressed;
+
+  @override
+  State<DoneButton> createState() => _DoneButtonState();
+}
+
+class _DoneButtonState extends State<DoneButton> {
+  bool visible = false;
+  dynamic cancelListener;
+  String showWhen = '';
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+      setState(() {
+        showWhen = widget.showWhen;
+        // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
+        if (v1 != '' && v1.length == 1)
+          visible = true;
+        else
+          visible = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return Container();
+    return Align(
+                    alignment: const Alignment(0.8, .9),
+                    child: FloatingActionButton.extended(
+                      onPressed: () {
+                        if (currentlyTagging != '') {
+                          StoreService.instance.set('swipedLocal', false);
+                          StoreService.instance
+                              .set('currentlyTaggingLocal', '');
+                          StoreService.instance.set('tagFilterLocal', '');
+                          StoreService.instance.remove('currentlyTaggingPivs');
+                          // We update the tag list in case we just created a new one.
+                          TagService.instance.getTags();
+                          // We update the list of organized pivs for those uploaded pivs that have a local counterpart
+                          PivService.instance.queryOrganizedLocalPivs();
+                        } else {
+                          var currentlyDeleting = StoreService.instance
+                              .get('currentlyDeletingPivsLocal');
+                          if (currentlyDeleting != '' &&
+                              currentlyDeleting.length > 0) {
+                            StoreService.instance
+                                .set('currentlyDeletingModalLocal', true);
+                          } else {
+                            StoreService.instance
+                                .remove('currentlyDeletingLocal');
+                          }
+                        }
+                      },
+                      backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
+                      label: const Text('Done', style: kSelectAllButton),
+                      icon: const Icon(Icons.done),
+                    ));
+  }
+}
+*/
 
 class TagPivsScrollableList extends StatefulWidget {
   const TagPivsScrollableList({

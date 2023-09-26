@@ -149,27 +149,9 @@ class _UploadedViewState extends State<UploadedView> {
                 buttonText: 'Organize',
                 showButtonsKey: 'showButtonsUploaded')),
         // Delete button
-        DeleteButton(
-          showWhen: 'showButtonsUploaded',
-          onPressed: () {
-            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-            return () {
-              StoreService.instance.set('currentlyDeletingUploaded', true);
-              StoreService.instance.set('showButtonsUploaded', false);
-            };
-          },
-        ),
+        DeleteButton(view: 'Uploaded'),
         // Tag button
-        TagButton(
-          showWhen: 'showButtonsUploaded',
-          onPressed: () {
-            // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-            return () {
-              StoreService.instance.set('swipedUploaded', true);
-              StoreService.instance.set('showButtonsUploaded', false);
-            };
-          },
-        ),
+        TagButton(view: 'Uploaded'),
         // Tag pivs scrollable list
         TagPivsScrollableList(view: 'Uploaded'),
         // Delete modal

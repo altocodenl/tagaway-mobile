@@ -171,27 +171,9 @@ class _LocalViewState extends State<LocalView> {
                     buttonText: 'Start',
                     showButtonsKey: 'showButtonsLocal')),
             // Delete button
-            DeleteButton(
-              showWhen: 'showButtonsLocal',
-              onPressed: () {
-                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                return () {
-                  StoreService.instance.set('currentlyDeletingLocal', true);
-                  StoreService.instance.set('showButtonsLocal', false);
-                };
-              },
-            ),
+            DeleteButton(view: 'Local'),
             // Tag button
-            TagButton(
-              showWhen: 'showButtonsLocal',
-              onPressed: () {
-                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                return () {
-                  StoreService.instance.set('swipedLocal', true);
-                  StoreService.instance.set('showButtonsLocal', false);
-                };
-              },
-            ),
+            TagButton(view: 'Local'),
             // Tag pivs scrollable list
             TagPivsScrollableList(view: 'Local'),
             // Rename tag modal
