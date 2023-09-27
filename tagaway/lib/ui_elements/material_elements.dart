@@ -1501,7 +1501,7 @@ void TagawaySpaceCleanerModal1(
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
+                  padding: const EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
                   child: Text(
                     'You have ' +
                         printBytes(availableBytes) +
@@ -1519,7 +1519,7 @@ void TagawaySpaceCleanerModal1(
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
+                  padding: const EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
                   child: Text(
                     'You will free up to ' +
                         printBytes(potentialCleanup) +
@@ -2531,5 +2531,232 @@ class _DeleteTagModalState extends State<DeleteTagModal> {
         ),
       ),
     ));
+  }
+}
+
+class GeotaggingSwitch extends StatefulWidget {
+  const GeotaggingSwitch({super.key});
+
+  @override
+  State<GeotaggingSwitch> createState() => _GeotaggingSwitchState();
+}
+
+class _GeotaggingSwitchState extends State<GeotaggingSwitch> {
+  dynamic cancelListener;
+  dynamic account = {'geo': false};
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen(['account'], (v1) {
+      setState(() {
+        if (v1 != '') account = v1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Transform.scale(
+          scale: SizeService.instance.screenWidth(context) < 380 ? 1.2 : 1.5,
+          child: Switch(
+            activeTrackColor: kAltoBlue,
+            activeColor: Colors.white,
+            inactiveTrackColor: kGreyLight,
+            value: account['geo'] != null,
+            onChanged: (bool value) {
+              setState(() {
+                 // TODO: dynamize
+                // We do this to give instant feedback.
+                account = {'geo': value};
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class PhoneViewSettings extends StatefulWidget {
+  const PhoneViewSettings({Key? key}) : super(key: key);
+
+  @override
+  State<PhoneViewSettings> createState() => _PhoneViewSettingsState();
+}
+
+class _PhoneViewSettingsState extends State<PhoneViewSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  color: Colors.white,
+                  height: 250,
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: const [
+                      Icon(
+                        kMinusIcon,
+                        color: kGreyDarker,
+                        size: 30,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Settings',
+                              style: kPlainTextBoldDarkest,
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Hide organized pivs',
+                                    style: kPlainTextBold,
+                                  ),
+                                ),
+                                Expanded(child: HidePivsSwitch()),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Show only camera pivs',
+                                    style: kPlainTextBold,
+                                  ),
+                                ),
+                                Expanded(child: ShowCameraPivs()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ));
+            });
+      },
+      child: const Center(
+        child: FaIcon(
+          kGearIcon,
+          color: kGrey,
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+
+class HidePivsSwitch extends StatefulWidget {
+  const HidePivsSwitch({super.key});
+
+  @override
+  State<HidePivsSwitch> createState() => _HidePivsSwitch();
+}
+
+class _HidePivsSwitch extends State<HidePivsSwitch> {
+  dynamic cancelListener;
+  // dynamic account = {'geo': false};
+  late bool hidePivsSwitch = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // cancelListener = StoreService.instance.listen(['account'], (v1) {
+    //   setState(() {
+    //     if (v1 != '') account = v1;
+    //   });
+    // });
+  }
+
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   cancelListener();
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Transform.scale(
+          scale: SizeService.instance.screenWidth(context) < 380 ? 1.2 : 1.5,
+          child: Switch(
+            activeTrackColor: kAltoBlue,
+            activeColor: Colors.white,
+            inactiveTrackColor: kGreyLight,
+            // value: account['geo'] != null,
+            value: hidePivsSwitch,
+            onChanged: (bool value) {
+              setState(() {
+                hidePivsSwitch = !hidePivsSwitch;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ShowCameraPivs extends StatefulWidget {
+  const ShowCameraPivs({Key? key}) : super(key: key);
+
+  @override
+  State<ShowCameraPivs> createState() => _ShowCameraPivsState();
+}
+
+class _ShowCameraPivsState extends State<ShowCameraPivs> {
+  late bool showCameraPivs = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Transform.scale(
+          scale: SizeService.instance.screenWidth(context) < 380 ? 1.2 : 1.5,
+          child: Switch(
+            activeTrackColor: kAltoBlue,
+            activeColor: Colors.white,
+            inactiveTrackColor: kGreyLight,
+            // value: account['geo'] != null,
+            value: showCameraPivs,
+            onChanged: (bool value) {
+              // AuthService.instance.geotagging(value ? 'enable' : 'disable');
+              setState(() {
+                showCameraPivs = !showCameraPivs;
+              });
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

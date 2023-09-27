@@ -271,36 +271,10 @@ class _TopRowState extends State<TopRow> {
                                 : SizeService.instance.screenWidth(context) *
                                     .13,
                           ),
-                          Visibility(
-                            visible: displayMode == 'all',
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 2),
-                              child: GestureDetector(
-                                onTap: () {
-                                  StoreService.instance.set('displayMode', '');
-                                },
-                                child: const Icon(
-                                  kEyeIcon,
-                                  color: kGreyDarker,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                            replacement: Padding(
-                              padding: const EdgeInsets.only(right: 4),
-                              child: GestureDetector(
-                                onTap: () {
-                                  StoreService.instance
-                                      .set('displayMode', 'all');
-                                },
-                                child: const Icon(
-                                  kSlashedEyeIcon,
-                                  color: kGreyDarker,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(right: 2),
+                            child: PhoneViewSettings(),
+                          )
                         ],
                       )),
                   Padding(
