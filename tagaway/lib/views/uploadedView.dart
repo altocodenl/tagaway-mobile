@@ -17,14 +17,13 @@ class UploadedView extends StatefulWidget {
 }
 
 class _UploadedViewState extends State<UploadedView> {
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         const UploadGrid(),
         const TopRow(),
-        DoneButton (view: 'Uploaded'),
+        DoneButton(view: 'Uploaded'),
         AddMoreTagsButton(view: 'Uploaded'),
         StartButton(buttonText: 'Organize', view: 'Uploaded'),
         DeleteButton(view: 'Uploaded'),
@@ -305,10 +304,11 @@ class _TopRowState extends State<TopRow> {
                         ),
                       ),
                       Expanded(
-                        child: Align(
-                            alignment: Alignment(0.5, .9),
-                            child: Text(yearUploaded, textAlign: TextAlign.center, style: kLocalYear))
-                      ),
+                          child: Align(
+                              alignment: Alignment(0.5, .9),
+                              child: Text(yearUploaded,
+                                  textAlign: TextAlign.center,
+                                  style: kLocalYear))),
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),
                         child: ElevatedButton(

@@ -61,7 +61,7 @@ class _LocalViewState extends State<LocalView> {
           children: [
             Grid(localPagesIndex: index),
             TopRow(localPagesIndex: index),
-            DoneButton (view: 'Local'),
+            DoneButton(view: 'Local'),
             AddMoreTagsButton(view: 'Local'),
             StartButton(buttonText: 'Start', view: 'Local'),
             DeleteButton(view: 'Local'),
