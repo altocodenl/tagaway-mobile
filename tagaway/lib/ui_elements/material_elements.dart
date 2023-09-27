@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1263,25 +1264,24 @@ class _UploadingNumberState extends State<UploadingNumber> {
 class DeleteButton extends StatefulWidget {
   const DeleteButton({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
 
-  final Function onPressed;
-  final String showWhen;
+  final String view;
 
   @override
   State<DeleteButton> createState() => _DeleteButtonState();
 }
 
 class _DeleteButtonState extends State<DeleteButton> {
-  bool visible = false;
   dynamic cancelListener;
+  bool visible = false;
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener =
+        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -1303,7 +1303,10 @@ class _DeleteButtonState extends State<DeleteButton> {
         heroTag: null,
         elevation: 10,
         key: const Key('delete'),
-        onPressed: widget.onPressed(),
+        onPressed: () {
+          StoreService.instance.set('currentlyDeleting' + widget.view, true);
+          StoreService.instance.set('showButtons' + widget.view, false);
+        },
         backgroundColor: kAltoRed,
         child: const Icon(kTrashCanIcon),
       ),
@@ -1314,25 +1317,24 @@ class _DeleteButtonState extends State<DeleteButton> {
 class TagButton extends StatefulWidget {
   const TagButton({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
 
-  final Function onPressed;
-  final String showWhen;
+  final String view;
 
   @override
   _TagButtonState createState() => _TagButtonState();
 }
 
 class _TagButtonState extends State<TagButton> {
-  bool visible = false;
   dynamic cancelListener;
+  bool visible = false;
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener =
+        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -1354,7 +1356,10 @@ class _TagButtonState extends State<TagButton> {
         heroTag: null,
         elevation: 10,
         key: const Key('tag'),
-        onPressed: widget.onPressed(),
+        onPressed: () {
+          StoreService.instance.set('swiped' + widget.view, true);
+          StoreService.instance.set('showButtons' + widget.view, false);
+        },
         backgroundColor: kAltoBlue,
         child: const Icon(kTagIcon),
       ),
@@ -1366,18 +1371,17 @@ class StartButton extends StatefulWidget {
   const StartButton({
     Key? key,
     required this.buttonText,
-    required this.buttonKey,
-    required this.showButtonsKey,
+    required this.view,
   }) : super(key: key);
   final String buttonText;
-  final Key buttonKey;
-  final String showButtonsKey;
+  final String view;
 
   @override
   State<StartButton> createState() => _StartButtonState();
 }
 
 class _StartButtonState extends State<StartButton> {
+  bool secondElapsed = false;
   bool visible = false;
   bool showButtons = false;
   dynamic cancelListener;
@@ -1385,17 +1389,33 @@ class _StartButtonState extends State<StartButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen([widget.showButtonsKey], (v1) {
+    cancelListener = StoreService.instance.listen([
+      'showButtons' + widget.view,
+      'currentlyTagging' + widget.view,
+      'currentlyDeleting' + widget.view
+    ], (ShowButtons, CurrentlyTagging, CurrentlyDeleting) {
+      if (CurrentlyTagging != '' &&
+          StoreService.instance.get('currentIndex') ==
+              (widget.view == 'Local' ? 1 : 2))
+        TagService.instance.getTaggedPivs(CurrentlyTagging, 'local');
+
       setState(() {
-        showButtons = v1 == true;
+        showButtons = ShowButtons == true;
+        visible = secondElapsed &&
+            CurrentlyTagging == '' &&
+            CurrentlyDeleting != true;
       });
     });
 
     Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
         setState(() {
-          visible = true;
+          secondElapsed = true;
+          visible = secondElapsed &&
+              StoreService.instance.get('currentlyTagging' + widget.view) ==
+                  '' &&
+              StoreService.instance.get('currentlyDeleting' + widget.view) !=
+                  true;
         });
       }
     });
@@ -1417,9 +1437,9 @@ class _StartButtonState extends State<StartButton> {
         child: FloatingActionButton.extended(
           extendedPadding: const EdgeInsets.only(left: 20, right: 20),
           heroTag: null,
-          key: Key(widget.buttonKey.toString()),
+          key: Key('startTagging' + widget.view),
           onPressed: () {
-            StoreService.instance.set(widget.showButtonsKey, true);
+            StoreService.instance.set('showButtons' + widget.view, true);
           },
           backgroundColor: kAltoBlue,
           elevation: 20,
@@ -1428,7 +1448,7 @@ class _StartButtonState extends State<StartButton> {
         replacement: FloatingActionButton(
           onPressed: () {
             setState(() {
-              StoreService.instance.set(widget.showButtonsKey, false);
+              StoreService.instance.set('showButtons' + widget.view, false);
             });
           },
           backgroundColor: Colors.white,
@@ -1741,32 +1761,26 @@ void TagawaySpaceCleanerModal2(BuildContext context) {
 class AddMoreTagsButton extends StatefulWidget {
   const AddMoreTagsButton({
     Key? key,
-    required this.showWhen,
-    required this.onPressed,
+    required this.view,
   }) : super(key: key);
-  final String showWhen;
-  final dynamic onPressed;
+  final String view;
 
   @override
   State<AddMoreTagsButton> createState() => _AddMoreTagsButtonState();
 }
 
 class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
-  bool visible = false;
   dynamic cancelListener;
-  String showWhen = '';
+  bool visible = false;
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([widget.showWhen], (v1) {
+    cancelListener = StoreService.instance
+        .listen(['currentlyTagging' + widget.view], (CurrentlyTagging) {
       setState(() {
-        showWhen = widget.showWhen;
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        if (v1 != '' && v1.length == 1)
-          visible = true;
-        else
-          visible = false;
+        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1;
       });
     });
   }
@@ -1783,9 +1797,12 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
-        onPressed: widget.onPressed,
+        onPressed: () {
+          StoreService.instance.set('swiped' + widget.view, true);
+          StoreService.instance.set('showButtons' + widget.view, false);
+        },
         backgroundColor: kAltoBlue,
-        key: Key('addMoreTags-' + showWhen),
+        key: Key('addMoreTags-' + widget.view),
         label: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -1806,6 +1823,80 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
         ),
       ),
     );
+  }
+}
+
+class DoneButton extends StatefulWidget {
+  const DoneButton({
+    Key? key,
+    required this.view,
+  }) : super(key: key);
+  final String view;
+
+  @override
+  State<DoneButton> createState() => _DoneButtonState();
+}
+
+class _DoneButtonState extends State<DoneButton> {
+  dynamic cancelListener;
+  bool visible = false;
+  dynamic currentlyTagging = '';
+  bool currentlyDeleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen(
+        ['currentlyTagging' + widget.view, 'currentlyDeleting' + widget.view],
+        (CurrentlyTagging, CurrentlyDeleting) {
+      setState(() {
+        visible = CurrentlyTagging != '' || CurrentlyDeleting == true;
+        currentlyTagging = CurrentlyTagging;
+        currentlyDeleting = CurrentlyDeleting == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return Container();
+    return Align(
+        alignment: const Alignment(0.8, .9),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            // Done tagging
+            if (currentlyTagging != '') {
+              StoreService.instance.set('swiped' + widget.view, false);
+              StoreService.instance.set('currentlyTagging' + widget.view, '');
+              // We update the tag list in case we just created a new one.
+              TagService.instance.getTags();
+              if (widget.view == 'Local') {
+                StoreService.instance.remove('currentlyTaggingPivs');
+                PivService.instance.queryOrganizedLocalPivs();
+              }
+              // We update the list of organized pivs for those uploaded pivs that have a local counterpart
+              // Done deleting
+            } else {
+              var currentlyDeleting = StoreService.instance
+                  .get('currentlyDeletingPivs' + widget.view);
+              if (currentlyDeleting != '' && currentlyDeleting.length > 0) {
+                StoreService.instance
+                    .set('currentlyDeletingModal' + widget.view, true);
+              } else {
+                StoreService.instance.remove('currentlyDeleting' + widget.view);
+              }
+            }
+          },
+          backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
+          label: const Text('Done', style: kSelectAllButton),
+          icon: const Icon(Icons.done),
+        ));
   }
 }
 
@@ -2028,6 +2119,143 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                     ),
                   );
                 })),
+      ),
+    );
+  }
+}
+
+class DeleteModal extends StatefulWidget {
+  const DeleteModal({
+    Key? key,
+    required this.view,
+  }) : super(key: key);
+  final String view;
+
+  @override
+  State<DeleteModal> createState() => _DeleteModalState();
+}
+
+class _DeleteModalState extends State<DeleteModal> {
+  dynamic cancelListener;
+  bool visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance
+        .listen(['currentlyDeletingModal' + widget.view], (CurrentlyDeleting) {
+      setState(() {
+        visible = CurrentlyDeleting == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return Container();
+    return Center(
+      child: Container(
+        height: 270,
+        width: 340,
+        decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+            border: Border.all(color: kGreyLight, width: .5)),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(bottom: 20.0, right: 15, left: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 8),
+                      child: FaIcon(
+                        kTrashCanIcon,
+                        color: kAltoRed,
+                      ),
+                    ),
+                    Text(
+                      'Delete From Your ' + (widget.view == 'Local' ? 'Phone' : 'Cloud') + '?',
+                      textAlign: TextAlign.center,
+                      style: kDeleteModalTitle,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 20.0, right: 15, left: 15),
+                child: Text(
+                  'This action cannot be undone. This will permanently delete these photos and videos from ' + (widget.view == 'Local' ? 'your device' : 'our servers') + '.',
+                  textAlign: TextAlign.center,
+                  style: kPlainTextBold,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 20.0),
+                child: Text(
+                  'Are you sure?',
+                  textAlign: TextAlign.center,
+                  style: kPlainTextBold,
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: kGreyLight, width: 1),
+                    bottom: BorderSide(color: kGreyLight, width: 1),
+                  ),
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    var pivsToDelete =
+                        StoreService.instance.get('currentlyDeletingPivs' + widget.view);
+                    if (widget.view == 'Local') PivService.instance.deleteLocalPivs(pivsToDelete);
+                    else TagService.instance.deleteUploadedPivs(pivsToDelete);
+                    StoreService.instance.remove('currentlyDeleting' + widget.view);
+                    StoreService.instance.remove('currentlyDeletingPivs' + widget.view);
+                    StoreService.instance.remove('currentlyDeletingModal' + widget.view);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                    child: Text(
+                      'Delete',
+                      textAlign: TextAlign.center,
+                      style: kDeleteModalTitle,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: GestureDetector(
+                  onTap: () {
+                    StoreService.instance.remove('currentlyDeleting' + widget.view);
+                    StoreService.instance.remove('currentlyDeletingPivs' + widget.view);
+                    StoreService.instance.remove('currentlyDeletingModal' + widget.view);
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Text(
+                      'Cancel',
+                      textAlign: TextAlign.center,
+                      style: kTagListElementText,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
