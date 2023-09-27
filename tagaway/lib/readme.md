@@ -2,8 +2,6 @@
 
 ## TODO
 
-- Reduce flickering in local view by separating parts of it into their own widgets, lowering the state.
-   - Refactor: Start, Done, rename tag, delete tag, delete modal
 - Replace eye with settings with modal with two options:
    - Eye with explanation
    - Show camera pivs only vs show all pivs

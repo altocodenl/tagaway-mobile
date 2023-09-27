@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
-import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -24,10 +23,6 @@ class LocalView extends StatefulWidget {
 
 class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
-  final TextEditingController renameTagController = TextEditingController();
-
-  String renameTag = '';
-  String deleteTag = '';
 
   final PageController pageController = PageController();
   dynamic localPagesLength = StoreService.instance.get('localPagesLength') == ''
@@ -38,14 +33,9 @@ class _LocalViewState extends State<LocalView> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
-      'renameTagLocal',
-      'deleteTagLocal',
       'localPagesLength',
-    ], (RenameTag, DeleteTag, LocalPagesLength) {
+    ], (LocalPagesLength) {
       setState(() {
-        renameTag = RenameTag;
-        if (renameTag != '') renameTagController.text = renameTag;
-        deleteTag = DeleteTag;
         localPagesLength = LocalPagesLength;
       });
     });
@@ -55,7 +45,6 @@ class _LocalViewState extends State<LocalView> {
   void dispose() {
     super.dispose();
     cancelListener();
-    renameTagController.dispose();
     pageController.dispose();
   }
 
@@ -79,206 +68,8 @@ class _LocalViewState extends State<LocalView> {
             TagButton(view: 'Local'),
             TagPivsScrollableList(view: 'Local'),
             DeleteModal(view: 'Local'),
-            Visibility(
-                visible: renameTag != '',
-                // visible: true,
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Container(
-                      height: 200,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
-                          border: Border.all(color: kGreyLight, width: .5)),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 15.0),
-                        child: Column(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                  right: 15, left: 15, bottom: 10),
-                              child: Text(
-                                'Edit tag',
-                                textAlign: TextAlign.center,
-                                softWrap: true,
-                                style: kTagListElementText,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: SizedBox(
-                                height: 50,
-                                child: TextFormField(
-                                  autofocus: true,
-                                  controller: renameTagController,
-                                  style: kPlainTextBold,
-                                  decoration: InputDecoration(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 20.0),
-                                    fillColor: kGreyLightest,
-                                    hintMaxLines: 1,
-                                    hintStyle: kPlainText,
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                        borderSide: const BorderSide(
-                                            color: kGreyDarker)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: double.infinity,
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  top: BorderSide(color: kGreyLight, width: 1),
-                                  bottom:
-                                      BorderSide(color: kGreyLight, width: 1),
-                                ),
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  TagService.instance.renameTag(
-                                      renameTag, renameTagController.text);
-                                  StoreService.instance
-                                      .remove('renameTagLocal');
-                                },
-                                child: const Padding(
-                                  padding:
-                                      EdgeInsets.only(top: 10, bottom: 10.0),
-                                  child: Text(
-                                    'Done',
-                                    textAlign: TextAlign.center,
-                                    style: kBlueAltocodeSubtitle,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: GestureDetector(
-                                onTap: () {
-                                  StoreService.instance
-                                      .remove('renameTagLocal');
-                                },
-                                child: const Padding(
-                                  padding: EdgeInsets.only(top: 10.0),
-                                  child: Text(
-                                    'Cancel',
-                                    textAlign: TextAlign.center,
-                                    style: kTagListElementText,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                )),
-            // Delete tag modal
-            Visibility(
-                visible: deleteTag != '',
-                child: Center(
-                  child: Container(
-                    height: 230,
-                    width: 340,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: kGreyLight, width: .5)),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: Column(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(
-                                right: 15, left: 15, bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 8),
-                                  child: FaIcon(
-                                    kTrashCanIcon,
-                                    color: kAltoRed,
-                                  ),
-                                ),
-                                Text(
-                                  'Delete the tag ',
-                                  textAlign: TextAlign.center,
-                                  style: kDeleteModalTitle,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                right: 15, left: 15, bottom: 10),
-                            child: Text(
-                              deleteTag + '?',
-                              textAlign: TextAlign.center,
-                              softWrap: true,
-                              style: kPlainTextBold,
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 20.0, right: 15, left: 15),
-                            child: Text(
-                              'This will not delete any photos or videos, just the tag itself.',
-                              textAlign: TextAlign.center,
-                              style: kPlainTextBold,
-                            ),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                top: BorderSide(color: kGreyLight, width: 1),
-                                bottom: BorderSide(color: kGreyLight, width: 1),
-                              ),
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                TagService.instance.deleteTag(deleteTag);
-                                StoreService.instance.remove('deleteTagLocal');
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.only(top: 10, bottom: 10.0),
-                                child: Text(
-                                  'Delete',
-                                  textAlign: TextAlign.center,
-                                  style: kDeleteModalTitle,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: GestureDetector(
-                              onTap: () {
-                                StoreService.instance.remove('deleteTagLocal');
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.only(top: 10.0),
-                                child: Text(
-                                  'Cancel',
-                                  textAlign: TextAlign.center,
-                                  style: kTagListElementText,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )),
+            RenameTagModal(view: 'Local'),
+            DeleteTagModal(view: 'Local'),
           ],
         );
       },

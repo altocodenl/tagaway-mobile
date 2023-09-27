@@ -2260,3 +2260,274 @@ class _DeleteModalState extends State<DeleteModal> {
     );
   }
 }
+
+class RenameTagModal extends StatefulWidget {
+  const RenameTagModal({
+    Key? key,
+    required this.view,
+  }) : super(key: key);
+  final String view;
+
+  @override
+  State<RenameTagModal> createState() => _RenameTagModalState();
+}
+
+class _RenameTagModalState extends State<RenameTagModal> {
+  dynamic cancelListener;
+  final TextEditingController renameTagController = TextEditingController();
+  String renameTag = '';
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance
+        .listen(['renameTag' + widget.view], (RenameTag) {
+      setState(() {
+        renameTag = RenameTag;
+        if (renameTag != '') renameTagController.text = renameTag;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+    renameTagController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (renameTag == '') return Container();
+    return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: kGreyLight, width: .5)),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        child: Column(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(
+                                  right: 15, left: 15, bottom: 10),
+                              child: Text(
+                                'Edit tag',
+                                textAlign: TextAlign.center,
+                                softWrap: true,
+                                style: kTagListElementText,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: SizedBox(
+                                height: 50,
+                                child: TextFormField(
+                                  autofocus: true,
+                                  controller: renameTagController,
+                                  style: kPlainTextBold,
+                                  decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10.0, horizontal: 20.0),
+                                    fillColor: kGreyLightest,
+                                    hintMaxLines: 1,
+                                    hintStyle: kPlainText,
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(
+                                            color: kGreyDarker)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(color: kGreyLight, width: 1),
+                                  bottom:
+                                      BorderSide(color: kGreyLight, width: 1),
+                                ),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  TagService.instance.renameTag(
+                                      renameTag, renameTagController.text);
+                                  StoreService.instance
+                                      .remove('renameTag' + widget.view);
+                                },
+                                child: const Padding(
+                                  padding:
+                                      EdgeInsets.only(top: 10, bottom: 10.0),
+                                  child: Text(
+                                    'Done',
+                                    textAlign: TextAlign.center,
+                                    style: kBlueAltocodeSubtitle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: GestureDetector(
+                                onTap: () {
+                                  StoreService.instance
+                                      .remove('renameTag' + widget.view);
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.only(top: 10.0),
+                                  child: Text(
+                                    'Cancel',
+                                    textAlign: TextAlign.center,
+                                    style: kTagListElementText,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+}
+}
+
+class DeleteTagModal extends StatefulWidget {
+  const DeleteTagModal({
+    Key? key,
+    required this.view,
+  }) : super(key: key);
+  final String view;
+
+  @override
+  State<DeleteTagModal> createState() => _DeleteTagModalState();
+}
+
+class _DeleteTagModalState extends State<DeleteTagModal> {
+  dynamic cancelListener;
+  String deleteTag = '';
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance
+        .listen(['deleteTag' + widget.view], (DeleteTag) {
+      setState(() {
+        deleteTag = DeleteTag;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (deleteTag == '') return Container();
+    return Center(child: Container(
+                    height: 230,
+                    width: 340,
+                    decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                        border: Border.all(color: kGreyLight, width: .5)),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 15.0),
+                      child: Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                right: 15, left: 15, bottom: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(right: 8),
+                                  child: FaIcon(
+                                    kTrashCanIcon,
+                                    color: kAltoRed,
+                                  ),
+                                ),
+                                Text(
+                                  'Delete the tag ',
+                                  textAlign: TextAlign.center,
+                                  style: kDeleteModalTitle,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                right: 15, left: 15, bottom: 10),
+                            child: Text(
+                              deleteTag + '?',
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              style: kPlainTextBold,
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(
+                                bottom: 20.0, right: 15, left: 15),
+                            child: Text(
+                              'This will not delete any photos or videos, just the tag itself.',
+                              textAlign: TextAlign.center,
+                              style: kPlainTextBold,
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                top: BorderSide(color: kGreyLight, width: 1),
+                                bottom: BorderSide(color: kGreyLight, width: 1),
+                              ),
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                TagService.instance.deleteTag(deleteTag);
+                                StoreService.instance.remove('deleteTag' + widget.view);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                                child: Text(
+                                  'Delete',
+                                  textAlign: TextAlign.center,
+                                  style: kDeleteModalTitle,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: GestureDetector(
+                              onTap: () {
+                                StoreService.instance.remove('deleteTag' + widget.view);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10.0),
+                                child: Text(
+                                  'Cancel',
+                                  textAlign: TextAlign.center,
+                                  style: kTagListElementText,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ));
+  }
+}
