@@ -181,7 +181,7 @@ class TagService {
       StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), New.length);
    }
 
-   computeTimeHeader () {
+   computeTimeHeader ([updateYearUploaded = true]) {
       var output      = [];
       var min, max;
       var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
@@ -256,7 +256,7 @@ class TagService {
          }
       }
 
-      StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
+      if (updateYearUploaded) StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
    }
 
    // TODO: annotate the code above
@@ -382,7 +382,7 @@ class TagService {
 
       // Do it quickly to show changes to the user before the roundtrip
       StoreService.instance.set ('currentMonth', currentMonth);
-      computeTimeHeader ();
+      computeTimeHeader (false);
 
       var response = await ajax ('post', 'query', {
          'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
