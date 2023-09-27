@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -13,40 +12,6 @@ import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
-
-class LocalYear extends StatefulWidget {
-  const LocalYear({Key? key}) : super(key: key);
-
-  @override
-  State<LocalYear> createState() => _LocalYearState();
-}
-
-class _LocalYearState extends State<LocalYear> {
-  dynamic cancelListener;
-  dynamic year = '';
-
-  @override
-  void initState() {
-    super.initState();
-    cancelListener = StoreService.instance.listen([
-      'localYear',
-    ], (v1) {
-      setState(() => year = v1);
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    cancelListener();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(year.toString(),
-        textAlign: TextAlign.center, style: kLocalYear);
-  }
-}
 
 class LocalView extends StatefulWidget {
   static const String id = 'local';
@@ -61,9 +26,6 @@ class _LocalViewState extends State<LocalView> {
   dynamic cancelListener;
   final TextEditingController renameTagController = TextEditingController();
 
-  dynamic currentlyTagging = '';
-  bool currentlyDeleting = false;
-  bool currentlyDeletingModal = false;
   String renameTag = '';
   String deleteTag = '';
 
@@ -76,26 +38,14 @@ class _LocalViewState extends State<LocalView> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen([
-      'currentlyTaggingLocal',
       'renameTagLocal',
       'deleteTagLocal',
-      'currentlyDeletingLocal',
-      'currentlyDeletingModalLocal',
       'localPagesLength',
-    ], (CurrentlyTagging, RenameTag, DeleteTag, CurrentlyDeleting,
-        CurrentlyDeletingModal, LocalPagesLength) {
-      // Update the list of tagged pivs only if this is the active view.
-      if (CurrentlyTagging != '' &&
-          StoreService.instance.get('currentIndex') == 1)
-        TagService.instance.getTaggedPivs(CurrentlyTagging, 'local');
-
+    ], (RenameTag, DeleteTag, LocalPagesLength) {
       setState(() {
-        currentlyTagging = CurrentlyTagging;
         renameTag = RenameTag;
         if (renameTag != '') renameTagController.text = renameTag;
         deleteTag = DeleteTag;
-        currentlyDeleting = CurrentlyDeleting != '';
-        currentlyDeletingModal = CurrentlyDeletingModal != '';
         localPagesLength = LocalPagesLength;
       });
     });
@@ -122,56 +72,13 @@ class _LocalViewState extends State<LocalView> {
           children: [
             Grid(localPagesIndex: index),
             TopRow(localPagesIndex: index),
-            // Done button
-            Visibility(
-                visible: currentlyTagging != '' || currentlyDeleting,
-                child: Align(
-                    alignment: const Alignment(0.8, .9),
-                    child: FloatingActionButton.extended(
-                      onPressed: () {
-                        if (currentlyTagging != '') {
-                          StoreService.instance.set('swipedLocal', false);
-                          StoreService.instance
-                              .set('currentlyTaggingLocal', '');
-                          StoreService.instance.set('tagFilterLocal', '');
-                          StoreService.instance.remove('currentlyTaggingPivs');
-                          // We update the tag list in case we just created a new one.
-                          TagService.instance.getTags();
-                          // We update the list of organized pivs for those uploaded pivs that have a local counterpart
-                          PivService.instance.queryOrganizedLocalPivs();
-                        } else {
-                          var currentlyDeleting = StoreService.instance
-                              .get('currentlyDeletingPivsLocal');
-                          if (currentlyDeleting != '' &&
-                              currentlyDeleting.length > 0) {
-                            StoreService.instance
-                                .set('currentlyDeletingModalLocal', true);
-                          } else {
-                            StoreService.instance
-                                .remove('currentlyDeletingLocal');
-                          }
-                        }
-                      },
-                      backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
-                      label: const Text('Done', style: kSelectAllButton),
-                      icon: const Icon(Icons.done),
-                    ))),
-            // Add more tags button
+            DoneButton (view: 'Local'),
             AddMoreTagsButton(view: 'Local'),
-            // Start button
-            Visibility(
-                visible: currentlyTagging == '' && !currentlyDeleting,
-                child: const StartButton(
-                    buttonKey: Key('local-start-tagging'),
-                    buttonText: 'Start',
-                    showButtonsKey: 'showButtonsLocal')),
-            // Delete button
+            StartButton(buttonText: 'Start', view: 'Local'),
             DeleteButton(view: 'Local'),
-            // Tag button
             TagButton(view: 'Local'),
-            // Tag pivs scrollable list
             TagPivsScrollableList(view: 'Local'),
-            // Rename tag modal
+            DeleteModal(view: 'Local'),
             Visibility(
                 visible: renameTag != '',
                 // visible: true,
@@ -356,117 +263,6 @@ class _LocalViewState extends State<LocalView> {
                             child: GestureDetector(
                               onTap: () {
                                 StoreService.instance.remove('deleteTagLocal');
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.only(top: 10.0),
-                                child: Text(
-                                  'Cancel',
-                                  textAlign: TextAlign.center,
-                                  style: kTagListElementText,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )),
-            // Delete modal
-            Visibility(
-                visible: currentlyDeletingModal,
-                child: Center(
-                  child: Container(
-                    height: 270,
-                    width: 340,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: kGreyLight, width: .5)),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15.0),
-                      child: Column(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 20.0, right: 15, left: 15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 8),
-                                  child: FaIcon(
-                                    kTrashCanIcon,
-                                    color: kAltoRed,
-                                  ),
-                                ),
-                                Text(
-                                  'Delete From Your Phone?',
-                                  textAlign: TextAlign.center,
-                                  style: kDeleteModalTitle,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 20.0, right: 15, left: 15),
-                            child: Text(
-                              'This action cannot be undone. This will permanently delete these photos and videos from your device.',
-                              textAlign: TextAlign.center,
-                              style: kPlainTextBold,
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(bottom: 20.0),
-                            child: Text(
-                              'Are you sure?',
-                              textAlign: TextAlign.center,
-                              style: kPlainTextBold,
-                            ),
-                          ),
-                          Container(
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                top: BorderSide(color: kGreyLight, width: 1),
-                                bottom: BorderSide(color: kGreyLight, width: 1),
-                              ),
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                var pivsToDelete = StoreService.instance
-                                    .get('currentlyDeletingPivsLocal');
-                                PivService.instance
-                                    .deleteLocalPivs(pivsToDelete);
-                                StoreService.instance
-                                    .remove('currentlyDeletingLocal');
-                                StoreService.instance
-                                    .remove('currentlyDeletingPivsLocal');
-                                StoreService.instance
-                                    .remove('currentlyDeletingModalLocal');
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.only(top: 10, bottom: 10.0),
-                                child: Text(
-                                  'Delete',
-                                  textAlign: TextAlign.center,
-                                  style: kDeleteModalTitle,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: GestureDetector(
-                              onTap: () {
-                                StoreService.instance
-                                    .remove('currentlyDeletingLocal');
-                                StoreService.instance
-                                    .remove('currentlyDeletingPivsLocal');
-                                StoreService.instance
-                                    .remove('currentlyDeletingModalLocal');
                               },
                               child: const Padding(
                                 padding: EdgeInsets.only(top: 10.0),
