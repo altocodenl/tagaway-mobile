@@ -1397,7 +1397,7 @@ class _StartButtonState extends State<StartButton> {
       if (CurrentlyTagging != '' &&
           StoreService.instance.get('currentIndex') ==
               (widget.view == 'Local' ? 1 : 2))
-        TagService.instance.getTaggedPivs(CurrentlyTagging, 'local');
+        TagService.instance.getTaggedPivs(CurrentlyTagging, widget.view.toLowerCase());
 
       setState(() {
         showButtons = ShowButtons == true;
