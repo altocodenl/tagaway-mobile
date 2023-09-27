@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/permissionService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -31,6 +32,11 @@ class _DistributorState extends State<Distributor> {
       // If user is recurring, send to login; otherwise, send to signup.
       return Navigator.pushReplacementNamed(
           context, recurringUser == true ? 'login' : 'signup');
+    }
+    // If checkSession determines that the session is no longer valid, it will take care itself of sending the user to the login page.
+    else {
+       var code = await AuthService.instance.checkSession ();
+       if (code != 200) return;
     }
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
     var permissionStatus = await checkPermission();

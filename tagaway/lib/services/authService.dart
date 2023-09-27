@@ -35,6 +35,12 @@ class AuthService {
       return response ['code'];
    }
 
+   checkSession () async {
+      var response = await ajax ('get', 'auth/csrf', {});
+      if (response ['code'] != 200) await cleanupKeys ();
+      return response ['code'];
+   }
+
    cleanupKeys () async {
       await StoreService.instance.remove ('cookie',      'disk');
       await StoreService.instance.remove ('csrf',        'disk');
