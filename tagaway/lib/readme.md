@@ -105,6 +105,18 @@
 - Use release & create
 - When it's done, build will be in the `android/app/release` folder.
 
+## QA Script
+- Environment for QA must be DEV
+- Make sure device has been logged out before start. 
+- Open app
+- Insert log in credentials.
+- If permissions have been granted on previous sessions, the app should open in the 'Home' view'
+- If it's the first time the app is run on device, the 'allow permissions' screen should show.
+  - Tap on 'allow' if on Android and 'allow all photos' if iOS
+- The app should open in the 'Home' view.
+- If user has hometags 
+- 
+
 ## Annotated source code
 
 For now, we only have annotated fragments of the code. This might be expanded comprehensively later.
