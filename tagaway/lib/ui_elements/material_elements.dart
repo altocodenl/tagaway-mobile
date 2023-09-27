@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
@@ -2575,7 +2576,7 @@ class _GeotaggingSwitchState extends State<GeotaggingSwitch> {
             value: account['geo'] != null,
             onChanged: (bool value) {
               setState(() {
-                 // TODO: dynamize
+                AuthService.instance.geotagging(value ? 'enable' : 'disable');
                 // We do this to give instant feedback.
                 account = {'geo': value};
               });
