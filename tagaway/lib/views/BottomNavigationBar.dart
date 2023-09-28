@@ -7,7 +7,7 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
-import 'package:tagaway/views/uploadedView.dart';
+import 'package:tagaway/views/shareView.dart';
 
 class BottomNavigationView extends StatefulWidget {
   static const String id = 'bottomNavigation';
@@ -21,15 +21,15 @@ class BottomNavigationView extends StatefulWidget {
 class _BottomNavigationViewState extends State<BottomNavigationView> {
   dynamic cancelListener;
 
-  int currentIndex = 0;
-  final screens = [const HomeView(), const LocalView(), const UploadedView()];
+  int viewIndex = 0;
+  final screens = [const HomeView(), const LocalView(), const ShareView()];
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['currentIndex'], (v1) {
+    cancelListener = StoreService.instance.listen(['viewIndex'], (v1) {
       setState(() {
-        currentIndex = v1 == '' ? 0 : v1;
+        viewIndex = v1 == '' ? 0 : v1;
       });
     });
   }
@@ -46,7 +46,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: IndexedStack(
-            index: currentIndex,
+            index: viewIndex,
             children: screens,
           ),
           bottomNavigationBar: Stack(
@@ -55,11 +55,11 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 selectedItemColor: kAltoBlue,
                 unselectedItemColor: kGreyDarker,
                 iconSize: 25,
-                currentIndex: currentIndex,
+                currentIndex: viewIndex,
                 unselectedLabelStyle: kBottomNavigationText,
                 selectedLabelStyle: kBottomNavigationText,
                 onTap: (index) {
-                  StoreService.instance.set('currentIndex', index);
+                  StoreService.instance.set('viewIndex', index);
                 },
                 items: [
                   const BottomNavigationBarItem(
@@ -67,7 +67,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                   const BottomNavigationBarItem(
                       icon: FaIcon(kMobilePhoneIcon), label: 'Phone'),
                   BottomNavigationBarItem(
-                      icon: const FaIcon(kCloudArrowUp), label: 'Cloud'),
+                      icon: const FaIcon(kCloudArrowUp), label: 'Share'),
                 ],
               ),
               const UploadingNumber()

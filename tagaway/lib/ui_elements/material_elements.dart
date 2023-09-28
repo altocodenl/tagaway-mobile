@@ -1353,8 +1353,8 @@ class _StartButtonState extends State<StartButton> {
       'currentlyDeleting' + widget.view
     ], (ShowButtons, CurrentlyTagging, CurrentlyDeleting) {
       if (CurrentlyTagging != '' &&
-          StoreService.instance.get('currentIndex') ==
-              (widget.view == 'Local' ? 1 : 2))
+          StoreService.instance.get('viewIndex') ==
+              (widget.view == 'Local' ? 1 : 0))
         TagService.instance
             .getTaggedPivs(CurrentlyTagging, widget.view.toLowerCase());
 

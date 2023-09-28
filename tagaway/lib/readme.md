@@ -2,10 +2,12 @@
 
 ## TODO
 
+- Adapt styles of Uploaded to a standalone view (Tom)
 - Detect camera pivs in Android
-- Fix issue with multiple heroes (Tom)
-- Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.
+- Write a QA script
+-----
+- Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
@@ -23,14 +25,9 @@
       - Tag/untag: change pendingTags
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon
-
-- Write a QA script (Tom)
-- Draggable selection (Tom)
-
 -----
 - Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
 - Home: display tags in a better, different way
-- Scrollable selection
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
@@ -42,7 +39,6 @@
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
-- currentIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on UploadedView
 - currentMonth `[<int (year)>, <int (month)>]`: if set, indicates the current month of the uploaded view.
 - currentlyTaggingPivs <list>: list of *local* piv ids currently being tagged, to avoid hiding them before the operation is complete.
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged in LocalView/UploadedView
@@ -86,6 +82,7 @@
 - timeHeaderPage <int>: page in timeHeader currently displayed.
 - usertags [<string>, ...]: list of user tags, computed from the tags brought from the server.
 - userWasAskedPermission (boolean) [DISK]: whether the user was already asked for piv access permission once
+- viewIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on ShareView
 - yearUploaded <str>: displayed year in localView|UploadedView time header
 ```
 

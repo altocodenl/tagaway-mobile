@@ -157,12 +157,12 @@ class _LocalCarrouselState extends State<LocalCarrousel>
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight
     ]);
-    var currentIndex = widget.page.indexOf(widget.pivFile);
+    var currentPageIndex = widget.page.indexOf(widget.pivFile);
     return PageView.builder(
         reverse: true,
         physics: pageBuilderScroll,
         controller: PageController(
-          initialPage: currentIndex,
+          initialPage: currentPageIndex,
           keepPage: false,
         ),
         itemCount: widget.page.length,

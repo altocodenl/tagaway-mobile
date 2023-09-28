@@ -19,7 +19,7 @@ class UploadedView extends StatefulWidget {
 class _UploadedViewState extends State<UploadedView> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Scaffold (body: Stack(
       children: [
         const UploadGrid(),
         const TopRow(),
@@ -33,7 +33,7 @@ class _UploadedViewState extends State<UploadedView> {
         RenameTagModal(view: 'Uploaded'),
         DeleteTagModal(view: 'Uploaded'),
       ],
-    );
+    ));
   }
 }
 
@@ -295,7 +295,8 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          StoreService.instance.set('currentIndex', 0);
+                            Navigator.pushReplacementNamed(
+                                context, 'bottomNavigation');
                         },
                         child: const Icon(
                           kHomeIcon,

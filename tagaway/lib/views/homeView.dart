@@ -236,7 +236,7 @@ class _HomeViewState extends State<HomeView> {
                                 onPressed: () {
                                   if (tags.isEmpty)
                                     StoreService.instance
-                                        .set('currentIndex', 1);
+                                        .set('viewIndex', 1);
                                   else
                                     Navigator.pushReplacementNamed(
                                         context, 'addHomeTags');
@@ -261,8 +261,8 @@ class _HomeViewState extends State<HomeView> {
                                       onTap: () {
                                         StoreService.instance
                                             .set('queryTags', [v]);
-                                        StoreService.instance
-                                            .set('currentIndex', 2);
+                                        Navigator.pushReplacementNamed(
+                                          context, 'uploaded');
                                       },
                                       child: HomeCard(
                                           color: tagColor(v), title: v))

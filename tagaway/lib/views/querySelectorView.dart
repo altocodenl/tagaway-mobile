@@ -541,8 +541,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           child: FloatingActionButton.extended(
             onPressed: () {
               FocusManager.instance.primaryFocus?.unfocus();
-              Navigator.pushReplacementNamed(context, 'bottomNavigation');
-              StoreService.instance.set('currentIndex', 2);
+              Navigator.pushReplacementNamed(context, 'uploaded');
             },
             backgroundColor: kAltoBlue,
             label: Text('See ' + queryResult['total'].toString() + ' pivs',

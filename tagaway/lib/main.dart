@@ -16,6 +16,7 @@ import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
+import 'package:tagaway/views/shareView.dart';
 import 'package:tagaway/views/signupFormView.dart';
 import 'package:tagaway/views/signupView.dart';
 import 'package:tagaway/views/uploadedView.dart';
@@ -67,23 +68,24 @@ class Tagaway extends StatelessWidget {
       ),
       home: const Distributor(),
       routes: {
+        'accountView': (context) => const AccountView(),
+        'addHomeTags': (context) => const AddHometagsView(),
+        'bottomNavigation': (context) => const BottomNavigationView(),
+        'deleteAccount': (context) => const DeleteAccount(),
         'distributor': (context) => const Distributor(),
-        'offline': (context) => const OfflineView(),
-        'signup': (context) => const SignUpView(),
-        'signupForm': (context) => const SignUpFormView(),
+        'editHomeTags': (context) => const EditHometagsView(),
+        'home': (context) => const HomeView(),
+        'local': (context) => const LocalView(),
         'login': (context) => const LoginView(),
+        'offline': (context) => const OfflineView(),
+        'photoAccessNeeded': (context) => const PhotoAccessNeededView(),
+        'querySelector': (context) => const QuerySelectorView(),
         'recoverPassword': (context) => const RecoverPasswordView(),
         'requestPermission': (context) => const RequestPermissionView(),
-        'photoAccessNeeded': (context) => const PhotoAccessNeededView(),
-        'bottomNavigation': (context) => const BottomNavigationView(),
-        'home': (context) => const HomeView(),
-        'accountView': (context) => const AccountView(),
-        'deleteAccount': (context) => const DeleteAccount(),
-        'addHomeTags': (context) => const AddHometagsView(),
-        'editHomeTags': (context) => const EditHometagsView(),
-        'local': (context) => const LocalView(),
+        'share': (context) => const ShareView(),
+        'signup': (context) => const SignUpView(),
+        'signupForm': (context) => const SignUpFormView(),
         'uploaded': (context) => const UploadedView(),
-        'querySelector': (context) => const QuerySelectorView(),
       },
     );
   }
