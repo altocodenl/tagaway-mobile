@@ -428,7 +428,8 @@ class _TopRowState extends State<TopRow> {
                       ),
                     ));
                     currentlyTagging.forEach((tag) {
-                      output.add(GridTagUploadedQueryElement(
+                      output.add(GridTagElement(
+                          view: 'uploaded',
                           gridTagElementIcon: tagIcon(tag),
                           iconColor: tagIconColor(tag),
                           gridTagName: tagTitle(tag)));
@@ -461,7 +462,8 @@ class _TopRowState extends State<TopRow> {
                     queryTags.forEach((tag) {
                       // Show first two tags only
                       if (output.length > 1) return;
-                      return output.add(GridTagUploadedQueryElement(
+                      return output.add(GridTagElement(
+                          view: 'uploaded',
                           gridTagElementIcon: tagIcon(tag),
                           iconColor: tagIconColor(tag),
                           gridTagName: tagTitle(tag)));
@@ -480,6 +482,7 @@ class _TopRowState extends State<TopRow> {
                               context, 'querySelector');
                         },
                         child: GridTagElement(
+                            view: 'uploaded',
                             gridTagElementIcon: kCameraIcon,
                             iconColor: kGreyDarker,
                             gridTagName: 'Everything'),

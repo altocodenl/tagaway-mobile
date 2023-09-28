@@ -336,7 +336,8 @@ class _TopRowState extends State<TopRow> {
                       ),
                     ));
                     currentlyTagging.forEach((tag) {
-                      output.add(GridTagUploadedQueryElement(
+                      output.add(GridTagElement(
+                          view: 'local',
                           gridTagElementIcon: tagIcon(tag),
                           iconColor: tagIconColor(tag),
                           gridTagName: tagTitle(tag)));

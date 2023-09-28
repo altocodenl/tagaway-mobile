@@ -422,49 +422,60 @@ class EditTagListElement extends StatelessWidget {
 }
 
 class GridTagElement extends StatelessWidget {
-  const GridTagElement({
-    Key? key,
-    required this.gridTagElementIcon,
-    required this.iconColor,
-    required this.gridTagName,
-  }) : super(key: key);
+  const GridTagElement(
+      {Key? key,
+      required this.gridTagElementIcon,
+      required this.iconColor,
+      required this.gridTagName,
+      required this.view})
+      : super(key: key);
 
   final IconData gridTagElementIcon;
   final Color iconColor;
   final String gridTagName;
+  final String view;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.only(left: 12, right: 12),
-        decoration: const BoxDecoration(
-            color: kGreyLighter,
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: FaIcon(
-                gridTagElementIcon,
-                color: iconColor,
-                size: 20,
+    return GestureDetector(
+      onTap: () {
+        if (view == 'local' ||
+            StoreService.instance.get('currentlyTaggingUploaded') != '') return;
+        Navigator.pushReplacementNamed(context, 'querySelector');
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: Container(
+          height: 40,
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          decoration: const BoxDecoration(
+              color: kGreyLighter,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: FaIcon(
+                  gridTagElementIcon,
+                  color: iconColor,
+                  size: 20,
+                ),
               ),
-            ),
-            Container(
-              constraints: BoxConstraints(
-                maxWidth: SizeService.instance
-                    .gridTagElementMaxWidthCalculator(context),
+              Container(
+                constraints: BoxConstraints(
+                  maxWidth: SizeService.instance
+                      .gridTagUploadedQueryElementMaxWidthCalculator(context),
+                  // Maybe we need to use this max width calculator? Let's check if we have issues.
+                  // .gridTagElementMaxWidthCalculator(context),
+                ),
+                child: Text(gridTagName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: kGridTagListElement),
               ),
-              child: Text(gridTagName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style: kGridTagListElement),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -508,61 +519,6 @@ class GridDeleteTagElement extends StatelessWidget {
                   style: kGridDeleteElement),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class GridTagUploadedQueryElement extends StatelessWidget {
-  const GridTagUploadedQueryElement({
-    Key? key,
-    required this.gridTagElementIcon,
-    required this.iconColor,
-    required this.gridTagName,
-  }) : super(key: key);
-
-  final IconData gridTagElementIcon;
-  final Color iconColor;
-  final String gridTagName;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushReplacementNamed(context, 'querySelector');
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(right: 8.0),
-        child: Container(
-          height: 40,
-          padding: const EdgeInsets.only(left: 12, right: 12),
-          decoration: const BoxDecoration(
-              color: kGreyLighter,
-              borderRadius: BorderRadius.all(Radius.circular(10))),
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: FaIcon(
-                  gridTagElementIcon,
-                  color: iconColor,
-                  size: 20,
-                ),
-              ),
-              Container(
-                constraints: BoxConstraints(
-                  maxWidth: SizeService.instance
-                      .gridTagUploadedQueryElementMaxWidthCalculator(context),
-                ),
-                child: Text(gridTagName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: kGridTagListElement),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -650,6 +606,7 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
                                       context, 'querySelector');
                                 },
                                 child: GridTagElement(
+                                    view: 'uploaded',
                                     gridTagElementIcon: tagIcon(tag),
                                     iconColor: tagIconColor(tag),
                                     gridTagName: tagTitle(tag)));
