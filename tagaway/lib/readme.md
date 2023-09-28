@@ -2,10 +2,7 @@
 
 ## TODO
 
-- Replace eye with settings with modal with two options:
-   - Eye with explanation
-   - Show camera pivs only vs show all pivs
-   - Implement logic for showing camera pivs only
+- Detect camera pivs in Android
 - Fix issue with multiple heroes (Tom)
 - Make uploaded grid only accessible through clicking on a tag in home or the query selector. Liberate space on bottom navigation, put Share icon, put "coming soon!"
 - Finish annotated source code & handle >= 400 errors with snackbar.
@@ -41,6 +38,7 @@
 
 ```
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
+- camearPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
@@ -51,7 +49,7 @@
 - currentlyDeleting(Local|Uploaded) <bool>: if set, we are in delete mode in LocalView/UploadedView
 - currentlyDeletingModal(Local|Uploaded) <bool>: if set, we are showing the delete confirmation modal for Local/Uploaded view.
 - currentlyDeletingPivs(Local|Uploaded) <list>: list of pivs that are currently being deleted, either Local or Uploaded.
-- displayMode <str>: if set to `'all'`, shows all local pivs; otherwise, it only shows local pivs that are not organized.
+- displayMode <obj>: if set, has the form `{hideOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `hideOrganized` hides organized pivs from the local view; `cameraOnly` hides non-camera pivs from the local view.
 - deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
@@ -107,15 +105,15 @@
 
 ## QA Script
 - Environment for QA must be DEV
-- Make sure device has been logged out before start. 
+- Make sure device has been logged out before start.
 - Open app
 - Insert log in credentials.
 - If permissions have been granted on previous sessions, the app should open in the 'Home' view'
 - If it's the first time the app is run on device, the 'allow permissions' screen should show.
   - Tap on 'allow' if on Android and 'allow all photos' if iOS
 - The app should open in the 'Home' view.
-- If user has hometags 
-- 
+- If user has hometags
+-
 
 ## Annotated source code
 
@@ -653,6 +651,20 @@ Note: because this function is called by `distributorView`, and because `distrib
 ```dart
       for (var piv in localPivs) {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+```
+
+If we are in iOS, we will also try to determine whether this piv is in the camera. iOS has no way to query this directly, so we do an approximation by getting the piv's MIME type and see if it is a HEIC or a MOV. If it is, we consider it a camera piv and therefore set `cameraPiv:ID`.
+
+```dart
+         if (Platform.isIOS) {
+            var mime = await piv.mimeTypeAsync;
+            if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
+         }
+```
+
+This concludes the iteration of the pivs.
+
+```dart
       }
 ```
 
@@ -1045,10 +1057,11 @@ We convert the result to a list.
       }).toList ();
 ```
 
-We get the `displayMode` from the store, which can be either `'all'` (which means that all pivs should be visible, not just unorganized ones); or an empty string `''` (which means that only unorganized pivs should be visible).
+We get the `displayMode` from the store, which can be either an empty string or an object of the form `{hideOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. If it is an empty string, we initialize it to the object, setting `hideOrganized` as `true` and `cameraOnly` as `false`.
 
 ```dart
       var displayMode = StoreService.instance.get ('displayMode');
+      if (displayMode == '') displayMode = {'hideOrganized': true, 'cameraOnly': false};
 ```
 
 We get `currentlyTaggingPivs`, a list of pivs currently being tagged. If there's no such key in the store, we will initialize our local variable to an empty array.
@@ -1087,13 +1100,12 @@ We check whether the piv is currently being tagged, by checking if it is inside 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 ```
 
-We determine whether the piv should be shown and store the result in `showPiv`. The piv should be shown if any of the following is true:
-- The piv is currently being tagged.
-- `displayMode` is `'all'` - which means that all pivs should be visible.
-- The piv is not organized.
+We determine whether the piv should be shown and store the result in `showPiv`. The piv should be shown if it is currently being tagged. If it's not currently being tagged, it will be shown if two conditions are fulfilled simultaneously:
+- `displayMode.hideOrganized` is `false` or the piv is not organized.
+- `displayMode.cameraOnly` is `false` or the piv is a camera piv.
 
 ```dart
-         var showPiv = pivIsCurrentlyBeingTagged || displayMode == 'all' || ! pivIsOrganized;
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['hideOrganized'] == false || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
 ```
 
 We initialize two variables: `placed`, to determine whether the piv has been already placed in a page; and `pivDate`, the create datetime of the piv. `pivDate` will instruct us in which page to place the piv.

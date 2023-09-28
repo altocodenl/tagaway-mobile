@@ -171,6 +171,10 @@ class PivService {
 
       for (var piv in localPivs) {
          StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+         if (Platform.isIOS) {
+            var mime = await piv.mimeTypeAsync;
+            if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
+         }
       }
 
       await queryExistingHashes (! initialLoad || localPivs.length < firstLoadSize);
@@ -294,6 +298,7 @@ class PivService {
       }).toList ();
 
       var displayMode = StoreService.instance.get ('displayMode');
+      if (displayMode == '') displayMode = {'hideOrganized': true, 'cameraOnly': false};
       var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
 
@@ -306,7 +311,7 @@ class PivService {
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 
-         var showPiv = pivIsCurrentlyBeingTagged || displayMode == 'all' || ! pivIsOrganized;
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['hideOrganized'] == false || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
 
          var placed = false, pivDate = piv.createDateTime;
          pages.forEach ((page) {

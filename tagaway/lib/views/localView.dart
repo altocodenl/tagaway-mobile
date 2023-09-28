@@ -197,7 +197,6 @@ class _TopRowState extends State<TopRow> {
 
   dynamic currentlyTagging = '';
   dynamic taggedPivCount = '';
-  dynamic displayMode = '';
   dynamic prev = '';
   dynamic page = '';
   dynamic next = '';
@@ -209,18 +208,16 @@ class _TopRowState extends State<TopRow> {
     cancelListener = StoreService.instance.listen([
       'currentlyTaggingLocal',
       'taggedPivCountLocal',
-      'displayMode',
       'localPage:' + (widget.localPagesIndex - 1).toString(),
       'localPage:' + widget.localPagesIndex.toString(),
       'localPage:' + (widget.localPagesIndex + 1).toString()
-    ], (v1, v2, v3, v4, v5, v6) {
+    ], (v1, v2, v3, v4, v5) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
-        displayMode = v3;
-        prev = v4;
-        page = v5;
-        next = v6;
+        prev = v3;
+        page = v4;
+        next = v5;
       });
     });
   }

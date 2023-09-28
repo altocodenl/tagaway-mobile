@@ -1398,7 +1398,8 @@ class _StartButtonState extends State<StartButton> {
       if (CurrentlyTagging != '' &&
           StoreService.instance.get('currentIndex') ==
               (widget.view == 'Local' ? 1 : 2))
-        TagService.instance.getTaggedPivs(CurrentlyTagging, widget.view.toLowerCase());
+        TagService.instance
+            .getTaggedPivs(CurrentlyTagging, widget.view.toLowerCase());
 
       setState(() {
         showButtons = ShowButtons == true;
@@ -1502,7 +1503,8 @@ void TagawaySpaceCleanerModal1(
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
+                  padding:
+                      const EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
                   child: Text(
                     'You have ' +
                         printBytes(availableBytes) +
@@ -1520,7 +1522,8 @@ void TagawaySpaceCleanerModal1(
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
+                  padding:
+                      const EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
                   child: Text(
                     'You will free up to ' +
                         printBytes(potentialCleanup) +
@@ -2637,7 +2640,7 @@ class _PhoneViewSettingsState extends State<PhoneViewSettings> {
                                     style: kPlainTextBold,
                                   ),
                                 ),
-                                Expanded(child: HidePivsSwitch()),
+                                Expanded(child: HideOrganizedPivsSwitch()),
                               ],
                             ),
                             SizedBox(
@@ -2673,33 +2676,33 @@ class _PhoneViewSettingsState extends State<PhoneViewSettings> {
   }
 }
 
-class HidePivsSwitch extends StatefulWidget {
-  const HidePivsSwitch({super.key});
+class HideOrganizedPivsSwitch extends StatefulWidget {
+  const HideOrganizedPivsSwitch({super.key});
 
   @override
-  State<HidePivsSwitch> createState() => _HidePivsSwitch();
+  State<HideOrganizedPivsSwitch> createState() => _HideOrganizedPivsSwitch();
 }
 
-class _HidePivsSwitch extends State<HidePivsSwitch> {
+class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
   dynamic cancelListener;
-  // dynamic account = {'geo': false};
-  late bool hidePivsSwitch = true;
+  dynamic displayMode = {'hideOrganized': true, 'cameraOnly': false};
 
   @override
   void initState() {
     super.initState();
-    // cancelListener = StoreService.instance.listen(['account'], (v1) {
-    //   setState(() {
-    //     if (v1 != '') account = v1;
-    //   });
-    // });
+    cancelListener =
+        StoreService.instance.listen(['displayMode'], (DisplayMode) {
+      setState(() {
+        if (DisplayMode != '') displayMode = DisplayMode;
+      });
+    });
   }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   cancelListener();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2712,11 +2715,11 @@ class _HidePivsSwitch extends State<HidePivsSwitch> {
             activeTrackColor: kAltoBlue,
             activeColor: Colors.white,
             inactiveTrackColor: kGreyLight,
-            // value: account['geo'] != null,
-            value: hidePivsSwitch,
+            value: displayMode['hideOrganized'],
             onChanged: (bool value) {
-              setState(() {
-                hidePivsSwitch = !hidePivsSwitch;
+              StoreService.instance.set('displayMode', {
+                'hideOrganized': value ? true : false,
+                'cameraOnly': displayMode['cameraOnly']
               });
             },
           ),
@@ -2734,7 +2737,25 @@ class ShowCameraPivs extends StatefulWidget {
 }
 
 class _ShowCameraPivsState extends State<ShowCameraPivs> {
-  late bool showCameraPivs = false;
+  dynamic cancelListener;
+  dynamic displayMode = {'hideOrganized': true, 'cameraOnly': false};
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener =
+        StoreService.instance.listen(['displayMode'], (DisplayMode) {
+      setState(() {
+        if (DisplayMode != '') displayMode = DisplayMode;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2747,12 +2768,11 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
             activeTrackColor: kAltoBlue,
             activeColor: Colors.white,
             inactiveTrackColor: kGreyLight,
-            // value: account['geo'] != null,
-            value: showCameraPivs,
+            value: displayMode['cameraOnly'],
             onChanged: (bool value) {
-              // AuthService.instance.geotagging(value ? 'enable' : 'disable');
-              setState(() {
-                showCameraPivs = !showCameraPivs;
+              StoreService.instance.set('displayMode', {
+                'hideOrganized': displayMode['hideOrganized'],
+                'cameraOnly': value ? true : false
               });
             },
           ),
