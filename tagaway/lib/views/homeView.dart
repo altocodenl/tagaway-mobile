@@ -51,7 +51,7 @@ class _HomeViewState extends State<HomeView> {
     });
     (() async {
       // AVAILABILITY THRESHOLD TO SHOW MODAL: 1GB
-      var availableThreshold = 1000 * 1000 * 1000 * 1000;
+      var availableThreshold = 1000 * 1000 * 1000;
       // POTENTIAL THRESHOLD TO SHOW MODAL: 100MB
       var potentialThreshold = 100 * 1000 * 1000;
       var availableBytes = await getAvailableStorage();
