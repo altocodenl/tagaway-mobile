@@ -251,7 +251,7 @@ class TagService {
          // The conditional prevents scrolling semesters if the uploaded view is not active.
          // new current page might be null if suddenly there's no more pages due to untagging
          // or if there is no current month because there's no pivs
-         if (pageController.hasClients && newCurrentPage != null) {
+         if (pageController != '' && pageController.hasClients && newCurrentPage != null) {
             pageController.animateToPage (newCurrentPage, duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
          }
       }

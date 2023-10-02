@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -27,32 +29,45 @@ int initT = DateTime.now().millisecondsSinceEpoch;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
+void reportError(exception, stacktrace, context) {
+  // Ignore this annoying dev error.
+  if (exception.toString().contains(
+      'A KeyUpEvent is dispatched, but the state shows that the physical key is not pressed.'))
+    return;
+
+  var error = {
+    'errorTime': now(),
+    'exception': exception,
+    'stackTrace': stacktrace,
+    'context': context,
+    'version': version
+  };
+  debug(['CAUGHT ERROR', error]);
+  // Save the error to disk in case we lose connectivity
+  StoreService.instance.set('previousError', error, 'disk');
+  // Submit the error to the server
+  ajax('post', 'error', error);
+}
+
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
-    // Ignore this annoying dev error.
-    if (details.exception.toString().contains(
-        'A KeyUpEvent is dispatched, but the state shows that the physical key is not pressed.'))
-      return;
-
-    var error = {
-      'errorTime': now(),
-      'exception': details.exception.toString(),
-      'stackTrace': details.stack.toString(),
-      'library': details.library,
-      'context': details.context.toString(),
-      'version': version
-    };
-    debug(['CAUGHT ERROR', error]);
-    // Save the error to disk in case we lose connectivity
-    StoreService.instance.set('previousError', error, 'disk');
-    // Submit the error to the server
-    ajax('post', 'error', error);
+    reportError(details.exception.toString(), details.stack.toString(),
+        details.context.toString());
   };
-  runApp(const Tagaway());
-  // Reload store
-  StoreService.instance.load();
-  // Submit previous error if any
-  StoreService.instance.reportPreviousError();
+
+  Isolate.current.addErrorListener(RawReceivePort((dynamic pair) {
+    reportError(pair[0].toString(), pair[1].toString(), '');
+  }).sendPort);
+
+  runZonedGuarded(() {
+    runApp(const Tagaway());
+    // Reload store
+    StoreService.instance.load();
+    // Submit previous error if any
+    StoreService.instance.reportPreviousError();
+  }, (error, stacktrace) {
+    reportError(error.toString(), stacktrace.toString(), '');
+  });
 }
 
 class Tagaway extends StatelessWidget {
