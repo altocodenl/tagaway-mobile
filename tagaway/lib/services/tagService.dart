@@ -270,6 +270,7 @@ class TagService {
    queryPivs ([refresh = false, preserveMonth = false]) async {
 
       var tags = StoreService.instance.get ('queryTags');
+      if (tags == '') tags = [];
       tags.sort ();
 
       if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
@@ -381,6 +382,7 @@ class TagService {
    queryPivsForMonth (dynamic currentMonth) async {
 
       var tags = StoreService.instance.get ('queryTags');
+      if (tags == '') tags = [];
       tags.sort ();
 
       // The streams join here. We get all the pivs for the month. We only care about the pivs.

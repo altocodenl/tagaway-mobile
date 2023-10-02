@@ -2051,10 +2051,11 @@ We don't want to bring back all the information at once because 1) that takes si
    queryPivs ([refresh = false, preserveMonth = false]) async {
 ```
 
-We get `queryTags` from the store.
+We get `queryTags` from the store. If it is not initialized yet, we set the local variable to an empty list.
 
 ```dart
       var tags = StoreService.instance.get ('queryTags');
+      if (tags == '') tags = [];
 ```
 
 We sort the received tags, because we'll need to compare them to the tags of a previous query; since the order of the tags doesn't affect the result of the query, we need to compare sorted list of tags to determine if the two lists are the same or not.
