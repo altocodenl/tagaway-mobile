@@ -445,6 +445,7 @@ class TagService {
     });
     StoreService.instance.remove ('currentlyDeletingPivsUploaded');
     if (response['code'] == 200) await queryPivs (true, true);
+    // TODO: handle non-200
     return response['code'];
   }
 
@@ -458,8 +459,8 @@ class TagService {
          queryTags.add (to);
       }
       StoreService.instance.set ('queryTags', queryTags);
-      await queryPivs (true, true);
       // TODO: handle non-200 error
+      await queryPivs (true, true);
    }
 
    deleteTag (String tag) async {
@@ -470,8 +471,8 @@ class TagService {
       // Is this conditional necessary?
       if (queryTags.contains (tag)) queryTags.remove (tag);
       StoreService.instance.set ('queryTags', queryTags);
-      await queryPivs (true, true);
       // TODO: handle non-200 error
+      await queryPivs (true, true);
    }
 
    toggleDeletion (String id, String view) {

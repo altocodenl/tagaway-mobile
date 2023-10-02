@@ -2,11 +2,9 @@
 
 ## TODO
 
-- Adapt styles of Uploaded to a standalone view (Tom)
 - Detect camera pivs in Android
 - Finish annotated source code & handle >= 400 errors with snackbar.
-- Write a QA script
------
+- Write a QA script (Tom)
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -26,8 +24,6 @@
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon
 -----
-- Home: add tabs for pinned vs recent, remove add hometags button if not on pinned
-- Home: display tags in a better, different way
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
 
@@ -595,6 +591,87 @@ This concludes the function.
    }
 ```
 
+We now define `loadAndroidCameraPivs`, a function that will detect which pivs are camera pivs. This function is only for Android.
+
+```dart
+   loadAndroidCameraPivs () async {
+```
+
+If we're in iOS, there's nothing to do, so we return.
+
+```dart
+      if (Platform.isIOS) return;
+```
+
+We start by loading the albums.
+
+```dart
+      var albums = await PhotoManager.getAssetPathList(
+        onlyAll: false,
+      );
+```
+
+We then attempt to get an album whose name contains either `camera` or `dcim`.
+
+```dart
+      var cameraRoll;
+      try {
+         cameraRoll = albums.firstWhere(
+            (element) => element.name.toLowerCase ().contains ('camera') || element.name.toLowerCase ().contains ('dcim'),
+         );
+      }
+```
+
+If we can't find one, we return.
+
+```dart
+      catch (error) {
+         return;
+      }
+```
+
+We will now load the pivs from the camera in groups of 50.
+
+```dart
+      int start = 0;
+      int count = 50;
+```
+
+We will do this inside a `while` loop that we will `break` when we're done.
+
+```dart
+      while (true) {
+```
+
+We load the next 50 pivs.
+
+```dart
+        var assets = await cameraRoll.getAssetListPaged (page: start, size: count);
+```
+
+If we got no pivs, we end the loop.
+
+```dart
+        if (assets.isEmpty) break;
+```
+
+For each of the loaded pivs, we set the entry `cameraPiv:ID` to `true`. This is the way in which this function will indicate to the rest of the app that this is a camera piv.
+
+```dart
+        for (var piv in assets) {
+           StoreService.instance.set ('cameraPiv:' + piv.id, true);
+        }
+```
+
+We increment `start` by 50. We then close the loop and the function.
+
+```dart
+        start += count;
+      }
+   }
+```
+
+
 We now define `loadLocalPivs`, a function that is a sort of entry point for loading up all the info required for the local view.
 
 The function takes an optional parameter, `initialLoad`, which if not present is initialized to `true`. The function might call itself recursively, in which case `initialLoad` will be set to `false`.
@@ -613,6 +690,7 @@ This function will do the following things:
 
 - Load the local pivs using PhotoManager.
 - Set the `pivDate:ID` entries, using the dates coming from each of the pivs.
+- Set the `cameraPiv:ID` entries for pivs that belong to the camera roll.
 - Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. This will be done only if `initialLoad` is `true`, since it only needs to be done once.
 - Invoke `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs are organized, and if so set the corresponding `orgMap:ID` entries.
 - Invoke `computeLocalPages`, the function that will determine what is shown in the local view.
@@ -663,6 +741,12 @@ This concludes the iteration of the pivs.
 
 ```dart
       }
+```
+
+If we are in the first call to the function, we will invoke `loadAndroidCameraPivs` -- this is how we will identify camera pivs in Android. Note we do not `await` for this function, since we want to proceed with loading as fast as possible.
+
+```dart
+      if (initialLoad) loadAndroidCameraPivs ();
 ```
 
 We invoke `queryExistingHashes`, to map the hashed local pivs to cloud pivs. If this is a recursive call to `loadLocalPivs`, or we got all the pivs that we need, we will pass a `true` first argument, to clear out stale hash entries. If, however, not all the local pivs have been loaded yet, we cannot clear out stale hash entries, so we pass `false` to `queryExistingHashes` instead.
@@ -1219,17 +1303,19 @@ Notice that we store the listener in the `localPagesListener` key of the store, 
 
 The listener will be matched if there's a change on any of these store keys:
 
+- All of the `cameraPiv` entries, which indicate which pivs belong to the camera roll.
 - `currentlyTaggingPivs`: the list of local pivs currently being tagged.
 - `displayMode`: whether to show all local pivs or just the unorganized ones.
 - All of the `pivMap` entries, which map a local piv to a cloud piv and which, together with `orgMap`, determines whether the local piv is organized or not.
 - All of the `orgMap` entries, which together with `pivMap`, determines whether the local piv is organized or not.
 
 ```dart
+            'cameraPiv:*',
             'currentlyTaggingPivs',
             'displayMode',
             'pivMap:*',
             'orgMap:*',
-         ], (v1, v2, v3, v4) {
+         ], (v1, v2, v3, v4, v5) {
 ```
 
 The listener function, when matched, merely sets `recomputeLocalPages` to `true`, to indicate that we need to calculate the local pages again.

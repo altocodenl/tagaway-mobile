@@ -160,6 +160,35 @@ class PivService {
       queuePiv (null);
    }
 
+   loadAndroidCameraPivs () async {
+      if (Platform.isIOS) return;
+      var albums = await PhotoManager.getAssetPathList(
+        onlyAll: false,
+      );
+      var cameraRoll;
+      try {
+         cameraRoll = albums.firstWhere(
+            (element) => element.name.toLowerCase ().contains ('camera') || element.name.toLowerCase ().contains ('dcim'),
+         );
+      }
+      catch (error) {
+         return;
+      }
+
+      int start = 0;
+      int count = 50;
+      while (true) {
+        var assets = await cameraRoll.getAssetListPaged (page: start, size: count);
+        if (assets.isEmpty) break;
+
+        for (var piv in assets) {
+           StoreService.instance.set ('cameraPiv:' + piv.id, true);
+        }
+
+        start += count;
+      }
+   }
+
    loadLocalPivs ([initialLoad = true]) async {
 
       var firstLoadSize = 500;
@@ -176,6 +205,8 @@ class PivService {
             if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
          }
       }
+
+      if (initialLoad) loadAndroidCameraPivs ();
 
       await queryExistingHashes (! initialLoad || localPivs.length < firstLoadSize);
 
@@ -339,11 +370,12 @@ class PivService {
 
       if (StoreService.instance.get ('localPagesListener') == '') {
          StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
+            'cameraPiv:*',
             'currentlyTaggingPivs',
             'displayMode',
             'pivMap:*',
             'orgMap:*',
-         ], (v1, v2, v3, v4) {
+         ], (v1, v2, v3, v4, v5) {
             recomputeLocalPages = true;
          }));
 
