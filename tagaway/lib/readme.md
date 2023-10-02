@@ -2,8 +2,6 @@
 
 ## TODO
 
-- Detect camera pivs in Android
-- Finish annotated source code & handle >= 400 errors with snackbar.
 - Write a QA script (Tom)
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -23,6 +21,7 @@
       - Tag/untag: change pendingTags
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon
+- Finish annotated source code.
 -----
 - Tutorial (Tom)
 - Add login flow with Google, Apple and Facebook (Tom)
