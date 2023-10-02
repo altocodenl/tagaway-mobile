@@ -74,7 +74,8 @@ const kMobilePhoneIcon = FontAwesomeIcons.mobileScreenButton;
 const kBroomIcon = FontAwesomeIcons.broom;
 const kPlusIcon = FontAwesomeIcons.plus;
 const kGearIcon = FontAwesomeIcons.gear;
-const kShareNodesIcon = FontAwesomeIcons.shareNodes;
+const kShareUsersIcon = FontAwesomeIcons.userGroup;
+const kPersonDiggingIcon = FontAwesomeIcons.personDigging;
 
 const tagColors = [
   kTagColor1,

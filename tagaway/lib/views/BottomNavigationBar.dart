@@ -67,7 +67,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                   BottomNavigationBarItem(
                       icon: FaIcon(kMobilePhoneIcon), label: 'Phone'),
                   BottomNavigationBarItem(
-                      icon: FaIcon(kShareNodesIcon), label: 'Share'),
+                      icon: FaIcon(kShareUsersIcon), label: 'Share'),
                 ],
               ),
               const UploadingNumber()

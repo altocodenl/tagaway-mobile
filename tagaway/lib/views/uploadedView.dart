@@ -19,7 +19,8 @@ class UploadedView extends StatefulWidget {
 class _UploadedViewState extends State<UploadedView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold (body: Stack(
+    return Scaffold(
+        body: Stack(
       children: [
         const UploadGrid(),
         const TopRow(),
@@ -287,6 +288,7 @@ class _TopRowState extends State<TopRow> {
           width: double.infinity,
           color: Colors.white,
           child: SafeArea(
+            bottom: false,
             child: Column(
               children: [
                 Padding(
@@ -295,8 +297,8 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, 'bottomNavigation');
+                          Navigator.pushReplacementNamed(
+                              context, 'bottomNavigation');
                         },
                         child: const Icon(
                           kHomeIcon,
@@ -306,7 +308,7 @@ class _TopRowState extends State<TopRow> {
                       ),
                       Expanded(
                           child: Align(
-                              alignment: Alignment(0.5, .9),
+                              alignment: const Alignment(0.5, .9),
                               child: Text(yearUploaded,
                                   textAlign: TextAlign.center,
                                   style: kLocalYear))),
@@ -346,7 +348,8 @@ class _TopRowState extends State<TopRow> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 15.0),
-                  child: SizedBox(
+                  child: Container(
+                      color: Colors.white,
                       height: 64,
                       child: PageView.builder(
                           itemCount: timeHeader.length,
