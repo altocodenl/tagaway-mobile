@@ -159,6 +159,12 @@ class TagService {
          'to':      100000,
          'idsOnly': true
       });
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your tagged pivs - CODE TAGGED:' + response ['code'].toString (), 'yellow');
+         return;
+      }
+
       var queryIds;
       if (type == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
       response ['body'].forEach ((v) {
@@ -436,6 +442,12 @@ class TagService {
 
   deleteUploadedPivs (dynamic ids) async {
     var response = await ajax ('post', 'delete', {'ids': ids});
+
+    if (response ['code'] != 200) {
+       if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error deleting your pivs - CODE DELETE:' + response ['code'].toString (), 'yellow');
+       return;
+    }
+
     ids.forEach ((id) {
        var localPivId = StoreService.instance.get ('rpivMap:' + id);
        if (localPivId != '') {
@@ -444,12 +456,16 @@ class TagService {
        }
     });
     StoreService.instance.remove ('currentlyDeletingPivsUploaded');
-    if (response['code'] == 200) await queryPivs (true, true);
-    return response['code'];
+    await queryPivs (true, true);
   }
 
    renameTag (String from, String to) async {
-      await ajax ('post', 'rename', {'from': from, 'to': to});
+      var response = await ajax ('post', 'rename', {'from': from, 'to': to});
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error renaming the tag - CODE RENAME:' + response ['code'].toString (), 'yellow');
+         return;
+      }
+
       await getTags ();
       var queryTags = StoreService.instance.get ('queryTags');
       if (queryTags == '') queryTags = [];
@@ -459,11 +475,14 @@ class TagService {
       }
       StoreService.instance.set ('queryTags', queryTags);
       await queryPivs (true, true);
-      // TODO: handle non-200 error
    }
 
    deleteTag (String tag) async {
-      await ajax ('post', 'deleteTag', {'tag': tag});
+      var response = await ajax ('post', 'deleteTag', {'tag': tag});
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error deleting the tag - CODE RENAME:' + response ['code'].toString (), 'yellow');
+         return;
+      }
       await getTags ();
       var queryTags = StoreService.instance.get ('queryTags');
       if (queryTags == '') queryTags = [];
@@ -471,7 +490,6 @@ class TagService {
       if (queryTags.contains (tag)) queryTags.remove (tag);
       StoreService.instance.set ('queryTags', queryTags);
       await queryPivs (true, true);
-      // TODO: handle non-200 error
    }
 
    toggleDeletion (String id, String view) {
@@ -512,8 +530,10 @@ class TagService {
 
    queryOrganizedIds (dynamic ids) async {
       var response = await ajax ('post', 'organized', {'ids': ids});
-      // TODO: handle errors
-      if (response ['code'] != 200) return;
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your organized pivs - CODE ORGANIZE:' + response ['code'].toString (), 'yellow');
+         return;
+      }
 
       var organizedIds = {};
       response ['body'].forEach ((id) {
