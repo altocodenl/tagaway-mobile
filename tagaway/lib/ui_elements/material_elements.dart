@@ -1188,7 +1188,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
   Widget build(BuildContext context) {
     if (numeroli == 0) return const Text('');
     return Positioned(
-      right: SizeService.instance.screenWidth(context) * .29,
+      left: SizeService.instance.screenWidth(context) * .31,
       top: 10,
       child: SizedBox(
         height: 30,
@@ -1207,7 +1207,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
                     color: kAltoBlue),
               ),
               const Icon(
-                kArrowRightLong,
+                kArrowLeftLong,
                 color: kAltoBlue,
                 size: 15,
               ),
