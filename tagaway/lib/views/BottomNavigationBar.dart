@@ -61,13 +61,13 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 onTap: (index) {
                   StoreService.instance.set('viewIndex', index);
                 },
-                items: [
-                  const BottomNavigationBarItem(
+                items: const [
+                  BottomNavigationBarItem(
                       icon: FaIcon(kHomeIcon), label: 'Home'),
-                  const BottomNavigationBarItem(
+                  BottomNavigationBarItem(
                       icon: FaIcon(kMobilePhoneIcon), label: 'Phone'),
                   BottomNavigationBarItem(
-                      icon: const FaIcon(kCloudArrowUp), label: 'Share'),
+                      icon: FaIcon(kShareNodesIcon), label: 'Share'),
                 ],
               ),
               const UploadingNumber()
