@@ -3,10 +3,8 @@
 ## TODO
 
 
-- Finish annotated source code & handle >= 400 errors with snackbar.
-- Write a QA script
-- Share Tagaway button and link
------
+- Write a QA script (Tom)
+- Share Tagaway button and link (Tom)
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -110,12 +108,12 @@
 - The app should open in the 'Home' view.
 - If user has hometags, they should show.
 - If user has no hometags and haven't tagged a single pic before, the 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!' should show
-- If user has no hometags, but has tagged pics, 'Start adding your shortcuts!' should appear. 
+- If user has no hometags, but has tagged pics, 'Start adding your shortcuts!' should appear.
 - If user has hometags, tap on a hometag. it should go to the 'cloud view', and that particular tag should be showing.
 - If user has no hometags and no tags, then go to 'Phone', tap on 'start' > tag icon, and create a tag.
 - Tag Phone pivs
 - As you tag, pivs should change their color from grey to green.
-- Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom right of the screen (from 
+- Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom right of the screen (from
 
 
 ## Annotated source code
