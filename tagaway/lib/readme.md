@@ -113,7 +113,8 @@
 - If user has no hometags and no tags, then go to 'Phone', tap on 'start' > tag icon, and create a tag.
 - Tag Phone pivs
 - As you tag, pivs should change their color from grey to green.
-- Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom right of the screen (from
+- Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom left of the screen (from 'Phone' to 'Home').
+- 
 
 
 ## Annotated source code
