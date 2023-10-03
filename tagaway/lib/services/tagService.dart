@@ -143,6 +143,10 @@ class TagService {
    // TODO: annotate the code below
 
    getTaggedPivs (dynamic tags, String type) async {
+      var countKey = 'taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded');
+      // We do this preventively in case the query takes too long
+      StoreService.instance.set (countKey, 0);
+
       var existing = [], New = [];
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
@@ -184,7 +188,7 @@ class TagService {
         StoreService.instance.set ('tagMap:' + id, '');
       });
 
-      StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), New.length);
+      StoreService.instance.set (countKey, New.length + StoreService.instance.get (countKey));
    }
 
    computeTimeHeader ([updateYearUploaded = true]) {
