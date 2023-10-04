@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/storeService.dart';
+
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -28,6 +29,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen(['viewIndex'], (v1) {
+      if (v1 == '') return StoreService.instance.set('viewIndex', 0);
       setState(() {
         viewIndex = v1 == '' ? 0 : v1;
       });
