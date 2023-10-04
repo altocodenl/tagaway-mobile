@@ -2,8 +2,12 @@
 
 ## TODO
 
-
+- Replicate & solve bugs
+   - Class 'String' has no instance method 'sort' ;; TagService.queryPivs (package:tagaway/services/tagService.dart:267
+   - type '(dynamic) => dynamic' is not a subtype of type '(dynamic) => bool' of 'test' ;; tagaway/services/tagService.dart:151
+   - Fix large zoom in local making the app crash
 - Write a QA script (Tom)
+-----
 - Share Tagaway button and link (Tom)
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -614,9 +618,7 @@ If we're in iOS, there's nothing to do, so we return.
 We start by loading the albums.
 
 ```dart
-      var albums = await PhotoManager.getAssetPathList(
-        onlyAll: false,
-      );
+      var albums = await PhotoManager.getAssetPathList (onlyAll: false);
 ```
 
 We then attempt to get an album whose name contains either `camera` or `dcim`.
@@ -624,7 +626,7 @@ We then attempt to get an album whose name contains either `camera` or `dcim`.
 ```dart
       var cameraRoll;
       try {
-         cameraRoll = albums.firstWhere(
+         cameraRoll = albums.firstWhere (
             (element) => element.name.toLowerCase ().contains ('camera') || element.name.toLowerCase ().contains ('dcim'),
          );
       }
@@ -654,27 +656,27 @@ We will do this inside a `while` loop that we will `break` when we're done.
 We load the next 50 pivs.
 
 ```dart
-        var assets = await cameraRoll.getAssetListPaged (page: start, size: count);
+         var assets = await cameraRoll.getAssetListPaged (page: start, size: count);
 ```
 
 If we got no pivs, we end the loop.
 
 ```dart
-        if (assets.isEmpty) break;
+         if (assets.isEmpty) break;
 ```
 
 For each of the loaded pivs, we set the entry `cameraPiv:ID` to `true`. This is the way in which this function will indicate to the rest of the app that this is a camera piv.
 
 ```dart
-        for (var piv in assets) {
-           StoreService.instance.set ('cameraPiv:' + piv.id, true);
-        }
+         for (var piv in assets) {
+            StoreService.instance.set ('cameraPiv:' + piv.id, true);
+         }
 ```
 
 We increment `start` by 50. We then close the loop and the function.
 
 ```dart
-        start += count;
+         start += count;
       }
    }
 ```
