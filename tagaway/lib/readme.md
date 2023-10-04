@@ -113,7 +113,28 @@
 - If user has no hometags and no tags, then go to 'Phone', tap on 'start' > tag icon, and create a tag.
 - Tag Phone pivs
 - As you tag, pivs should change their color from grey to green.
-- Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom left of the screen (from 'Phone' to 'Home').
+- Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom left of the screen (a blue arrow from 'Phone' to 'Home').
+- Once the user has tags, tap on 'Start adding your shortcuts!'
+- User goes to 'Edit your hometags' view
+- Tap on '+'
+- A list of the available tags and a search bar appears
+- Tap on the desired tag to create a hometag
+- After tapping, user should is taken back to 'Edit your hometags' view, where the new hometag appears on the list.
+- Tap on 'Done'
+- User should be taken to 'Home' view and the recently added hometag should appear.
+- If user taps on a hometag, it should be taken to that query (that tag)
+- The pivs shown first should be the latest.
+- On the top of the screen, the 'timeHeader' should show with an either on green or grey circles the months were user has pivs.
+- The current month is underlined in blue
+- If user taps on a month with either a green (organized) or grey (not organized/untagged) circle, it should navigate to that month.
+- On 'Home' view, tap on the 'search' button.
+- User should be taken to query selection view
+- In query selection view user should see all the tags created, plus all the years and countries automatically tagged.
+- In addition, if the user started their experience with Tagaway on the web app, on query selector view the 'untagged', 'to organize' or 'to be organized' options should appear. (If user has only used smartphone app, then this should not appear. All tagged pivs on the smartphone app are automatically tagged as 'organized')
+- When selecting a tag (either manual or automatic), that tag should be removed from the list and taken to the top of the view with blue shade color.
+- The remaining tags to be seen are the ones that have intersection with the selected tag.
+- Tap on the 'see XXXXX pivs' should be taken to query results.
+- If on query selector view user does not select anything and taps on 'see XXXXX pivs', then the query result is 'everything'
 -
 
 
