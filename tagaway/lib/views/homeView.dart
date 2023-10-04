@@ -45,10 +45,7 @@ class _HomeViewState extends State<HomeView> {
     });
 
     AuthService.instance.getAccount();
-    TagService.instance.getTags().then((statusCode) {
-      if (statusCode == 403)
-        Navigator.pushReplacementNamed(context, 'distributor');
-    });
+    TagService.instance.getTags();
     (() async {
       // AVAILABILITY THRESHOLD TO SHOW MODAL: 1GB
       var availableThreshold = 1000 * 1000 * 1000;
