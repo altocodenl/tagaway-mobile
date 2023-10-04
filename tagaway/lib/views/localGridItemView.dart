@@ -111,6 +111,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
   Animation<Matrix4>? animation;
   OverlayEntry? entry;
   ScrollPhysics? pageBuilderScroll;
+  dynamic loadedImages = {};
 
   @override
   void initState() {
@@ -149,6 +150,13 @@ class _LocalCarrouselState extends State<LocalCarrousel>
     return true;
   }
 
+  Future<File?> loadImage(piv) async {
+    if (loadedImages[piv.id] != null) return loadedImages[piv.id];
+    var file = await piv.file;
+    loadedImages[piv.id] = file;
+    return file;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -168,6 +176,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
         itemCount: widget.page.length,
         itemBuilder: (context, index) {
           var piv = widget.page[index];
+          Future<File?> file = loadImage(piv);
           return Scaffold(
             appBar: AppBar(
               iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
@@ -232,7 +241,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                                 color: kGreyDarkest,
                                 alignment: Alignment.center,
                                 child: FutureBuilder<File?>(
-                                  future: piv.file,
+                                  future: file,
                                   builder: (_, snapshot) {
                                     final file = snapshot.data;
                                     if (file == null) return Container();
@@ -391,7 +400,7 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
                             child: IconButton(
                               onPressed: () {
                                 PivService.instance
-                                  .deleteLocalPivs([widget.videoFile.id]);
+                                    .deleteLocalPivs([widget.videoFile.id]);
                                 Navigator.pop(context);
                               },
                               icon: const Icon(
