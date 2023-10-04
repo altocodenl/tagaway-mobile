@@ -2,10 +2,6 @@
 
 ## TODO
 
-- Replicate & solve bugs
-   - Class 'String' has no instance method 'sort' ;; TagService.queryPivs (package:tagaway/services/tagService.dart:267
-   - type '(dynamic) => dynamic' is not a subtype of type '(dynamic) => bool' of 'test' ;; tagaway/services/tagService.dart:151
-   - Fix large zoom in local making the app crash
 - Write a QA script (Tom)
 -----
 - Share Tagaway button and link (Tom)
@@ -118,7 +114,7 @@
 - Tag Phone pivs
 - As you tag, pivs should change their color from grey to green.
 - Once you tap 'Done' the piv should disappear from grid and the amount of pivs being uploaded should show on bottom left of the screen (from 'Phone' to 'Home').
-- 
+-
 
 
 ## Annotated source code
@@ -641,11 +637,11 @@ If we can't find one, we return.
       }
 ```
 
-We will now load the pivs from the camera in groups of 50.
+We will now load the pivs from the camera in groups of 1000.
 
 ```dart
       int start = 0;
-      int count = 50;
+      int count = 1000;
 ```
 
 We will do this inside a `while` loop that we will `break` when we're done.
@@ -654,10 +650,10 @@ We will do this inside a `while` loop that we will `break` when we're done.
       while (true) {
 ```
 
-We load the next 50 pivs.
+We load the next 1000 pivs.
 
 ```dart
-         var assets = await cameraRoll.getAssetListPaged (page: start, size: count);
+         var assets = await cameraRoll.getAssetListRange (start: start, end: count);
 ```
 
 If we got no pivs, we end the loop.
@@ -685,27 +681,20 @@ We increment `start` by 50. We then close the loop and the function.
 
 We now define `loadLocalPivs`, a function that is a sort of entry point for loading up all the info required for the local view.
 
-The function takes an optional parameter, `initialLoad`, which if not present is initialized to `true`. The function might call itself recursively, in which case `initialLoad` will be set to `false`.
-
 ```dart
-   loadLocalPivs ([initialLoad = true]) async {
-```
-
-The reason this function might be called multiple times is that loading up all the local pivs could take about 10 seconds on devices with thousands of local pivs. For this reason, if the amount of local pivs is greater than `firstLoadSize`, it will call itself recursively to load the rest of the pivs later.
-
-```dart
-      var firstLoadSize = 500;
+   loadLocalPivs () async {
 ```
 
 This function will do the following things:
 
+- Invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages.
+- Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids.
+- Invoke `reviveUploads`, the function that will start re-uploading pivs from the dry upload queue.
+
 - Load the local pivs using PhotoManager.
 - Set the `pivDate:ID` entries, using the dates coming from each of the pivs.
 - Set the `cameraPiv:ID` entries for pivs that belong to the camera roll.
-- Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. This will be done only if `initialLoad` is `true`, since it only needs to be done once.
 - Invoke `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs are organized, and if so set the corresponding `orgMap:ID` entries.
-- Invoke `computeLocalPages`, the function that will determine what is shown in the local view.
-- Invoke `reviveUploads`, the function that will start re-uploading pivs from the dry upload queue. This will be done only if `initialLoad` is `true`, since it only needs to be done once.
 - Invoke `computeHashes`, the function that will compute the hashes for the local pivs for which we haven't done so yet. This will only be executed on the *last* time that `loadLocalPivs` is invoked.
 
 We start by loading the pivs from PhotoManager. By setting `onlyAll` to `true`, we access the `Recent` album, which contains all the photos/videos in the storage.
