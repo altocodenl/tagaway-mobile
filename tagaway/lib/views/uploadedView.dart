@@ -297,6 +297,15 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       GestureDetector(
                         onTap: () {
+                          StoreService.instance.remove('showButtonsUploaded');
+                          StoreService.instance
+                              .remove('currentlyTaggingUploaded');
+                          StoreService.instance
+                              .remove('currentlyDeletingUploaded');
+                          StoreService.instance
+                              .remove('currentlyDeletingModalUploaded');
+                          StoreService.instance
+                              .remove('currentlyDeletingPivsUploaded');
                           Navigator.pushReplacementNamed(
                               context, 'bottomNavigation');
                         },
