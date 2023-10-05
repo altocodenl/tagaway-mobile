@@ -214,6 +214,7 @@ class PivService {
          }
 
          localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+         StoreService.instance.set ('cameraPiv:foo', now ());
 
          offset += pageSize;
       }

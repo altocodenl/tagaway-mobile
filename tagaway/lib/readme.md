@@ -790,6 +790,12 @@ Note we sort the pivs after we have added the full page of pivs, rather than aft
       localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
 ```
 
+Now for a hack: after adding each page of pivs, we want to make `computeLocalPages` recompute the local pages. For this reason, we set a dummy key (`cameraPiv:foo`) to a value it didn't have before. Since the listener set by `computeLocalPages` will be triggered by a change to any key starting with `cameraPiv`, this will work. Earlier we considered doing this by making the listener of `computeLocalPages` also be triggered by changes to `pivDate`; however, that could have triggered more than one redraw for each added page, which is undesirable. For that reason, we go with this dummy key approach instead, to make sure that the pages are recomputed at most only once per page of local pivs loaded.
+
+```dart
+         StoreService.instance.set ('cameraPiv:foo', now ());
+```
+
 We increase `offset` by `pageSize`; at this point, the loop will start again until there are no more pivs left to load.
 
 ```dart
