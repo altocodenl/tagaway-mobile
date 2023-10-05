@@ -22,29 +22,22 @@ class LocalView extends StatefulWidget {
 }
 
 class _LocalViewState extends State<LocalView> {
-  dynamic cancelListener;
-
   final PageController pageController = PageController();
-  dynamic localPagesLength = StoreService.instance.get('localPagesLength') == ''
-      ? 0
-      : StoreService.instance.get('localPagesLength');
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
-      'localPagesLength',
-    ], (LocalPagesLength) {
-      setState(() {
-        localPagesLength = LocalPagesLength;
-      });
+    pageController.addListener(() {
+      var maxPage = StoreService.instance.get('localPagesLength');
+      if (maxPage == '') maxPage = 0;
+      if (pageController.page! >= maxPage)
+        pageController.jumpToPage(maxPage - 1);
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    cancelListener();
     pageController.dispose();
   }
 
@@ -54,7 +47,9 @@ class _LocalViewState extends State<LocalView> {
     return PageView.builder(
       reverse: true,
       controller: pageController,
-      itemCount: localPagesLength == '' ? 0 : localPagesLength,
+      // We do not want the grid to be redrawn every time that the amount of local pages changes.
+      // Therefore, we set it to a very high number and we restrict scrolling past the limit on the listener on the pageController.
+      itemCount: 1000,
       pageSnapping: true,
       itemBuilder: (BuildContext context, int index) {
         return Stack(
@@ -118,64 +113,61 @@ class _GridState extends State<Grid> {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: page != '',
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 20.0, top: 180),
-        child: page['pivs'].length == 0
-            ? const Center(
-                child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 15.0),
-                    child: FaIcon(
-                      kFlagIcon,
-                      color: kAltoBlue,
-                      size: 20,
-                    ),
-                  ),
-                  FaIcon(
-                    kMountainIcon,
-                    color: kAltoBlue,
-                    size: 40,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      'You\'re all done!',
-                      style: kPlainTextBold,
-                    ),
-                  ),
-                ],
-              ))
-            : SizedBox.expand(
-                child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: GridView.builder(
-                        reverse: true,
-                        shrinkWrap: true,
-                        cacheExtent: 50,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 1,
-                          crossAxisSpacing: 1,
-                        ),
-                        itemCount: page['pivs'].length,
-                        itemBuilder: (BuildContext context, index) {
-                          return LocalGridItem(
-                              page['pivs'][index], page['pivs']);
-                        })),
-              ),
-      ),
-      replacement: Center(
+    if (page == '')
+      return Center(
         child: Container(
             color: Colors.grey[50],
             child: const CircularProgressIndicator(
               color: kAltoBlue,
             )),
-      ),
+      );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0, top: 180),
+      child: page['pivs'].length == 0
+          ? const Center(
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: FaIcon(
+                    kFlagIcon,
+                    color: kAltoBlue,
+                    size: 20,
+                  ),
+                ),
+                FaIcon(
+                  kMountainIcon,
+                  color: kAltoBlue,
+                  size: 40,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'You\'re all done!',
+                    style: kPlainTextBold,
+                  ),
+                ),
+              ],
+            ))
+          : SizedBox.expand(
+              child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: GridView.builder(
+                      reverse: true,
+                      shrinkWrap: true,
+                      cacheExtent: 50,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 1,
+                        crossAxisSpacing: 1,
+                      ),
+                      itemCount: page['pivs'].length,
+                      itemBuilder: (BuildContext context, index) {
+                        return LocalGridItem(page['pivs'][index], page['pivs']);
+                      })),
+            ),
     );
   }
 }
@@ -230,6 +222,7 @@ class _TopRowState extends State<TopRow> {
 
   @override
   Widget build(BuildContext context) {
+    if (page == '') return Container();
     return Column(
       children: [
         Container(
