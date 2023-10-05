@@ -700,15 +700,17 @@ We now define `loadLocalPivs`, a function that is a sort of entry point for load
    loadLocalPivs () async {
 ```
 
-This function will start by doing three things:
+This function will start by doing four things:
 
 - Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. We will wait for this operation to be done before continuing, to avoid the screen flickering or abrupt changes when this info is loaded.
-- Invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages.
+- Invoke `queryOrganizedLocalPivs`, passing the page of recently loaded pivs, to find out which of these pivs have a cloud counterpart. We will do this after `queryExistingHashes` because that function sets the `pivMap` entries that we need to use to query the server. Note we will `await` this operation.
+- Invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages. We will only compute local pages once we have all our `pivMap` and `orgMap` entries loaded, to avoid redraws and flickers.
 - Invoke `loadAndroidCameraPivs`, which will add `cameraPiv:ID` entries for those local pivs that are considered to be camera pivs.
 
 
 ```dart
       await queryExistingHashes ();
+      await queryOrganizedLocalPivs ();
       computeLocalPages ();
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 ```
@@ -788,18 +790,6 @@ Note we sort the pivs after we have added the full page of pivs, rather than aft
       localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
 ```
 
-Now for a hack: after adding each page of pivs, we want to make `computeLocalPages` recompute the local pages. For this reason, we set a dummy key (`cameraPiv:foo`) to a value it didn't have before. Since the listener set by `computeLocalPages` will be triggered by a change to any key starting with `cameraPiv`, this will work. Earlier we considered doing this by making the listener of `computeLocalPages` also be triggered by changes to `pivDate`; however, that could have triggered more than one redraw for each added page, which is undesirable. For that reason, we go with this dummy key approach instead, to make sure that the pages are recomputed at most only once per page of local pivs loaded.
-
-```dart
-         StoreService.instance.set ('cameraPiv:foo', now ());
-```
-
-We now invoke `queryOrganizedLocalPivs`, passing the page of recently loaded pivs, to find out which of these pivs have a cloud counterpart.
-
-```dart
-         await queryOrganizedLocalPivs (page);
-```
-
 We increase `offset` by `pageSize`; at this point, the loop will start again until there are no more pivs left to load.
 
 ```dart
@@ -829,10 +819,8 @@ This concludes the function.
 
 We now define `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs (for those local pivs that have them) are organized.
 
-This function takes an optional argument, a list of `pivs` for which we want to find out whether they have an organized cloud counterpart. If this argument is not passed, then we will do the check for *all* local pivs.
-
 ```dart
-   queryOrganizedLocalPivs ([dynamic pivs]) async {
+   queryOrganizedLocalPivs () async {
 ```
 
 We define a list `cloudIds` with all the ids of cloud pivs that we want to check.
@@ -841,10 +829,11 @@ We define a list `cloudIds` with all the ids of cloud pivs that we want to check
       var cloudIds = [];
 ```
 
-If `pivs` is not passed, we iterate all local pivs; otherwise, we just iterate `pivs`.
+We iterate the `pivMap` entries.
 
 ```dart
-      for (var piv in (pivs == null ? localPivs : pivs)) {
+      for (var k in StoreService.instance.store.keys.toList ()) {
+         if (! RegExp ('^pivMap:').hasMatch (k)) continue;
 ```
 
 We get the `pivMap:ID` entry, which can contain the id of the cloud counterpart of this local piv.
@@ -853,7 +842,7 @@ We get the `pivMap:ID` entry, which can contain the id of the cloud counterpart 
          var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
 ```
 
-If the entry is empty, or it is set to `true`, we ignore it. Otherwise, we add it to `cloudIds`.
+If the entry is empty, or it is set to `true` (which will be the case for local pivs currently in the upload queue), we ignore it. Otherwise, we add it to `cloudIds`.
 
 Note: the entry will be `true` if the piv is currently being uploaded - as we saw above, this is done by `queuePiv`.
 

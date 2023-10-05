@@ -214,7 +214,6 @@ class PivService {
          }
 
          localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
-         StoreService.instance.set ('cameraPiv:foo', now ());
 
          offset += pageSize;
       }
@@ -224,7 +223,7 @@ class PivService {
       reviveUploads ();
    }
 
-   queryOrganizedLocalPivs ([dynamic pivs]) async {
+   queryOrganizedLocalPivs () async {
       var cloudIds = [];
 
       for (var k in StoreService.instance.store.keys.toList ()) {
