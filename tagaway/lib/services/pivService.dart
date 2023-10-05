@@ -189,6 +189,7 @@ class PivService {
    loadLocalPivs () async {
 
       await queryExistingHashes ();
+      await queryOrganizedLocalPivs ();
       computeLocalPages ();
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 
@@ -214,7 +215,6 @@ class PivService {
 
          localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
          StoreService.instance.set ('cameraPiv:foo', now ());
-         await queryOrganizedLocalPivs (page);
 
          offset += pageSize;
       }
@@ -226,8 +226,10 @@ class PivService {
 
    queryOrganizedLocalPivs ([dynamic pivs]) async {
       var cloudIds = [];
-      for (var piv in (pivs == null ? localPivs : pivs)) {
-         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+
+      for (var k in StoreService.instance.store.keys.toList ()) {
+         if (! RegExp ('^pivMap:').hasMatch (k)) continue;
+         var cloudId = StoreService.instance.get (k);
          if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
       }
       await TagService.instance.queryOrganizedIds (cloudIds);
