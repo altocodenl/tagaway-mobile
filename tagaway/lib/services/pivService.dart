@@ -161,13 +161,10 @@ class PivService {
    }
 
    loadAndroidCameraPivs () async {
-      if (Platform.isIOS) return;
-      var albums = await PhotoManager.getAssetPathList(
-        onlyAll: false,
-      );
+      var albums = await PhotoManager.getAssetPathList (onlyAll: false);
       var cameraRoll;
       try {
-         cameraRoll = albums.firstWhere(
+         cameraRoll = albums.firstWhere (
             (element) => element.name.toLowerCase ().contains ('camera') || element.name.toLowerCase ().contains ('dcim'),
          );
       }
@@ -176,61 +173,67 @@ class PivService {
       }
 
       int start = 0;
-      int count = 50;
+      int count = 1000;
       while (true) {
-        var assets = await cameraRoll.getAssetListPaged (page: start, size: count);
-        if (assets.isEmpty) break;
+         var assets = await cameraRoll.getAssetListRange (start: start, end: count);
+         if (assets.isEmpty) break;
 
-        for (var piv in assets) {
-           StoreService.instance.set ('cameraPiv:' + piv.id, true);
-        }
+         for (var piv in assets) {
+            StoreService.instance.set ('cameraPiv:' + piv.id, true);
+         }
 
-        start += count;
+         start += count;
       }
    }
 
-   loadLocalPivs ([initialLoad = true]) async {
-
-      var firstLoadSize = 500;
-
-      final albums = await PhotoManager.getAssetPathList (onlyAll: true);
-
-      localPivs = await albums.first.getAssetListRange (start: 0, end: initialLoad ? firstLoadSize : 1000000);
-      localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
-
-      for (var piv in localPivs) {
-         StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
-         if (Platform.isIOS) {
-            var mime = await piv.mimeTypeAsync;
-            if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
-         }
-      }
-
-      if (initialLoad) loadAndroidCameraPivs ();
-
-      await queryExistingHashes (! initialLoad || localPivs.length < firstLoadSize);
-
-      await queryOrganizedLocalPivs ();
+   loadLocalPivs () async {
 
       computeLocalPages ();
+      queryExistingHashes ();
+      if (! Platform.isIOS) loadAndroidCameraPivs ();
 
-      if (initialLoad) await reviveUploads ();
+      final albums = await PhotoManager.getAssetPathList (
+         onlyAll: true,
+         filterOption: FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false))
+      );
 
-      if (initialLoad && localPivs.length == firstLoadSize) return loadLocalPivs (false);
+      int offset = 0, pageSize = 1000;
 
+      while (true) {
+         var page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
+         if (page.isEmpty) break;
+
+         for (var piv in page) {
+            StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+            if (Platform.isIOS) {
+               var mime = await piv.mimeTypeAsync;
+               if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
+            }
+            localPivs.add (piv);
+         }
+
+         localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+         StoreService.instance.set ('cameraPiv:foo', now ());
+         await queryOrganizedLocalPivs (page);
+
+         offset += pageSize;
+      }
+
+      cleanupStaleHashes ();
       computeHashes ();
+      reviveUploads ();
    }
 
-   queryOrganizedLocalPivs () async {
+   queryOrganizedLocalPivs ([dynamic pivs]) async {
       var cloudIds = [];
-      for (var piv in localPivs) {
+      for (var piv in (pivs == null ? localPivs : pivs)) {
          var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
          if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
       }
       await TagService.instance.queryOrganizedIds (cloudIds);
    }
 
-   reviveUploads () async {
+   reviveUploads () {
       var queue = StoreService.instance.get ('uploadQueue');
 
       if (queue == '' || queue.length == 0) return;
@@ -258,21 +261,26 @@ class PivService {
       return output;
    }
 
-   queryExistingHashes ([cleanupStaleHashes = false]) async {
+   cleanupStaleHashes () async {
       var localPivIds = {};
-      if (cleanupStaleHashes) {
-         localPivs.forEach ((v) {
-            localPivIds [v.id] = true;
-         });
-      }
+      localPivs.forEach ((v) {
+         localPivIds [v.id] = true;
+      });
 
+      for (var k in StoreService.instance.store.keys.toList ()) {
+         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+         var id = k.replaceAll ('hashMap:', '');
+         if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
+      }
+   }
+
+   queryExistingHashes () async {
       var hashesToQuery = {};
 
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
          var id = k.replaceAll ('hashMap:', '');
-         if (localPivIds [id] != null) hashesToQuery [id] = StoreService.instance.get (k);
-         else if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
+         hashesToQuery [id] = StoreService.instance.get (k);
       }
 
       var queriedHashes = await queryHashes (hashesToQuery);

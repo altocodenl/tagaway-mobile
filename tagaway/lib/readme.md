@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Finish annotated source code for pivService
 - Write a QA script (Tom)
 -----
 - Share Tagaway button and link (Tom)
@@ -628,12 +627,6 @@ We now define `loadAndroidCameraPivs`, a function that will detect which pivs ar
    loadAndroidCameraPivs () async {
 ```
 
-If we're in iOS, there's nothing to do, so we return.
-
-```dart
-      if (Platform.isIOS) return;
-```
-
 We start by loading the albums.
 
 ```dart
@@ -707,50 +700,66 @@ We now define `loadLocalPivs`, a function that is a sort of entry point for load
    loadLocalPivs () async {
 ```
 
-This function will do the following things:
+This function will start by doing three things:
 
 - Invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages.
 - Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids.
-- Invoke `reviveUploads`, the function that will start re-uploading pivs from the dry upload queue.
+- Invoke `loadAndroidCameraPivs`, which will add `cameraPiv:ID` entries for those local pivs that are considered to be camera pivs.
 
-- Load the local pivs using PhotoManager.
-- Set the `pivDate:ID` entries, using the dates coming from each of the pivs.
-- Set the `cameraPiv:ID` entries for pivs that belong to the camera roll.
-- Invoke `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs are organized, and if so set the corresponding `orgMap:ID` entries.
-- Invoke `computeHashes`, the function that will compute the hashes for the local pivs for which we haven't done so yet. This will only be executed on the *last* time that `loadLocalPivs` is invoked.
-
-We start by loading the pivs from PhotoManager. By setting `onlyAll` to `true`, we access the `Recent` album, which contains all the photos/videos in the storage.
 
 ```dart
-      final albums = await PhotoManager.getAssetPathList (onlyAll: true);
+      computeLocalPages ();
+      queryExistingHashes ();
+      if (! Platform.isIOS) loadAndroidCameraPivs ();
 ```
 
-We get pivs from `albums.first` (which is the `Recent` album). How many pivs will depend on whether we are in the first invocation to `loadLocalPivs` or not: if we are in the first one, we only load `firstLoadSize` elements; otherwise we upload all of them (since we cannot pass infinity as an argument, we go with a million pivs, which should be enough to get all the pivs of any phone).
+The function will now load local pivs incrementally. We cannot load all the pivs at once because in devices with thousands of pivs, that can make the interface unresponsive for a few seconds.
 
-We assign the result to `localPivs`, which is a data property of the service.
+We start by getting all the albums from PhotoManager. We sort the pivs that come from the albums with the latest pivs first, since we want to show the most recent pivs first.
 
 ```dart
-      localPivs = await albums.first.getAssetListRange (start: 0, end: initialLoad ? firstLoadSize : 1000000);
+      final albums = await PhotoManager.getAssetPathList (
+         onlyAll: true,
+         filterOption: FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false))
+      );
 ```
 
-We sort `localPivs` by `createDateTime` and place the most recent pivs first.
+We initialize two variables: `offset` and `pageSize`, which will be our variables to keep track of how many pivs we have loaded so far.
 
 ```dart
-      localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+      int offset = 0, pageSize = 1000;
 ```
 
-We iterate `localPivs`: for each of them, we will set `pivDate:ID` to the creation date of the piv, expressed in milliseconds.
+We start a `while` loop that we'll keep on going until we break it.
+
+```dart
+      while (true) {
+```
+
+We get a `pageSize` number of pivs, starting with the piv at index `offset`.
+
+```dart
+         var page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
+```
+
+If there are no pivs left, we stop loading pivs by breaking the loop.
+
+```dart
+         if (page.isEmpty) break;
+```
+
+We iterate the pivs in `page`: for each of them, we will set `pivDate:ID` to the creation date of the piv, expressed in milliseconds.
 
 Since we don't store `pivDate:ID` entries in disk, we don't have to clean up old entries that might not belong to any local piv.
 
 Note: because this function is called by `distributorView`, and because `distributorView` awaits for the store service to finish loading up the store from disk, we can safely assume that the store service is fully loaded and we can set and get synchronously.
 
 ```dart
-      for (var piv in localPivs) {
-         StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+         for (var piv in page) {
+            StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
 ```
 
-If we are in iOS, we will also try to determine whether this piv is in the camera. iOS has no way to query this directly, so we do an approximation by getting the piv's MIME type and see if it is a HEIC or a MOV. If it is, we consider it a camera piv and therefore set `cameraPiv:ID`.
+If we are in iOS, we will also try to determine whether this piv is in the camera. iOS has no way to query this directly, so we do an approximation by getting the piv's MIME type and see if it is a HEIC or a MOV. If it is, we consider it a camera piv and therefore set `cameraPiv:ID`. Note that we already did this earlier for Android by invoking `loadAndroidCameraPivs`.
 
 ```dart
          if (Platform.isIOS) {
@@ -759,54 +768,57 @@ If we are in iOS, we will also try to determine whether this piv is in the camer
          }
 ```
 
+Finally, we add the piv to `lcoalPivs`
+
+```dart
+            localPivs.add (piv);
+```
+
 This concludes the iteration of the pivs.
 
 ```dart
+         }
+```
+
+We sort `localPivs` by `createDateTime` and place the most recent pivs first. We have to do this again, despite earlier having passed a sorting option when getting the albums, because empirically we've found that some pivs might still be shown out of order.
+
+Note we sort the pivs after we have added the full page of pivs, rather than after adding each piv.
+
+```dart
+      localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+```
+
+Now for a hack: after adding each page of pivs, we want to make `computeLocalPages` recompute the local pages. For this reason, we set a dummy key (`cameraPiv:foo`) to a value it didn't have before. Since the listener set by `computeLocalPages` will be triggered by a change to any key starting with `cameraPiv`, this will work. Earlier we considered doing this by making the listener of `computeLocalPages` also be triggered by changes to `pivDate`; however, that could have triggered more than one redraw for each added page, which is undesirable. For that reason, we go with this dummy key approach instead, to make sure that the pages are recomputed at most only once per page of local pivs loaded.
+
+```dart
+         StoreService.instance.set ('cameraPiv:foo', now ());
+```
+
+We now invoke `queryOrganizedLocalPivs`, passing the page of recently loaded pivs, to find out which of these pivs have a cloud counterpart.
+
+```dart
+         await queryOrganizedLocalPivs (page);
+```
+
+We increase `offset` by `pageSize`; at this point, the loop will start again until there are no more pivs left to load.
+
+```dart
+         offset += pageSize;
       }
 ```
 
-If we are in the first call to the function, we will invoke `loadAndroidCameraPivs` -- this is how we will identify camera pivs in Android. Note we do not `await` for this function, since we want to proceed with loading as fast as possible.
+If we're here, we have finished loading all local pivs. We can now execute three more functions that require us to have loaded all local pivs first:
+
+- `cleanupStaleHashes`, to remove `hashMap` entries that no longer belong to a local piv. Since we check what's stale against all local pivs, we need to load local pivs first.
+- `computeHashes`, the function that will compute the hashes for the local pivs for which we haven't done so yet. If we don't wait for the local pivs to be loaded, then we will not know for which pivs to compute hashes.
+- `reviveUploads`, the function that will start re-uploading pivs from the dry upload queue. If we don't wait for the local pivs to be loaded, we won't have the piv themselves to be uploaded.
+
+Note we do not await for any of these functions, since we want to execute them in parallel, without one operation waiting on another to be completed.
 
 ```dart
-      if (initialLoad) loadAndroidCameraPivs ();
-```
-
-We invoke `queryExistingHashes`, to map the hashed local pivs to cloud pivs. If this is a recursive call to `loadLocalPivs`, or we got all the pivs that we need, we will pass a `true` first argument, to clear out stale hash entries. If, however, not all the local pivs have been loaded yet, we cannot clear out stale hash entries, so we pass `false` to `queryExistingHashes` instead.
-
-```dart
-      await queryExistingHashes (! initialLoad || localPivs.length < firstLoadSize);
-```
-
-For all the local pivs that have a cloud counterpart (that we know of), we check whether they are organized or not.
-
-```dart
-      await queryOrganizedLocalPivs ();
-```
-
-Now that we have a list of local pivs, that we have tried to map all of their existing hashes to cloud ids, and that we queried all of those matching cloud ids to see which ones are organized, we are in a position to create the list of local pages that will be shown! We will do this through `computeLocalPages`. There's no need to await this function, since it's synchronous.
-
-```dart
-      computeLocalPages ();
-```
-
-Now that we already showed the user a page of local pivs, we can do less urgent operations, like reviving the uploads in the dry queue. We only do this the first time we execute the function.
-
-```dart
-      if (initialLoad) await reviveUploads ();
-```
-
-If we are in the initial call to `loadLocalPivs`, and we loaded a number of local pivs equal to `firstLoadSize`, it may be the case that there are more pivs to be loaded. In that case, we invoke `loadLocalPivs` recursively, passing `false` to indicate that this won't be an initial load, but rather a recursive one. Note the return, which prevents us from executing code further done this function.
-
-```dart
-      if (initialLoad && localPivs.length == firstLoadSize) return loadLocalPivs (false);
-```
-
-We invoke `computeHashes`, to compute the hashes of any local pivs that don't have a hash. Note we do this at the end of the function, to ensure that this is done *after* all the local pivs are loaded into `localPivs`.
-
-We don't `await` for this function, since it can take a very long time to complete and it is meant to run in the background.
-
-```dart
+      cleanupStaleHashes ();
       computeHashes ();
+      reviveUploads ();
 ```
 
 This concludes the function.
@@ -817,8 +829,10 @@ This concludes the function.
 
 We now define `queryOrganizedLocalPivs`, the function that will check whether the cloud counterparts of our local pivs (for those local pivs that have them) are organized.
 
+This function takes an optional argument, a list of `pivs` for which we want to find out whether they have an organized cloud counterpart. If this argument is not passed, then we will do the check for *all* local pivs.
+
 ```dart
-   queryOrganizedLocalPivs () async {
+   queryOrganizedLocalPivs ([dynamic pivs]) async {
 ```
 
 We define a list `cloudIds` with all the ids of cloud pivs that we want to check.
@@ -827,10 +841,10 @@ We define a list `cloudIds` with all the ids of cloud pivs that we want to check
       var cloudIds = [];
 ```
 
-We iterate the local pivs.
+If `pivs` is not passed, we iterate all local pivs; otherwise, we just iterate `pivs`.
 
 ```dart
-      for (var piv in localPivs) {
+      for (var piv in (pivs == null ? localPivs : pivs)) {
 ```
 
 We get the `pivMap:ID` entry, which can contain the id of the cloud counterpart of this local piv.
@@ -858,7 +872,7 @@ We will invoke `queryOrganizedIds`, a function that belongs to `TagService`, pas
 We now define `reviveUploads`, the function that restores the upload queue from disk and sets in motion the uploading of the queued pivs.
 
 ```dart
-   reviveUploads () async {
+   reviveUploads () {
 ```
 
 We get the dry upload queue which will be in the `uploadQueue` key. If there's no entry at all, or if the entry returns an empty list, we don't do anything else.
@@ -934,23 +948,47 @@ We return `output` and close the function.
    }
 ```
 
-We now define `queryExistingHashes`, a function that will get, for each of the hashes of the local pivs, their cloud counterparts.
-
-This function takes an optional argument, `cleanupStaleHashes`, that if passed as `true` will clear up old `hashMap` entries. This argument will default to `false`.
+We now define `cleanupStaleHashes`, a function that will clean up old `hashMap` entries that no longer belong to any local piv.
 
 ```dart
-   queryExistingHashes ([cleanupStaleHashes = false]) async {
+   cleanupStaleHashes () async {
 ```
 
-We first construct an object/map where each key is the id of a local piv. The value is set to `true` as a mere placeholder. We only set the keys in `localPivVids` if `cleanupStaleHashes` is `true` - otherwise we don't need it.
+We first construct an object/map where each key is the id of a local piv. The value is set to `true` as a mere placeholder.
 
 ```dart
       var localPivIds = {};
-      if (cleanupStaleHashes) {
-         localPivs.forEach ((v) {
-            localPivIds [v.id] = true;
-         });
+      localPivs.forEach ((v) {
+         localPivIds [v.id] = true;
+      });
+```
+
+We are now going to iterate the existing `hashMap` entries, to see which entries exist.
+
+```dart
+      for (var k in StoreService.instance.store.keys.toList ()) {
+         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+```
+
+If we find a `hashMap:ID` entry where `ID` does not correspond to a local piv, we remove that entry. Note we remove it from disk.
+
+```dart
+         var id = k.replaceAll ('hashMap:', '');
+         if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
       }
+```
+
+This concludes the function.
+
+```datt
+   }
+```
+
+We now define `queryExistingHashes`, a function that will get, for each of the hashes of the local pivs, their cloud counterparts.
+
+
+```dart
+   queryExistingHashes ([cleanupStaleHashes = false]) async {
 ```
 
 We will create another object/map where each key is the id of a local piv that has a hash already computed.
@@ -971,22 +1009,13 @@ If this entry is not a hashMap, we ignore it.
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
 ```
 
-We extract the piv id from `hashMap:ID`.
+We extract the piv id from `hashMap:ID`. We then set the key `id` of `hashesToQuery` to the value of the hash of this piv.
+
+Because local pivs might not have been loaded yet, we might be querying a hash of a local piv that no longer exists, therefore creating unnecessary `pivMap` and `rpivMap` entries. But because these entries are only used for the local pivs that we have, they pose no issue, and they will be gone once stale hashes are cleaned up and the app is restarted.
 
 ```dart
          var id = k.replaceAll ('hashMap:', '');
-```
-
-If there is a local piv with this id, we will set the key `id` of `hashesToQuery` to the value of the hash of this piv.
-
-```dart
-         if (localPivIds [id] != null) hashesToQuery [id] = StoreService.instance.get (k);
-```
-
-If there is no local piv with this id, and `cleanupStaleHashes` is `true`, we will remove this hashMap entry. This is useful for clear up hashMap entries for pivs that were deleted. Note that the key is removed from disk. Note also that we don't `await` for this operation, since we want to keep on going as fast as possible in order to get the info from the server, which is necessary to do the first draw of the local view.
-
-```dart
-         else if (cleanupStaleHashes) StoreService.instance.remove (k, 'disk');
+         hashesToQuery [id] = StoreService.instance.get (k);
       }
 ```
 
