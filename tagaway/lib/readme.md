@@ -702,14 +702,14 @@ We now define `loadLocalPivs`, a function that is a sort of entry point for load
 
 This function will start by doing three things:
 
+- Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. We will wait for this operation to be done before continuing, to avoid the screen flickering or abrupt changes when this info is loaded.
 - Invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages.
-- Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids.
 - Invoke `loadAndroidCameraPivs`, which will add `cameraPiv:ID` entries for those local pivs that are considered to be camera pivs.
 
 
 ```dart
+      await queryExistingHashes ();
       computeLocalPages ();
-      queryExistingHashes ();
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 ```
 

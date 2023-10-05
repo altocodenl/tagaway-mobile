@@ -188,8 +188,8 @@ class PivService {
 
    loadLocalPivs () async {
 
+      await queryExistingHashes ();
       computeLocalPages ();
-      queryExistingHashes ();
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 
       final albums = await PhotoManager.getAssetPathList (
