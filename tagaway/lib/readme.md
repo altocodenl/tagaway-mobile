@@ -97,6 +97,18 @@
 - Use release & create
 - When it's done, build will be in the `android/app/release` folder.
 
+## Creating a build to publish in the stores
+
+Update `android/local.properties` to:
+
+```
+flutter.versionName={VERSION_NUMBER}
+flutter.versionCode={PREVIOUS VERSIONCODE + 1}
+```
+
+Also update the version in `pubspec.yaml`.
+
+
 ## QA Script
 - Environment for QA must be DEV
 - Make sure device has been logged out before start.
