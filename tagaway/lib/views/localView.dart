@@ -88,6 +88,10 @@ class _GridState extends State<Grid> {
   dynamic cancelListener;
   dynamic page = '';
 
+  final ScrollController scrollController = ScrollController();
+  final GlobalKey gridPositionKey = GlobalKey ();
+  RenderBox getBox() => context.findRenderObject() as RenderBox;
+
   @override
   void initState() {
     super.initState();
@@ -105,10 +109,66 @@ class _GridState extends State<Grid> {
     });
   }
 
+  dynamic lastDraggedPivIndex;
+  dynamic sel = false;
+
+  int getIndex (dynamic details) {
+    final RenderBox? box = gridPositionKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || gridPositionKey.currentContext == null) return -1;
+    final Offset localPosition = box.globalToLocal(details.globalPosition);
+    final gridSize = box.size;
+
+    // We need to invert our local position because the grid is shown in inverted order
+    var invertedLocalPosition = [gridSize.width - localPosition.dx, gridSize.height - localPosition.dy];
+    // Add up the scroll offset
+    invertedLocalPosition [1] += scrollController.offset;
+    // There seems to be an extra Y offset that we need to substract.
+    invertedLocalPosition [1] -= 33;
+    //debug (['INVERTED LOCAL POSITION', invertedLocalPosition]);
+
+    // localPosition now contains the coordinates of the gesture relative to this grid item.
+    // Do what you want with the coordinates.
+
+    int crossAxisCount = 3; // This is your grid cross axis count
+    double childWidth = getBox().size.width / crossAxisCount;
+    double childHeight = childWidth; // This assumes square children
+
+    int rowIndex = (invertedLocalPosition [1] / childHeight).floor();
+    int columnIndex = (invertedLocalPosition [0] / childWidth).floor();
+
+    int index = rowIndex * crossAxisCount + columnIndex;
+    return index;
+  }
+
+  void onPanDown(DragDownDetails details) {
+    var index = getIndex (details).toString ();
+    var piv = page['pivs'][index];
+    sel = StoreService.instance.get ('tagMap:' + piv.id) == '';
+    debug (['touching', index]);
+    // onPanUpdate(DragUpdateDetails(globalPosition: details.globalPosition, delta: Offset.zero));
+  }
+
+  void onPanEnd(DragEndDetails details) {
+    lastDraggedPivIndex = null;
+  }
+
+  void onPanUpdate(DragUpdateDetails details) {
+     var index = getIndex (details);
+    if (index != lastDraggedPivIndex) {
+      lastDraggedPivIndex = index;
+      var piv = page['pivs'][index];
+      // TODO
+              //} else if (StoreService.instance.get('currentlyTaggingLocal') !=
+      // StoreService.instance.set ('
+      debug (['touching', index]);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
     cancelListener();
+    scrollController.dispose();
   }
 
   @override
@@ -153,7 +213,14 @@ class _GridState extends State<Grid> {
           : SizedBox.expand(
               child: Directionality(
                   textDirection: TextDirection.rtl,
+
+          child: GestureDetector(
+            key: gridPositionKey,
+            onPanDown: (details) => onPanDown(details),
+            onPanEnd: (details) => onPanEnd(details),
+            onPanUpdate: (details) => onPanUpdate(details),
                   child: GridView.builder(
+                      controller: scrollController,
                       reverse: true,
                       shrinkWrap: true,
                       cacheExtent: 50,
@@ -166,7 +233,7 @@ class _GridState extends State<Grid> {
                       itemCount: page['pivs'].length,
                       itemBuilder: (BuildContext context, index) {
                         return LocalGridItem(page['pivs'][index], page['pivs']);
-                      })),
+                      }))),
             ),
     );
   }
