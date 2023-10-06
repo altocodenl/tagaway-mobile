@@ -99,6 +99,8 @@
 
 ## Creating a build to publish in the stores
 
+First, run `flutter clean`.
+
 Update `android/local.properties` to:
 
 ```
