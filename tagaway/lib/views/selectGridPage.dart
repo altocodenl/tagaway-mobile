@@ -15,7 +15,6 @@ class _SelectGridPageState extends State<SelectGridPage> {
 
   List<AssetEntity> itemList = [];
   bool isSelected = false;
-  dynamic lastDraggedPivIndex;
   RenderBox getBox() => context.findRenderObject() as RenderBox;
 
   @override
@@ -50,20 +49,13 @@ class _SelectGridPageState extends State<SelectGridPage> {
     });
   }
 
-  void onPanDown(DragDownDetails details) {
-    isSelected = true;
-    onPanUpdate(DragUpdateDetails(
-        globalPosition: details.globalPosition, delta: Offset.zero));
-  }
+  dynamic lastDraggedPivIndex;
+  dynamic selection = {};
+  dynamic selecting;
 
-  void onPanEnd(DragEndDetails details) {
-    isSelected = false;
-    lastDraggedPivIndex = null;
-  }
-
-  void onPanUpdate(DragUpdateDetails details) {
+  int getIndex (dynamic details) {
     final RenderBox? box = gridPositionKey.currentContext?.findRenderObject() as RenderBox?;
-    if (box == null || gridPositionKey.currentContext == null) return;
+    if (box == null || gridPositionKey.currentContext == null) return -1;
     final Offset localPosition = box.globalToLocal(details.globalPosition);
     final gridSize = box.size;
 
@@ -86,9 +78,28 @@ class _SelectGridPageState extends State<SelectGridPage> {
     int columnIndex = (invertedLocalPosition [0] / childWidth).floor();
 
     int index = rowIndex * crossAxisCount + columnIndex;
+    return index;
+  }
+
+  void onPanDown(DragDownDetails details) {
+    var index = getIndex (details).toString ();
+    if (selection [index] == null || selection [index] == false) selection [index] = true;
+    else selection [index] = null;
+    selecting = selection [index];
+    onPanUpdate(DragUpdateDetails(
+        globalPosition: details.globalPosition, delta: Offset.zero));
+  }
+
+  void onPanEnd(DragEndDetails details) {
+    lastDraggedPivIndex = null;
+  }
+
+  void onPanUpdate(DragUpdateDetails details) {
+     var index = getIndex (details);
     if (index != lastDraggedPivIndex) {
-      debug (['INDEX', index + 1]);
+      selection [index] = selecting;
       lastDraggedPivIndex = index;
+      debug (['selection', selection]);
     }
   }
 
