@@ -151,8 +151,9 @@ class TagService {
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
          if (type == 'local') {
-            if (RegExp ('^pendingTags:').hasMatch (k) && StoreService.instance.get (k) != '') {
-               if (StoreService.instance.get (k).any ((tag) => tags.contains (tag))) New.add (k.split (':') [1]);
+            if (RegExp ('^pendingTags:').hasMatch (k)) {
+               var pendingTags = StoreService.instance.get (k);
+               if (pendingTags != '' && pendingTags.any ((tag) => tags.contains (tag))) New.add (k.split (':') [1]);
             }
          }
       });
