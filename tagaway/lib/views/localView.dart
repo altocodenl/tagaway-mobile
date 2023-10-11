@@ -141,7 +141,8 @@ class _GridState extends State<Grid> {
   }
 
   void onPanDown(DragDownDetails details) {
-    var index = getIndex (details).toString ();
+    var index = getIndex (details);
+    if (index >= page['pivs'].length) return;
     var piv = page['pivs'][index];
     sel = StoreService.instance.get ('tagMap:' + piv.id) == '';
     debug (['touching', index]);
@@ -154,6 +155,7 @@ class _GridState extends State<Grid> {
 
   void onPanUpdate(DragUpdateDetails details) {
      var index = getIndex (details);
+    if (index >= page['pivs'].length) return;
     if (index != lastDraggedPivIndex) {
       lastDraggedPivIndex = index;
       var piv = page['pivs'][index];
