@@ -2,9 +2,7 @@
 
 ## TODO
 
-- Write a QA script (Tom)
------
-- Share Tagaway button and link (Tom)
+- When already started tagging, remove button to add second tag
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -24,8 +22,11 @@
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon
 - Finish annotated source code.
------
 - Tutorial (Tom)
+- Share Tagaway button and link (Tom)
+- Write a QA script (Tom)
+-----
+- Sharebox
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
