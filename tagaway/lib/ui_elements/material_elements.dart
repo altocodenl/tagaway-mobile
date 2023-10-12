@@ -803,15 +803,24 @@ class GridMonthElement extends StatelessWidget {
         onTap: onTap,
         child: Column(
           children: [
-            FaIcon(
-              roundedIcon,
-              color: roundedIconColor,
-              size: 12,
+            Container(
+              color: Colors.transparent,
+              width: 50,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    roundedIcon,
+                    color: roundedIconColor,
+                    size: 12,
+                  ),
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(month, style: kHorizontalMonth),
+            const SizedBox(
+              height: 8,
             ),
+            Text(month, style: kHorizontalMonth),
             FaIcon(
               kMinusIcon,
               color: whiteOrAltoBlueDashIcon,
@@ -2626,7 +2635,7 @@ class _PhoneViewSettingsState extends State<PhoneViewSettings> {
         child: FaIcon(
           kGearIcon,
           color: kGrey,
-          size: 20,
+          size: 25,
         ),
       ),
     );

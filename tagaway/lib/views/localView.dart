@@ -230,7 +230,7 @@ class _TopRowState extends State<TopRow> {
           color: Colors.white,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20),
+              padding: const EdgeInsets.only(left: 20.0, right: 20, top: 10),
               child: Column(
                 children: [
                   Padding(
