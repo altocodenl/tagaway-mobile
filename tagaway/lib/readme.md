@@ -1064,10 +1064,12 @@ If there is a cloud piv that matches this piv, we set the `pivMap:ID` and `rpivM
 
 Otherwise, we will check whether we have a `pivMap:ID` entry. If we do, we remove the stale entries for `pivMap:ID` and `rpivMap:ID`.
 
+Note we check that `oldUploadedId` is neither an empty string nor `true`.
+
 ```dart
          else {
             var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
-            if (oldUploadedId != '') {
+            if (oldUploadedId != '' && oldUploadedId != true) {
                StoreService.instance.remove ('pivMap:'  + localId);
                StoreService.instance.remove ('rpivMap:' + oldUploadedId);
             }
@@ -1090,10 +1092,16 @@ We now define `computeHashes`, the function that will set in motion the hashing 
    computeHashes () async {
 ```
 
-We iterate the local pivs.
+We iterate the local pivs. We do this in a strange way: rather than writing `for (var piv in localPivs)`, we do it using the index; furthermore, each time we start a new iteration of the loop, we check that indeed the index is not out of bounds.
+
+The reason for this seemingly strange workaround is that this loop might potentially run for a very long time (since hashing of a piv can take a few seconds and there might be thousands of pivs to be hashed) and the length of the local pivs array can change because of additions or deletions while the app is running.
+
+If more pivs are added to `localPivs`, they will be ignored during the current execution of `computeHashes`. This is unlikely and has a low impact (because new pivs are almost certainly not uploaded anyway, so they are not going to be wrongly marked as unorganized).
 
 ```dart
-      for (var piv in localPivs) {
+      for (int i = 0; i < localPivs.length; i++) {
+         if (i >= localPivs.length) break;
+         var piv = localPivs [i];
 ```
 
 If there's no hashMap entry for the piv, we move on to the next piv.
