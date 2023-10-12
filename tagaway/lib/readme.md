@@ -2,6 +2,11 @@
 
 ## TODO
 
+- Add 6 more colors for palette (Tom)
+- Redesign hometags (Tom)
+- Make wheel more easily clickable (Tom)
+- Make the entire timeheader column clickable (Tom)
+- When only seeing camera pivs, change text and number in top bar
 - When already started tagging, remove button to add second tag
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -22,6 +27,7 @@
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon
 - Finish annotated source code.
+- Delete iOS bursts
 - Tutorial (Tom)
 - Share Tagaway button and link (Tom)
 - Write a QA script (Tom)
