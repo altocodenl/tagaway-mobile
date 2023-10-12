@@ -296,7 +296,7 @@ class PivService {
          }
          else {
             var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
-            if (oldUploadedId != '') {
+            if (oldUploadedId != '' && oldUploadedId != true) {
                StoreService.instance.remove ('pivMap:'  + localId);
                StoreService.instance.remove ('rpivMap:' + oldUploadedId);
             }
@@ -306,7 +306,10 @@ class PivService {
 
    computeHashes () async {
 
-      for (var piv in localPivs) {
+      for (int i = 0; i < localPivs.length; i++) {
+         if (i >= localPivs.length) break;
+         var piv = localPivs [i];
+
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
 
          var hash = await flutterCompute (hashPiv, piv.id);
