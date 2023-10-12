@@ -153,7 +153,11 @@ class TagService {
          if (type == 'local') {
             if (RegExp ('^pendingTags:').hasMatch (k)) {
                var pendingTags = StoreService.instance.get (k);
-               if (pendingTags != '' && pendingTags.any ((tag) => tags.contains (tag))) New.add (k.split (':') [1]);
+               var isContained = false;
+               if (pendingTags != '') pendingTags.forEach ((tag) {
+                  if (tags.contains (tag)) isContained = true;
+               });
+               if (isContained) New.add (k.split (':') [1]);
             }
          }
       });
