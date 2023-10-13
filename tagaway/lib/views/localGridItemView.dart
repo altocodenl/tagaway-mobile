@@ -46,6 +46,7 @@ class LocalGridItem extends StatelessWidget {
                     asset,
                     StoreService.instance.get('currentlyTaggingLocal'),
                     'local');
+                StoreService.instance.set('hideAddMoreTagsButtonLocal', true);
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return LocalCarrousel(pivFile: asset, page: page);
