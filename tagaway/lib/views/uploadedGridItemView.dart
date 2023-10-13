@@ -74,6 +74,7 @@ class UploadedGridItem extends StatelessWidget {
                   piv,
                   StoreService.instance.get('currentlyTaggingUploaded'),
                   'uploaded');
+                StoreService.instance.set('hideAddMoreTagsButtonUploaded', true);
             } else {
               Navigator.push(
                 context,

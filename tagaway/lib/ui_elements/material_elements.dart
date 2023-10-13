@@ -1747,10 +1747,10 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance
-        .listen(['currentlyTagging' + widget.view], (CurrentlyTagging) {
+        .listen(['currentlyTagging' + widget.view, 'hideAddMoreTagsButton' + widget.view], (CurrentlyTagging, Hide) {
       setState(() {
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1;
+        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1 && Hide != true;
       });
     });
   }
@@ -1844,6 +1844,7 @@ class _DoneButtonState extends State<DoneButton> {
             if (currentlyTagging != '') {
               StoreService.instance.set('swiped' + widget.view, false);
               StoreService.instance.set('currentlyTagging' + widget.view, '');
+              StoreService.instance.set('hideAddMoreTagsButton' + widget.view, '');
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {
