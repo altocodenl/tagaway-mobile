@@ -192,6 +192,7 @@ class _TopRowState extends State<TopRow> {
   dynamic prev = '';
   dynamic page = '';
   dynamic next = '';
+  dynamic displayMode;
 
   @override
   void initState() {
@@ -202,14 +203,16 @@ class _TopRowState extends State<TopRow> {
       'taggedPivCountLocal',
       'localPage:' + (widget.localPagesIndex - 1).toString(),
       'localPage:' + widget.localPagesIndex.toString(),
-      'localPage:' + (widget.localPagesIndex + 1).toString()
-    ], (v1, v2, v3, v4, v5) {
+      'localPage:' + (widget.localPagesIndex + 1).toString(),
+      'displayMode'
+    ], (v1, v2, v3, v4, v5, DisplayMode) {
       setState(() {
         currentlyTagging = v1;
         taggedPivCount = v2;
         prev = v3;
         page = v4;
         next = v5;
+        displayMode = DisplayMode;
       });
     });
   }
@@ -273,7 +276,7 @@ class _TopRowState extends State<TopRow> {
                         children: [
                           Expanded(
                             child: Text(
-                              page['left'].toString() + ' left',
+                              page['left'].toString() + (displayMode ['cameraOnly'] ? ' camera pivs' : '') + ' left',
                               style: kLookingAtText,
                             ),
                           ),

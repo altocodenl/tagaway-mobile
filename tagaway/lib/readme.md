@@ -4,9 +4,6 @@
 
 - Add 6 more colors for palette (Tom)
 - Redesign hometags (Tom)
-- Make wheel more easily clickable (Tom)
-- Make the entire timeheader column clickable (Tom)
-- When only seeing camera pivs, change text and number in top bar
 - When already started tagging, remove button to add second tag
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
@@ -1256,6 +1253,18 @@ It might be that `pivMap:ID` is set to `true`. This happens if the local piv is 
          var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
 ```
 
+We determine if the piv is considered "left", that is, if it still has to be organized. If the piv is not organized, we consider it as left.
+
+```dart
+         var pivIsLeft      = ! pivIsOrganized;
+```
+
+However, if we are only showing camera pivs, and the piv is not a camera piv, we will not consider it as "left".
+
+```dart
+         if (displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
+```
+
 We check whether the piv is currently being tagged, by checking if it is inside `currentlyTaggingPivs`.
 
 ```dart
@@ -1301,10 +1310,10 @@ If we need to show this piv, we will also add it to the `pivs` list of the page.
                if (showPiv) (page ['pivs'] as List).add (piv);
 ```
 
-If the piv is not organized, we increment the `left` entry of the page.
+If the piv is considered as left, we increment the `left` entry of the page.
 
 ```dart
-               if (! pivIsOrganized) page ['left'] = (page ['left'] as int) + 1;
+               if (pivIsLeft) page ['left'] = (page ['left'] as int) + 1;
 ```
 
 We are now done iterating the existing pages.
@@ -1333,10 +1342,10 @@ We add the total and initialize `pivs` to either an empty list (if the piv shoul
             'pivs': showPiv ? [piv] : [],
 ```
 
-We set `left` to either 0 or 1 depending on whether the piv is organized.
+We set `left` to either 0 or 1 depending on whether the piv is left.
 
 ```dart
-            'left': pivIsOrganized ? 0 : 1,
+            'left': pivIsLeft ? 1 : 0,
 ```
 
 We finally add `from` and `to` to the page. The logic for `to` is not so straightforward: if the date of the piv is in any month except December, we just take the beginning of the next month as our `to`. If the piv is in December, then we use January of the following year as our `to` instead.

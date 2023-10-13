@@ -2651,7 +2651,7 @@ class HideOrganizedPivsSwitch extends StatefulWidget {
 
 class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
   dynamic cancelListener;
-  dynamic displayMode = {'hideOrganized': true, 'cameraOnly': false};
+  dynamic displayMode;
 
   @override
   void initState() {
@@ -2659,7 +2659,7 @@ class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
     cancelListener =
         StoreService.instance.listen(['displayMode'], (DisplayMode) {
       setState(() {
-        if (DisplayMode != '') displayMode = DisplayMode;
+        displayMode = DisplayMode;
       });
     });
   }
@@ -2704,7 +2704,7 @@ class ShowCameraPivs extends StatefulWidget {
 
 class _ShowCameraPivsState extends State<ShowCameraPivs> {
   dynamic cancelListener;
-  dynamic displayMode = {'hideOrganized': true, 'cameraOnly': false};
+  dynamic displayMode;
 
   @override
   void initState() {
@@ -2712,7 +2712,7 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
     cancelListener =
         StoreService.instance.listen(['displayMode'], (DisplayMode) {
       setState(() {
-        if (DisplayMode != '') displayMode = DisplayMode;
+        displayMode = DisplayMode;
       });
     });
   }

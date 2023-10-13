@@ -343,7 +343,6 @@ class PivService {
       }).toList ();
 
       var displayMode = StoreService.instance.get ('displayMode');
-      if (displayMode == '') displayMode = {'hideOrganized': true, 'cameraOnly': false};
       var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
       if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
 
@@ -353,6 +352,8 @@ class PivService {
 
          var cloudId        = StoreService.instance.get ('pivMap:' + piv.id);
          var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
+         var pivIsLeft      = ! pivIsOrganized;
+         if (displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 
@@ -364,14 +365,14 @@ class PivService {
                placed = true;
                page ['total'] = (page ['total'] as int) + 1;
                if (showPiv) (page ['pivs'] as List).add (piv);
-               if (! pivIsOrganized) page ['left'] = (page ['left'] as int) + 1;
+               if (pivIsLeft) page ['left'] = (page ['left'] as int) + 1;
             }
          });
          if (! placed) pages.add ({
             'title': shortMonthNames [pivDate.month - 1] + ' ' + pivDate.year.toString (),
             'total': 1,
             'pivs': showPiv ? [piv] : [],
-            'left': pivIsOrganized ? 0 : 1,
+            'left': pivIsLeft ? 1 : 0,
             'from': ms (DateTime (pivDate.year, pivDate.month, 1)),
             'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month + 1, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1
          });
