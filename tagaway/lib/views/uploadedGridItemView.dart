@@ -28,7 +28,8 @@ class UploadedGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     var pivs = [];
-    if (StoreService.instance.get('queryResult') != '') pivs = StoreService.instance.get ('queryResult')['pivs'];
+    if (StoreService.instance.get('queryResult') != '')
+      pivs = StoreService.instance.get('queryResult')['pivs'];
     var piv = {};
     if (pivIndex < pivs.length) piv = pivs[pivIndex];
     if (piv['id'] == null)
@@ -70,11 +71,11 @@ class UploadedGridItem extends StatelessWidget {
               TagService.instance.toggleDeletion(piv['id'], 'uploaded');
             } else if (StoreService.instance.get('currentlyTaggingUploaded') !=
                 '') {
-              TagService.instance.tagPiv(
+              TagService.instance.toggleTags(
                   piv,
                   StoreService.instance.get('currentlyTaggingUploaded'),
                   'uploaded');
-                StoreService.instance.set('hideAddMoreTagsButtonUploaded', true);
+              StoreService.instance.set('hideAddMoreTagsButtonUploaded', true);
             } else {
               Navigator.push(
                 context,

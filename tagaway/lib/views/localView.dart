@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -7,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -89,7 +91,8 @@ class _GridState extends State<Grid> {
   dynamic page = '';
 
   final ScrollController scrollController = ScrollController();
-  final GlobalKey gridPositionKey = GlobalKey ();
+  final GlobalKey gridPositionKey = GlobalKey();
+
   RenderBox getBox() => context.findRenderObject() as RenderBox;
 
   @override
@@ -109,21 +112,29 @@ class _GridState extends State<Grid> {
     });
   }
 
-  dynamic lastDraggedPivIndex;
-  dynamic sel = false;
+  dynamic firstDraggedPiv;
+  dynamic lastDraggedPiv;
+  dynamic firstDraggedPivT;
+  dynamic firstDraggedPivTapped;
+  dynamic dragDelay = 300;
+    Timer? _timer;
 
-  int getIndex (dynamic details) {
-    final RenderBox? box = gridPositionKey.currentContext?.findRenderObject() as RenderBox?;
+  getDraggedPiv(dynamic details) {
+    final RenderBox? box =
+        gridPositionKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null || gridPositionKey.currentContext == null) return -1;
     final Offset localPosition = box.globalToLocal(details.globalPosition);
     final gridSize = box.size;
 
     // We need to invert our local position because the grid is shown in inverted order
-    var invertedLocalPosition = [gridSize.width - localPosition.dx, gridSize.height - localPosition.dy];
+    var invertedLocalPosition = [
+      gridSize.width - localPosition.dx,
+      gridSize.height - localPosition.dy
+    ];
     // Add up the scroll offset
-    invertedLocalPosition [1] += scrollController.offset;
+    invertedLocalPosition[1] += scrollController.offset;
     // There seems to be an extra Y offset that we need to substract.
-    invertedLocalPosition [1] -= 33;
+    invertedLocalPosition[1] -= 33;
     //debug (['INVERTED LOCAL POSITION', invertedLocalPosition]);
 
     // localPosition now contains the coordinates of the gesture relative to this grid item.
@@ -133,36 +144,69 @@ class _GridState extends State<Grid> {
     double childWidth = getBox().size.width / crossAxisCount;
     double childHeight = childWidth; // This assumes square children
 
-    int rowIndex = (invertedLocalPosition [1] / childHeight).floor();
-    int columnIndex = (invertedLocalPosition [0] / childWidth).floor();
+    int rowIndex = (invertedLocalPosition[1] / childHeight).floor();
+    int columnIndex = (invertedLocalPosition[0] / childWidth).floor();
 
     int index = rowIndex * crossAxisCount + columnIndex;
-    return index;
+    if (index < 0 || index >= page['pivs'].length) return null;
+    return page['pivs'][index];
   }
 
   void onPanDown(DragDownDetails details) {
-    var index = getIndex (details);
-    if (index >= page['pivs'].length) return;
-    var piv = page['pivs'][index];
-    sel = StoreService.instance.get ('tagMap:' + piv.id) == '';
-    debug (['touching', index]);
-    // onPanUpdate(DragUpdateDetails(globalPosition: details.globalPosition, delta: Offset.zero));
+    firstDraggedPiv = getDraggedPiv(details);
+    if (firstDraggedPiv == null) return;
+    firstDraggedPivT = now ();
   }
 
   void onPanEnd(DragEndDetails details) {
-    lastDraggedPivIndex = null;
+    firstDraggedPiv = null;
+    firstDraggedPivT = null;
+    firstDraggedPivTapped = null;
+    lastDraggedPiv = null;
+  }
+
+  void onTap (details) {
+    var piv = getDraggedPiv(details);
+    if (piv == null) return;
+    if (StoreService.instance.get('currentlyDeletingLocal') != '') {
+      TagService.instance.toggleDeletion(firstDraggedPiv.id, 'local');
+    }
+    if (StoreService.instance.get('currentlyTaggingLocal') != '') {
+      TagService.instance.toggleTags(firstDraggedPiv,
+          StoreService.instance.get('currentlyTaggingLocal'), 'local');
+      StoreService.instance.set('hideAddMoreTagsButtonLocal', true);
+    }
   }
 
   void onPanUpdate(DragUpdateDetails details) {
-     var index = getIndex (details);
-    if (index >= page['pivs'].length) return;
-    if (index != lastDraggedPivIndex) {
-      lastDraggedPivIndex = index;
-      var piv = page['pivs'][index];
-      // TODO
-              //} else if (StoreService.instance.get('currentlyTaggingLocal') !=
-      // StoreService.instance.set ('
-      debug (['touching', index]);
+    var piv = getDraggedPiv(details);
+    if (piv == null || firstDraggedPiv == null) return;
+    if (piv == firstDraggedPiv) {
+       if (now () - firstDraggedPivT < dragDelay) return;
+       if (firstDraggedPivTapped == true) return;
+       firstDraggedPivTapped = true;
+       return;
+    }
+    if (piv == lastDraggedPiv) return;
+    lastDraggedPiv = piv;
+
+    if (StoreService.instance.get('currentlyTaggingLocal') != '') {
+      var tagOp =
+          StoreService.instance.get('tagMap:' + firstDraggedPiv.id) == '';
+      var tagStatus = StoreService.instance.get('tagMap:' + piv.id) == '';
+      if (tagOp != tagStatus)
+        TagService.instance.toggleTags(
+            piv, StoreService.instance.get('currentlyTaggingLocal'), 'local');
+    }
+    if (StoreService.instance.get('currentlyDeletingLocal') != '') {
+      var delOp = StoreService.instance
+          .get('currentlyDeletingPivsLocal')
+          .contains(firstDraggedPiv.id);
+      var delStatus = StoreService.instance
+          .get('currentlyDeletingPivsLocal')
+          .contains(piv.id);
+      if (delOp != delStatus)
+        TagService.instance.toggleDeletion(piv.id, 'local');
     }
   }
 
@@ -215,27 +259,35 @@ class _GridState extends State<Grid> {
           : SizedBox.expand(
               child: Directionality(
                   textDirection: TextDirection.rtl,
-
-          child: GestureDetector(
-            key: gridPositionKey,
-            onPanDown: (details) => onPanDown(details),
-            onPanEnd: (details) => onPanEnd(details),
-            onPanUpdate: (details) => onPanUpdate(details),
-                  child: GridView.builder(
-                      controller: scrollController,
-                      reverse: true,
-                      shrinkWrap: true,
-                      cacheExtent: 50,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 1,
-                        crossAxisSpacing: 1,
-                      ),
-                      itemCount: page['pivs'].length,
-                      itemBuilder: (BuildContext context, index) {
-                        return LocalGridItem(page['pivs'][index], page['pivs']);
-                      }))),
+                  child: GestureDetector(
+                      key: gridPositionKey,
+                      onPanDown: (details) => onPanDown(details),
+                      onPanEnd: (details) => onPanEnd(details),
+                      onPanUpdate: (details) => onPanUpdate(details),
+                      onTapDown: (details) {
+                        _timer = Timer(Duration(milliseconds: 200), () {
+                          onTap (details);
+                          print("Tap lasted more than 200ms");
+                        });
+                      },
+                      onTapUp: (details) => _timer?.cancel(),
+                      onTapCancel: () => _timer?.cancel(),
+                      child: GridView.builder(
+                          controller: scrollController,
+                          reverse: true,
+                          shrinkWrap: true,
+                          cacheExtent: 50,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 1,
+                            crossAxisSpacing: 1,
+                          ),
+                          itemCount: page['pivs'].length,
+                          itemBuilder: (BuildContext context, index) {
+                            return LocalGridItem(
+                                page['pivs'][index], page['pivs']);
+                          }))),
             ),
     );
   }
@@ -345,7 +397,11 @@ class _TopRowState extends State<TopRow> {
                         children: [
                           Expanded(
                             child: Text(
-                              page['left'].toString() + (displayMode ['cameraOnly'] ? ' camera pivs' : '') + ' left',
+                              page['left'].toString() +
+                                  (displayMode['cameraOnly']
+                                      ? ' camera pivs'
+                                      : '') +
+                                  ' left',
                               style: kLookingAtText,
                             ),
                           ),

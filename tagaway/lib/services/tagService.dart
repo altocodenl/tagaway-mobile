@@ -86,7 +86,7 @@ class TagService {
       return 200;
    }
 
-   tagPiv (dynamic piv, dynamic tags, String type) async {
+   toggleTags (dynamic piv, dynamic tags, String type) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
       var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 

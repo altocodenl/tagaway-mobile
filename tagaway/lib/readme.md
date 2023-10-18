@@ -8,9 +8,10 @@
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
+         - If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
          - Iterate pending.
-         - If tag, filter out by tag.
          - If tag with date, filter out by date.
+         - If non date tag, filter out by tag.
          - Also filter out by date to the current month.
       - Generate piv entry with different features:
          - id: PENDING:...
@@ -20,8 +21,9 @@
    - Ops on piv:
       - Delete: remove from queue
       - Tag/untag: change pendingTags
+      - Share: not available
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
-   - Add icon
+   - Add icon on piv itself.
 - Finish annotated source code.
 - Delete iOS bursts
 - Tutorial (Tom)
@@ -1945,7 +1947,7 @@ There's nothing else to do but to return the response code of the tagging operat
    }
 ```
 
-We now define `tagPiv`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
+We now define `toggleTags`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
 
 The function takes three arguments:
 - A `piv`, which can be either a local piv or a cloud piv.
@@ -1953,7 +1955,7 @@ The function takes three arguments:
 - The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs).
 
 ```dart
-   tagPiv (dynamic piv, dynamic tags, String type) async {
+   toggleTags (dynamic piv, dynamic tags, String type) async {
 ```
 
 We first define two local variables, a `pivId` that will hold the id of the piv to be tagged; as well as a `cloudId`, which will be equal to `pivId` for a cloud piv, and which will be the cloud id of the cloud counterpart for a local id (if any).
@@ -2124,7 +2126,7 @@ This concludes the function.
    }
 ```
 
-TODO: add annotated source code between `tagPiv` and `queryPivs`.
+TODO: add annotated source code between `toggleTags` and `queryPivs`.
 
 We now define `queryPivs`, the function that will query pivs and their associated tags from the server.
 

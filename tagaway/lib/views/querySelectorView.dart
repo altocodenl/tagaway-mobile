@@ -20,7 +20,10 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   final TextEditingController searchQueryController = TextEditingController();
 
   dynamic queryTags = [];
-  dynamic queryResult = {'total': 0, 'tags': {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0}};
+  dynamic queryResult = {
+    'total': 0,
+    'tags': {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0}
+  };
   dynamic years = [];
   dynamic months = [];
   dynamic countries = [];
@@ -43,16 +46,17 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     if (StoreService.instance.get('queryTags') == '')
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
-    cancelListener = StoreService.instance.listen(['queryTags', 'queryResult', 'queryFilter'], (v1, v2, v3) {
+    cancelListener = StoreService.instance
+        .listen(['queryTags', 'queryResult', 'queryFilter'], (v1, v2, v3) {
       // queryPivs will not make an invocation if `queryResult` or `queryFilter` change because it will check if the tags have changed.
       TagService.instance.queryPivs();
       setState(() {
-
         queryTags = v1;
         bool matchFilter(String tag) {
           if (v3 == '' || queryTags.contains(tag)) return true;
           return tag.toLowerCase().contains(v3.toLowerCase());
         }
+
         if (v2 == '') return;
         queryResult = v2;
         var selectableTags = queryResult['tags']

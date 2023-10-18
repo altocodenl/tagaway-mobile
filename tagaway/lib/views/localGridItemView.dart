@@ -42,7 +42,7 @@ class LocalGridItem extends StatelessWidget {
                 TagService.instance.toggleDeletion(asset.id, 'local');
               } else if (StoreService.instance.get('currentlyTaggingLocal') !=
                   '') {
-                TagService.instance.tagPiv(
+                TagService.instance.toggleTags(
                     asset,
                     StoreService.instance.get('currentlyTaggingLocal'),
                     'local');
