@@ -38,6 +38,7 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector(
             onTap: () {
+              debug (['da tap']);
               if (StoreService.instance.get('currentlyDeletingLocal') != '') {
                 TagService.instance.toggleDeletion(asset.id, 'local');
               } else if (StoreService.instance.get('currentlyTaggingLocal') !=

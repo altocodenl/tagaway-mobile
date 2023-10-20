@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:drag_select_grid_view/drag_select_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -87,6 +89,7 @@ class Grid extends StatefulWidget {
 class _GridState extends State<Grid> {
   dynamic cancelListener;
   dynamic page = '';
+  final gridController = DragSelectGridViewController();
 
   @override
   void initState() {
@@ -103,12 +106,16 @@ class _GridState extends State<Grid> {
         page = v1;
       });
     });
+    gridController.addListener(() {
+       debug (['foo']);
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     cancelListener();
+    gridController.dispose();
   }
 
   @override
@@ -121,6 +128,7 @@ class _GridState extends State<Grid> {
               color: kAltoBlue,
             )),
       );
+    debug (['redraw']);
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0, top: 180),
       child: page['pivs'].length == 0
@@ -153,21 +161,22 @@ class _GridState extends State<Grid> {
           : SizedBox.expand(
               child: Directionality(
                   textDirection: TextDirection.rtl,
-                  child: GridView.builder(
-                      reverse: true,
-                      shrinkWrap: true,
-                      cacheExtent: 50,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 1,
-                        crossAxisSpacing: 1,
-                      ),
-                      itemCount: page['pivs'].length,
-                      itemBuilder: (BuildContext context, index) {
-                        return LocalGridItem(page['pivs'][index], page['pivs']);
-                      })),
-            ),
+                  child: DragSelectGridView(
+                    gridController: gridController,
+                    padding: const EdgeInsets.all(8),
+                    itemCount: page['pivs'].length,
+                    reverse: true,
+                    itemBuilder: (context, index, selected) {
+                      //debug (['index selected', index, selected]);
+                      return LocalGridItem(page['pivs'][index], page['pivs']);
+                    },
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 1,
+                      crossAxisSpacing: 1,
+                    ),
+                  ))),
     );
   }
 }
@@ -276,7 +285,11 @@ class _TopRowState extends State<TopRow> {
                         children: [
                           Expanded(
                             child: Text(
-                              page['left'].toString() + (displayMode ['cameraOnly'] ? ' camera pivs' : '') + ' left',
+                              page['left'].toString() +
+                                  (displayMode['cameraOnly']
+                                      ? ' camera pivs'
+                                      : '') +
+                                  ' left',
                               style: kLookingAtText,
                             ),
                           ),
