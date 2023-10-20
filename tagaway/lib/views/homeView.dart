@@ -252,14 +252,13 @@ class _HomeViewState extends State<HomeView> {
                               cacheExtent: 50,
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                childAspectRatio: 0.65,
                                 crossAxisCount: 2,
                                 mainAxisSpacing: 4,
                                 crossAxisSpacing: 8,
                               ),
                               itemCount: 8,
                               itemBuilder: (BuildContext context, int) {
-                                return HomeCardStacked(
+                                return HomeCardTransparent(
                                   color: kTagColor2,
                                   title: 'Dave Mustaine’s best friend',
                                 );
