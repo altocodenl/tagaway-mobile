@@ -177,6 +177,117 @@ class HomeCard extends StatelessWidget {
   }
 }
 
+class HomeCardStacked extends StatelessWidget {
+  const HomeCardStacked({Key? key, required this.color, required this.title})
+      : super(key: key);
+
+  final Color color;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          // border: Border.all(color: kGreyLight),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 0),
+              blurRadius: 1,
+              spreadRadius: 1,
+              color: kGreyLight,
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.transparent),
+                      image: const DecorationImage(
+                          colorFilter: ColorFilter.matrix(<double>[
+                            0.2126,
+                            0.7152,
+                            0.0722,
+                            0,
+                            0,
+                            0.2126,
+                            0.7152,
+                            0.0722,
+                            0,
+                            0,
+                            0.2126,
+                            0.7152,
+                            0.0722,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            1,
+                            0,
+                          ]),
+                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                              'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
+                      boxShadow: const [
+                        BoxShadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 1,
+                          spreadRadius: 1,
+                          color: kGrey,
+                        )
+                      ]),
+                ),
+                Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(.4),
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10.0),
+                    child: Icon(
+                      kSolidCircleIcon,
+                      color: color,
+                      size: 15,
+                    ),
+                  ),
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: kHomeStackedTagText,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class TagListElement extends StatefulWidget {
   const TagListElement({
     Key? key,
@@ -1746,11 +1857,15 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['currentlyTagging' + widget.view, 'hideAddMoreTagsButton' + widget.view], (CurrentlyTagging, Hide) {
+    cancelListener = StoreService.instance.listen([
+      'currentlyTagging' + widget.view,
+      'hideAddMoreTagsButton' + widget.view
+    ], (CurrentlyTagging, Hide) {
       setState(() {
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1 && Hide != true;
+        visible = CurrentlyTagging != '' &&
+            CurrentlyTagging.length == 1 &&
+            Hide != true;
       });
     });
   }
@@ -1844,7 +1959,8 @@ class _DoneButtonState extends State<DoneButton> {
             if (currentlyTagging != '') {
               StoreService.instance.set('swiped' + widget.view, false);
               StoreService.instance.set('currentlyTagging' + widget.view, '');
-              StoreService.instance.set('hideAddMoreTagsButton' + widget.view, '');
+              StoreService.instance
+                  .set('hideAddMoreTagsButton' + widget.view, '');
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {

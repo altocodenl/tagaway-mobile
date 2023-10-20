@@ -279,6 +279,12 @@ const kTagListElementText = TextStyle(
   color: kGreyDarker,
 );
 
+const kHomeStackedTagText = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 18,
+  color: kGreyDarkest,
+);
+
 const kGridTagListElement = TextStyle(
   fontFamily: 'Montserrat-Regular',
   fontSize: 14,

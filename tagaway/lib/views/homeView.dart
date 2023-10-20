@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -55,8 +55,8 @@ class _HomeViewState extends State<HomeView> {
       var potentialCleanup = await PivService.instance.deletePivsByRange('all');
       if (availableBytes < availableThreshold &&
           potentialCleanup > potentialThreshold)
-        TagawaySpaceCleanerModal1(scaffoldKey.currentContext!, availableBytes,
-            potentialCleanup);
+        TagawaySpaceCleanerModal1(
+            scaffoldKey.currentContext!, availableBytes, potentialCleanup);
     })();
   }
 
@@ -232,8 +232,7 @@ class _HomeViewState extends State<HomeView> {
                                 colour: kAltoBlue,
                                 onPressed: () {
                                   if (tags.isEmpty)
-                                    StoreService.instance
-                                        .set('viewIndex', 1);
+                                    StoreService.instance.set('viewIndex', 1);
                                   else
                                     Navigator.pushReplacementNamed(
                                         context, 'addHomeTags');
@@ -248,22 +247,40 @@ class _HomeViewState extends State<HomeView> {
                       Padding(
                           padding: const EdgeInsets.only(
                               left: 12, right: 12, top: 7),
-                          child: ListView(
-                              addAutomaticKeepAlives: false,
-                              scrollDirection: Axis.vertical,
+                          child: GridView.builder(
                               shrinkWrap: true,
-                              children: [
-                                for (var v in hometags)
-                                  GestureDetector(
-                                      onTap: () {
-                                        StoreService.instance
-                                            .set('queryTags', [v]);
-                                        Navigator.pushReplacementNamed(
-                                          context, 'uploaded');
-                                      },
-                                      child: HomeCard(
-                                          color: tagColor(v), title: v))
-                              ])),
+                              cacheExtent: 50,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: 0.65,
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 4,
+                                crossAxisSpacing: 8,
+                              ),
+                              itemCount: 8,
+                              itemBuilder: (BuildContext context, int) {
+                                return HomeCardStacked(
+                                  color: kTagColor2,
+                                  title: 'Dave Mustaine’s best friend',
+                                );
+                              })
+                          // ListView(
+                          //     addAutomaticKeepAlives: false,
+                          //     scrollDirection: Axis.vertical,
+                          //     shrinkWrap: true,
+                          //     children: [
+                          //       for (var v in hometags)
+                          //         GestureDetector(
+                          //             onTap: () {
+                          //               StoreService.instance
+                          //                   .set('queryTags', [v]);
+                          //               Navigator.pushReplacementNamed(
+                          //                 context, 'uploaded');
+                          //             },
+                          //             child: HomeCard(
+                          //                 color: tagColor(v), title: v))
+                          //     ])
+                          ),
                       Align(
                         alignment: const Alignment(0, .9),
                         child: FloatingActionButton.extended(
