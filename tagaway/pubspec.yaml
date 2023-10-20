@@ -51,6 +51,9 @@ dependencies:
   flutter_isolate: ^2.0.4
   open_mail_app: ^0.4.5
   collection: ^1.17.1
+  #drag_select_grid_view: ^0.6.2
+  drag_select_grid_view:
+    path: lib/drag_select_grid_view
 
 
 dev_dependencies:
