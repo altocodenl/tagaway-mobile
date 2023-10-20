@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// const ENV = 'dev';
-const ENV = 'prod';
+const ENV = 'dev';
+//const ENV = 'prod';
 
 const version = '2.0.0';
 
