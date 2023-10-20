@@ -2,16 +2,16 @@
 
 ## TODO
 
-- Write a QA script (Tom)
------
-- Share Tagaway button and link (Tom)
+- Add 6 more colors for palette (Tom)
+- Redesign hometags (Tom)
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
+         - If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
          - Iterate pending.
-         - If tag, filter out by tag.
          - If tag with date, filter out by date.
+         - If non date tag, filter out by tag.
          - Also filter out by date to the current month.
       - Generate piv entry with different features:
          - id: PENDING:...
@@ -21,11 +21,16 @@
    - Ops on piv:
       - Delete: remove from queue
       - Tag/untag: change pendingTags
+      - Share: not available
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
-   - Add icon
+   - Add icon on piv itself.
 - Finish annotated source code.
------
+- Delete iOS bursts
 - Tutorial (Tom)
+- Share Tagaway button and link (Tom)
+- Write a QA script (Tom)
+-----
+- Sharebox
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
@@ -47,6 +52,7 @@
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
+- hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
 - localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}` - contains all the pages of local pivs to be shown, one per grid.
@@ -96,6 +102,20 @@
 - If creating a new key, check on box for remember password
 - Use release & create
 - When it's done, build will be in the `android/app/release` folder.
+
+## Creating a build to publish in the stores
+
+First, run `flutter clean`.
+
+Update `android/local.properties` to:
+
+```
+flutter.versionName={VERSION_NUMBER}
+flutter.versionCode={PREVIOUS VERSIONCODE + 1}
+```
+
+Also update the version in `pubspec.yaml`.
+
 
 ## QA Script
 - Environment for QA must be DEV
@@ -1043,10 +1063,12 @@ If there is a cloud piv that matches this piv, we set the `pivMap:ID` and `rpivM
 
 Otherwise, we will check whether we have a `pivMap:ID` entry. If we do, we remove the stale entries for `pivMap:ID` and `rpivMap:ID`.
 
+Note we check that `oldUploadedId` is neither an empty string nor `true`.
+
 ```dart
          else {
             var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
-            if (oldUploadedId != '') {
+            if (oldUploadedId != '' && oldUploadedId != true) {
                StoreService.instance.remove ('pivMap:'  + localId);
                StoreService.instance.remove ('rpivMap:' + oldUploadedId);
             }
@@ -1069,10 +1091,16 @@ We now define `computeHashes`, the function that will set in motion the hashing 
    computeHashes () async {
 ```
 
-We iterate the local pivs.
+We iterate the local pivs. We do this in a strange way: rather than writing `for (var piv in localPivs)`, we do it using the index; furthermore, each time we start a new iteration of the loop, we check that indeed the index is not out of bounds.
+
+The reason for this seemingly strange workaround is that this loop might potentially run for a very long time (since hashing of a piv can take a few seconds and there might be thousands of pivs to be hashed) and the length of the local pivs array can change because of additions or deletions while the app is running.
+
+If more pivs are added to `localPivs`, they will be ignored during the current execution of `computeHashes`. This is unlikely and has a low impact (because new pivs are almost certainly not uploaded anyway, so they are not going to be wrongly marked as unorganized).
 
 ```dart
-      for (var piv in localPivs) {
+      for (int i = 0; i < localPivs.length; i++) {
+         if (i >= localPivs.length) break;
+         var piv = localPivs [i];
 ```
 
 If there's no hashMap entry for the piv, we move on to the next piv.
@@ -1089,6 +1117,12 @@ A side-effect of this is that when running the app in debug mode, each call to `
 
 ```dart
          var hash = await flutterCompute (hashPiv, piv.id);
+```
+
+If `hashPiv` returns `false`, this means that the asset was deleted and the file is no longer accessible. In this case, we just `return` since there's nothing else to do for this piv.
+
+```dart
+         if (hash == false) return;
 ```
 
 We set the `hashMap:ID` entry to the hash we just obtained. Note we do this in disk.
@@ -1221,6 +1255,18 @@ It might be that `pivMap:ID` is set to `true`. This happens if the local piv is 
          var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
 ```
 
+We determine if the piv is considered "left", that is, if it still has to be organized. If the piv is not organized, we consider it as left.
+
+```dart
+         var pivIsLeft      = ! pivIsOrganized;
+```
+
+However, if we are only showing camera pivs, and the piv is not a camera piv, we will not consider it as "left".
+
+```dart
+         if (displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
+```
+
 We check whether the piv is currently being tagged, by checking if it is inside `currentlyTaggingPivs`.
 
 ```dart
@@ -1266,10 +1312,10 @@ If we need to show this piv, we will also add it to the `pivs` list of the page.
                if (showPiv) (page ['pivs'] as List).add (piv);
 ```
 
-If the piv is not organized, we increment the `left` entry of the page.
+If the piv is considered as left, we increment the `left` entry of the page.
 
 ```dart
-               if (! pivIsOrganized) page ['left'] = (page ['left'] as int) + 1;
+               if (pivIsLeft) page ['left'] = (page ['left'] as int) + 1;
 ```
 
 We are now done iterating the existing pages.
@@ -1298,10 +1344,10 @@ We add the total and initialize `pivs` to either an empty list (if the piv shoul
             'pivs': showPiv ? [piv] : [],
 ```
 
-We set `left` to either 0 or 1 depending on whether the piv is organized.
+We set `left` to either 0 or 1 depending on whether the piv is left.
 
 ```dart
-            'left': pivIsOrganized ? 0 : 1,
+            'left': pivIsLeft ? 1 : 0,
 ```
 
 We finally add `from` and `to` to the page. The logic for `to` is not so straightforward: if the date of the piv is in any month except December, we just take the beginning of the next month as our `to`. If the piv is in December, then we use January of the following year as our `to` instead.
@@ -1901,7 +1947,7 @@ There's nothing else to do but to return the response code of the tagging operat
    }
 ```
 
-We now define `tagPiv`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
+We now define `toggleTags`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
 
 The function takes three arguments:
 - A `piv`, which can be either a local piv or a cloud piv.
@@ -1909,7 +1955,7 @@ The function takes three arguments:
 - The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs).
 
 ```dart
-   tagPiv (dynamic piv, dynamic tags, String type) async {
+   toggleTags (dynamic piv, dynamic tags, String type) async {
 ```
 
 We first define two local variables, a `pivId` that will hold the id of the piv to be tagged; as well as a `cloudId`, which will be equal to `pivId` for a cloud piv, and which will be the cloud id of the cloud counterpart for a local id (if any).
@@ -2080,7 +2126,7 @@ This concludes the function.
    }
 ```
 
-TODO: add annotated source code between `tagPiv` and `queryPivs`.
+TODO: add annotated source code between `toggleTags` and `queryPivs`.
 
 We now define `queryPivs`, the function that will query pivs and their associated tags from the server.
 

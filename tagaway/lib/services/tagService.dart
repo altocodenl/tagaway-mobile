@@ -86,7 +86,7 @@ class TagService {
       return 200;
    }
 
-   tagPiv (dynamic piv, dynamic tags, String type) async {
+   toggleTags (dynamic piv, dynamic tags, String type) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
       var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 
@@ -153,7 +153,11 @@ class TagService {
          if (type == 'local') {
             if (RegExp ('^pendingTags:').hasMatch (k)) {
                var pendingTags = StoreService.instance.get (k);
-               if (pendingTags != '' && pendingTags.any ((tag) => tags.contains (tag))) New.add (k.split (':') [1]);
+               var isContained = false;
+               if (pendingTags != '') pendingTags.forEach ((tag) {
+                  if (tags.contains (tag)) isContained = true;
+               });
+               if (isContained) New.add (k.split (':') [1]);
             }
          }
       });

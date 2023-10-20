@@ -42,10 +42,11 @@ class LocalGridItem extends StatelessWidget {
                 TagService.instance.toggleDeletion(asset.id, 'local');
               } else if (StoreService.instance.get('currentlyTaggingLocal') !=
                   '') {
-                TagService.instance.tagPiv(
+                TagService.instance.toggleTags(
                     asset,
                     StoreService.instance.get('currentlyTaggingLocal'),
                     'local');
+                StoreService.instance.set('hideAddMoreTagsButtonLocal', true);
               } else {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return LocalCarrousel(pivFile: asset, page: page);

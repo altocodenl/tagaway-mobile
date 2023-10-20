@@ -99,7 +99,15 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
   request.fields['csrf'] = await StoreService.instance.getAwait('csrf');
 
   fields.forEach((k, v) => request.fields[k] = v.toString());
-  request.files.add(await http.MultipartFile.fromPath('piv', filePath));
+  try {
+    request.files.add(await http.MultipartFile.fromPath('piv', filePath));
+  }
+  catch (error) {
+     return {
+        'code': 1,
+        'error': error
+     };
+  }
 
   int start = now();
   var response;
@@ -221,6 +229,7 @@ hashPiv (dynamic pivId) async {
 
    var piv = await AssetEntity.fromId (pivId) as dynamic;
    var file = await piv.originFile;
+   if (file == null) return false;
    var fileLength = await file.length ();
    var inputStream = file.openRead ();
 

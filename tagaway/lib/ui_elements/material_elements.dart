@@ -803,15 +803,24 @@ class GridMonthElement extends StatelessWidget {
         onTap: onTap,
         child: Column(
           children: [
-            FaIcon(
-              roundedIcon,
-              color: roundedIconColor,
-              size: 12,
+            Container(
+              color: Colors.transparent,
+              width: 50,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    roundedIcon,
+                    color: roundedIconColor,
+                    size: 12,
+                  ),
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Text(month, style: kHorizontalMonth),
+            const SizedBox(
+              height: 8,
             ),
+            Text(month, style: kHorizontalMonth),
             FaIcon(
               kMinusIcon,
               color: whiteOrAltoBlueDashIcon,
@@ -1738,10 +1747,10 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance
-        .listen(['currentlyTagging' + widget.view], (CurrentlyTagging) {
+        .listen(['currentlyTagging' + widget.view, 'hideAddMoreTagsButton' + widget.view], (CurrentlyTagging, Hide) {
       setState(() {
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1;
+        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1 && Hide != true;
       });
     });
   }
@@ -1835,6 +1844,7 @@ class _DoneButtonState extends State<DoneButton> {
             if (currentlyTagging != '') {
               StoreService.instance.set('swiped' + widget.view, false);
               StoreService.instance.set('currentlyTagging' + widget.view, '');
+              StoreService.instance.set('hideAddMoreTagsButton' + widget.view, '');
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {
@@ -2626,7 +2636,7 @@ class _PhoneViewSettingsState extends State<PhoneViewSettings> {
         child: FaIcon(
           kGearIcon,
           color: kGrey,
-          size: 20,
+          size: 25,
         ),
       ),
     );
@@ -2642,7 +2652,7 @@ class HideOrganizedPivsSwitch extends StatefulWidget {
 
 class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
   dynamic cancelListener;
-  dynamic displayMode = {'hideOrganized': true, 'cameraOnly': false};
+  dynamic displayMode;
 
   @override
   void initState() {
@@ -2650,7 +2660,7 @@ class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
     cancelListener =
         StoreService.instance.listen(['displayMode'], (DisplayMode) {
       setState(() {
-        if (DisplayMode != '') displayMode = DisplayMode;
+        displayMode = DisplayMode;
       });
     });
   }
@@ -2695,7 +2705,7 @@ class ShowCameraPivs extends StatefulWidget {
 
 class _ShowCameraPivsState extends State<ShowCameraPivs> {
   dynamic cancelListener;
-  dynamic displayMode = {'hideOrganized': true, 'cameraOnly': false};
+  dynamic displayMode;
 
   @override
   void initState() {
@@ -2703,7 +2713,7 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
     cancelListener =
         StoreService.instance.listen(['displayMode'], (DisplayMode) {
       setState(() {
-        if (DisplayMode != '') displayMode = DisplayMode;
+        displayMode = DisplayMode;
       });
     });
   }
