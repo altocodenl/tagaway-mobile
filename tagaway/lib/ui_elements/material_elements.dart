@@ -241,7 +241,7 @@ class HomeCardTransparent extends StatelessWidget {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                height: 65,
+                height: 75,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(.8),
@@ -250,11 +250,13 @@ class HomeCardTransparent extends StatelessWidget {
                       bottomRight: Radius.circular(20)),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8),
+                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8, bottom: 8),
                   child: Text(
                     title,
                     textAlign: TextAlign.center,
                     style: kHomeStackedTagText,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
