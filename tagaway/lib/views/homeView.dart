@@ -257,11 +257,12 @@ class _HomeViewState extends State<HomeView> {
                                 mainAxisSpacing: 4,
                                 crossAxisSpacing: 8,
                               ),
-                              itemCount: 8,
-                              itemBuilder: (BuildContext context, int) {
+                              itemCount: hometags.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                var tag = hometags[index];
                                 return HomeCardStacked(
-                                  color: kTagColor2,
-                                  title: 'Dave Mustaine’s best friend',
+                                  color: tagColor (tag),
+                                  title: tag,
                                 );
                               })
                           // ListView(
