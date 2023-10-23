@@ -2,6 +2,35 @@
 
 ## TODO
 
+
+- Sharebox
+   - Backend
+      - List
+         - Show list of shareboxes
+         - Add sharebox from someone else to my list of shareboxes
+         - Delete sharebox from someone else from my list of shareboxes
+      - Sharebox
+         - Create (name)
+         - Delete (id)
+         - Rename
+      - Consume
+         - Query: get pivs in sharebox
+         - See piv in someone else's sharebox
+         - Download piv from someone else's sharebox
+      - Add pivs to sharebox
+         - Upload piv to own sharebox
+         - Upload piv to someone else's sharebox (public or logged in)
+         - Add cloud piv to own sharebox
+         - Add cloud piv to someone else's sharebox
+      - Delete piv in sharebox (whether own or not)
+      - Tag
+         - Tag piv in own sharebox
+         - Tag piv in someone else's sharebox
+         - Untag piv in own sharebox
+         - Untag piv in someone else's sharebox
+         - Note: tagging/untagging from sharebox view is different than doing it from cloud view
+      - Autodelete
+
 - Add 6 more colors for palette (Tom)
 - Redesign hometags (Tom)
 - Draggable selection
