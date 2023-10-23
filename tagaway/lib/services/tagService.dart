@@ -21,8 +21,30 @@ class TagService {
          return;
       }
 
-      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
-      StoreService.instance.set ('tags',     response ['body'] ['tags']);
+      StoreService.instance.set ('tags', response ['body'] ['tags']);
+
+      // TODO: annotate
+      var homeThumbs = {};
+      response ['body'] ['hometags'].forEach ((tag) async {
+         var res = await ajax ('post', 'query', {
+            'tags':    [tag],
+            'sort':    'newest',
+            'from':    1,
+            'to':      1,
+            'idsOnly': true
+         });
+
+         if (res ['code'] != 200) {
+            if (! [0, 403].contains (res ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + res ['code'].toString (), 'yellow');
+            return;
+         }
+         homeThumbs [tag] = res ['body'] [0];
+         if (homeThumbs.length == response ['body'] ['hometags'].length) {
+            StoreService.instance.set ('hometags', response ['body'] ['hometags']);
+            StoreService.instance.set ('homeThumbs', homeThumbs);
+         }
+      });
+      // TODO: end annotated
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);

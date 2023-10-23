@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const ENV = 'dev';
-// const ENV = 'prod';
+//const ENV = 'prod';
 
-const version = '2.0.0';
+const version = '2.1.0';
 
 const kAltoURL = 'https://altocode.nl/' + (ENV == 'dev' ? 'dev' : '');
 const kTagawayURL = 'https://tagaway.nl/' + (ENV == 'dev' ? 'dev/' : '');

@@ -2,8 +2,38 @@
 
 ## TODO
 
+
+- Sharebox
+   - Backend
+      - List
+         - Show list of shareboxes
+         - Add sharebox from someone else to my list of shareboxes
+         - Delete sharebox from someone else from my list of shareboxes
+      - Sharebox
+         - Create (name)
+         - Delete (id)
+         - Rename
+      - Consume
+         - Query: get pivs in sharebox
+         - See piv in someone else's sharebox
+         - Download piv from someone else's sharebox
+      - Add pivs to sharebox
+         - Upload piv to own sharebox
+         - Upload piv to someone else's sharebox (public or logged in)
+         - Add cloud piv to own sharebox
+         - Add cloud piv to someone else's sharebox
+      - Delete piv in sharebox (whether own or not)
+      - Tag
+         - Tag piv in own sharebox
+         - Tag piv in someone else's sharebox
+         - Untag piv in own sharebox
+         - Untag piv in someone else's sharebox
+         - Note: tagging/untagging from sharebox view is different than doing it from cloud view
+      - Autodelete
+
 - Add 6 more colors for palette (Tom)
 - Redesign hometags (Tom)
+   - Annotate tagService code
 - Draggable selection
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -52,6 +82,7 @@
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server
+- homeThumbs {TAG: ID, ...}: maps each hometag to the id of its last piv, brought from the server
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
