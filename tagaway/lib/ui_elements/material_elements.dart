@@ -178,11 +178,12 @@ class HomeCard extends StatelessWidget {
 }
 
 class HomeCardStacked extends StatelessWidget {
-  const HomeCardStacked({Key? key, required this.color, required this.title})
+  const HomeCardStacked({Key? key, required this.color, required this.tag, required this.thumb})
       : super(key: key);
 
   final Color color;
-  final String title;
+  final String tag;
+  final String thumb;
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +213,7 @@ class HomeCardStacked extends StatelessWidget {
                   decoration: BoxDecoration(
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                       border: Border.all(color: Colors.transparent),
-                      image: const DecorationImage(
+                      image: DecorationImage(
                           colorFilter: ColorFilter.matrix(<double>[
                             0.2126,
                             0.7152,
@@ -237,7 +238,8 @@ class HomeCardStacked extends StatelessWidget {
                           ]),
                           fit: BoxFit.cover,
                           image: NetworkImage(
-                              'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
+                             kTagawayThumbSURL + thumb,
+                             headers: {'cookie': StoreService.instance.get('cookie')})),
                       boxShadow: const [
                         BoxShadow(
                           offset: Offset(0, 1),
@@ -272,7 +274,7 @@ class HomeCardStacked extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                       child: Text(
-                        title,
+                        tag,
                         textAlign: TextAlign.center,
                         style: kHomeStackedTagText,
                       ),
