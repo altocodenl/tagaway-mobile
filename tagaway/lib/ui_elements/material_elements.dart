@@ -179,11 +179,12 @@ class HomeCard extends StatelessWidget {
 
 class HomeCardTransparent extends StatelessWidget {
   const HomeCardTransparent(
-      {Key? key, required this.color, required this.title})
+      {Key? key, required this.color, required this.tag, required this.thumb})
       : super(key: key);
 
   final Color color;
-  final String title;
+  final String tag;
+  final String thumb;
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +203,8 @@ class HomeCardTransparent extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(20)),
                 border: Border.all(color: Colors.transparent),
-                image: const DecorationImage(
+                image: DecorationImage(
+                /* Full BW
                     colorFilter: ColorFilter.matrix(<double>[
                       0.2126,
                       0.7152,
@@ -225,9 +227,22 @@ class HomeCardTransparent extends StatelessWidget {
                       1,
                       0,
                     ]),
+                    */
+                    colorFilter: ColorFilter.matrix(<double>[
+                      0.7, 0.1, 0.1, 0, 0,
+                      0.1, 0.7, 0.1, 0, 0,
+                      0.1, 0.1, 0.7, 0, 0,
+                      0,   0,   0,   1, 0,
+                    ]),
                     fit: BoxFit.cover,
                     image: NetworkImage(
-                        'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
+
+                        kTagawayThumbSURL + thumb,
+                     headers: {
+        'cookie': StoreService.instance.get('cookie'),
+                     }
+                        )),
+                        //'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
               ),
             ),
             Container(
@@ -252,7 +267,7 @@ class HomeCardTransparent extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8, bottom: 8),
                   child: Text(
-                    title,
+                    tag,
                     textAlign: TextAlign.center,
                     style: kHomeStackedTagText,
                     maxLines: 2,

@@ -26,6 +26,7 @@ class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
   dynamic hometags = '';
+  dynamic homeThumbs = {};
   dynamic tags = '';
   dynamic account = {
     'username': '',
@@ -36,11 +37,12 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     cancelListener = StoreService.instance
-        .listen(['hometags', 'tags', 'account'], (v1, v2, v3) {
+        .listen(['hometags', 'tags', 'account', 'homeThumbs'], (v1, v2, v3, v4) {
       setState(() {
         hometags = v1;
         tags = v2;
         if (v3 != '') account = v3;
+        if (v4 != '') homeThumbs = v4;
       });
     });
 
@@ -261,7 +263,8 @@ class _HomeViewState extends State<HomeView> {
                                 var tag = hometags[index];
                                 return HomeCardTransparent(
                                   color: tagColor(tag),
-                                  title: tag,
+                                  tag: tag,
+                                  thumb: homeThumbs[tag]
                                 );
                               })
                           // ListView(
