@@ -242,6 +242,7 @@ class HomeCardTransparent extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Container(
                 height: 65,
+                width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(.8),
                   borderRadius: const BorderRadius.only(
