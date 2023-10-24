@@ -266,14 +266,16 @@ class HomeCardTransparent extends StatelessWidget {
                     //'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
                   ),
                 )),
-            Container(
-              width: double.infinity,
-              height: 180,
-              decoration: BoxDecoration(
-                color: color.withOpacity(.4),
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-              ),
-            ),
+            Transform.rotate(
+                angle: deg * math.pi / 180.0,
+                child: Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(.4),
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  ),
+                )),
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -288,7 +290,8 @@ class HomeCardTransparent extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(
                       left: 8.0, right: 8.0, top: 8, bottom: 8),
-                  child: Center(child: Text(
+                  child: Center(
+                      child: Text(
                     tag,
                     textAlign: TextAlign.center,
                     style: kHomeStackedTagText,
