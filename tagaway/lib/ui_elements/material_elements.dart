@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -172,6 +173,132 @@ class HomeCard extends StatelessWidget {
             style: kHomeTagBoxText,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class HomeCardTransparent extends StatelessWidget {
+  const HomeCardTransparent(
+      {Key? key,
+      required this.color,
+      required this.tag,
+      required this.thumb,
+      required this.deg})
+      : super(key: key);
+
+  final Color color;
+  final String tag;
+  final String thumb;
+  final int deg;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: Stack(
+        children: [
+          Transform.rotate(
+              angle: deg * math.pi / 180.0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  border: Border.all(color: Colors.transparent),
+                  image: DecorationImage(
+                      /* Full BW
+                  colorFilter: ColorFilter.matrix(<double>[
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                  ]),
+                  */
+                      colorFilter: ColorFilter.matrix(<double>[
+                        0.7,
+                        0.1,
+                        0.1,
+                        0,
+                        0,
+                        0.1,
+                        0.7,
+                        0.1,
+                        0,
+                        0,
+                        0.1,
+                        0.1,
+                        0.7,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ]),
+                      fit: BoxFit.cover,
+                      image: NetworkImage(kTagawayThumbSURL + thumb, headers: {
+                        'cookie': StoreService.instance.get('cookie'),
+                      })),
+                  //'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
+                ),
+              )),
+          Transform.rotate(
+              angle: deg * math.pi / 180.0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(.4),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                ),
+              )),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 75,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(.8),
+                borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    left: 8.0, right: 8.0, top: 8, bottom: 8),
+                child: Center(
+                    child: Text(
+                  tag,
+                  textAlign: TextAlign.center,
+                  style: kHomeStackedTagText,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                )),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

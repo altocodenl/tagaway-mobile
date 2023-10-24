@@ -26,6 +26,7 @@ class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
   dynamic hometags = '';
+  dynamic homeThumbs = {};
   dynamic tags = '';
   dynamic account = {
     'username': '',
@@ -35,12 +36,13 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['hometags', 'tags', 'account'], (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen(
+        ['hometags', 'tags', 'account', 'homeThumbs'], (v1, v2, v3, v4) {
       setState(() {
         hometags = v1;
         tags = v2;
         if (v3 != '') account = v3;
+        if (v4 != '') homeThumbs = v4;
       });
     });
 
@@ -252,18 +254,31 @@ class _HomeViewState extends State<HomeView> {
                               addAutomaticKeepAlives: false,
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
-                              children: [
-                                for (var v in hometags)
-                                  GestureDetector(
-                                      onTap: () {
-                                        StoreService.instance
-                                            .set('queryTags', [v]);
-                                        Navigator.pushReplacementNamed(
+                              cacheExtent: 50,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 4,
+                                crossAxisSpacing: 8,
+                              ),
+                              itemCount: hometags.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                var tag = hometags[index];
+                                return GestureDetector(
+                                    onTap: () {
+                                      StoreService.instance
+                                          .set('queryTags', [tag]);
+                                      Navigator.pushReplacementNamed(
                                           context, 'uploaded');
-                                      },
-                                      child: HomeCard(
-                                          color: tagColor(v), title: v))
-                              ])),
+                                    },
+                                    child: HomeCardTransparent(
+                                        color: tagColor(tag),
+                                        tag: tag,
+                                        thumb: homeThumbs[tag]['id'],
+                                        deg: homeThumbs[tag]['deg'] == null
+                                            ? 0
+                                            : homeThumbs[tag]['deg']));
+                              })),
                       Align(
                         alignment: const Alignment(0, .9),
                         child: FloatingActionButton.extended(
