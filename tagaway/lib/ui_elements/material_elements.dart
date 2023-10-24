@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -172,157 +171,6 @@ class HomeCard extends StatelessWidget {
             title,
             style: kHomeTagBoxText,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class HomeCardStacked extends StatelessWidget {
-  const HomeCardStacked(
-      {Key? key,
-      required this.color,
-      required this.tag,
-      required this.thumb,
-      required this.deg})
-      : super(key: key);
-
-  final Color color;
-  final String tag;
-  final String thumb;
-  final int deg;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 5),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          // border: Border.all(color: kGreyLight),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 0),
-              blurRadius: 1,
-              spreadRadius: 1,
-              color: kGreyLight,
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Transform.rotate(
-                    angle: deg * math.pi / 180.0,
-                    child: Container(
-                      width: 190,
-                      height: 190,
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(20)),
-                          border: Border.all(color: Colors.transparent),
-                          image: DecorationImage(
-                              /*
-                              colorFilter: ColorFilter.matrix(<double>[
-                                0.2126,
-                                0.7152,
-                                0.0722,
-                                0,
-                                0,
-                                0.2126,
-                                0.7152,
-                                0.0722,
-                                0,
-                                0,
-                                0.2126,
-                                0.7152,
-                                0.0722,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                1,
-                                0,
-                              ]),
-                              */
-                              colorFilter: ColorFilter.matrix(<double>[
-                                0.7,
-                                0.1,
-                                0.1,
-                                0,
-                                0,
-                                0.1,
-                                0.7,
-                                0.1,
-                                0,
-                                0,
-                                0.1,
-                                0.1,
-                                0.7,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                1,
-                                0,
-                              ]),
-                              fit: BoxFit.cover,
-                              image: NetworkImage(kTagawayThumbSURL + thumb,
-                                  headers: {
-                                    'cookie':
-                                        StoreService.instance.get('cookie')
-                                  })),
-                          boxShadow: const [
-                            BoxShadow(
-                              offset: Offset(0, 1),
-                              blurRadius: 1,
-                              spreadRadius: 1,
-                              color: kGrey,
-                            )
-                          ]),
-                    )),
-                Transform.rotate(
-                    angle: deg * math.pi / 180.0,
-                    child: Container(
-                      width: 190,
-                      height: 190,
-                      decoration: BoxDecoration(
-                        color: color.withOpacity(.4),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(20)),
-                      ),
-                    )),
-              ],
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0),
-                    child: Icon(
-                      kSolidCircleIcon,
-                      color: color,
-                      size: 15,
-                    ),
-                  ),
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                      child: Text(
-                        tag,
-                        textAlign: TextAlign.center,
-                        style: kHomeStackedTagText,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -1898,15 +1746,11 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
-      'currentlyTagging' + widget.view,
-      'hideAddMoreTagsButton' + widget.view
-    ], (CurrentlyTagging, Hide) {
+    cancelListener = StoreService.instance
+        .listen(['currentlyTagging' + widget.view, 'hideAddMoreTagsButton' + widget.view], (CurrentlyTagging, Hide) {
       setState(() {
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        visible = CurrentlyTagging != '' &&
-            CurrentlyTagging.length == 1 &&
-            Hide != true;
+        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1 && Hide != true;
       });
     });
   }
@@ -2000,8 +1844,7 @@ class _DoneButtonState extends State<DoneButton> {
             if (currentlyTagging != '') {
               StoreService.instance.set('swiped' + widget.view, false);
               StoreService.instance.set('currentlyTagging' + widget.view, '');
-              StoreService.instance
-                  .set('hideAddMoreTagsButton' + widget.view, '');
+              StoreService.instance.set('hideAddMoreTagsButton' + widget.view, '');
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {
