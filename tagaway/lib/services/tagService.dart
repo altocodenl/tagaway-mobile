@@ -23,7 +23,6 @@ class TagService {
 
       StoreService.instance.set ('tags', response ['body'] ['tags']);
 
-      // TODO: annotate
       var homeThumbs = {};
       response ['body'] ['hometags'].forEach ((tag) async {
          var res = await ajax ('post', 'query', {
@@ -43,7 +42,6 @@ class TagService {
             StoreService.instance.set ('homeThumbs', homeThumbs);
          }
       });
-      // TODO: end annotated
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);

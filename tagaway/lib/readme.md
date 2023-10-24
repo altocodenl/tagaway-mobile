@@ -2,7 +2,29 @@
 
 ## TODO
 
-
+- Add 6 more colors for palette (Tom)
+- Redesign hometags (Tom)
+   - Annotate tagService code
+- Show pivs being uploaded in the queries, with a cloud icon
+   - When querying, add logic after first 200 items return (with o:: result)
+      - Get list
+         - If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
+         - Iterate pending.
+         - If tag with date, filter out by date.
+         - If non date tag, filter out by tag.
+         - Also filter out by date to the current month.
+      - Generate piv entry with different features:
+         - id: PENDING:...
+         - date
+      - Sort into existing pivs
+   - Do this again after getting long list
+   - Ops on piv:
+      - Delete: remove from queue
+      - Tag/untag: change pendingTags
+      - Share: not available
+   - Add cloud icon for pivs in cloud that are being uploaded (Tom)
+   - Add icon on piv itself.
+- Select all
 - Sharebox
    - Backend
       - List
@@ -31,36 +53,13 @@
          - Note: tagging/untagging from sharebox view is different than doing it from cloud view
       - Autodelete
 
-- Add 6 more colors for palette (Tom)
-- Redesign hometags (Tom)
-   - Annotate tagService code
-- Draggable selection
-- Show pivs being uploaded in the queries, with a cloud icon
-   - When querying, add logic after first 200 items return (with o:: result)
-      - Get list
-         - If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
-         - Iterate pending.
-         - If tag with date, filter out by date.
-         - If non date tag, filter out by tag.
-         - Also filter out by date to the current month.
-      - Generate piv entry with different features:
-         - id: PENDING:...
-         - date
-      - Sort into existing pivs
-   - Do this again after getting long list
-   - Ops on piv:
-      - Delete: remove from queue
-      - Tag/untag: change pendingTags
-      - Share: not available
-   - Add cloud icon for pivs in cloud that are being uploaded (Tom)
-   - Add icon on piv itself.
 - Finish annotated source code.
+- Draggable selection
+-----
 - Delete iOS bursts
 - Tutorial (Tom)
 - Share Tagaway button and link (Tom)
 - Write a QA script (Tom)
------
-- Sharebox
 - Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
@@ -81,8 +80,8 @@
 - deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
-- hometags [<str>, ...]: list of hometags, brought from the server
-- homeThumbs {TAG: ID, ...}: maps each hometag to the id of its last piv, brought from the server
+- hometags [<str>, ...]: list of hometags, brought from the server.
+- homeThumbs {TAG: {id: ...}, ...}: maps each hometag to its last piv, brought from the server.
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
@@ -1770,11 +1769,60 @@ If there was an error, there's nothing else to do, so we return.
       }
 ```
 
-If we're here, the request was successful. We set `hometags` and `tags` in the store. We update `hometags` as well since they also come from this server endpoint.
+If we're here, the request was successful. We set `tags` in the store.
 
 ```dart
-      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
-      StoreService.instance.set ('tags',     response ['body'] ['tags']);
+      StoreService.instance.set ('tags', response ['body'] ['tags']);
+```
+
+We will create a `homeThumbs` object where we'll store information for the last piv of each hometag.
+
+```dart
+      var homeThumbs = {};
+```
+
+For each of the hometags, we will make a call to `POST /query` to get the last piv of that tag. We want to get the piv info to put it as the thumbnail of the hometag in the home view.
+
+We fire off the requests simultaneously; the `forEach` doesn't wait on each iteration to be done, even if there's an `await` inside.
+
+```dart
+      response ['body'] ['hometags'].forEach ((tag) async {
+         var res = await ajax ('post', 'query', {
+            'tags':    [tag],
+            'sort':    'newest',
+            'from':    1,
+            'to':      1,
+         });
+```
+
+If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, other parts of the code will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `HOMETAGS:CODE`.
+
+```dart
+         if (res ['code'] != 200) {
+            if (! [0, 403].contains (res ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + res ['code'].toString (), 'yellow');
+            return;
+         }
+```
+
+We will set the piv in the `tag` entry of `homeThumbs`.
+
+```dart
+         homeThumbs [tag] = res ['body'] ['pivs'] [0];
+```
+
+If this is the last hometag for which we got the piv, we will set both `hometags` and `homeThumbs` in the store. We do this simultaneously to avoid hometags being shown before they have their thumbnails available.
+
+```dart
+         if (homeThumbs.length == response ['body'] ['hometags'].length) {
+            StoreService.instance.set ('hometags', response ['body'] ['hometags']);
+            StoreService.instance.set ('homeThumbs', homeThumbs);
+         }
+```
+
+This concludes the iteration over the hometags.
+
+```dart
+      });
 ```
 
 We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.
