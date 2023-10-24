@@ -288,13 +288,13 @@ class HomeCardTransparent extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(
                       left: 8.0, right: 8.0, top: 8, bottom: 8),
-                  child: Text(
+                  child: Center(child: Text(
                     tag,
                     textAlign: TextAlign.center,
                     style: kHomeStackedTagText,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                  ),
+                  )),
                 ),
               ),
             ),
