@@ -217,8 +217,8 @@ class HomeCardStacked extends StatelessWidget {
                 Transform.rotate(
                     angle: deg * math.pi / 180.0,
                     child: Container(
-                      width: double.infinity,
-                      height: 180,
+                      width: 190,
+                      height: 190,
                       decoration: BoxDecoration(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(20)),
@@ -288,8 +288,8 @@ class HomeCardStacked extends StatelessWidget {
                 Transform.rotate(
                     angle: deg * math.pi / 180.0,
                     child: Container(
-                      width: double.infinity,
-                      height: 180,
+                      width: 190,
+                      height: 190,
                       decoration: BoxDecoration(
                         color: color.withOpacity(.4),
                         borderRadius:
