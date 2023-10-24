@@ -262,31 +262,21 @@ class _HomeViewState extends State<HomeView> {
                               itemCount: hometags.length,
                               itemBuilder: (BuildContext context, int index) {
                                 var tag = hometags[index];
-                                return HomeCardStacked(
-                                    color: tagColor(tag),
-                                    tag: tag,
-                                    thumb: homeThumbs[tag]['id'],
-                                    deg: homeThumbs[tag]['deg'] == null
-                                        ? 0
-                                        : homeThumbs[tag]['deg']);
-                              })
-                          // ListView(
-                          //     addAutomaticKeepAlives: false,
-                          //     scrollDirection: Axis.vertical,
-                          //     shrinkWrap: true,
-                          //     children: [
-                          //       for (var v in hometags)
-                          //         GestureDetector(
-                          //             onTap: () {
-                          //               StoreService.instance
-                          //                   .set('queryTags', [v]);
-                          //               Navigator.pushReplacementNamed(
-                          //                 context, 'uploaded');
-                          //             },
-                          //             child: HomeCard(
-                          //                 color: tagColor(v), title: v))
-                          //     ])
-                          ),
+                                return GestureDetector(
+                                    onTap: () {
+                                      StoreService.instance
+                                          .set('queryTags', [tag]);
+                                      Navigator.pushReplacementNamed(
+                                          context, 'uploaded');
+                                    },
+                                    child: HomeCardStacked(
+                                        color: tagColor(tag),
+                                        tag: tag,
+                                        thumb: homeThumbs[tag]['id'],
+                                        deg: homeThumbs[tag]['deg'] == null
+                                            ? 0
+                                            : homeThumbs[tag]['deg']));
+                              })),
                       Align(
                         alignment: const Alignment(0, .9),
                         child: FloatingActionButton.extended(
