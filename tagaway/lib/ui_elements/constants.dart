@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const ENV = 'dev';
-//const ENV = 'prod';
+// const ENV = 'prod';
 
 const version = '2.1.0';
 
@@ -281,7 +281,7 @@ const kTagListElementText = TextStyle(
 
 const kHomeStackedTagText = TextStyle(
   fontFamily: 'Montserrat-Regular',
-  fontSize: 18,
+  fontSize: 20,
   color: kGreyDarkest,
 );
 
