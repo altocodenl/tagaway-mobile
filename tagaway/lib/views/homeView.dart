@@ -269,7 +269,7 @@ class _HomeViewState extends State<HomeView> {
                                       Navigator.pushReplacementNamed(
                                           context, 'uploaded');
                                     },
-                                    child: HomeCardTransparent(
+                                    child: HomeCard(
                                         color: tagColor(tag),
                                         tag: tag,
                                         thumb: homeThumbs[tag]['id'],
