@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -26,6 +26,7 @@ class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
   dynamic hometags = '';
+  dynamic homeThumbs = {};
   dynamic tags = '';
   dynamic account = {
     'username': '',
@@ -35,12 +36,13 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['hometags', 'tags', 'account'], (v1, v2, v3) {
+    cancelListener = StoreService.instance.listen(
+        ['hometags', 'tags', 'account', 'homeThumbs'], (v1, v2, v3, v4) {
       setState(() {
         hometags = v1;
         tags = v2;
         if (v3 != '') account = v3;
+        if (v4 != '') homeThumbs = v4;
       });
     });
 
@@ -55,8 +57,8 @@ class _HomeViewState extends State<HomeView> {
       var potentialCleanup = await PivService.instance.deletePivsByRange('all');
       if (availableBytes < availableThreshold &&
           potentialCleanup > potentialThreshold)
-        TagawaySpaceCleanerModal1(scaffoldKey.currentContext!, availableBytes,
-            potentialCleanup);
+        TagawaySpaceCleanerModal1(
+            scaffoldKey.currentContext!, availableBytes, potentialCleanup);
     })();
   }
 
@@ -232,8 +234,7 @@ class _HomeViewState extends State<HomeView> {
                                 colour: kAltoBlue,
                                 onPressed: () {
                                   if (tags.isEmpty)
-                                    StoreService.instance
-                                        .set('viewIndex', 1);
+                                    StoreService.instance.set('viewIndex', 1);
                                   else
                                     Navigator.pushReplacementNamed(
                                         context, 'addHomeTags');
@@ -248,22 +249,34 @@ class _HomeViewState extends State<HomeView> {
                       Padding(
                           padding: const EdgeInsets.only(
                               left: 12, right: 12, top: 7),
-                          child: ListView(
-                              addAutomaticKeepAlives: false,
-                              scrollDirection: Axis.vertical,
+                          child: GridView.builder(
                               shrinkWrap: true,
-                              children: [
-                                for (var v in hometags)
-                                  GestureDetector(
-                                      onTap: () {
-                                        StoreService.instance
-                                            .set('queryTags', [v]);
-                                        Navigator.pushReplacementNamed(
+                              cacheExtent: 50,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: 0.65,
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 4,
+                                crossAxisSpacing: 8,
+                              ),
+                              itemCount: hometags.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                var tag = hometags[index];
+                                return GestureDetector(
+                                    onTap: () {
+                                      StoreService.instance
+                                          .set('queryTags', [tag]);
+                                      Navigator.pushReplacementNamed(
                                           context, 'uploaded');
-                                      },
-                                      child: HomeCard(
-                                          color: tagColor(v), title: v))
-                              ])),
+                                    },
+                                    child: HomeCardStacked(
+                                        color: tagColor(tag),
+                                        tag: tag,
+                                        thumb: homeThumbs[tag]['id'],
+                                        deg: homeThumbs[tag]['deg'] == null
+                                            ? 0
+                                            : homeThumbs[tag]['deg']));
+                              })),
                       Align(
                         alignment: const Alignment(0, .9),
                         child: FloatingActionButton.extended(

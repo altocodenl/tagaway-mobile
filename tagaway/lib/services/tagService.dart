@@ -29,15 +29,14 @@ class TagService {
             'tags':    [tag],
             'sort':    'newest',
             'from':    1,
-            'to':      1,
-            'idsOnly': true
+            'to':      1
          });
 
          if (res ['code'] != 200) {
             if (! [0, 403].contains (res ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + res ['code'].toString (), 'yellow');
             return;
          }
-         homeThumbs [tag] = res ['body'] [0];
+         homeThumbs [tag] = res ['body'] ['pivs'] [0];
          if (homeThumbs.length == response ['body'] ['hometags'].length) {
             StoreService.instance.set ('hometags', response ['body'] ['hometags']);
             StoreService.instance.set ('homeThumbs', homeThumbs);
