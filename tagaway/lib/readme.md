@@ -2,9 +2,6 @@
 
 ## TODO
 
-- Add 6 more colors for palette (Tom)
-- Redesign hometags (Tom)
-   - Annotate tagService code
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
