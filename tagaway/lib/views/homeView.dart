@@ -36,8 +36,8 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['hometags', 'tags', 'account', 'homeThumbs'], (v1, v2, v3, v4) {
+    cancelListener = StoreService.instance.listen(
+        ['hometags', 'tags', 'account', 'homeThumbs'], (v1, v2, v3, v4) {
       setState(() {
         hometags = v1;
         tags = v2;
@@ -263,10 +263,12 @@ class _HomeViewState extends State<HomeView> {
                               itemBuilder: (BuildContext context, int index) {
                                 var tag = hometags[index];
                                 return HomeCardStacked(
-                                  color: tagColor (tag),
-                                  tag: tag,
-                                  thumb: homeThumbs[tag]
-                                );
+                                    color: tagColor(tag),
+                                    tag: tag,
+                                    thumb: homeThumbs[tag]['id'],
+                                    deg: homeThumbs[tag]['deg'] == null
+                                        ? 0
+                                        : homeThumbs[tag]['deg']);
                               })
                           // ListView(
                           //     addAutomaticKeepAlives: false,

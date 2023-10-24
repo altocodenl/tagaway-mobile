@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -178,12 +179,18 @@ class HomeCard extends StatelessWidget {
 }
 
 class HomeCardStacked extends StatelessWidget {
-  const HomeCardStacked({Key? key, required this.color, required this.tag, required this.thumb})
+  const HomeCardStacked(
+      {Key? key,
+      required this.color,
+      required this.tag,
+      required this.thumb,
+      required this.deg})
       : super(key: key);
 
   final Color color;
   final String tag;
   final String thumb;
+  final int deg;
 
   @override
   Widget build(BuildContext context) {
@@ -207,56 +214,88 @@ class HomeCardStacked extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: 180,
-                  decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(20)),
-                      border: Border.all(color: Colors.transparent),
-                      image: DecorationImage(
-                          colorFilter: ColorFilter.matrix(<double>[
-                            0.2126,
-                            0.7152,
-                            0.0722,
-                            0,
-                            0,
-                            0.2126,
-                            0.7152,
-                            0.0722,
-                            0,
-                            0,
-                            0.2126,
-                            0.7152,
-                            0.0722,
-                            0,
-                            0,
-                            0,
-                            0,
-                            0,
-                            1,
-                            0,
+                Transform.rotate(
+                    angle: deg * math.pi / 180.0,
+                    child: Container(
+                      width: double.infinity,
+                      height: 180,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20)),
+                          border: Border.all(color: Colors.transparent),
+                          image: DecorationImage(
+                              /*
+                              colorFilter: ColorFilter.matrix(<double>[
+                                0.2126,
+                                0.7152,
+                                0.0722,
+                                0,
+                                0,
+                                0.2126,
+                                0.7152,
+                                0.0722,
+                                0,
+                                0,
+                                0.2126,
+                                0.7152,
+                                0.0722,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0,
+                              ]),
+                              */
+                              colorFilter: ColorFilter.matrix(<double>[
+                                0.7,
+                                0.1,
+                                0.1,
+                                0,
+                                0,
+                                0.1,
+                                0.7,
+                                0.1,
+                                0,
+                                0,
+                                0.1,
+                                0.1,
+                                0.7,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                1,
+                                0,
+                              ]),
+                              fit: BoxFit.cover,
+                              image: NetworkImage(kTagawayThumbSURL + thumb,
+                                  headers: {
+                                    'cookie':
+                                        StoreService.instance.get('cookie')
+                                  })),
+                          boxShadow: const [
+                            BoxShadow(
+                              offset: Offset(0, 1),
+                              blurRadius: 1,
+                              spreadRadius: 1,
+                              color: kGrey,
+                            )
                           ]),
-                          fit: BoxFit.cover,
-                          image: NetworkImage(
-                             kTagawayThumbSURL + thumb,
-                             headers: {'cookie': StoreService.instance.get('cookie')})),
-                      boxShadow: const [
-                        BoxShadow(
-                          offset: Offset(0, 1),
-                          blurRadius: 1,
-                          spreadRadius: 1,
-                          color: kGrey,
-                        )
-                      ]),
-                ),
-                Container(
-                  width: double.infinity,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(.4),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                ),
+                    )),
+                Transform.rotate(
+                    angle: deg * math.pi / 180.0,
+                    child: Container(
+                      width: double.infinity,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(.4),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20)),
+                      ),
+                    )),
               ],
             ),
             Expanded(
