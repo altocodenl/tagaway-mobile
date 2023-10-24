@@ -31,6 +31,12 @@ const kTagColor3 = Color(0xFF5bffec);
 const kTagColor4 = Color(0xFF4aff95);
 const kTagColor5 = Color(0xFFffec5b);
 const kTagColor6 = Color(0xFF80762e);
+const kTagColor7 = Color(0xFFec755b);
+const kTagColor8 = Color(0xFF7b5bff);
+const kTagColor9 = Color(0xFF5b7bff);
+const kTagColor10 = Color(0xFF5bff7b);
+const kTagColor11 = Color(0xFFff5b7b);
+const kTagColor12 = Color(0xFFff7b5b);
 const kSelectedTag = Color(0xFFc1d4ff);
 
 const kTagIcon = FontAwesomeIcons.tag;
@@ -84,7 +90,13 @@ const tagColors = [
   kTagColor3,
   kTagColor4,
   kTagColor5,
-  kTagColor6
+  kTagColor6,
+  kTagColor7,
+  kTagColor8,
+  kTagColor9,
+  kTagColor10,
+  kTagColor11,
+  kTagColor12,
 ];
 
 const kAcpicSplash = TextStyle(
