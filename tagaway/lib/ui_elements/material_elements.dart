@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -179,12 +180,17 @@ class HomeCard extends StatelessWidget {
 
 class HomeCardTransparent extends StatelessWidget {
   const HomeCardTransparent(
-      {Key? key, required this.color, required this.tag, required this.thumb})
+      {Key? key,
+      required this.color,
+      required this.tag,
+      required this.thumb,
+      required this.deg})
       : super(key: key);
 
   final Color color;
   final String tag;
   final String thumb;
+  final int deg;
 
   @override
   Widget build(BuildContext context) {
@@ -197,14 +203,16 @@ class HomeCardTransparent extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            Container(
-              width: double.infinity,
-              height: 180,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                border: Border.all(color: Colors.transparent),
-                image: DecorationImage(
-                /* Full BW
+            Transform.rotate(
+                angle: deg * math.pi / 180.0,
+                child: Container(
+                  width: double.infinity,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    border: Border.all(color: Colors.transparent),
+                    image: DecorationImage(
+                        /* Full BW
                     colorFilter: ColorFilter.matrix(<double>[
                       0.2126,
                       0.7152,
@@ -228,23 +236,36 @@ class HomeCardTransparent extends StatelessWidget {
                       0,
                     ]),
                     */
-                    colorFilter: ColorFilter.matrix(<double>[
-                      0.7, 0.1, 0.1, 0, 0,
-                      0.1, 0.7, 0.1, 0, 0,
-                      0.1, 0.1, 0.7, 0, 0,
-                      0,   0,   0,   1, 0,
-                    ]),
-                    fit: BoxFit.cover,
-                    image: NetworkImage(
-
-                        kTagawayThumbSURL + thumb,
-                     headers: {
-        'cookie': StoreService.instance.get('cookie'),
-                     }
-                        )),
-                        //'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
-              ),
-            ),
+                        colorFilter: ColorFilter.matrix(<double>[
+                          0.7,
+                          0.1,
+                          0.1,
+                          0,
+                          0,
+                          0.1,
+                          0.7,
+                          0.1,
+                          0,
+                          0,
+                          0.1,
+                          0.1,
+                          0.7,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          1,
+                          0,
+                        ]),
+                        fit: BoxFit.cover,
+                        image:
+                            NetworkImage(kTagawayThumbSURL + thumb, headers: {
+                          'cookie': StoreService.instance.get('cookie'),
+                        })),
+                    //'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
+                  ),
+                )),
             Container(
               width: double.infinity,
               height: 180,
@@ -265,7 +286,8 @@ class HomeCardTransparent extends StatelessWidget {
                       bottomRight: Radius.circular(20)),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8, bottom: 8),
+                  padding: const EdgeInsets.only(
+                      left: 8.0, right: 8.0, top: 8, bottom: 8),
                   child: Text(
                     tag,
                     textAlign: TextAlign.center,

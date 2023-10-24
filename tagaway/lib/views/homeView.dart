@@ -264,7 +264,8 @@ class _HomeViewState extends State<HomeView> {
                                 return HomeCardTransparent(
                                   color: tagColor(tag),
                                   tag: tag,
-                                  thumb: homeThumbs[tag]
+                                  thumb: homeThumbs[tag]['id'],
+                                  deg: homeThumbs[tag]['deg'] == null ? 0 : homeThumbs[tag]['deg']
                                 );
                               })
                           // ListView(

@@ -276,7 +276,11 @@ class _TopRowState extends State<TopRow> {
                         children: [
                           Expanded(
                             child: Text(
-                              page['left'].toString() + (displayMode ['cameraOnly'] ? ' camera pivs' : '') + ' left',
+                              page['left'].toString() +
+                                  (displayMode['cameraOnly']
+                                      ? ' camera pivs'
+                                      : '') +
+                                  ' left',
                               style: kLookingAtText,
                             ),
                           ),
