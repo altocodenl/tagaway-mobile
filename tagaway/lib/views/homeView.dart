@@ -250,9 +250,7 @@ class _HomeViewState extends State<HomeView> {
                       Padding(
                           padding: const EdgeInsets.only(
                               left: 12, right: 12, top: 7),
-                          child: ListView(
-                              addAutomaticKeepAlives: false,
-                              scrollDirection: Axis.vertical,
+                          child: GridView.builder(
                               shrinkWrap: true,
                               cacheExtent: 50,
                               gridDelegate:
