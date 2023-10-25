@@ -98,6 +98,7 @@ class UploadedGridItem extends StatelessWidget {
                 // The piv selection status could change depending on the query, so we cannot just rely on the piv's id. We need to make sure these elements don't get recycled to avoid showing a stale GridItemSelection within them.
                 child: GridItemSelection(piv['id'], 'uploaded',
                     key: Key(piv['id'] + ':' + now().toString())))),
+        Align(alignment: const Alignment(-0.9, -.9), child: UploadingIcon()),
       ],
     );
   }

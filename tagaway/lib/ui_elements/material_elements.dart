@@ -1221,6 +1221,24 @@ class _GridItemSelectionState extends State<GridItemSelection> {
   }
 }
 
+class UploadingIcon extends StatefulWidget {
+  const UploadingIcon({Key? key}) : super(key: key);
+
+  @override
+  State<UploadingIcon> createState() => _UploadingIconState();
+}
+
+class _UploadingIconState extends State<UploadingIcon> {
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      kCloudArrowUp,
+      size: 15,
+      color: Colors.white,
+    );
+  }
+}
+
 class AltocodeCommit extends StatelessWidget {
   const AltocodeCommit({
     Key? key,
