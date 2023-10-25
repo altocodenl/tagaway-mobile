@@ -1428,6 +1428,55 @@ class _TagButtonState extends State<TagButton> {
   }
 }
 
+class SelectAllButton extends StatefulWidget {
+  const SelectAllButton({
+    Key? key,
+    required this.view,
+  }) : super(key: key);
+  final String view;
+
+  @override
+  State<SelectAllButton> createState() => _SelectAllButtonState();
+}
+
+class _SelectAllButtonState extends State<SelectAllButton> {
+  dynamic cancelListener;
+  bool visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener =
+        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
+      setState(() {
+        visible = v1 == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return Container();
+    return Align(
+      alignment: const Alignment(0, .22),
+      child: FloatingActionButton(
+        heroTag: null,
+        elevation: 10,
+        key: const Key('selectAll'),
+        onPressed: () {},
+        backgroundColor: kAltoOrganized,
+        child: const Icon(kSelectAll),
+      ),
+    );
+  }
+}
+
 class StartButton extends StatefulWidget {
   const StartButton({
     Key? key,
@@ -1840,11 +1889,15 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['currentlyTagging' + widget.view, 'hideAddMoreTagsButton' + widget.view], (CurrentlyTagging, Hide) {
+    cancelListener = StoreService.instance.listen([
+      'currentlyTagging' + widget.view,
+      'hideAddMoreTagsButton' + widget.view
+    ], (CurrentlyTagging, Hide) {
       setState(() {
         // Show this button only when there is a single tag in `currentlyTagging(Local|Uploaded)`
-        visible = CurrentlyTagging != '' && CurrentlyTagging.length == 1 && Hide != true;
+        visible = CurrentlyTagging != '' &&
+            CurrentlyTagging.length == 1 &&
+            Hide != true;
       });
     });
   }
@@ -1938,7 +1991,8 @@ class _DoneButtonState extends State<DoneButton> {
             if (currentlyTagging != '') {
               StoreService.instance.set('swiped' + widget.view, false);
               StoreService.instance.set('currentlyTagging' + widget.view, '');
-              StoreService.instance.set('hideAddMoreTagsButton' + widget.view, '');
+              StoreService.instance
+                  .set('hideAddMoreTagsButton' + widget.view, '');
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {

@@ -59,6 +59,7 @@ class _LocalViewState extends State<LocalView> {
             DoneButton(view: 'Local'),
             AddMoreTagsButton(view: 'Local'),
             StartButton(buttonText: 'Start', view: 'Local'),
+            SelectAllButton(view: 'Local'),
             DeleteButton(view: 'Local'),
             TagButton(view: 'Local'),
             TagPivsScrollableList(view: 'Local'),

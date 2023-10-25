@@ -27,6 +27,7 @@ class _UploadedViewState extends State<UploadedView> {
         DoneButton(view: 'Uploaded'),
         AddMoreTagsButton(view: 'Uploaded'),
         StartButton(buttonText: 'Organize', view: 'Uploaded'),
+        SelectAllButton(view: 'Uploaded'),
         DeleteButton(view: 'Uploaded'),
         TagButton(view: 'Uploaded'),
         TagPivsScrollableList(view: 'Uploaded'),
