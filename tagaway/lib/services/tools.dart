@@ -228,7 +228,13 @@ hashPiv (dynamic pivId) async {
    PhotoManager.setIgnorePermissionCheck (true);
 
    var piv = await AssetEntity.fromId (pivId) as dynamic;
-   var file = await piv.originFile;
+   var file;
+   try {
+      file = await piv.originFile;
+   }
+   catch (error) {
+      return;
+   }
    if (file == null) return false;
    var fileLength = await file.length ();
    var inputStream = file.openRead ();
