@@ -233,7 +233,8 @@ hashPiv (dynamic pivId) async {
       file = await piv.originFile;
    }
    catch (error) {
-      return;
+      debug (['ERROR WHEN ACCESSING FILE FOR HASHING', error]);
+      return false;
    }
    if (file == null) return false;
    var fileLength = await file.length ();
