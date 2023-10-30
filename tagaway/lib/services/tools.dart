@@ -236,6 +236,7 @@ hashPiv (dynamic pivId) async {
       debug (['ERROR WHEN ACCESSING FILE FOR HASHING', error]);
       return false;
    }
+   debug (['ABOUT TO HASH', file]);
    if (file == null) return false;
    var fileLength = await file.length ();
    var inputStream = file.openRead ();
