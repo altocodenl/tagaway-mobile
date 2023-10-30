@@ -188,14 +188,6 @@ class PivService {
 
    loadLocalPivs () async {
 
-      for (var k in StoreService.instance.store.keys.toList ()) {
-         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
-         debug (['FOUND HASH', k, StoreService.instance.get (k)]);
-         if (StoreService.instance.get (k) != null) continue;
-         debug (['REMOVING STALE HASH (null)', k]);
-         await StoreService.instance.remove (k, 'disk');
-      }
-
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();
       computeLocalPages ();
@@ -321,7 +313,6 @@ class PivService {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
 
          var hash = await flutterCompute (hashPiv, piv.id);
-         if (hash == false) debug (['ERROR WHEN COMPUTING HASH', piv.id]);
          if (hash == false) return;
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
