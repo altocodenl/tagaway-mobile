@@ -2,10 +2,10 @@
 
 ## TODO
 
+- Select all
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
       - Get list
-         - If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
          - Iterate pending.
          - If tag with date, filter out by date.
          - If non date tag, filter out by tag.
@@ -21,7 +21,6 @@
       - Share: not available
    - Add cloud icon for pivs in cloud that are being uploaded (Tom)
    - Add icon on piv itself.
-- Select all
 - Sharebox
    - Backend
       - List
@@ -2247,7 +2246,7 @@ In practice, this only happens when switching between the query selector view an
       if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
 ```
 
-If `preserveMonth` is `true`, and `currentMonth` is also set, rather than continuing, we will just invoke `queryPivsForMonth` (a function defined below) passing the current month, and immediately return. This will refresn the query while preserving the current month.
+If `preserveMonth` is `true`, and `currentMonth` is also set, rather than continuing, we will just invoke `queryPivsForMonth` (a function defined below) passing the current month, and immediately return. This will refresh the query while preserving the current month.
 
 ```dart
       var currentMonth = StoreService.instance.get ('currentMonth');
@@ -2337,7 +2336,7 @@ We will now put everything in place so that the time header can be computed. We 
       }, '', 'mute');
 ```
 
-If the server also didn't bring a last month, this must be a ronin query (a query without pivs). So we set `currentMonth` to an empty string. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device.
+If the server also didn't bring a last month, this must be a ronin query (a query without pivs). So we set `currentMonth` to an empty string. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device. It could also happen if the user selects a tag that is only possessed by pivs in the upload queue and haven't been uploaded yet.
 
 ```dart
       if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
