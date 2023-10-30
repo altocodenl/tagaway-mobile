@@ -188,6 +188,13 @@ class PivService {
 
    loadLocalPivs () async {
 
+      for (var k in StoreService.instance.store.keys.toList ()) {
+         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+         if (StoreService.instance.get (k) != null) return;
+         debug (['REMOVING STALE HASH (null)', k]);
+         await StoreService.instance.remove (k, 'disk');
+      }
+
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();
       computeLocalPages ();
