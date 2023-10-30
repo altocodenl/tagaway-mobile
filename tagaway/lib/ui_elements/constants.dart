@@ -103,7 +103,8 @@ const kPlusIcon = FontAwesomeIcons.plus;
 const kGearIcon = FontAwesomeIcons.gear;
 const kShareUsersIcon = FontAwesomeIcons.userGroup;
 const kPersonDiggingIcon = FontAwesomeIcons.personDigging;
-const kSelectAll = FontAwesomeIcons.checkDouble;
+const kSelectAllIcon = FontAwesomeIcons.checkDouble;
+const kDeselectIcon = FontAwesomeIcons.xmark;
 
 const tagColors = [
   kTagColor1,
