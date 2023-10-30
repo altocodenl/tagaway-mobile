@@ -62,7 +62,7 @@
 
 ```
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
-- camearPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
+- cameraPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.

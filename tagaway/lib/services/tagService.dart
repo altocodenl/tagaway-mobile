@@ -295,6 +295,65 @@ class TagService {
 
    // TODO: annotate the code above
 
+/*
+   addQueuedLocalPivsToQuery (tags, currentMonth, cloudPivs) {
+      // If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
+      if (tags.contains ('u::') || tags.contains ('t::')) return cloudPivs;
+      var containsGeoTag = false;
+      tags.forEach ((tag) {
+         if (RegExp('^g::[A-Z]{2}').hasMatch(tag)) containsGeoTag = true;
+      });
+      if (containsGeoTag) return cloudPivs;
+      var usertags = tags.where ((tag) {
+         return ! RegExp ('^[a-z]::').hasMatch (tag);
+      }).toList ();
+
+      var minDate = double.infinity;
+      var maxDate = 0;
+      if (currentMonth == '') {
+         var monthTag, yearTag;
+         tags.forEach ((tag) {
+            if (RegExp('^d::[0-9]').hasMatch(tag)) monthTag = tag;
+            if (RegExp('^d::M').hasMatch(tag)) yearTag = tag;
+         });
+         if (yearTag != null && monthTag == null) {
+            minDate = DateTime.utc (int.parse (yearTag.substring (3)), 1, 1).millisecondsSinceEpoch;
+            maxDate = DateTime.utc (int.parse (yearTag.substring (3)) + 1, 1, 1).millisecondsSinceEpoch;
+         }
+         if (yearTag != null && monthTag != null) currentMonth = [int.parse (yearTag.substring (3)), int.parse (monthTag.substring (4))];
+      }
+      if (currentMonth != '') {
+         minDate = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
+         maxDate = DateTime.utc (currentMonth [1] == 12 ? currentMonth [0] + 1 : currentMonth [0], currentMonth [1] == 12 ? 1 : currentMonth [1] + 1, 1).millisecondsSinceEpoch;
+      }
+
+      // o:: is automatic, includes all
+      // Fast access
+      var localPivsById = {};
+      PivService.instance.localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+      // If has pending tags, it cannot be uploaded yet, unless done from another client while this piv is in the queue.
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+         var pendingTags = StoreService.instance.get (k);
+         if (pendingTags == '') return;
+         pendingTags.forEach ((tag) {
+            // TODO:
+         });
+      });
+   }
+   */
+
+   selectAll (String view, String op) {
+      var ids;
+      // toggleTags (dynamic piv, dynamic tags, view.toLowerCase ()) async {
+      // toggleDeletion (String id, String view) {
+
+      if (op == 'tag') {
+      }
+   }
+
    queryPivs ([refresh = false, preserveMonth = false]) async {
 
       var tags = StoreService.instance.get ('queryTags');
