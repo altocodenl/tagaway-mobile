@@ -50,6 +50,26 @@ const kTagColor9 = Color(0xFFc61bd6);
 const kTagColor10 = Color(0xFFe38deb);
 const kTagColor11 = Color(0xFFf1c6f5);
 const kTagColor12 = Color(0xFFd841c7);
+const kTagColor13 = Color(0xFFf6d0f1);
+const kTagColor14 = Color(0xFFf4bcad);
+const kTagColor15 = Color(0xFFeca0e3);
+const kTagColor16 = Color(0xFFad012c);
+const kTagColor17 = Color(0xFF1d3c35);
+const kTagColor18 = Color(0xFF3a7869);
+const kTagColor19 = Color(0xFF73efd2);
+const kTagColor20 = Color(0xFF2c0eb8);
+const kTagColor21 = Color(0xFF0b2868);
+const kTagColor22 = Color(0xFFffb7ed);
+const kTagColor23 = Color(0xFFde1be5);
+const kTagColor24 = Color(0xFFe88c4a);
+const kTagColor25 = Color(0xFFf4c6a5);
+const kTagColor26 = Color(0xFFfae3d2);
+const kTagColor27 = Color(0xFF96a6ff);
+const kTagColor28 = Color(0xFFe5a8f4);
+const kTagColor29 = Color(0xFF2d394e);
+const kTagColor30 = Color(0xFF4b5380);
+const kTagColor31 = Color(0xFFd16074);
+const kTagColor32 = Color(0xFF58e2bb);
 
 const kTagIcon = FontAwesomeIcons.tag;
 const kTagsIcon = FontAwesomeIcons.tags;
@@ -110,6 +130,26 @@ const tagColors = [
   kTagColor10,
   kTagColor11,
   kTagColor12,
+  kTagColor13,
+  kTagColor14,
+  kTagColor15,
+  kTagColor16,
+  kTagColor17,
+  kTagColor18,
+  kTagColor19,
+  kTagColor20,
+  kTagColor21,
+  kTagColor22,
+  kTagColor23,
+  kTagColor24,
+  kTagColor25,
+  kTagColor26,
+  kTagColor27,
+  kTagColor28,
+  kTagColor29,
+  kTagColor30,
+  kTagColor31,
+  kTagColor32,
 ];
 
 const kAcpicSplash = TextStyle(
