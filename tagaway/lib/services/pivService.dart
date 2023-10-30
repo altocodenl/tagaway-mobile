@@ -190,6 +190,7 @@ class PivService {
 
       for (var k in StoreService.instance.store.keys.toList ()) {
          if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+         debug (['FOUND HASH', k, StoreService.instance.get (k)]);
          if (StoreService.instance.get (k) != null) continue;
          debug (['REMOVING STALE HASH (null)', k]);
          await StoreService.instance.remove (k, 'disk');
@@ -321,6 +322,7 @@ class PivService {
 
          var hash = await flutterCompute (hashPiv, piv.id);
          if (hash == false) return;
+         debug (['COMPUTED HASH', hash]);
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
          var queriedHash = await queryHashes ({piv.id: hash});
