@@ -34,6 +34,7 @@ class _LoginViewState extends State<LoginView> {
     inviteResponse.close();
     usernameController.dispose();
     passwordController.dispose();
+    materialBannerDelayer?.cancel();
     super.dispose();
   }
 
@@ -43,7 +44,8 @@ class _LoginViewState extends State<LoginView> {
         MaterialBanner(
           onVisible: () {
             materialBannerDelayer = Timer(const Duration(seconds: 4), () {
-              ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+              if (mounted)
+                ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
             });
           },
           elevation: 1,
