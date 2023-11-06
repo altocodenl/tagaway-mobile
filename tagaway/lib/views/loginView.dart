@@ -34,7 +34,6 @@ class _LoginViewState extends State<LoginView> {
     inviteResponse.close();
     usernameController.dispose();
     passwordController.dispose();
-    materialBannerDelayer?.cancel();
     super.dispose();
   }
 
