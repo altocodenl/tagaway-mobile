@@ -3,7 +3,6 @@
 ## TODO
 
 - Small improvements
-   - Reset of query when going home
    - In uploaded, reset of slide bar when going to a previous month
    - Edit/delete tags view, remove those features from tag list
    - Confirm on delete single uploaded piv
@@ -12,24 +11,7 @@
    - Put hometags at top of tagging list
    - In local, complement of blue bar should be green with how much you organized
 - Select all
-- Show pivs being uploaded in the queries, with a cloud icon
-   - When querying, add logic after first 200 items return (with o:: result)
-      - Get list
-         - Iterate pending.
-         - If tag with date, filter out by date.
-         - If non date tag, filter out by tag.
-         - Also filter out by date to the current month.
-      - Generate piv entry with different features:
-         - local: true
-         - date
-      - Sort into existing pivs
-   - Add icon on piv itself.
-   - Ops on piv:
-      - See in grid
-      - See in carrousel
-      - Delete: remove from queue
-      - Tag/untag: change pendingTags
-      - Share:
+- Local query: support ronin server query that has local pivs
 - Sharebox
    - Backend
       - List
