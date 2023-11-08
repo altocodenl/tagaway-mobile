@@ -1485,14 +1485,27 @@ class _SelectAllButtonState extends State<SelectAllButton> {
   Widget build(BuildContext context) {
     if (!visible) return Container();
     return Align(
-      alignment: const Alignment(0, .22),
-      child: FloatingActionButton(
-        heroTag: null,
-        elevation: 10,
-        key: const Key('selectAll'),
+      alignment: const Alignment(-0.8, .9),
+      child: FloatingActionButton.extended(
         onPressed: () {},
-        backgroundColor: kAltoOrganized,
-        child: const Icon(kSelectAll),
+        backgroundColor: kAltoBlue,
+        // kAltoRed
+        key: Key('selectAll-' + widget.view),
+        label: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon(
+            //   kSelectAllIcon,
+            //   color: Colors.white,
+            //   size: 20,
+            // ),
+            Icon(
+              kDeselectIcon,
+              color: Colors.white,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
