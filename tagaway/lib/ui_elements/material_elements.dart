@@ -1,6 +1,10 @@
 import 'dart:core';
 import 'dart:math' as math;
+import 'dart:io' show File;
 
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/authService.dart';
@@ -227,7 +231,6 @@ class HomeCard extends StatelessWidget {
                       image: NetworkImage(kTagawayThumbSURL + thumb, headers: {
                         'cookie': StoreService.instance.get('cookie'),
                       })),
-                  //'https://drumeoblog.s3.amazonaws.com/beat/wp-content/uploads/2020/11/02110525/lars-ulrich-1-1.jpg')),
                 ),
               )),
           Transform.rotate(
@@ -2911,6 +2914,139 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class LocalVideoPlayerWidget extends StatefulWidget {
+  const LocalVideoPlayerWidget({Key? key, required this.videoFile})
+      : super(key: key);
+  final AssetEntity videoFile;
+
+  @override
+  _LocalVideoPlayerWidgetState createState() => _LocalVideoPlayerWidgetState();
+}
+
+class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  bool initialized = false;
+
+  @override
+  void initState() {
+    _initVideo();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  _initVideo() async {
+    final video = await widget.videoFile.file;
+    _controller = VideoPlayerController.file(video!)
+      // Play the video again when it ends
+      ..setLooping(true)
+      // initialize the controller and notify UI when done
+      ..initialize().then((_) => setState(() {
+            initialized = true;
+            _controller.play();
+          }));
+    // _controller.play();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: initialized
+          // If the video is initialized, display it
+          ? Scaffold(
+              backgroundColor: kGreyDarkest,
+              body: Stack(children: [
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    // Use the VideoPlayer widget to display the video.
+                    child: VideoPlayer(_controller),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    width: double.infinity,
+                    color: kGreyDarkest,
+                    child: SafeArea(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: IconButton(
+                              onPressed: () async {
+                                WhiteSnackBar.buildSnackBar(context,
+                                    'Preparing your video for sharing...');
+                                final response =
+                                    await widget.videoFile.originBytes;
+                                final bytes = response;
+                                final temp = await getTemporaryDirectory();
+                                final path = '${temp.path}/video.mp4';
+                                File(path).writeAsBytesSync(bytes!);
+                                await Share.shareXFiles([XFile(path)]);
+                              },
+                              icon: const Icon(
+                                kShareArrownUpIcon,
+                                size: 25,
+                                color: kGreyLightest,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              onPressed: () {
+                                PivService.instance
+                                    .deleteLocalPivs([widget.videoFile.id]);
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                kTrashCanIcon,
+                                size: 25,
+                                color: kGreyLightest,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+              floatingActionButton: FloatingActionButton(
+                backgroundColor: kAltoBlue,
+                onPressed: () {
+                  // Wrap the play or pause in a call to `setState`. This ensures the
+                  // correct icon is shown.
+                  setState(() {
+                    // If the video is playing, pause it.
+                    if (_controller.value.isPlaying) {
+                      _controller.pause();
+                    } else {
+                      // If the video is paused, play it.
+                      _controller.play();
+                    }
+                  });
+                },
+                // Display the correct icon depending on the state of the player.
+                child: Icon(
+                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                ),
+              ),
+            )
+          // If the video is not yet initialized, display a spinner
+          : const Center(
+              child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+            )),
     );
   }
 }

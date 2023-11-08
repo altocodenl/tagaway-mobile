@@ -34,8 +34,7 @@ class _OfflineViewState extends State<OfflineView> {
         Navigator.pushReplacementNamed(context, 'distributor');
         onlineChecker.cancel();
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   @override

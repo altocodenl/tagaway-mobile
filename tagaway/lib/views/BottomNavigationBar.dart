@@ -62,6 +62,8 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 selectedLabelStyle: kBottomNavigationText,
                 onTap: (index) {
                   StoreService.instance.set('viewIndex', index);
+                  StoreService.instance.remove('showButtonsLocal');
+                  StoreService.instance.remove('swipedLocal');
                 },
                 items: const [
                   BottomNavigationBarItem(

@@ -52,7 +52,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
       TagService.instance.queryPivs();
       setState(() {
         queryTags = v1;
-        bool matchFilter(String tag) {
+        bool matchFilter(tag) {
           if (v3 == '' || queryTags.contains(tag)) return true;
           return tag.toLowerCase().contains(v3.toLowerCase());
         }
@@ -126,6 +126,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 color: kGreyDarker,
               ),
               onPressed: () {
+                StoreService.instance.set('queryTags', []);
                 Navigator.pushReplacementNamed(context, 'bottomNavigation');
               }),
           title: TextField(

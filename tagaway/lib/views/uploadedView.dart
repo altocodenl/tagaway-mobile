@@ -5,6 +5,7 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/localGridItemView.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
 
 class UploadedView extends StatefulWidget {
@@ -221,6 +222,9 @@ class _UploadGridState extends State<UploadGrid> {
                         ],
                       );
                   }
+                  var piv = queryResult['pivs'][index - 1];
+                  if (piv['local'] == true)
+                    return LocalGridItem(piv['piv'], [], 'uploaded', index - 1);
                   return UploadedGridItem(
                       key: Key('uploaded-' + index.toString()),
                       pivIndex: index - 1);
@@ -307,6 +311,7 @@ class _TopRowState extends State<TopRow> {
                               .remove('currentlyDeletingModalUploaded');
                           StoreService.instance
                               .remove('currentlyDeletingPivsUploaded');
+                          StoreService.instance.set('queryTags', []);
                           Navigator.pushReplacementNamed(
                               context, 'bottomNavigation');
                         },

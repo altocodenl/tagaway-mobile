@@ -2,6 +2,15 @@
 
 ## TODO
 
+- Small improvements
+   - Reset of query when going home
+   - In uploaded, reset of slide bar when going to a previous month
+   - Edit/delete tags view, remove those features from tag list
+   - Confirm on delete single uploaded piv
+   - Update number of pivs when deleting uploaded
+   - Swipe sideways to navigate months in uploaded
+   - Put hometags at top of tagging list
+   - In local, complement of blue bar should be green with how much you organized
 - Select all
 - Show pivs being uploaded in the queries, with a cloud icon
    - When querying, add logic after first 200 items return (with o:: result)
@@ -11,16 +20,16 @@
          - If non date tag, filter out by tag.
          - Also filter out by date to the current month.
       - Generate piv entry with different features:
-         - id: PENDING:...
+         - local: true
          - date
       - Sort into existing pivs
-   - Do this again after getting long list
+   - Add icon on piv itself.
    - Ops on piv:
+      - See in grid
+      - See in carrousel
       - Delete: remove from queue
       - Tag/untag: change pendingTags
-      - Share: not available
-   - Add cloud icon for pivs in cloud that are being uploaded (Tom)
-   - Add icon on piv itself.
+      - Share:
 - Sharebox
    - Backend
       - List
@@ -48,10 +57,9 @@
          - Untag piv in someone else's sharebox
          - Note: tagging/untagging from sharebox view is different than doing it from cloud view
       - Autodelete
-
 - Finish annotated source code.
-- Draggable selection
 -----
+- Draggable selection
 - Delete iOS bursts
 - Tutorial (Tom)
 - Share Tagaway button and link (Tom)
@@ -2201,7 +2209,232 @@ This concludes the function.
    }
 ```
 
-TODO: add annotated source code between `toggleTags` and `queryPivs`.
+TODO: add annotated source code between `toggleTags` and `localQuery`.
+
+We now define `localQuery`, a function that will return a list of local pivs that are currently in the upload queue and match an existing query. The purpose of this is to show all queued pivs in the relevant queries as if they were already uploaded.
+
+The function takes three parameters:
+
+- `tags`: the list of tags in the current query.
+- `currentMonth`: the current month of the current query, if any.
+- `queryResult`: the result of an invocation to `queryPivs`, which will be precisely defined below. This data is returned by the server after a query.
+
+```dart
+   localQuery (tags, currentMonth, queryResult) {
+```
+
+The purpose of `localQuery` is to enrich `queryResult` by potentially adding local pivs, tags and increasing the total number of pivs in the query.
+
+If the current query includes untagged pivs, or pivs marked as to be organized, no local pivs can be included in the query. This is because all local pivs that are queued have, by definition, at least one tag, and will automatically be marked as organized. In this case, we can just return `queryResult` as is.
+
+```dart
+      if (tags.contains ('u::') || tags.contains ('t::')) return queryResult;
+```
+
+The same will happen if there is a geotag in the tags. Since we don't have the ability to get the geodata from a local piv, we cannot know whether it will actually match a geotag or not; in this case, we'd rather return less results than return incorrect results. For that reason, if there's a geotag in the tags, we will also return `queryResult` as is.
+
+```dart
+      var containsGeoTag = false;
+      tags.forEach ((tag) {
+         if (RegExp('^g::[A-Z]{2}').hasMatch(tag)) containsGeoTag = true;
+      });
+      if (containsGeoTag) return queryResult;
+```
+
+If `o::` is included in the list of tags, this won't exclude any local pivs queued for upload, since all of them will be organized.
+
+We collect all the user tags (that is, the normal tags) into a local variable `usertags`.
+
+```dart
+      var usertags = tags.where ((tag) {
+         return ! RegExp ('^[a-z]::').hasMatch (tag);
+      }).toList ();
+```
+
+We define a couple of variables, `minDate` and `maxDate`, to determine the limits of what local queued pivs will go in the query. By default, they are set to values which will be fulfilled by any date.
+
+```dart
+      var minDate = 0;
+      var maxDate = now ();
+```
+
+We also define variables to hold a month tag and a year tag; there can be at most one of each in our query.
+
+```dart
+      var monthTag, yearTag;
+```
+
+We iterate the local tags and if we find a month tag or a year tag, we set it in its corresponding variable.
+
+```dart
+      tags.forEach ((tag) {
+         if (RegExp('^d::[0-9]').hasMatch(tag)) monthTag = tag;
+         if (RegExp('^d::M').hasMatch(tag))     yearTag = tag;
+      });
+```
+
+We transform `yearTag` and `monthTag` into numbers with the months they represent. For example, `d::2013` will become `2013` and `d::M4` will become `4`.
+
+```dart
+      if (yearTag  != null) yearTag  = int.parse (yearTag.substring (3));
+      if (monthTag != null) monthTag = int.parse (monthTag.substring (4));
+```
+
+Concerning our date tags, there can be four options:
+- If there is neither a year tag nor a month tag, there are no time restrictions. In this case, we don't have to do anything.
+- If there is a month tag but not a year tag, we'll add some checks below, but not here.
+- If there's a year tag but not a month tag, we'll set `minDate` and `maxDate` to cover the year specified by that tag.
+- If there's a year tag and a month tag, we'll set `minDate` and `maxDate` to cover the month specified by that combination of tags.
+
+In the case where `yearTag` is present but `monthTag` is not, we'll set the date range to cover that entire year.
+
+```dart
+      if (yearTag != null && monthTag == null) {
+         minDate = DateTime.utc (yearTag,     1, 1).millisecondsSinceEpoch;
+         maxDate = DateTime.utc (yearTag + 1, 1, 1).millisecondsSinceEpoch;
+      }
+```
+
+In the case where `yearTag` is present and `monthTag` is also present, we'll set the date range to cover the specified month. Note that if the month is 12, we'll set `maxDate` to be the first day of the next year.
+
+```dart
+      if (yearTag != null && monthTag != null) {
+         minDate = DateTime.utc (yearTag, 1, 1).millisecondsSinceEpoch;
+         if (monthTag == 12) maxDate = DateTime.utc (yearTag + 1, 1,            1).millisecondsSinceEpoch;
+         else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
+      }
+```
+
+We now do the same but for `currentMonth`. `currentMonth` will only determine which pivs are included into `pivs`, but not whether a tag from a piv is included or whether it counts towards the total; for this reason, they have to be calculated and considered separately.
+
+As with `minDate` and `maxDate`, we initialize the range variables to be something that all pivs can match.
+
+```dart
+      var minDateCurrentMonth = 0;
+      var maxDateCurrentMonth = now ();
+```
+
+If `currentMonth` is present, we set the dates to start at the current month and end at the end of the current month. As we did earlier, if `currentMonth` is December, we use January of the first year as the maximum date.
+
+```dart
+      if (currentMonth != '') {
+         minDateCurrentMonth = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
+         if (currentMonth [1] == 12) maxDateCurrentMonth = DateTime.utc (currentMonth [0] + 1, 1,                    1).millisecondsSinceEpoch;
+         else                        maxDateCurrentMonth = DateTime.utc (currentMonth [0],     currentMonth [1] + 1, 1).millisecondsSinceEpoch;
+      }
+```
+
+We will construct a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
+
+```dart
+      var localPivsById = {};
+      PivService.instance.localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+```
+
+We will iterate all the `pendingTags` keys. Each of them belongs to a local piv in the queue.
+
+```dart
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+```
+
+We will get the local piv and the list of pending tags.
+
+```dart
+         var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
+         var pendingTags = StoreService.instance.get (k);
+```
+
+If the date range doesn't match the date of the piv, we exclude it and merely `return`.
+
+```dart
+         if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
+```
+
+For the case in which we have a month tag but no year tag, we will exclude any piv that doesn't have the same month as the `monthTag`.
+
+```dart
+         if (monthTag != null && yearTag == null && piv.createDateTime.toUtc ().month != monthTag) return;
+```
+
+We will now determine whether the query tags exclude the piv or not. We start by assuming that there is a match.
+
+```dart
+         var matchesQuery = true;
+```
+
+We iterate `usertags`. Note: if usertags is empty, then we will all pivs through.
+
+```dart
+         usertags.forEach ((tag) {
+```
+
+If the tag is not included in the `pendingTags` of the piv, we do not have a match; all the tags in usertags must also be included in `pendingTags`.
+
+```dart
+            if (! pendingTags.contains (tag)) matchesQuery = false;
+         });
+```
+
+If there is no match, we exclude the piv.
+
+```dart
+         if (matchesQuery == false) return;
+```
+
+We increase the total of `queryResult` by 1.
+
+```dart
+         queryResult ['total'] += 1;
+```
+
+For each of the tags in `pendingTags`, we increment each of its entries in `queryResult ['tags']`. If an entry does not exist, we initialize it to 0.
+
+```dart
+         pendingTags.forEach ((tag) {
+            if (queryResult ['tags'] [tag] == null) queryResult ['tags'] [tag] = 0;
+            queryResult ['tags'] [tag] += 1;
+         });
+```
+
+Before we include a piv into `queryResult ['pivs']`, we need to check the time range determined by `currentMonth`. If the piv doesn't fulfill it, we excxlude it.
+
+```dart
+         if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
+```
+
+Otherwise, we include it into the list of pivs. We do this in a map that containas three properties:
+
+- `date`, the date of the piv in ms. This is added to make the entry more like the entries returned by the server.
+- `local`, a flag that states that the piv is local.
+- `piv`, the local piv itself.
+
+```dart
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+```
+
+This concludes the iteration of all local pivs currently being uploaded.
+
+```dart
+      });
+```
+
+We are almost done. We simply sort the pivs inside `queryResult`, with the newest pivs first. Note that the `date` property is the same for both local and uploaded pivs, so we don't have to add special logic to sort them together.
+
+```dart
+      queryResult ['pivs'].sort ((a, b) {
+         return (b ['date'] as int).compareTo ((a ['date'] as int));
+      });
+```
+
+We return `queryResult` and close the function.
+
+```dart
+      return queryResult;
+   }
+```
 
 We now define `queryPivs`, the function that will query pivs and their associated tags from the server.
 
@@ -2367,9 +2600,12 @@ If we got the last 300 pivs, we might have gotten too many pivs! To know this, w
 
 We now check whether the returned pivs are organized or not. If the `'o::'` tag was inside `tags`, then we know that all the pivs returned by the query are organized, so we simply set an `orgMap:ID` entry to `true` for each of them.
 
+Note that we exclude local pivs, since those should not have an `orgMap` entry.
+
 ```dart
       if (tags.contains ('o::')) {
          queryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) return;
             StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
       }
@@ -2377,8 +2613,16 @@ We now check whether the returned pivs are organized or not. If the `'o::'` tag 
 
 Otherwise, we don't know whether they are organized or not, so we ask the server through `queryOrganizedIds`. Note we don't `await` on purpose, since we don't want to wait for the end of this operation to do the next query to the server.
 
+Also note that we exclude local pivs from the query.
+
 ```dart
-      else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
+```
+
+We add local pivs to the result by invoking `localQuery`. This function will update the query result adding local pivs that are currently in the upload queue and that match the current query.
+
+```dart
+      queryResult = localQuery (tags, currentMonth, queryResult);
 ```
 
 If we have more pivs in the month than the pivs we brought, we will generate placeholder entries in `queryResult ['pivs']` for those that we don't have yet. This will allow us later to add the missing pivs without triggering a redraw. We know how many pivs we're missing because that info comes back in `queryResult ['lastMonth'] [1]`.
@@ -2388,7 +2632,6 @@ If we have more pivs in the month than the pivs we brought, we will generate pla
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
 ```
-
 We update `queryResult` in its entirety, with a normal (non-mute) update. This will trigger a redraw of the grid and already show pivs.
 
 ```dart
@@ -2455,6 +2698,12 @@ We store the result of the second query in a `secondQueryResult` variable.
       var secondQueryResult = response ['body'];
 ```
 
+We add local pivs to the result by invoking `localQuery`. This function will update the query result adding local pivs that are currently in the upload queue and that match the current query.
+
+```dart
+      secondQueryResult = localQuery (tags, currentMonth, secondQueryResult);
+```
+
 We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest as it was before. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
 
 ```dart
@@ -2466,20 +2715,21 @@ We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest a
       }, '', 'mute');
 ```
 
-As before, we check whether the returned pivs are organized or not. If the `'o::'` tag was inside `tags`, then we know that all the pivs returned by the query are organized, so we simply set an `orgMap:ID` entry to `true` for each of them.
+As before, we check whether the returned pivs are organized or not. If the `'o::'` tag was inside `tags`, then we know that all the pivs returned by the query are organized, so we simply set an `orgMap:ID` entry to `true` for each of them. Note that we exclude local pivs.
 
 ```dart
       if (tags.contains ('o::')) {
          secondQueryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) return;
             StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
       }
 ```
 
-Otherwise, we don't know whether they are organized or not, so we ask the server through `queryOrganizedIds`.
+Otherwise, we don't know whether they are organized or not, so we ask the server through `queryOrganizedIds`. Note that we exclude local pivs from the query.
 
 ```dart
-      else queryOrganizedIds (secondQueryResult ['pivs'].map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 ```
 
 We return a 200 to indicate success and close the function.
@@ -2489,38 +2739,4 @@ We return a 200 to indicate success and close the function.
    }
 ```
 
-
-
-TODO
-
-
-- `currentMonth`: an optional parameter of the form `[year, month]`, which indicates that the query should get only the pivs for a given month - by default it is set to `false`, which means that only the pivs for the last month will be retrieved.
-
-
-If we received a `currentMonth` argument, we will add two tags into `currentMonthTags`: one for the year of the current month (`'d::DDDD'`) and one for the month itself (`'d::MDD'`) - in the last two expressions, `D` stands for digit. We need two tags because to query for a given year + month, tagaway requires a tag for each of them to be sent in the same query.
-
-We'll use `currentMonthTags` shortly afterwards.
-
-```dart
-      if (currentMonth != false) var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
-```
-
-We query `POST /query`, passing the `tags`. Note also we pass the `timeHeader` field set to `true`, since we want the time header.
-
-This query, the first we do, will give us the total amount of pivs, their associated tags, the time header, and the first 300 pivs. The only thing that could be missing is any pivs after the first 300, but we'll deal with that in a minute.
-
-Why do we preemptively get pivs, if we don't know how many they are? Quite simply, to avoid a double roundtrip to the server, which can add up for those far from our servers and/or with a slow internet connection.
-
-Now for the tricky part: if `currentMonth` is `false`, the `tags` we sent to the server simply need to be the `tags` we received. But if we have a `currentMonth` we want to query, we want to pass those two tags that specify it into `tags`. For doing this, we merge `tags` and `currentMonthTags`. But that's not all. To eliminate potential duplicates (if, say, there was in `tags` already a tag for the year of the current month), we convert the list into a set (which removes duplicates), and then we convert it back into a list.
-
-```dart
-      var response = await ajax ('post', 'query', {
-         'tags': currentMonth == false ? tags : ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
-         'sort': 'newest',
-         'from': 1,
-         'to': firstLoadSize,
-         'timeHeader': true
-      });
-```
-
-
+TODO: add remaining annotated source code

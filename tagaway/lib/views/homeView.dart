@@ -57,8 +57,8 @@ class _HomeViewState extends State<HomeView> {
       var potentialCleanup = await PivService.instance.deletePivsByRange('all');
       if (availableBytes < availableThreshold &&
           potentialCleanup > potentialThreshold)
-        TagawaySpaceCleanerModal1(scaffoldKey.currentContext!, availableBytes,
-            potentialCleanup);
+        TagawaySpaceCleanerModal1(
+            scaffoldKey.currentContext!, availableBytes, potentialCleanup);
     })();
   }
 
@@ -234,8 +234,7 @@ class _HomeViewState extends State<HomeView> {
                                 colour: kAltoBlue,
                                 onPressed: () {
                                   if (tags.isEmpty)
-                                    StoreService.instance
-                                        .set('viewIndex', 1);
+                                    StoreService.instance.set('viewIndex', 1);
                                   else
                                     Navigator.pushReplacementNamed(
                                         context, 'addHomeTags');

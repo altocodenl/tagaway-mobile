@@ -293,65 +293,101 @@ class TagService {
       if (updateYearUploaded) StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
    }
 
-   // TODO: annotate the code above
-
-/*
-   addQueuedLocalPivsToQuery (tags, currentMonth, cloudPivs) {
-      // If u::, t:: or a geo tag is in, nothing to do. Piv is assumed to be organized and we cannot guess its geo info.
-      if (tags.contains ('u::') || tags.contains ('t::')) return cloudPivs;
-      var containsGeoTag = false;
-      tags.forEach ((tag) {
-         if (RegExp('^g::[A-Z]{2}').hasMatch(tag)) containsGeoTag = true;
-      });
-      if (containsGeoTag) return cloudPivs;
-      var usertags = tags.where ((tag) {
-         return ! RegExp ('^[a-z]::').hasMatch (tag);
-      }).toList ();
-
-      var minDate = double.infinity;
-      var maxDate = 0;
-      if (currentMonth == '') {
-         var monthTag, yearTag;
-         tags.forEach ((tag) {
-            if (RegExp('^d::[0-9]').hasMatch(tag)) monthTag = tag;
-            if (RegExp('^d::M').hasMatch(tag)) yearTag = tag;
-         });
-         if (yearTag != null && monthTag == null) {
-            minDate = DateTime.utc (int.parse (yearTag.substring (3)), 1, 1).millisecondsSinceEpoch;
-            maxDate = DateTime.utc (int.parse (yearTag.substring (3)) + 1, 1, 1).millisecondsSinceEpoch;
-         }
-         if (yearTag != null && monthTag != null) currentMonth = [int.parse (yearTag.substring (3)), int.parse (monthTag.substring (4))];
-      }
-      if (currentMonth != '') {
-         minDate = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
-         maxDate = DateTime.utc (currentMonth [1] == 12 ? currentMonth [0] + 1 : currentMonth [0], currentMonth [1] == 12 ? 1 : currentMonth [1] + 1, 1).millisecondsSinceEpoch;
-      }
-
-      // o:: is automatic, includes all
-      // Fast access
-      var localPivsById = {};
-      PivService.instance.localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
-      });
-      // If has pending tags, it cannot be uploaded yet, unless done from another client while this piv is in the queue.
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
-         var pendingTags = StoreService.instance.get (k);
-         if (pendingTags == '') return;
-         pendingTags.forEach ((tag) {
-            // TODO:
-         });
-      });
-   }
-   */
-
    selectAll (String view, String op) {
-      var ids;
+      //var ids;
       // toggleTags (dynamic piv, dynamic tags, view.toLowerCase ()) async {
       // toggleDeletion (String id, String view) {
 
       if (op == 'tag') {
       }
+   }
+
+   // TODO: annotate the code above
+
+   localQuery (tags, currentMonth, queryResult) {
+      if (tags.contains ('u::') || tags.contains ('t::')) return queryResult;
+
+      var containsGeoTag = false;
+      tags.forEach ((tag) {
+         if (RegExp('^g::[A-Z]{2}').hasMatch(tag)) containsGeoTag = true;
+      });
+      if (containsGeoTag) return queryResult;
+
+      var usertags = tags.where ((tag) {
+         return ! RegExp ('^[a-z]::').hasMatch (tag);
+      }).toList ();
+
+      var minDate = 0;
+      var maxDate = now ();
+
+      var monthTag, yearTag;
+      tags.forEach ((tag) {
+         if (RegExp('^d::[0-9]').hasMatch(tag)) monthTag = tag;
+         if (RegExp('^d::M').hasMatch(tag))     yearTag = tag;
+      });
+
+      if (yearTag  != null) yearTag  = int.parse (yearTag.substring (3));
+      if (monthTag != null) monthTag = int.parse (monthTag.substring (4));
+
+      if (yearTag != null && monthTag == null) {
+         minDate = DateTime.utc (yearTag,     1, 1).millisecondsSinceEpoch;
+         maxDate = DateTime.utc (yearTag + 1, 1, 1).millisecondsSinceEpoch;
+      }
+      if (yearTag != null && monthTag != null) {
+         minDate = DateTime.utc (yearTag, 1, 1).millisecondsSinceEpoch;
+         if (monthTag == 12) maxDate = DateTime.utc (yearTag + 1, 1,            1).millisecondsSinceEpoch;
+         else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
+      }
+
+      var minDateCurrentMonth = 0;
+      var maxDateCurrentMonth = now ();
+      if (currentMonth != '') {
+         minDateCurrentMonth = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
+         if (currentMonth [1] == 12) maxDateCurrentMonth = DateTime.utc (currentMonth [0] + 1, 1,                    1).millisecondsSinceEpoch;
+         else                        maxDateCurrentMonth = DateTime.utc (currentMonth [0],     currentMonth [1] + 1, 1).millisecondsSinceEpoch;
+      }
+
+      var localPivsById = {};
+      PivService.instance.localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+
+      // If has pending tags, it cannot be uploaded yet, unless done from another client while this piv is in the queue.
+      /* UNCOMMENT AFTER TESTING
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+         var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
+         var pendingTags = StoreService.instance.get (k);
+         */
+
+      // TODO: remove the next two lines after testing
+      PivService.instance.localPivs.forEach ((piv) {
+         var pendingTags = ['a local tag'];
+
+         if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
+         if (monthTag != null && yearTag == null && piv.createDateTime.toUtc ().month != monthTag) return;
+
+         var matchesQuery = true;
+         usertags.forEach ((tag) {
+            if (! pendingTags.contains (tag)) matchesQuery = false;
+         });
+         if (matchesQuery == false) return;
+
+         queryResult ['total'] += 1;
+         pendingTags.forEach ((tag) {
+            if (queryResult ['tags'] [tag] == null) queryResult ['tags'] [tag] = 0;
+            queryResult ['tags'] [tag] += 1;
+         });
+
+         if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+      });
+
+      queryResult ['pivs'].sort ((a, b) {
+         return (b ['date'] as int).compareTo ((a ['date'] as int));
+      });
+
+      return queryResult;
    }
 
    queryPivs ([refresh = false, preserveMonth = false]) async {
@@ -411,10 +447,13 @@ class TagService {
 
       if (tags.contains ('o::')) {
          queryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) return;
             StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
       }
-      else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
+
+      queryResult = localQuery (tags, currentMonth, queryResult);
 
       if (queryResult ['total'] > 0 && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
@@ -446,6 +485,7 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var secondQueryResult = response ['body'];
+      secondQueryResult = localQuery (tags, currentMonth, secondQueryResult);
 
       StoreService.instance.set ('queryResult', {
          'total':       queryResult ['total'],
@@ -456,10 +496,11 @@ class TagService {
 
       if (tags.contains ('o::')) {
          secondQueryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) return;
             StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
       }
-      else queryOrganizedIds (secondQueryResult ['pivs'].map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
       return 200;
    }
@@ -494,6 +535,7 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
+      queryResult = localQuery (tags, currentMonth, queryResult);
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
          if (StoreService.instance.get ('currentlyTaggingUploaded') != '') StoreService.instance.set ('currentlyTaggingUploaded', '');
@@ -512,10 +554,11 @@ class TagService {
 
       if (tags.contains ('o::')) {
          queryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) return;
             StoreService.instance.set ('orgMap:' + piv ['id'], true);
          });
       }
-      else queryOrganizedIds (queryResult ['pivs'].map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
       getTags ();
       return 200;

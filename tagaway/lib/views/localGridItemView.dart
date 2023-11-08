@@ -9,15 +9,21 @@ import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
+import 'package:tagaway/views/uploadedGridItemView.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:video_player/video_player.dart';
 
+// This widget is also used in the uploaded grid to show local elements that match the query and currently are in the uploaded queue
 class LocalGridItem extends StatelessWidget {
   final AssetEntity asset;
   final dynamic page;
+  final String view;
+  final dynamic pivIndex;
 
-  const LocalGridItem(this.asset, this.page, {Key? key}) : super(key: key);
+  // page is only used when view is local; pivIndex is only used when view is uploaded
+  const LocalGridItem(this.asset, this.page, this.view, this.pivIndex,
+      {Key? key})
+      : super(key: key);
 
   // String parseVideoDuration(Duration duration) {
   //   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -39,18 +45,38 @@ class LocalGridItem extends StatelessWidget {
         return GestureDetector(
             onTap: () {
               if (StoreService.instance.get('currentlyDeletingLocal') != '') {
-                TagService.instance.toggleDeletion(asset.id, 'local');
+                if (view == 'local')
+                  TagService.instance.toggleDeletion(asset.id, 'local');
+                else {
+                  // We remove the piv from the queue and delete all of its pending tags
+                  PivService.instance.uploadQueue.remove(asset);
+                  StoreService.instance.remove('pendingTags:' + asset.id);
+                }
               } else if (StoreService.instance.get('currentlyTaggingLocal') !=
                   '') {
+                // Tagging/untagging is the same, whether we are in the local or the uploaded grid
                 TagService.instance.toggleTags(
                     asset,
                     StoreService.instance.get('currentlyTaggingLocal'),
                     'local');
                 StoreService.instance.set('hideAddMoreTagsButtonLocal', true);
               } else {
-                Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  return LocalCarrousel(pivFile: asset, page: page);
-                }));
+                if (view == 'local')
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return LocalCarrousel(pivFile: asset, page: page);
+                  }));
+                else {
+                  var pivs = [];
+                  if (StoreService.instance.get('queryResult') != '')
+                    pivs = StoreService.instance.get('queryResult')['pivs'];
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) {
+                      return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                    }),
+                  );
+                }
               }
             },
             child: Stack(
@@ -87,6 +113,11 @@ class LocalGridItem extends StatelessWidget {
                         // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
                         child: GridItemSelection(asset.id, 'local',
                             key: Key(asset.id + ':' + now().toString())))),
+                Visibility(
+                    visible: view == 'uploaded',
+                    child: Align(
+                        alignment: const Alignment(-0.9, -.9),
+                        child: UploadingIcon())),
               ],
             ));
       },
@@ -311,138 +342,5 @@ class _LocalCarrouselState extends State<LocalCarrousel>
             ),
           );
         });
-  }
-}
-
-class LocalVideoPlayerWidget extends StatefulWidget {
-  const LocalVideoPlayerWidget({Key? key, required this.videoFile})
-      : super(key: key);
-  final AssetEntity videoFile;
-
-  @override
-  _LocalVideoPlayerWidgetState createState() => _LocalVideoPlayerWidgetState();
-}
-
-class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
-  late VideoPlayerController _controller;
-  bool initialized = false;
-
-  @override
-  void initState() {
-    _initVideo();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  _initVideo() async {
-    final video = await widget.videoFile.file;
-    _controller = VideoPlayerController.file(video!)
-      // Play the video again when it ends
-      ..setLooping(true)
-      // initialize the controller and notify UI when done
-      ..initialize().then((_) => setState(() {
-            initialized = true;
-            _controller.play();
-          }));
-    // _controller.play();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: initialized
-          // If the video is initialized, display it
-          ? Scaffold(
-              backgroundColor: kGreyDarkest,
-              body: Stack(children: [
-                Center(
-                  child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    // Use the VideoPlayer widget to display the video.
-                    child: VideoPlayer(_controller),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    color: kGreyDarkest,
-                    child: SafeArea(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: IconButton(
-                              onPressed: () async {
-                                WhiteSnackBar.buildSnackBar(context,
-                                    'Preparing your video for sharing...');
-                                final response =
-                                    await widget.videoFile.originBytes;
-                                final bytes = response;
-                                final temp = await getTemporaryDirectory();
-                                final path = '${temp.path}/video.mp4';
-                                File(path).writeAsBytesSync(bytes!);
-                                await Share.shareXFiles([XFile(path)]);
-                              },
-                              icon: const Icon(
-                                kShareArrownUpIcon,
-                                size: 25,
-                                color: kGreyLightest,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: IconButton(
-                              onPressed: () {
-                                PivService.instance
-                                    .deleteLocalPivs([widget.videoFile.id]);
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(
-                                kTrashCanIcon,
-                                size: 25,
-                                color: kGreyLightest,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
-              floatingActionButton: FloatingActionButton(
-                backgroundColor: kAltoBlue,
-                onPressed: () {
-                  // Wrap the play or pause in a call to `setState`. This ensures the
-                  // correct icon is shown.
-                  setState(() {
-                    // If the video is playing, pause it.
-                    if (_controller.value.isPlaying) {
-                      _controller.pause();
-                    } else {
-                      // If the video is paused, play it.
-                      _controller.play();
-                    }
-                  });
-                },
-                // Display the correct icon depending on the state of the player.
-                child: Icon(
-                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                ),
-              ),
-            )
-          // If the video is not yet initialized, display a spinner
-          : const Center(
-              child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
-            )),
-    );
   }
 }
