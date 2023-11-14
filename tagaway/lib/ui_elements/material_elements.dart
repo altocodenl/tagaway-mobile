@@ -1462,15 +1462,21 @@ class SelectAllButton extends StatefulWidget {
 
 class _SelectAllButtonState extends State<SelectAllButton> {
   dynamic cancelListener;
-  bool visible = false;
+  dynamic status = '';
+  dynamic operation;
 
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
+    cancelListener = StoreService.instance.listen(
+        ['showSelectAllButton' + widget.view, 'currentlyTagging' + widget.view],
+        (v1, v2) {
       setState(() {
-        visible = v1 == true;
+        status = v1;
+        if (v2 == '')
+          operation = 'delete';
+        else
+          operation = 'tag';
       });
     });
   }
@@ -1483,24 +1489,24 @@ class _SelectAllButtonState extends State<SelectAllButton> {
 
   @override
   Widget build(BuildContext context) {
-    if (!visible) return Container();
+    if (status == '') return Container();
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
-        onPressed: () {},
-        backgroundColor: kAltoBlue,
-        // kAltoRed
+        onPressed: () {
+          StoreService.instance
+              .set('showSelectAllButton' + widget.view, !status);
+          TagService.instance.selectAll(widget.view, operation, status);
+        },
+        backgroundColor: status == true
+            ? (operation == 'tag' ? kAltoGreen : kAltoRed)
+            : kAltoBlue,
         key: Key('selectAll-' + widget.view),
-        label: const Row(
+        label: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon(
-            //   kSelectAllIcon,
-            //   color: Colors.white,
-            //   size: 20,
-            // ),
             Icon(
-              kDeselectIcon,
+              status == true ? kSelectAllIcon : kDeselectIcon,
               color: Colors.white,
               size: 20,
             ),
@@ -2027,6 +2033,8 @@ class _DoneButtonState extends State<DoneButton> {
               StoreService.instance.set('currentlyTagging' + widget.view, '');
               StoreService.instance
                   .set('hideAddMoreTagsButton' + widget.view, '');
+              StoreService.instance
+                  .set('showSelectAllButton' + widget.view, '');
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {
@@ -2038,6 +2046,8 @@ class _DoneButtonState extends State<DoneButton> {
             } else {
               var currentlyDeleting = StoreService.instance
                   .get('currentlyDeletingPivs' + widget.view);
+              StoreService.instance
+                  .set('showSelectAllButton' + widget.view, '');
               if (currentlyDeleting != '' && currentlyDeleting.length > 0) {
                 StoreService.instance
                     .set('currentlyDeletingModal' + widget.view, true);

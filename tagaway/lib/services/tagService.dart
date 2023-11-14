@@ -36,7 +36,7 @@ class TagService {
             if (! [0, 403].contains (res ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + res ['code'].toString (), 'yellow');
             return;
          }
-         homeThumbs [tag] = res ['body'] ['pivs'] [0];
+         if (res ['body'] ['pivs'].length > 0) homeThumbs [tag] = res ['body'] ['pivs'] [0];
          if (homeThumbs.length == response ['body'] ['hometags'].length) {
             StoreService.instance.set ('hometags', response ['body'] ['hometags']);
             StoreService.instance.set ('homeThumbs', homeThumbs);
@@ -293,12 +293,21 @@ class TagService {
       if (updateYearUploaded) StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
    }
 
-   selectAll (String view, String op) {
+   selectAll (String view, String operation, bool select) {
+
+      // get all local on the current page, or all uploaded that match the month
+      // all uploaded is all pivs in the query, because we get them one at a time
+      var localPage = StoreService.instance.get ('localPage');
+
+      if (operation == 'delete') {
+                    //var pivsToDelete = StoreService.instance .get('currentlyDeletingPivs' + widget.view);
+      }
+
       //var ids;
       // toggleTags (dynamic piv, dynamic tags, view.toLowerCase ()) async {
       // toggleDeletion (String id, String view) {
 
-      if (op == 'tag') {
+      if (operation == 'tag') {
       }
    }
 
@@ -424,6 +433,7 @@ class TagService {
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
          StoreService.instance.set ('currentlyTaggingUploaded', '');
+         StoreService.instance.set ('showSelectAllButtonUploaded', '');
          return StoreService.instance.set ('queryTags', []);
       }
 
@@ -538,7 +548,8 @@ class TagService {
       queryResult = localQuery (tags, currentMonth, queryResult);
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
-         if (StoreService.instance.get ('currentlyTaggingUploaded') != '') StoreService.instance.set ('currentlyTaggingUploaded', '');
+         StoreService.instance.set ('currentlyTaggingUploaded', '');
+         StoreService.instance.set ('showSelectAllButtonUploaded', '');
          return StoreService.instance.set ('queryTags', []);
       }
 

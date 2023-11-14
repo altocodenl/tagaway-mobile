@@ -2,16 +2,12 @@
 
 ## TODO
 
-- Small improvements
-   - In uploaded, reset of slide bar when going to a previous month
-   - Edit/delete tags view, remove those features from tag list
-   - Confirm on delete single uploaded piv
-   - Update number of pivs when deleting uploaded
-   - Swipe sideways to navigate months in uploaded
-   - Put hometags at top of tagging list
-   - In local, complement of blue bar should be green with how much you organized
 - Select all
-- Local query: support ronin server query that has local pivs
+- Local query
+   - Fix tagging of local piv in uploaded grid.
+   - Support deletion of local piv in uploaded grid
+   - Support ronin server query that has local pivs
+   - Support local piv in home tag
 - Sharebox
    - Backend
       - List
@@ -39,6 +35,18 @@
          - Untag piv in someone else's sharebox
          - Note: tagging/untagging from sharebox view is different than doing it from cloud view
       - Autodelete
+- Small improvements
+   - Show organized pivs
+   - Back button should not take you to login
+   - In uploaded, reset of slide bar when going to a previous month
+   - Edit/delete tags view, remove those features from tag list
+   - Confirm on delete single uploaded piv
+   - Update number of pivs when deleting uploaded
+   - Swipe sideways to navigate months in uploaded
+   - Put hometags at top of tagging list
+   - In local, complement of blue bar should be green with how much you organized
+   - When it says "you are all done", add button that takes you to the next non empty page
+   - Tag as organized/unorganized
 - Finish annotated source code.
 -----
 - Draggable selection
@@ -71,6 +79,7 @@
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
+- localPage <int>: the local page currently being shown.
 - localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}` - contains all the pages of local pivs to be shown, one per grid.
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
@@ -87,6 +96,7 @@
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
+- showSelectAllButton(Local|Uploaded): if `undefined`, the button will not show; if `true`, it will show the "select all" button; if set to `false`, it will show the "unselect all" button.
 - showButtons(Local|Uploaded) (boolean): if true, shows buttons to perform actions in LocalView/UploadedView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
@@ -1792,8 +1802,10 @@ If we got an error code 0, we have no connection. If we got a 403, it is almost 
 
 We will set the piv in the `tag` entry of `homeThumbs`.
 
+Note we will only do this if there are pivs on the query - if for some reason we encounter a ronin (empty) query, we do not set it, since then there will be no piv to show. This situation can only happen when a home tag has just disappeared because it was removed from all the pivs it was in; in this case, the home tag will very shortly disappear, so we do not have to be concerned with showing the home tag without a piv.
+
 ```dart
-         homeThumbs [tag] = res ['body'] ['pivs'] [0];
+         if (res ['body'] ['pivs'].length > 0) homeThumbs [tag] = res ['body'] ['pivs'] [0];
 ```
 
 If this is the last hometag for which we got the piv, we will set both `hometags` and `homeThumbs` in the store. We do this simultaneously to avoid hometags being shown before they have their thumbnails available.
@@ -2527,7 +2539,7 @@ We return the result of the body in a local variable `queryResult`.
       var queryResult = response ['body'];
 ```
 
-If we currently have tags in our query, and we got no pivs back, it may be the case that through an untagging operation, or a deletion, we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will set `currentlyTaggingUploaded` to an empty string, to get the user out of "tagging mode" in the uploaded view.
+If we currently have tags in our query, and we got no pivs back, it may be the case that through an untagging operation, or a deletion, we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will set `currentlyTaggingUploaded` to an empty string, to get the user out of "tagging mode" in the uploaded view. We will also set `showSelectAllButtonUploaded` to an empty string, to hide the select all button.
 
 We will also reset the query by setting `queryTags` to an empty list. There will be listeners in the views which, when we update `queryTags`, invoke `queryPivs` again, so we don't need to perform a recursive invocation to the function here.
 
@@ -2536,6 +2548,7 @@ In this case, there is nothing else to do, so we `return`.
 ```dart
       if (queryResult ['total'] == 0 && tags.length > 0) {
          StoreService.instance.set ('currentlyTaggingUploaded', '');
+         StoreService.instance.set ('showSelectAllButtonUploaded', '');
          return StoreService.instance.set ('queryTags', []);
       }
 ```

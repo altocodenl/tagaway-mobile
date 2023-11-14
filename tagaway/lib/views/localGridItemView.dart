@@ -44,22 +44,27 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector(
             onTap: () {
+              var View = view[0].toUpperCase() + view.substring(1);
               if (StoreService.instance.get('currentlyDeletingLocal') != '') {
-                if (view == 'local')
+                if (view == 'local') {
                   TagService.instance.toggleDeletion(asset.id, 'local');
-                else {
+                  StoreService.instance.set('showSelectAllButtonLocal', true);
+                } else {
                   // We remove the piv from the queue and delete all of its pending tags
                   PivService.instance.uploadQueue.remove(asset);
                   StoreService.instance.remove('pendingTags:' + asset.id);
+                  StoreService.instance
+                      .set('showSelectAllButtonUploaded', true);
                 }
               } else if (StoreService.instance.get('currentlyTaggingLocal') !=
                   '') {
                 // Tagging/untagging is the same, whether we are in the local or the uploaded grid
                 TagService.instance.toggleTags(
                     asset,
-                    StoreService.instance.get('currentlyTaggingLocal'),
+                    StoreService.instance.get('currentlyTagging' + View),
                     'local');
-                StoreService.instance.set('hideAddMoreTagsButtonLocal', true);
+                StoreService.instance.set('hideAddMoreTagsButton' + View, true);
+                StoreService.instance.set('showSelectAllButton' + View, true);
               } else {
                 if (view == 'local')
                   Navigator.push(context, MaterialPageRoute(builder: (_) {

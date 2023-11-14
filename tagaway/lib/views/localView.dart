@@ -27,11 +27,13 @@ class _LocalViewState extends State<LocalView> {
   @override
   void initState() {
     super.initState();
+    StoreService.instance.set('localPage', 0);
     pageController.addListener(() {
       var maxPage = StoreService.instance.get('localPagesLength');
       if (maxPage == '') maxPage = 0;
       if (pageController.page! >= maxPage)
         pageController.jumpToPage(maxPage - 1);
+      StoreService.instance.set('localPage', pageController.page!.round());
     });
   }
 
