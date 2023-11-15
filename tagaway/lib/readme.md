@@ -39,7 +39,7 @@
    - Show organized pivs
    - Back button should not take you to login
    - In uploaded, reset of slide bar when going to a previous month
-   - Edit/delete tags view, remove those features from tag list
+   - Edit/delete tags view, remove those features from tag list (Note from Tom: I think it should be on both places). This should be on querySelector
    - Confirm on delete single uploaded piv
    - Update number of pivs when deleting uploaded
    - Swipe sideways to navigate months in uploaded
