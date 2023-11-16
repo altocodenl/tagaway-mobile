@@ -56,13 +56,13 @@ class LocalGridItem extends StatelessWidget {
                   StoreService.instance
                       .set('showSelectAllButtonUploaded', true);
                 }
-              } else if (StoreService.instance.get('currentlyTaggingLocal') !=
+              } else if (StoreService.instance.get('currentlyTagging' + View) !=
                   '') {
                 // Tagging/untagging is the same, whether we are in the local or the uploaded grid
                 TagService.instance.toggleTags(
                     asset,
                     StoreService.instance.get('currentlyTagging' + View),
-                    'local');
+                    view == 'local' ? 'local' : 'uploadedLocal');
                 StoreService.instance.set('hideAddMoreTagsButton' + View, true);
                 StoreService.instance.set('showSelectAllButton' + View, true);
               } else {
@@ -116,7 +116,7 @@ class LocalGridItem extends StatelessWidget {
                             border:
                                 Border.all(color: Colors.white, width: 1.5)),
                         // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
-                        child: GridItemSelection(asset.id, 'local',
+                        child: GridItemSelection(asset.id, view == 'local' ? 'local' : 'localUploaded',
                             key: Key(asset.id + ':' + now().toString())))),
                 Visibility(
                     visible: view == 'uploaded',

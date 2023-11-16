@@ -124,9 +124,9 @@ class TagService {
 
       if (cloudId != '' && cloudId != true) {
          var code = await tagCloudPiv (cloudId, tags, untag);
-         var unexpectedCode = type == 'local' ? (code != 200 && code != 404) : code != 200;
+         var unexpectedCode = type == 'uploaded' ? code != 200 : (code != 200 && code != 404);
          if (unexpectedCode) {
-            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'local' ? 'L' : 'C') + code.toString (), 'yellow');
+            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'uploaded' ? 'C' : 'L') + code.toString (), 'yellow');
          }
 
          if (code == 200) return;
@@ -159,27 +159,22 @@ class TagService {
       }
    }
 
-   // TODO: annotate the code below
-
-   getTaggedPivs (dynamic tags, String type) async {
-      var countKey = 'taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded');
-      // We do this preventively in case the query takes too long
-      StoreService.instance.set (countKey, 0);
+   getTaggedPivs (dynamic tags, String view) async {
 
       var existing = [], New = [];
+
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
-         if (type == 'local') {
-            if (RegExp ('^pendingTags:').hasMatch (k)) {
-               var pendingTags = StoreService.instance.get (k);
-               var isContained = false;
-               if (pendingTags != '') pendingTags.forEach ((tag) {
-                  if (tags.contains (tag)) isContained = true;
-               });
-               if (isContained) New.add (k.split (':') [1]);
-            }
+         if (RegExp ('^pendingTags:').hasMatch (k)) {
+             var pendingTags = StoreService.instance.get (k);
+             var tagsContained = true;
+             tags.forEach ((tag) {
+                if (! pendingTags.contains (tag)) tagsContained = false;
+             });
+             if (tagsContained) New.add (k.split (':') [1]);
          }
       });
+
       var response = await ajax ('post', 'query', {
          'tags':    tags,
          'sort':    'newest',
@@ -194,9 +189,9 @@ class TagService {
       }
 
       var queryIds;
-      if (type == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
+      if (view == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
       response ['body'].forEach ((v) {
-         if (type == 'uploaded') {
+         if (view == 'uploaded') {
             if (queryIds.contains (v)) New.add (v);
          }
          else {
@@ -204,16 +199,20 @@ class TagService {
             if (id != '') New.add (id);
          }
       });
+
       New.forEach ((id) {
         if (! existing.contains (id)) StoreService.instance.set ('tagMap:' + id, true);
         else existing.remove (id);
       });
       existing.forEach ((id) {
-        StoreService.instance.set ('tagMap:' + id, '');
+        StoreService.instance.remove ('tagMap:' + id);
       });
 
-      StoreService.instance.set (countKey, New.length + StoreService.instance.get (countKey));
+      var countKey = 'taggedPivCount' + (view == 'local' ? 'Local' : 'Uploaded');
+      StoreService.instance.set (countKey, New.length);
    }
+
+   // TODO: annotate the code below
 
    computeTimeHeader ([updateYearUploaded = true]) {
       var output      = [];
@@ -432,8 +431,8 @@ class TagService {
       var queryResult = response ['body'];
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.set ('currentlyTaggingUploaded', '');
-         StoreService.instance.set ('showSelectAllButtonUploaded', '');
+         StoreService.instance.remove ('currentlyTaggingUploaded');
+         StoreService.instance.remove ('showSelectAllButtonUploaded');
          return StoreService.instance.set ('queryTags', []);
       }
 
@@ -444,7 +443,7 @@ class TagService {
          'pivs':        []
       }, '', 'mute');
 
-      if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
+      if (queryResult ['lastMonth'] == null) StoreService.instance.remove ('currentMonth');
       else {
          var lastMonth = queryResult ['lastMonth'] [0].split (':');
          StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
@@ -548,8 +547,8 @@ class TagService {
       queryResult = localQuery (tags, currentMonth, queryResult);
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.set ('currentlyTaggingUploaded', '');
-         StoreService.instance.set ('showSelectAllButtonUploaded', '');
+         StoreService.instance.remove ('currentlyTaggingUploaded');
+         StoreService.instance.remove ('showSelectAllButtonUploaded');
          return StoreService.instance.set ('queryTags', []);
       }
 

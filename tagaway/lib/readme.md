@@ -2,12 +2,12 @@
 
 ## TODO
 
-- Select all
+- Double question: tagged count in local, only for current page or others? And: block moving between pages when doing an operation?
 - Local query
-   - Fix tagging of local piv in uploaded grid.
    - Support deletion of local piv in uploaded grid
    - Support ronin server query that has local pivs
    - Support local piv in home tag
+- Select all
 - Sharebox
    - Backend
       - List
@@ -47,7 +47,7 @@
    - In local, complement of blue bar should be green with how much you organized
    - When it says "you are all done", add button that takes you to the next non empty page
    - Tag as organized/unorganized
-- Finish annotated source code.
+- Finish annotated source code: tagService, storeService, tools.
 -----
 - Draggable selection
 - Delete iOS bursts
@@ -1912,7 +1912,7 @@ We invoke `POST /hometags` passing the updated hometags.
 
 First we will cover the case in which we obtained an error.
 
-If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, other parts of the code will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `HOMETAGS:CODE`.
+If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, the `ajax` function will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `HOMETAGS:CODE`.
 
 ```dart
       if (response ['code'] != 200) {
@@ -2029,7 +2029,7 @@ We now define `toggleTags`, the function that is in charge of handling the logic
 The function takes three arguments:
 - A `piv`, which can be either a local piv or a cloud piv.
 - `tags`, which is a list of tags to add (tag) or remove (untag) from the piv.
-- The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs).
+- The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs). It can also be `localUploaded`, which is a special variant, where the piv itself is local, but it appears on the uploaded view - for the most part it will behave like a local piv, but there will be exceptions.
 
 ```dart
    toggleTags (dynamic piv, dynamic tags, String type) async {
@@ -2060,7 +2060,7 @@ We either increment (for tagging) or decrement (for untagging) the `taggedPivCou
       StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (untag ? -1 : 1));
 ```
 
-If we are tagging a local piv, we need to add it to `currentlyTaggingPivs`. We first check whether `currentlyTaggingPivs` already exists. If not, we initialize it to an empty list.
+If we are tagging a local piv (and a local piv on the local view, not the uploaded view), we need to add it to `currentlyTaggingPivs`. We first check whether `currentlyTaggingPivs` already exists. If not, we initialize it to an empty list.
 
 ```dart
       if (! untag && type == 'local') {
@@ -2096,19 +2096,19 @@ We invoke the `tagCloudPiv` function, passing the `cloudId`, the `tags` and the 
          var code = await tagCloudPiv (cloudId, tags, untag);
 ```
 
-If we are tagging a local piv, we can expect either a 200 (success) or a 404. The latter will happen if the cloud counterpart of the local piv we are tagging was removed from another tagaway client (for example, a web browser).
+If we are tagging a local piv, we can expect either a 200 (success) or a 404. The latter will happen if the cloud counterpart of the local piv we are tagging was removed from another tagaway client (for example, a web browser). This also goes for `localUploaded` pivs.
 
 If we are tagging a cloud piv, a 404 is considerably more unlikely, because the piv had to be queried recently in order to be shown now to the user - otherwise, the user could not initiate its tagging. Unless the user is concurrently using two tagaway clients (and deleting uploaded pivs on one of them), this should not happen. For all of this, we only expect a 200 for tagging/untagging cloud pivs.
 
 ```dart
-         var unexpectedError = type == 'local' ? (code != 200 && code != 404) : code != 200;
+         var unexpectedCode = type == 'uploaded' ? code != 200 : (code != 200 && code != 404);
 ```
 
 If there was an unexpected error, we invoke the `showSnackbar` function with an error message indicating the error code. The error code will be `TAG:L:CODE` (for local pivs) and `TAG:C:CODE` for cloud pivs.
 
 ```dart
-         if (unexpectedError) {
-            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'local' ? 'L' : 'C') + code.toString (), 'yellow');
+         if (unexpectedCode) {
+            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'uploaded' ? 'C' : 'L') + code.toString (), 'yellow');
          }
 ```
 
@@ -2203,7 +2203,186 @@ This concludes the function.
    }
 ```
 
-TODO: add annotated source code between `toggleTags` and `localQuery`.
+We now define `getTaggedPivs`, the function that will determine which of the pivs (either local or uploaded) are tagged with a given piv. This is necessary when the user starts tagging them with a tag X: this function will let the UI know whether the piv is already tagged with taag X.
+
+The function takes two arguments:
+- `tags`: the list of tags that are being applied to pivs. This can be either one or two tags at the same time.
+- `view`: can be either `local` or `uploaded`.
+
+```dart
+   getTaggedPivs (dynamic tags, String view) async {
+```
+
+This function accomplishes its goal by setting `tagMap:ID` entries (and removing old ones that might be left over from a previous tag operation), as well as setting `taggedPivCountLocal|Uploaded`, which counts the number of pivs with the `tags`.
+
+Note: the `tagMap:ID` entries can either exist and be set to `true`, or not exist at all. They are a flag which, if present, means that a given piv is tagged from the perspective of the current tags being used to tag.
+
+We create two arrays, one to hold all existing entries of `tagMap:ID` and another one to hold all the ids of the pivs that should have a `tagMap:ID` entry.
+
+```dart
+      var existing = [], New = [];
+```
+
+You might ask: why not remove all the existing `pivMap` entries and add new ones? The answer is: performance. There might be hundreds of pivs, each of them with a widget that depends on each of their flags; for that reason, most of this function is concerned with doing a "diff", and only adding the necesssary `tagMap` entries that are needed.
+
+We iterate all the keys in the store.
+
+```dart
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+```
+
+If we find a `tagMap:ID` entry, we add the `ID` to `existing`.
+
+```
+         if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
+```
+
+Now, how do we know whether a piv's id should be included in `New`? There are three sources:
+- For uploaded pivs, we will ask the server what are the ids of the pivs that already are tagged with `tags`.
+- For local pivs, we will use the information from the server to see which of their uploaded counterparts have already these tags.
+- For local pivs that are in the upload queue, we will see the `pendingTags:ID` entries; each of these pending tags are, in effect, the equivalent of a server tag.
+
+We will do the latter first. If this is a `pendingTags` entry:
+
+```dart
+         if (RegExp ('^pendingTags:').hasMatch (k)) {
+```
+
+We will get the pending tags for this piv.
+
+```dart
+             var pendingTags = StoreService.instance.get (k);
+```
+
+We will now determine whether all of the `tags` are included inside `pendingTags`. If this is the case, we will consider this local piv to be tagged already with `tags`.
+
+If one or more of the `tags` are not included in `pendingTags`, then the piv should not be considered as tagged, for the purposes of the current tagging operation.
+
+```dart
+             var tagsContained = true;
+             tags.forEach ((tag) {
+                if (! pendingTags.contains (tag)) tagsContained = false;
+             });
+```
+
+If the piv is tagged with all of `tags`, we add its `id` to `New`.
+
+```dart
+             if (tagsContained) New.add (k.split (':') [1]);
+         }
+```
+
+This concludes the iteration on store keys.
+
+```dart
+      });
+```
+
+Note that we compute the `pivMap` entries for local pivs even if `view` is uploaded. This is because of the local query functionality, which will add local pivs in the upload queue to the uploaded view, if those pivs are relevant to the query.
+
+We will now query the server, to get all the uploaded pivs that are already tagged with `tags`. Note that we pass the `idsOnly`, just to get their ids; we also pass a very large number as `to`, to get all of them.
+
+```dart
+      var response = await ajax ('post', 'query', {
+         'tags':    tags,
+         'sort':    'newest',
+         'from':    1,
+         'to':      100000,
+         'idsOnly': true
+      });
+```
+
+First we will cover the case in which we obtained an error.
+
+If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, the `ajax` function will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `TAGGED:CODE`.
+
+```dart
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your tagged pivs - CODE TAGGED:' + response ['code'].toString (), 'yellow');
+         return;
+      }
+```
+
+If we're here, the query was successful!
+
+If we are doing this for the uploaded view, we set a variable `queryIds` with all the ids of the last query result, to have a list of uploaded ids.
+
+A very, very subtle point: if there are local pivs inside the pivs of the last query result, they will have `null` entries. Why? Because `v ['id']` will yield `null` for them, whereas `v.id` will yield their actual id. The deeper reason for this is some object oriented trickery which my personal programming paradigm blocks me from understanding. For practical purposes, those local pivs in this list will have a `null` entry, and effectively this means that we will ignore them, which is great, because we do not want to double count them - since we added them already above when we were iterating the `pendingTags` entries.
+
+```dart
+      var queryIds;
+      if (view == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
+```
+
+We iterate the piv ids we got from the server.
+
+```dart
+      response ['body'].forEach ((v) {
+```
+
+If we are in the uploaded view, if the id is contained in `queryIds`, we add it to `New`.
+
+```dart
+         if (view == 'uploaded') {
+            if (queryIds.contains (v)) New.add (v);
+         }
+```
+
+If we are in the local view, we check whether the piv has a `rpivMap:ID` entry, which points from an uploaded piv to a local piv. If indeed that's the case, we add the id of the local piv to `New`.
+
+```dart
+         else {
+            var id = StoreService.instance.get ('rpivMap:' + v);
+            if (id != '') New.add (id);
+         }
+```
+
+This concludes the iteration of piv ids we got from the server.
+
+```dart
+      });
+```
+
+We now have all the `existing` and `New` entries. Time for a diff!
+
+For all the `New` entries:
+
+```dart
+      New.forEach ((id) {
+```
+
+If the new entry doesn't exist yet, we set `tagMap:ID` to `true`. Otherwise, we remove it from the `existing` list.
+
+```dart
+        if (! existing.contains (id)) StoreService.instance.set ('tagMap:' + id, true);
+        else existing.remove (id);
+      });
+```
+
+By now, all the entries in `existing` are stale, since if they weren't, they would have been removed by the iteration over `New` we just did. We simply remove all the `tagMap:ID` entries for those ids that are left in `existing`.
+
+```dart
+      existing.forEach ((id) {
+        StoreService.instance.remove ('tagMap:' + id);
+      });
+```
+
+We are almost done!
+
+We initialize a variable `countKey` to have the value `taggedPivCountLocal` or `taggedPivCountUploaded`, depending on the view. This is the key which will keep count of the number of pivs that have the `tags` already in them.
+
+```dart
+      var countKey = 'taggedPivCount' + (view == 'local' ? 'Local' : 'Uploaded');
+```
+
+We update the variable by setting it to the number of `New` elements. This concludes the function.
+
+```dart
+      StoreService.instance.set (countKey, New.length);
+   }
+```
+
+TODO: add annotated source code between `getTaggedPivs` and `localQuery`.
 
 We now define `localQuery`, a function that will return a list of local pivs that are currently in the upload queue and match an existing query. The purpose of this is to show all queued pivs in the relevant queries as if they were already uploaded.
 
@@ -2547,8 +2726,8 @@ In this case, there is nothing else to do, so we `return`.
 
 ```dart
       if (queryResult ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.set ('currentlyTaggingUploaded', '');
-         StoreService.instance.set ('showSelectAllButtonUploaded', '');
+         StoreService.instance.remove ('currentlyTaggingUploaded');
+         StoreService.instance.remove ('showSelectAllButtonUploaded');
          return StoreService.instance.set ('queryTags', []);
       }
 ```
@@ -2564,10 +2743,10 @@ We will now put everything in place so that the time header can be computed. We 
       }, '', 'mute');
 ```
 
-If the server also didn't bring a last month, this must be a ronin query (a query without pivs). So we set `currentMonth` to an empty string. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device. It could also happen if the user selects a tag that is only possessed by pivs in the upload queue and haven't been uploaded yet.
+If the server also didn't bring a last month, this must be a ronin query (a query without pivs). In this case, we remove `currentMonth`. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device. It could also happen if the user selects a tag that is only possessed by pivs in the upload queue and haven't been uploaded yet.
 
 ```dart
-      if (queryResult ['lastMonth'] == null) StoreService.instance.set ('currentMonth', '');
+      if (queryResult ['lastMonth'] == null) StoreService.instance.remove ('currentMonth');
 ```
 
 Otherwise, we extract the year and the month of the last month of the query, which will be present in the `lastMonth` key of the object returned by the server. We then set them in the `currentMonth` key of the store.

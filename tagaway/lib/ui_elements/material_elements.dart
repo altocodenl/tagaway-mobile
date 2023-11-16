@@ -1192,11 +1192,15 @@ class _GridItemSelectionState extends State<GridItemSelection> {
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
           // Normal mode
         } else {
-          var organized = type == 'uploaded'
-              ? v1 != ''
-              // If the piv is currently being uploaded (`v1 == true`) we consider it as organized.
-              : (v1 == true ||
-                  StoreService.instance.get('orgMap:' + v1.toString()) != '');
+          // local pivs in the uploaded view (`localUploaded`) are always considered as organized, since they are in the upload queue and therefore are tagged, and therefore, organized..
+          var organized = type == 'localUploaded'
+              ? true
+              : (type == 'uploaded'
+                  ? v1 != ''
+                  // If the piv is local and is currently being uploaded (`v1 == true`) we consider it as organized.
+                  : (v1 == true ||
+                      StoreService.instance.get('orgMap:' + v1.toString()) !=
+                          ''));
           mode = organized ? 'green' : 'gray';
           if (type == 'local' && v4 != 'all') mode = 'none';
         }
@@ -2030,11 +2034,11 @@ class _DoneButtonState extends State<DoneButton> {
             // Done tagging
             if (currentlyTagging != '') {
               StoreService.instance.set('swiped' + widget.view, false);
-              StoreService.instance.set('currentlyTagging' + widget.view, '');
+              StoreService.instance.remove('currentlyTagging' + widget.view);
               StoreService.instance
-                  .set('hideAddMoreTagsButton' + widget.view, '');
-              StoreService.instance
-                  .set('showSelectAllButton' + widget.view, '');
+                  .remove('hideAddMoreTagsButton' + widget.view);
+              StoreService.instance.remove('showSelectAllButton' + widget.view);
+              StoreService.instance.remove('taggedPivCount' + widget.view);
               // We update the tag list in case we just created a new one.
               TagService.instance.getTags();
               if (widget.view == 'Local') {
@@ -2046,8 +2050,7 @@ class _DoneButtonState extends State<DoneButton> {
             } else {
               var currentlyDeleting = StoreService.instance
                   .get('currentlyDeletingPivs' + widget.view);
-              StoreService.instance
-                  .set('showSelectAllButton' + widget.view, '');
+              StoreService.instance.remove('showSelectAllButton' + widget.view);
               if (currentlyDeleting != '' && currentlyDeleting.length > 0) {
                 StoreService.instance
                     .set('currentlyDeletingModal' + widget.view, true);
@@ -2271,7 +2274,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                                               ? [actualTag]
                                               : currentlyTagging + [actualTag]);
                                       StoreService.instance
-                                          .set('tagFilter' + widget.view, '');
+                                          .remove('tagFilter' + widget.view);
                                       searchTagController.clear();
                                     };
                                   },
