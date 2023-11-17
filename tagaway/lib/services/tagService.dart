@@ -209,86 +209,6 @@ class TagService {
 
    }
 
-   // TODO: annotate the code below
-
-   computeTimeHeader ([updateYearUploaded = true]) {
-      var output      = [];
-      var min, max;
-      var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
-      var currentMonth = StoreService.instance.get ('currentMonth');
-      // We initialize the current month to an array signifying there's no current month.
-      if (currentMonth == '') currentMonth = [0, 1];
-      timeHeader.keys.forEach ((v) {
-         var dates = v.split (':');
-         dates = [int.parse (dates [0]), int.parse (dates [1])];
-         // Round down to the beginning of the semester
-         if (dates [1] < 7) dates [1] = 1;
-         else               dates [1] = 7;
-         if (min == null) min = dates;
-         if (max == null) max = dates;
-         if (dates [0] < min [0] || (dates [0] == min [0] && dates [1] < min [1])) min = dates;
-         if (dates [0] > max [0] || (dates [0] == max [0] && dates [1] < max [1])) max = dates;
-      });
-      // No uploaded pivs, return current semester as empty.
-      if (timeHeader.keys.length == 0) {
-        max = [DateTime.now ().year, DateTime.now ().month > 6 ? 12 : 6];
-        min = [DateTime.now ().year, DateTime.now ().month < 7 ? 1 : 7];
-      }
-      // Semester is an array of months.
-      // A month is [year, month, color, selected (boolean), id of the last piv on the month]
-      for (var year = min [0]; year <= max [0]; year++) {
-         for (var month = 1; month <= 12; month++) {
-           var dateKey = year.toString () + ':' + month.toString ();
-           var isCurrentMonth = year == currentMonth [0] && month == currentMonth [1];
-           if (timeHeader [dateKey] == null)       output.add ([year, month, 'white', false]);
-           else if (timeHeader [dateKey] == false) output.add ([year, month, 'gray', isCurrentMonth]);
-           else                                    output.add ([year, month, 'green', isCurrentMonth]);
-         }
-      }
-      var semesters = [[]];
-      output.forEach ((month) {
-         var lastSemester = semesters [semesters.length - 1];
-         if (lastSemester.length < 6) lastSemester.add (month);
-         else semesters.add ([month]);
-      });
-
-      // Filter out ronin semesters if we have pivs
-      if (timeHeader.keys.length > 0) {
-         semesters = semesters.where ((semester) {
-            var nonWhite = 0;
-            semester.forEach ((month) {
-               if (month [2] != 'white') nonWhite++;
-            });
-            return nonWhite > 0;
-         }).toList ();
-      }
-
-      StoreService.instance.set ('timeHeader', semesters);
-
-      var newCurrentPage;
-      semesters.asMap ().forEach ((k, semester) {
-        semester.forEach ((month) {
-           if (month [0] == currentMonth [0] && month [1] == currentMonth [1]) {
-             // Pages are inverted, that's why we use this index and not `k` itself.
-             newCurrentPage = semesters.length - k - 1;
-           }
-        });
-      });
-
-      var currentPage = StoreService.instance.get ('timeHeaderPage');
-      if (currentPage != newCurrentPage) {
-         var pageController = StoreService.instance.get ('timeHeaderController');
-         // The conditional prevents scrolling semesters if the uploaded view is not active.
-         // new current page might be null if suddenly there's no more pages due to untagging
-         // or if there is no current month because there's no pivs
-         if (pageController != '' && pageController.hasClients && newCurrentPage != null) {
-            pageController.animateToPage (newCurrentPage, duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
-         }
-      }
-
-      if (updateYearUploaded) StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
-   }
-
    selectAll (String view, String operation, bool select) {
 
       // get all local on the current page, or all uploaded that match the month
@@ -306,8 +226,6 @@ class TagService {
       if (operation == 'tag') {
       }
    }
-
-   // TODO: annotate the code above
 
    localQuery (tags, currentMonth, queryResult) {
       if (tags.contains ('u::') || tags.contains ('t::')) return queryResult;
@@ -357,7 +275,6 @@ class TagService {
          localPivsById [v.id] = v;
       });
 
-      // If has pending tags, it cannot be uploaded yet, unless done from another client while this piv is in the queue.
       /* UNCOMMENT AFTER TESTING
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (! RegExp ('^pendingTags:').hasMatch (k)) return;
@@ -589,7 +506,6 @@ class TagService {
     var filteredIds = ids.toList ();
     ids.forEach ((id) {
        if (localPivsById [id] == null) return;
-       debug (['removing local piv', id]);
        filteredIds.remove (id);
        PivService.instance.uploadQueue.remove(localPivsById [id]);
        StoreService.instance.remove('pendingTags:' + id);
@@ -701,4 +617,83 @@ class TagService {
          StoreService.instance.set ('orgMap:' + id, organizedIds [id] == true ? true : '');
       });
    }
+
+   computeTimeHeader ([updateYearUploaded = true]) {
+      var output      = [];
+      var min, max;
+      var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
+      var currentMonth = StoreService.instance.get ('currentMonth');
+      // We initialize the current month to an array signifying there's no current month.
+      if (currentMonth == '') currentMonth = [0, 1];
+      timeHeader.keys.forEach ((v) {
+         var dates = v.split (':');
+         dates = [int.parse (dates [0]), int.parse (dates [1])];
+         // Round down to the beginning of the semester
+         if (dates [1] < 7) dates [1] = 1;
+         else               dates [1] = 7;
+         if (min == null) min = dates;
+         if (max == null) max = dates;
+         if (dates [0] < min [0] || (dates [0] == min [0] && dates [1] < min [1])) min = dates;
+         if (dates [0] > max [0] || (dates [0] == max [0] && dates [1] < max [1])) max = dates;
+      });
+      // No uploaded pivs, return current semester as empty.
+      if (timeHeader.keys.length == 0) {
+        max = [DateTime.now ().year, DateTime.now ().month > 6 ? 12 : 6];
+        min = [DateTime.now ().year, DateTime.now ().month < 7 ? 1 : 7];
+      }
+      // Semester is an array of months.
+      // A month is [year, month, color, selected (boolean), id of the last piv on the month]
+      for (var year = min [0]; year <= max [0]; year++) {
+         for (var month = 1; month <= 12; month++) {
+           var dateKey = year.toString () + ':' + month.toString ();
+           var isCurrentMonth = year == currentMonth [0] && month == currentMonth [1];
+           if (timeHeader [dateKey] == null)       output.add ([year, month, 'white', false]);
+           else if (timeHeader [dateKey] == false) output.add ([year, month, 'gray', isCurrentMonth]);
+           else                                    output.add ([year, month, 'green', isCurrentMonth]);
+         }
+      }
+      var semesters = [[]];
+      output.forEach ((month) {
+         var lastSemester = semesters [semesters.length - 1];
+         if (lastSemester.length < 6) lastSemester.add (month);
+         else semesters.add ([month]);
+      });
+
+      // Filter out ronin semesters if we have pivs
+      if (timeHeader.keys.length > 0) {
+         semesters = semesters.where ((semester) {
+            var nonWhite = 0;
+            semester.forEach ((month) {
+               if (month [2] != 'white') nonWhite++;
+            });
+            return nonWhite > 0;
+         }).toList ();
+      }
+
+      StoreService.instance.set ('timeHeader', semesters);
+
+      var newCurrentPage;
+      semesters.asMap ().forEach ((k, semester) {
+        semester.forEach ((month) {
+           if (month [0] == currentMonth [0] && month [1] == currentMonth [1]) {
+             // Pages are inverted, that's why we use this index and not `k` itself.
+             newCurrentPage = semesters.length - k - 1;
+           }
+        });
+      });
+
+      var currentPage = StoreService.instance.get ('timeHeaderPage');
+      if (currentPage != newCurrentPage) {
+         var pageController = StoreService.instance.get ('timeHeaderController');
+         // The conditional prevents scrolling semesters if the uploaded view is not active.
+         // new current page might be null if suddenly there's no more pages due to untagging
+         // or if there is no current month because there's no pivs
+         if (pageController != '' && pageController.hasClients && newCurrentPage != null) {
+            pageController.animateToPage (newCurrentPage, duration: Duration (milliseconds: 500), curve: Curves.easeInOut);
+         }
+      }
+
+      if (updateYearUploaded) StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
+   }
+
 }

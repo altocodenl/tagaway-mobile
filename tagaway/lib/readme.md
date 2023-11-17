@@ -4,7 +4,6 @@
 
 - Local query
    - Support ronin server query that has local pivs
-   - Support local piv in home tag
 - Select all
 - Sharebox
    - Backend
@@ -42,7 +41,6 @@
    - Update number of pivs when deleting uploaded
    - Swipe sideways to navigate months in uploaded
    - Put hometags at top of tagging list
-   - In local, complement of blue bar should be green with how much you organized
    - When it says "you are all done", add button that takes you to the next non empty page
    - Tag as organized/unorganized
 - Finish annotated source code: tagService, storeService, tools.
@@ -2363,8 +2361,6 @@ We are done! This concludes the function.
 ```dart
    }
 ```
-
-TODO: add annotated source code between `getTaggedPivs` and `localQuery`.
 
 We now define `localQuery`, a function that will return a list of local pivs that are currently in the upload queue and match an existing query. The purpose of this is to show all queued pivs in the relevant queries as if they were already uploaded.
 
