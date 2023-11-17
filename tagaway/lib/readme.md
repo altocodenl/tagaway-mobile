@@ -33,7 +33,6 @@
          - Note: tagging/untagging from sharebox view is different than doing it from cloud view
       - Autodelete
 - Small improvements
-   - Show organized pivs
    - Back button should not take you to login
    - In uploaded, reset of slide bar when going to a previous month
    - Edit/delete tags view, remove those features from tag list (Note from Tom: I think it should be on both places). This should be on querySelector
@@ -66,7 +65,7 @@
 - currentlyDeleting(Local|Uploaded) <bool>: if set, we are in delete mode in LocalView/UploadedView
 - currentlyDeletingModal(Local|Uploaded) <bool>: if set, we are showing the delete confirmation modal for Local/Uploaded view.
 - currentlyDeletingPivs(Local|Uploaded) <list>: list of pivs that are currently being deleted, either Local or Uploaded.
-- displayMode <obj>: if set, has the form `{hideOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `hideOrganized` hides organized pivs from the local view; `cameraOnly` hides non-camera pivs from the local view.
+- displayMode <obj>: if set, has the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `showOrganized` shows organized pivs in the local view; `cameraOnly` hides non-camera pivs from the local view.
 - deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
@@ -1239,11 +1238,10 @@ We convert the result to a list.
       }).toList ();
 ```
 
-We get the `displayMode` from the store, which can be either an empty string or an object of the form `{hideOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. If it is an empty string, we initialize it to the object, setting `hideOrganized` as `true` and `cameraOnly` as `false`.
+We get the `displayMode` from the store, which will be an object of the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`.
 
 ```dart
       var displayMode = StoreService.instance.get ('displayMode');
-      if (displayMode == '') displayMode = {'hideOrganized': true, 'cameraOnly': false};
 ```
 
 We get `currentlyTaggingPivs`, a list of pivs currently being tagged. If there's no such key in the store, we will initialize our local variable to an empty array.
@@ -1295,11 +1293,11 @@ We check whether the piv is currently being tagged, by checking if it is inside 
 ```
 
 We determine whether the piv should be shown and store the result in `showPiv`. The piv should be shown if it is currently being tagged. If it's not currently being tagged, it will be shown if two conditions are fulfilled simultaneously:
-- `displayMode.hideOrganized` is `false` or the piv is not organized.
+- `displayMode.showOrganized` is `true` or the piv is not organized.
 - `displayMode.cameraOnly` is `false` or the piv is a camera piv.
 
 ```dart
-         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['hideOrganized'] == false || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
 ```
 
 We initialize two variables: `placed`, to determine whether the piv has been already placed in a page; and `pivDate`, the create datetime of the piv. `pivDate` will instruct us in which page to place the piv.
@@ -2597,7 +2595,7 @@ This function will essentially get two pieces of information:
 - The metainformation of the pivs that belong to the query.
 - Other info belonging to the query, namely: tags, total amount of pivs, and the data for the time header.
 
-We don't want to bring back all the information at once because 1) that takes significant processing time on the server; 2) it can potentially require a lot of bandwidth for the client; 3) both #1 and #2 will slow down the drawing of the grid. For this reason, this function is particularly written with performance in mind.
+We don't want to bring back all the information at once because 1) that takes significant processing time on the server; 2) it can potentially require a lot of bandwidth for the client; 3) both #1 and #2 will slow down the drawing of the grid. For this reason, this function is written with performance particularly in mind.
 
 ```dart
    queryPivs ([refresh = false, preserveMonth = false]) async {
@@ -2619,8 +2617,8 @@ We sort the received tags, because we'll need to compare them to the tags of a p
 We will determine now whether we can avoid querying the server at all. To avoid querying the server at all, three things need to happen at the same time!
 
 1. `queryResult`, the result of the last query, is not an empty string. If it is an empty string, we haven't yet performed the first query, so we definitely need to query the server.
-2. `refresh` is `false`, so we are not forded to refresh the query.
-4. `tags` is equal to `queryTags`.
+2. `refresh` is `false`, so we are not forced to refresh the query.
+3. `tags` is equal to `queryTags`.
 
 If all three conditions are true simultaneously, we will `return` since there's nothing else to do.
 

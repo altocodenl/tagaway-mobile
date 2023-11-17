@@ -44,7 +44,7 @@ class _DistributorState extends State<Distributor> {
     if (permissionStatus == 'granted' || permissionStatus == 'limited') {
       // Load all local pivs
       PivService.instance.loadLocalPivs();
-      StoreService.instance.set ('displayMode', {'hideOrganized': true, 'cameraOnly': false});
+      StoreService.instance.set ('displayMode', {'showOrganized': false, 'cameraOnly': false});
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');
     }
 

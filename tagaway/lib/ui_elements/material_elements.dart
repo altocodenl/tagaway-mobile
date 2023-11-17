@@ -2801,7 +2801,7 @@ class _PhoneViewSettingsState extends State<PhoneViewSettings> {
                                     style: kPlainTextBold,
                                   ),
                                 ),
-                                Expanded(child: HideOrganizedPivsSwitch()),
+                                Expanded(child: ShowOrganizedPivsSwitch()),
                               ],
                             ),
                             SizedBox(
@@ -2837,14 +2837,14 @@ class _PhoneViewSettingsState extends State<PhoneViewSettings> {
   }
 }
 
-class HideOrganizedPivsSwitch extends StatefulWidget {
-  const HideOrganizedPivsSwitch({super.key});
+class ShowOrganizedPivsSwitch extends StatefulWidget {
+  const ShowOrganizedPivsSwitch({super.key});
 
   @override
-  State<HideOrganizedPivsSwitch> createState() => _HideOrganizedPivsSwitch();
+  State<ShowOrganizedPivsSwitch> createState() => _ShowOrganizedPivsSwitch();
 }
 
-class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
+class _ShowOrganizedPivsSwitch extends State<ShowOrganizedPivsSwitch> {
   dynamic cancelListener;
   dynamic displayMode;
 
@@ -2876,10 +2876,10 @@ class _HideOrganizedPivsSwitch extends State<HideOrganizedPivsSwitch> {
             activeTrackColor: kAltoBlue,
             activeColor: Colors.white,
             inactiveTrackColor: kGreyLight,
-            value: displayMode['hideOrganized'],
+            value: displayMode['showOrganized'],
             onChanged: (bool value) {
               StoreService.instance.set('displayMode', {
-                'hideOrganized': value ? true : false,
+                'showOrganized': value ? true : false,
                 'cameraOnly': displayMode['cameraOnly']
               });
             },
@@ -2932,7 +2932,7 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
             value: displayMode['cameraOnly'],
             onChanged: (bool value) {
               StoreService.instance.set('displayMode', {
-                'hideOrganized': displayMode['hideOrganized'],
+                'showOrganized': displayMode['showOrganized'],
                 'cameraOnly': value ? true : false
               });
             },

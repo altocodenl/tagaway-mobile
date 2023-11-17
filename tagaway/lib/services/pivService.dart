@@ -357,7 +357,7 @@ class PivService {
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 
-         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['hideOrganized'] == false || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
 
          var placed = false, pivDate = piv.createDateTime;
          pages.forEach ((page) {
