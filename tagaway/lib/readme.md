@@ -100,7 +100,6 @@
 - showButtons(Local|Uploaded) (boolean): if true, shows buttons to perform actions in LocalView/UploadedView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
-- taggedPivCount(Local|Uploaded) (int): shows how many pivs are tagged with the current tag on LocalView/UploadedView
 - tagMap:<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the current tag
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
 - uploadQueue [<string>, ...] [DISK]: list of ids of pivs that are going to be uploaded - deleted on logout.
@@ -2054,12 +2053,6 @@ If this is an untag operation, we will set `tagMap:ID` to `''`, otherwise we wil
       StoreService.instance.set ('tagMap:' + pivId, untag ? '' : true);
 ```
 
-We either increment (for tagging) or decrement (for untagging) the `taggedPivCountLocal` (or `taggedPivCountUploaded`) key.
-
-```dart
-      StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (untag ? -1 : 1));
-```
-
 If we are tagging a local piv (and a local piv on the local view, not the uploaded view), we need to add it to `currentlyTaggingPivs`. We first check whether `currentlyTaggingPivs` already exists. If not, we initialize it to an empty list.
 
 ```dart
@@ -2213,7 +2206,7 @@ The function takes two arguments:
    getTaggedPivs (dynamic tags, String view) async {
 ```
 
-This function accomplishes its goal by setting `tagMap:ID` entries (and removing old ones that might be left over from a previous tag operation), as well as setting `taggedPivCountLocal|Uploaded`, which counts the number of pivs with the `tags`.
+This function accomplishes its goal by setting `tagMap:ID` entries (and removing old ones that might be left over from a previous tag operation).
 
 Note: the `tagMap:ID` entries can either exist and be set to `true`, or not exist at all. They are a flag which, if present, means that a given piv is tagged from the perspective of the current tags being used to tag.
 
@@ -2367,18 +2360,9 @@ By now, all the entries in `existing` are stale, since if they weren't, they wou
       });
 ```
 
-We are almost done!
-
-We initialize a variable `countKey` to have the value `taggedPivCountLocal` or `taggedPivCountUploaded`, depending on the view. This is the key which will keep count of the number of pivs that have the `tags` already in them.
+We are done! This concludes the function.
 
 ```dart
-      var countKey = 'taggedPivCount' + (view == 'local' ? 'Local' : 'Uploaded');
-```
-
-We update the variable by setting it to the number of `New` elements. This concludes the function.
-
-```dart
-      StoreService.instance.set (countKey, New.length);
    }
 ```
 

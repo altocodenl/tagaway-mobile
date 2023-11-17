@@ -192,7 +192,6 @@ class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
 
   dynamic currentlyTagging = '';
-  dynamic taggedPivCount = '';
   dynamic prev = '';
   dynamic page = '';
   dynamic next = '';
@@ -204,15 +203,13 @@ class _TopRowState extends State<TopRow> {
     super.initState();
     cancelListener = StoreService.instance.listen([
       'currentlyTaggingLocal',
-      'taggedPivCountLocal',
       'localPage:' + (widget.localPagesIndex - 1).toString(),
       'localPage:' + widget.localPagesIndex.toString(),
       'localPage:' + (widget.localPagesIndex + 1).toString(),
       'displayMode'
-    ], (v1, v2, v3, v4, v5, DisplayMode) {
+    ], (v1, v3, v4, v5, DisplayMode) {
       setState(() {
         currentlyTagging = v1;
-        taggedPivCount = v2;
         prev = v3;
         page = v4;
         next = v5;
@@ -256,7 +253,7 @@ class _TopRowState extends State<TopRow> {
                                       (page['total'] - page['left']) /
                                           page['total'],
                                       0.1),
-                              color: kAltoBlue,
+                              color: kAltoOrganized,
                               backgroundColor: Colors.white,
                             ),
                           ),
@@ -346,13 +343,7 @@ class _TopRowState extends State<TopRow> {
                           iconColor: tagIconColor(tag),
                           gridTagName: tagTitle(tag)));
                     });
-                    output.add(Expanded(
-                      child: Text(
-                        taggedPivCount.toString(),
-                        textAlign: TextAlign.right,
-                        style: kOrganizedAmountOfPivs,
-                      ),
-                    ));
+
                     return output;
                   })()),
                 ),

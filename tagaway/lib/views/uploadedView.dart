@@ -247,7 +247,6 @@ class _TopRowState extends State<TopRow> {
   dynamic cancelListener;
 
   dynamic currentlyTagging = '';
-  dynamic taggedPivCount = '';
   dynamic timeHeader = [];
   dynamic queryTags = [];
   dynamic queryResult = {'total': 0};
@@ -261,15 +260,13 @@ class _TopRowState extends State<TopRow> {
     StoreService.instance.set('timeHeaderPage', 0);
     cancelListener = StoreService.instance.listen([
       'currentlyTaggingUploaded',
-      'taggedPivCountUploaded',
       'timeHeader',
       'queryTags',
       'queryResult',
       'yearUploaded'
-    ], (v1, v2, v3, v4, v5, YearUploaded) {
+    ], (v1, v3, v4, v5, YearUploaded) {
       setState(() {
         currentlyTagging = v1;
-        taggedPivCount = v2;
         timeHeader = v3 == '' ? [] : v3;
         if (v4 != '') queryTags = v4;
         if (v5 != '') queryResult = v5;
@@ -453,13 +450,6 @@ class _TopRowState extends State<TopRow> {
                           iconColor: tagIconColor(tag),
                           gridTagName: tagTitle(tag)));
                     });
-                    output.add(Expanded(
-                      child: Text(
-                        taggedPivCount.toString(),
-                        textAlign: TextAlign.right,
-                        style: kOrganizedAmountOfPivs,
-                      ),
-                    ));
                     return output;
                   })()),
                 ),

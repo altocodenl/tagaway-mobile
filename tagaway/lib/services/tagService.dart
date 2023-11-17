@@ -111,7 +111,6 @@ class TagService {
 
       var untag = StoreService.instance.get ('tagMap:' + pivId) != '';
       StoreService.instance.set ('tagMap:' + pivId, untag ? '' : true);
-      StoreService.instance.set ('taggedPivCount' + (type == 'local' ? 'Local' : 'Uploaded'), StoreService.instance.get ('taggedPivCount' + (type == 'local' ? 'Local': 'Uploaded')) + (untag ? -1 : 1));
 
       if (! untag && type == 'local') {
          var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
@@ -208,8 +207,6 @@ class TagService {
         StoreService.instance.remove ('tagMap:' + id);
       });
 
-      var countKey = 'taggedPivCount' + (view == 'local' ? 'Local' : 'Uploaded');
-      StoreService.instance.set (countKey, New.length);
    }
 
    // TODO: annotate the code below
