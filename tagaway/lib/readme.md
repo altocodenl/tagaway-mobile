@@ -2,9 +2,7 @@
 
 ## TODO
 
-- Double question: tagged count in local, only for current page or others? And: block moving between pages when doing an operation?
 - Local query
-   - Support deletion of local piv in uploaded grid
    - Support ronin server query that has local pivs
    - Support local piv in home tag
 - Select all

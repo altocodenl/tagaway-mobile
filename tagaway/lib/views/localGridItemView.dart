@@ -45,17 +45,9 @@ class LocalGridItem extends StatelessWidget {
         return GestureDetector(
             onTap: () {
               var View = view[0].toUpperCase() + view.substring(1);
-              if (StoreService.instance.get('currentlyDeletingLocal') != '') {
-                if (view == 'local') {
-                  TagService.instance.toggleDeletion(asset.id, 'local');
-                  StoreService.instance.set('showSelectAllButtonLocal', true);
-                } else {
-                  // We remove the piv from the queue and delete all of its pending tags
-                  PivService.instance.uploadQueue.remove(asset);
-                  StoreService.instance.remove('pendingTags:' + asset.id);
-                  StoreService.instance
-                      .set('showSelectAllButtonUploaded', true);
-                }
+              if (StoreService.instance.get('currentlyDeleting' + View) != '') {
+                TagService.instance.toggleDeletion(asset.id, view);
+                StoreService.instance.set('showSelectAllButton' + View, true);
               } else if (StoreService.instance.get('currentlyTagging' + View) !=
                   '') {
                 // Tagging/untagging is the same, whether we are in the local or the uploaded grid

@@ -580,14 +580,31 @@ class TagService {
   }
 
   deleteUploadedPivs (dynamic ids) async {
-    var response = await ajax ('post', 'delete', {'ids': ids});
+
+   // remove queued local piv
+    var localPivsById = {};
+    PivService.instance.localPivs.forEach ((v) {
+       localPivsById [v.id] = v;
+    });
+    var filteredIds = ids.toList ();
+    ids.forEach ((id) {
+       if (localPivsById [id] == null) return;
+       debug (['removing local piv', id]);
+       filteredIds.remove (id);
+       PivService.instance.uploadQueue.remove(localPivsById [id]);
+       StoreService.instance.remove('pendingTags:' + id);
+    });
+
+    if (filteredIds.length == 0) return;
+
+    var response = await ajax ('post', 'delete', {'ids': filteredIds});
 
     if (response ['code'] != 200) {
        if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error deleting your pivs - CODE DELETE:' + response ['code'].toString (), 'yellow');
        return;
     }
 
-    ids.forEach ((id) {
+    filteredIds.forEach ((id) {
        var localPivId = StoreService.instance.get ('rpivMap:' + id);
        if (localPivId != '') {
          StoreService.instance.remove ('pivMap:' + localPivId);
