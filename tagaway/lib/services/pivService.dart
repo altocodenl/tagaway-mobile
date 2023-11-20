@@ -313,7 +313,7 @@ class PivService {
          if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
 
          var hash = await flutterCompute (hashPiv, piv.id);
-         if (hash == false) return;
+         if (hash == false) continue;
          StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
 
          var queriedHash = await queryHashes ({piv.id: hash});

@@ -1139,10 +1139,10 @@ A side-effect of this is that when running the app in debug mode, each call to `
          var hash = await flutterCompute (hashPiv, piv.id);
 ```
 
-If `hashPiv` returns `false`, this means that the asset was deleted and the file is no longer accessible. In this case, we just `return` since there's nothing else to do for this piv.
+If `hashPiv` returns `false`, this means that the asset was deleted and the file is no longer accessible. In this case, we just `continue` since there's nothing else to do for this piv. We are careful not to `return` since otherwise this would interrupt the loop for all other pivs that need to be hashed.
 
 ```dart
-         if (hash == false) return;
+         if (hash == false) continue;
 ```
 
 We set the `hashMap:ID` entry to the hash we just obtained. Note we do this in disk.
