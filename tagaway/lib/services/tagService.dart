@@ -507,8 +507,8 @@ class TagService {
     ids.forEach ((id) {
        if (localPivsById [id] == null) return;
        filteredIds.remove (id);
-       PivService.instance.uploadQueue.remove(localPivsById [id]);
-       StoreService.instance.remove('pendingTags:' + id);
+       PivService.instance.uploadQueue.remove (localPivsById [id]);
+       StoreService.instance.remove ('pendingTags:' + id);
     });
 
     if (filteredIds.length == 0) return;
