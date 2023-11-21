@@ -266,7 +266,7 @@ class _TopRowState extends State<TopRow> {
                                     .13,
                           ),
                           const Padding(
-                            padding: EdgeInsets.only(right: 2),
+                            padding: EdgeInsets.only(right: 1),
                             child: PhoneViewSettings(),
                           )
                         ],
