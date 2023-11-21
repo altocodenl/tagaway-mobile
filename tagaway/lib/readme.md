@@ -3,6 +3,7 @@
 ## TODO
 
 - Local query
+   - Modify time header
    - Support ronin server query that has local pivs
 - Select all
 - Sharebox
@@ -32,7 +33,11 @@
          - Untag piv in someone else's sharebox
          - Note: tagging/untagging from sharebox view is different than doing it from cloud view
       - Autodelete
+- Home: score (all organized + organized today)
+- Local: keep on going button & go enjoy button
 - Small improvements
+   - Start button should disappear on "you're all done"
+   - Add select all button when starting to delete already
    - Back button should not take you to login
    - In uploaded, reset of slide bar when going to a previous month
    - Edit/delete tags view, remove those features from tag list (Note from Tom: I think it should be on both places). This should be on querySelector
