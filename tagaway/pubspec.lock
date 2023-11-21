@@ -380,10 +380,10 @@ packages:
     dependency: "direct main"
     description:
       name: photo_manager
-      sha256: "41eaa1d1fa51bac1c8f2f6debfd34074edcc6b330aa96bb3d33c3bc2fc6c8a5c"
+      sha256: "8aca19e47804e99abec5dff8ea59c684181fb2b6ebbcdd3557a2b4fb8d5deae6"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.2"
+    version: "3.0.0-dev.2"
   platform:
     dependency: transitive
     description:
