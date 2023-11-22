@@ -34,8 +34,11 @@
          - Note: tagging/untagging from sharebox view is different than doing it from cloud view
       - Autodelete
 - Home: score (all organized + organized today)
-- Local: keep on going button & go enjoy button
+- You're all done:
+   - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
+   - Show button to "keep on going", which jumps to the previous page with unorganized pivs
 - Small improvements
+   - Long tap to open while tagging or deleting to see piv
    - Start button should disappear on "you're all done"
    - Add select all button when starting to delete already
    - Back button should not take you to login
@@ -47,6 +50,7 @@
    - Put hometags at top of tagging list
    - When it says "you are all done", add button that takes you to the next non empty page
    - Tag as organized/unorganized
+- Info view for each piv on both cloud & local
 - Finish annotated source code: tagService, storeService, tools.
 -----
 - Draggable selection
