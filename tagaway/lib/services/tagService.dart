@@ -24,7 +24,9 @@ class TagService {
       StoreService.instance.set ('tags', response ['body'] ['tags']);
 
       var homeThumbs = {};
-      response ['body'] ['hometags'].forEach ((tag) async {
+
+      if (response ['body'] ['hometags'].length == 0) StoreService.instance.set ('hometags', []);
+      else response ['body'] ['hometags'].forEach ((tag) async {
          var res = await ajax ('post', 'query', {
             'tags':    [tag],
             'sort':    'newest',
@@ -262,8 +264,9 @@ class TagService {
          else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
       }
 
-      var minDateCurrentMonth = 0;
-      var maxDateCurrentMonth = now ();
+      var minDateCurrentMonth;
+      var maxDateCurrentMonth;
+
       if (currentMonth != '') {
          minDateCurrentMonth = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
          if (currentMonth [1] == 12) maxDateCurrentMonth = DateTime.utc (currentMonth [0] + 1, 1,                    1).millisecondsSinceEpoch;
@@ -275,16 +278,15 @@ class TagService {
          localPivsById [v.id] = v;
       });
 
-      /* UNCOMMENT AFTER TESTING
+      var localPivsToAdd = [];
+
+      // TODO: remove these lines which are just for testing. If testing, these two lines replace the four below them.
+      //PivService.instance.localPivs.forEach ((piv) {
+         //var pendingTags = ['a local tag'];
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (! RegExp ('^pendingTags:').hasMatch (k)) return;
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          var pendingTags = StoreService.instance.get (k);
-         */
-
-      // TODO: remove the next two lines after testing
-      PivService.instance.localPivs.forEach ((piv) {
-         var pendingTags = ['a local tag'];
 
          if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
          if (monthTag != null && yearTag == null && piv.createDateTime.toUtc ().month != monthTag) return;
@@ -301,9 +303,36 @@ class TagService {
             queryResult ['tags'] [tag] += 1;
          });
 
-         if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
-         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+         var yearMonth = piv.createDateTime.toUtc ().year.toString () + ':' + piv.createDateTime.toUtc ().month.toString ();
+         if (queryResult ['timeHeader'] != null) {
+            if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
+         }
+
+         if (currentMonth != '') {
+            if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
+            queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+         }
+         else localPivsToAdd.add (piv);
       });
+
+      if (currentMonth == '' && localPivsToAdd.length > 0) {
+         var lastDate = DateTime(0, 0, 0);
+         localPivsToAdd.forEach ((piv) {
+            if (ms (piv.createDateTime) > ms (lastDate)) lastDate = piv.createDateTime;
+         });
+         var year = lastDate.toUtc ().year;
+         var month = lastDate.toUtc ().month;
+         minDateCurrentMonth = DateTime.utc (year, month, 1).millisecondsSinceEpoch;
+         if (month == 12) maxDateCurrentMonth = DateTime.utc (year + 1, 1,         1).millisecondsSinceEpoch;
+         else             maxDateCurrentMonth = DateTime.utc (year,     month + 1, 1).millisecondsSinceEpoch;
+
+         StoreService.instance.set ('currentMonth', year.toString () + ':' + month.toString ());
+
+         localPivsToAdd.forEach ((piv) {
+            if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
+            queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+         });
+      }
 
       queryResult ['pivs'].sort ((a, b) {
          return (b ['date'] as int).compareTo ((a ['date'] as int));
@@ -343,6 +372,12 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
+      if (queryResult ['lastMonth'] == null) StoreService.instance.remove ('currentMonth');
+      else {
+         var lastMonth = queryResult ['lastMonth'] [0].split (':');
+         StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
+      }
+      queryResult = localQuery (tags, StoreService.instance.get ('currentMonth'), queryResult);
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
          StoreService.instance.remove ('currentlyTaggingUploaded');
@@ -357,11 +392,6 @@ class TagService {
          'pivs':        []
       }, '', 'mute');
 
-      if (queryResult ['lastMonth'] == null) StoreService.instance.remove ('currentMonth');
-      else {
-         var lastMonth = queryResult ['lastMonth'] [0].split (':');
-         StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
-      }
       computeTimeHeader ();
 
       if (queryResult ['total'] > 0 && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
@@ -375,8 +405,6 @@ class TagService {
          });
       }
       else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
-
-      queryResult = localQuery (tags, currentMonth, queryResult);
 
       if (queryResult ['total'] > 0 && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
@@ -408,7 +436,7 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var secondQueryResult = response ['body'];
-      secondQueryResult = localQuery (tags, currentMonth, secondQueryResult);
+      secondQueryResult = localQuery (tags, StoreService.instance.get ('currentMonth'), secondQueryResult);
 
       StoreService.instance.set ('queryResult', {
          'total':       queryResult ['total'],
