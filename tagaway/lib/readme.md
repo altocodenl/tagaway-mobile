@@ -2516,6 +2516,12 @@ We will get the local piv and the list of pending tags.
          var pendingTags = StoreService.instance.get (k);
 ```
 
+If the `pendingTags` has just been removed, we ignore this piv.
+
+```dart
+         if (pendingTags == '') return;
+```
+
 If the date range doesn't match the date of the piv, we exclude it and merely `return`.
 
 ```dart

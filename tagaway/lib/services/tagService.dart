@@ -287,6 +287,7 @@ class TagService {
          if (! RegExp ('^pendingTags:').hasMatch (k)) return;
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          var pendingTags = StoreService.instance.get (k);
+         if (pendingTags == '') return;
 
          if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
          if (monthTag != null && yearTag == null && piv.createDateTime.toUtc ().month != monthTag) return;
