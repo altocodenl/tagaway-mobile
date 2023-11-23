@@ -32,17 +32,19 @@ class _HomeViewState extends State<HomeView> {
     'username': '',
     'usage': {'byfs': 0}
   };
+  dynamic totalOrganized = '2214';
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen(
-        ['hometags', 'tags', 'account', 'homeThumbs'], (v1, v2, v3, v4) {
+        ['hometags', 'tags', 'account', 'homeThumbs', 'totalOrganized'], (v1, v2, v3, v4, v5) {
       setState(() {
         hometags = v1;
         tags = v2;
         if (v3 != '') account = v3;
         if (v4 != '') homeThumbs = v4;
+        if (v5 != '') totalOrganized = v5;
       });
     });
 
@@ -246,9 +248,63 @@ class _HomeViewState extends State<HomeView> {
                   )
                 : Stack(
                     children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        totalOrganized,
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: kAltoOrganized),
+                                      ),
+                                      Text(
+                                        'organized',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: kGreyDarker),
+                                      ),
+                                    ]),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '14',
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: kAltoOrganized),
+                                      ),
+                                      Text(
+                                        'today',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: kGreyDarker),
+                                      ),
+                                    ]),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       Padding(
                           padding: const EdgeInsets.only(
-                              left: 12, right: 12, top: 7),
+                              left: 12, right: 12, top: 80 + 7),
                           child: GridView.builder(
                               shrinkWrap: true,
                               cacheExtent: 50,
