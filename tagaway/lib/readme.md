@@ -9,6 +9,7 @@
 - You're all done:
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
+- Show "successes view" with all that you have organized
 - Small improvements
    - Put hometags at top of tagging list
    - Long tap to open while tagging or deleting to see piv
@@ -51,9 +52,7 @@
       - Autodelete
 
 -----
-
 - Draggable selection
-- Delete iOS bursts
 - Tutorial (Tom)
 - Share Tagaway button and link (Tom)
 - Write a QA script (Tom)
