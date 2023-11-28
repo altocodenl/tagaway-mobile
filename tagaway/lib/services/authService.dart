@@ -48,6 +48,7 @@ class AuthService {
       await StoreService.instance.remove ('uploadQueue', 'disk');
       await StoreService.instance.remove ('pendingTags:*',     'disk');
       await StoreService.instance.remove ('pendingDeletion:*', 'disk');
+      await StoreService.instance.remove ('organizedAtDaybreak', 'disk');
       StoreService.instance.store = {};
       navigatorKey.currentState!.pushReplacementNamed ('login');
       // We wait a full second because if we try to reload the store from disk while redraws are taking place after the logout, things break.

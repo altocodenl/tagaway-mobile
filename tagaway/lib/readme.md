@@ -5,13 +5,13 @@
 - Select all
    - Functionality
    - Add select all button when starting to delete already
-- Home: score (all organized + organized today)
 - Show "achievements view" with all that you have organized (Tom)
 - You're all done (Tom)
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
 - Edit/delete tags view, openable from query selector (Tom)
 - Small improvements
+   - Land in phone by default, after logging in
    - Put hometags at top of tagging list
    - Long tap to open while tagging or deleting to see piv
    - Start button should disappear on "you're all done"
@@ -86,6 +86,8 @@
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
 - localYear <str>: displayed year in LocalView time header
+- organizedAtDaybreak [DISK]: `{midnight: INT, organized: INT}`. Contains the number of organized pivs at the beginning of the current day - deleted on logout.
+- organized: `{total: INT, today: INT}`. Contains the total number of organized pivs, as well as an approximation of how many pivs were organized today.
 - orgMap:<pivId> (bool): if set, it means that this uploaded piv is organized
 - pendingDeletion:<assetId> <true|undefined> [DISK]: if set, the piv must be deleted after it being uploaded - deleted on logout.
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet - deleted on logout.
@@ -1771,6 +1773,12 @@ If we're here, the request was successful. We set `tags` in the store.
       StoreService.instance.set ('tags', response ['body'] ['tags']);
 ```
 
+We invoke `updateOrganizedCount` passing to it the current total number of organized pivs. This function will update this number, as well as a count of all the pivs organized today.
+
+```dart
+      updateOrganizedCount (response ['body'] ['organized']);
+```
+
 We will create a `homeThumbs` object where we'll store information for the last piv of each hometag.
 
 ```dart
@@ -1879,6 +1887,76 @@ Note we store `lastNTags` in disk, because we want the list to persist when the 
 ```
 
 We close the function.
+
+```dart
+   }
+```
+
+We now define `updateOrganizedCount`, the function that updates the count of organized pivs. It takes a single argument, the total number of pivs currently organized.
+
+```dart
+   updateOrganizedCount (organizedNow) {
+```
+
+This function has the task to calculate how many pivs were organized today. A true computation of this number is impossible on a client; this should be done in the server.
+
+But we're getting away with doing it in the client through a heuristic: if the user only uses the mobile client, then we can know how many pivs the user organized today, in the following way:
+
+- The first time the user uses the app in the current day (at the user's local time), we note the number of organized pivs.
+- The total pivs organized by the user is the current number of organized pivs minus this number of organized pivs noted the first time that the user used the app in the current day. Note that this number can be negative if the user removes all the tags from one or more pivs.
+
+So we start by computing midnight at the user's time.
+
+```dart
+      var midnight = DateTime (DateTime.now ().year, DateTime.now ().month, DateTime.now ().day);
+```
+
+We get the key `organizedAtDaybreak`, which, if it exists, will have been created by a previous invocation to this function.
+
+By daybreak, we mean the first time in the current day that the user has used the app - and therefore, received the total count of organized pivs at that moment.
+
+```dart
+      var organizedAtDaybreak = StoreService.instance.get ('organizedAtDaybreak');
+```
+
+If the key doesn't exist, or the key was set yesterday (which we'll know because the midnight date is less than the midnight for the current date) we will (over)write the `organizedAtDaybreak` key.
+
+```dart
+      if (organizedAtDaybreak == '' || organizedAtDaybreak ['midnight'] < ms (midnight)) StoreService.instance.set ('organizedAtDaybreak', {
+```
+
+The shape of the key is `{midnight: INT (milliseconds of the date at midnight, local time), organized: INT (number of organized pivs the first time we checked that date)}`.
+
+We will store the key on disk, so that it lasts even if the app is closed and reopened.
+
+```dart
+         'midnight': ms (midnight),
+         'organized': organizedNow
+      }, 'disk');
+```
+
+This midnight heuristic, by the way, will break while the user travels to an earlier timezone; if the user does that, the timezone will change, and midnight will be less than the existing one, so the user will start "anew" the count of pivs organized today. This should be relatively rare.
+
+We iterate the `pendingTags:ID` keys; each of them represents an organized piv that hasn't been uploaded yet. We will increment `organizedNow` by that amount.
+
+```dart
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (RegExp ('^pendingTags:').hasMatch (k) && StoreService.instance.get (k) != '') organizedNow++;
+      });
+```
+
+We finally set the key `organized`, which is the one used by the view to show how many organized pivs are (in total and organized today). It has this shape: `{total: INT, today: INT}`.
+
+Note that `today` is simply the total organized pivs minus the pivs organized at midnight.
+
+```dart
+      StoreService.instance.set ('organized', {
+         'total': organizedNow,
+         'today': organizedNow - StoreService.instance.get ('organizedAtDaybreak') ['organized']
+      });
+```
+
+This concludes the function.
 
 ```dart
    }

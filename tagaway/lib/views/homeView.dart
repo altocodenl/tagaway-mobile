@@ -32,19 +32,19 @@ class _HomeViewState extends State<HomeView> {
     'username': '',
     'usage': {'byfs': 0}
   };
-  dynamic totalOrganized = '2214';
+  dynamic organized = {'total': '...', 'today': '...'};
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen(
-        ['hometags', 'tags', 'account', 'homeThumbs', 'totalOrganized'], (v1, v2, v3, v4, v5) {
+        ['hometags', 'tags', 'account', 'homeThumbs', 'organized'], (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
         tags = v2;
         if (v3 != '') account = v3;
         if (v4 != '') homeThumbs = v4;
-        if (v5 != '') totalOrganized = v5;
+        if (Organized != '') organized = Organized;
       });
     });
 
@@ -258,7 +258,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        totalOrganized,
+                                        organized ['total'].toString (),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
@@ -283,7 +283,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        '14',
+                                        organized ['today'].toString (),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,

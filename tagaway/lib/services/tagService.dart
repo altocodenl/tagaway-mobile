@@ -23,6 +23,8 @@ class TagService {
 
       StoreService.instance.set ('tags', response ['body'] ['tags']);
 
+      updateOrganizedCount (response ['body'] ['organized']);
+
       var homeThumbs = {};
 
       if (response ['body'] ['hometags'].length == 0) StoreService.instance.set ('hometags', []);
@@ -63,6 +65,25 @@ class TagService {
       StoreService.instance.set ('lastNTags', getList ('lastNTags').where ((tag) {
          return usertags.contains (tag);
       }).toList (), 'disk');
+   }
+
+   updateOrganizedCount (organizedNow) {
+
+      var midnight = DateTime (DateTime.now ().year, DateTime.now ().month, DateTime.now ().day);
+      var organizedAtDaybreak = StoreService.instance.get ('organizedAtDaybreak');
+      if (organizedAtDaybreak == '' || organizedAtDaybreak ['midnight'] < ms (midnight)) StoreService.instance.set ('organizedAtDaybreak', {
+         'midnight': ms (midnight),
+         'organized': organizedNow
+      }, 'disk');
+
+      StoreService.instance.store.keys.toList ().forEach ((k) {
+         if (RegExp ('^pendingTags:').hasMatch (k) && StoreService.instance.get (k) != '') organizedNow++;
+      });
+
+      StoreService.instance.set ('organized', {
+         'total': organizedNow,
+         'today': organizedNow - StoreService.instance.get ('organizedAtDaybreak') ['organized']
+      });
    }
 
    editHometags (String tag, bool add) async {
