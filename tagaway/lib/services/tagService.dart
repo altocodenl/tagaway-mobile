@@ -128,11 +128,16 @@ class TagService {
       return 200;
    }
 
-   toggleTags (dynamic piv, dynamic tags, String type) async {
+   toggleTags (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
       var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 
       var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
+
+      if (selectAll != null) {
+         var tagged = StoreService.instance.get (tagMapPrefix + pivId) != '';
+         if (tagged == selectAll) return;
+      }
 
       var untag = StoreService.instance.get (tagMapPrefix + pivId) != '';
       StoreService.instance.set (tagMapPrefix + pivId, untag ? '' : true);
@@ -238,41 +243,25 @@ class TagService {
 
    selectAll (String view, String operation, bool select) {
 
-      var ids = [];
-
-      // get all local on the current page, or all uploaded that match the month
-      // all uploaded is all pivs in the query, because we get them one at a time
       if (view == 'local') {
          var currentPage = StoreService.instance.get ('localPage:' + StoreService.instance.get ('localPage').toString ());
-         currentPage ['pivs'].forEach ((piv) => ids.add (piv.id));
-      }
-      else {
-         var queryResult = StoreService.instance.get ('queryResult');
-         queryResult ['pivs'].forEach ((piv) {
-            if (piv ['local'] == true) ids.add (piv.id);
-            else                       ids.add (piv ['id']);
+         currentPage ['pivs'].forEach ((piv) {
+            if (operation == 'delete') toggleDeletion (piv.id, 'local', select);
+            if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingLocal'), 'local', select);
          });
       }
-
-
-
-      if (operation == 'delete') {
-         //var pivsToDelete = StoreService.instance .get('currentlyDeletingPivs' + widget.view);
-         // DELETE
-         // TagService.instance.toggleDeletion(asset.id, view);
-         // TagService.instance.toggleDeletion(piv['id'], 'uploaded');
-      }
-
-      //var ids;
-      // toggleTags (dynamic piv, dynamic tags, view.toLowerCase ()) async {
-      // toggleDeletion (String id, String view) {
-      if (operation == 'tag') {
-         /*
-                TagService.instance.toggleTags(
-                    asset,
-                    StoreService.instance.get('currentlyTagging' + View),
-                    view == 'local' ? 'local' : 'uploadedLocal');
-                */
+      if (view == 'uploaded') {
+         var queryResult = StoreService.instance.get ('queryResult');
+         queryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) {
+               if (operation == 'delete') toggleDeletion (piv ['piv'].id, 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv ['piv'], StoreService.instance.get ('currentlyTaggingUploaded'), 'localUploaded', select);
+            }
+            else {
+               if (operation == 'delete') toggleDeletion (piv ['id'], 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingUploaded'), 'uploaded', select);
+            }
+         });
       }
    }
 
@@ -330,10 +319,12 @@ class TagService {
       // TODO: remove these lines which are just for testing. If testing, these two lines replace the four below them.
       //PivService.instance.localPivs.forEach ((piv) {
          //var pendingTags = ['a local tag'];
+
       StoreService.instance.store.keys.toList ().forEach ((k) {
          if (! RegExp ('^pendingTags:').hasMatch (k)) return;
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          var pendingTags = StoreService.instance.get (k);
+
          if (pendingTags == '') return;
 
          if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
@@ -640,12 +631,15 @@ class TagService {
       await queryPivs (true, true);
    }
 
-   toggleDeletion (String id, String view) {
+   toggleDeletion (String id, String view, [selectAll = null]) {
       var key = 'currentlyDeletingPivs' + (view == 'local' ? 'Local' : 'Uploaded');
       var currentlyDeletingPivs = StoreService.instance.get (key);
       if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
       // copy
       currentlyDeletingPivs = currentlyDeletingPivs.toList ();
+      if (selectAll != null) {
+         if (currentlyDeletingPivs.contains (id) == selectAll) return;
+      }
       if (! currentlyDeletingPivs.contains (id)) currentlyDeletingPivs.add (id);
       else currentlyDeletingPivs.remove (id);
       StoreService.instance.set (key, currentlyDeletingPivs);

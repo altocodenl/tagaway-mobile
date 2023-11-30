@@ -2110,13 +2110,14 @@ There's nothing else to do but to return the response code of the tagging operat
 
 We now define `toggleTags`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
 
-The function takes three arguments:
+The function takes four arguments:
 - A `piv`, which can be either a local piv or a cloud piv.
 - `tags`, which is a list of tags to add (tag) or remove (untag) from the piv.
 - The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs). It can also be `localUploaded`, which is a special variant, where the piv itself is local, but it appears on the uploaded view - for the most part it will behave like a local piv, but there will be exceptions.
+- The `selectAll` argument, which is optional, and which is used by the `selectAll` function, changes the behavior of the function: if set to `true`, it will only perform a tagging, and if set to `false` it will perform an untagging. But if either of them is already done, rather than a toggle, this will just be a no-op and nothing else will happen.
 
 ```dart
-   toggleTags (dynamic piv, dynamic tags, String type) async {
+   toggleTags (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
 ```
 
 We first define two local variables, a `pivId` that will hold the id of the piv to be tagged; as well as a `cloudId`, which will be equal to `pivId` for a cloud piv, and which will be the cloud id of the cloud counterpart for a local id (if any).
@@ -2130,6 +2131,15 @@ We will also define a `tagMapPrefix` variable which will be either `tagMapLocal:
 
 ```dart
       var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
+```
+
+If the `selectAll` argument is passed, we will check whether the piv is tagged. If it is, and `selectAll` is set to `true`, or if the piv is not tagged, and `selectAll` is set to `false`, there's nothing else to do, so we will return. Otherwise, we will continue with the toggle operation.
+
+```dart
+      if (selectAll != null) {
+         var tagged = StoreService.instance.get (tagMapPrefix + pivId) != '';
+         if (tagged == selectAll) return;
+      }
 ```
 
 We determine whether we are tagging or untagging the piv by reading `tagMap(Local|Uploaded):ID`. If it's set to an empty string, this will be a tag operation; otherwise, it will be an untag operation.

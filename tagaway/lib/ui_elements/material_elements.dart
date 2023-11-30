@@ -1500,7 +1500,7 @@ class _SelectAllButtonState extends State<SelectAllButton> {
         onPressed: () {
           StoreService.instance
               .set('showSelectAllButton' + widget.view, !status);
-          TagService.instance.selectAll(widget.view, operation, status);
+          TagService.instance.selectAll(widget.view.toLowerCase(), operation, status);
         },
         backgroundColor: status == true
             ? (operation == 'tag' ? kAltoGreen : kAltoRed)
