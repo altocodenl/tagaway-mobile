@@ -54,7 +54,7 @@ class LocalGridItem extends StatelessWidget {
                 TagService.instance.toggleTags(
                     asset,
                     StoreService.instance.get('currentlyTagging' + View),
-                    view == 'local' ? 'local' : 'uploadedLocal');
+                    view == 'local' ? 'local' : 'localUploaded');
                 StoreService.instance.set('hideAddMoreTagsButton' + View, true);
                 StoreService.instance.set('showSelectAllButton' + View, true);
               } else {
