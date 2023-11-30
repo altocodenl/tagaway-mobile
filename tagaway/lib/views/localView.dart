@@ -367,15 +367,23 @@ class PhoneAchievementsView extends StatefulWidget {
 class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   @override
   Widget build(BuildContext context) {
-    print(SizeService.instance.screenHeight(context).toString());
     return Align(
-      alignment: const Alignment(0, .7),
+      alignment: SizeService.instance.screenHeight(context) < 710
+          ? const Alignment(0, 1)
+          : SizeService.instance.screenHeight(context) > 860
+              ? const Alignment(0, .5)
+              : const Alignment(0, .7),
       child: Container(
         padding: const EdgeInsets.only(top: 20),
         width: SizeService.instance.screenWidth(context) * .85,
-        height: SizeService.instance.screenHeight(context) > 711
-            ? SizeService.instance.screenHeight(context) * .65
-            : SizeService.instance.screenHeight(context) * .8,
+        height: SizeService.instance.screenHeight(context) < 710
+            ? SizeService.instance.screenHeight(context) * .72
+            : SizeService.instance.screenHeight(context) > 870
+                ? SizeService.instance.screenHeight(context) * .55
+                : SizeService.instance.screenHeight(context) > 711 &&
+                        SizeService.instance.screenHeight(context) < 800
+                    ? SizeService.instance.screenHeight(context) * .68
+                    : SizeService.instance.screenHeight(context) * .62,
         decoration: BoxDecoration(
             color: Colors.grey[50],
             borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -383,122 +391,118 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 20),
-              child: Text(
+            Padding(
+              padding: SizeService.instance.screenHeight(context) < 710
+                  ? const EdgeInsets.only(bottom: 10)
+                  : const EdgeInsets.only(bottom: 20),
+              child: const Text(
                 'Congrats! You\'re done!',
                 style: kCenterPhoneGridTitle,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Your achievements:',
-                style: TextStyle(
-                  fontFamily: 'Montserrat-Regular',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: kGreyDarker,
+            GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        size: 20,
+                        color: kTagColor18,
+                      ),
+                    ),
+                    Expanded(
+                        child: Text(
+                      'Family',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyDarker,
+                      ),
+                    )),
+                    Text(
+                      '22',
+                      style: kPhoneViewAchievementsNumber,
+                    ),
+                  ],
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 12.0),
-                    child: FaIcon(
-                      kTagIcon,
-                      size: 20,
-                      color: kTagColor18,
+            GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        size: 20,
+                        color: kTagColor12,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                      child: Text(
-                    'Family',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-Regular',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: kGreyDarker,
+                    Expanded(
+                        child: Text(
+                      'Friends',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyDarker,
+                      ),
+                    )),
+                    Text(
+                      '53',
+                      style: kPhoneViewAchievementsNumber,
                     ),
-                  )),
-                  Text(
-                    '22',
-                    style: kPhoneViewAchievementsNumber,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 12.0),
-                    child: FaIcon(
-                      kTagIcon,
-                      size: 20,
-                      color: kTagColor12,
+            GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        size: 20,
+                        color: kTagColor8,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                      child: Text(
-                    'Friends',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-Regular',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: kGreyDarker,
+                    Expanded(
+                        child: Text(
+                      'Vacations',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyDarker,
+                      ),
+                    )),
+                    Text(
+                      '13',
+                      style: kPhoneViewAchievementsNumber,
                     ),
-                  )),
-                  Text(
-                    '53',
-                    style: kPhoneViewAchievementsNumber,
-                  ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 12.0),
-                    child: FaIcon(
-                      kTagIcon,
-                      size: 20,
-                      color: kTagColor8,
-                    ),
-                  ),
-                  Expanded(
-                      child: Text(
-                    'Vacations',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-Regular',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: kGreyDarker,
-                    ),
-                  )),
-                  Text(
-                    '13',
-                    style: kPhoneViewAchievementsNumber,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const Padding(
@@ -566,9 +570,11 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 20),
-              child: Text(
+            Padding(
+              padding: SizeService.instance.screenHeight(context) < 710
+                  ? const EdgeInsets.only(top: 20, bottom: 10)
+                  : const EdgeInsets.only(top: 20, bottom: 20),
+              child: const Text(
                 'Ready?',
                 style: kCenterPhoneGridTitle,
               ),
