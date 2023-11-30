@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -37,8 +37,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
-        ['hometags', 'tags', 'account', 'homeThumbs', 'organized'], (v1, v2, v3, v4, Organized) {
+    cancelListener = StoreService.instance
+        .listen(['hometags', 'tags', 'account', 'homeThumbs', 'organized'],
+            (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
         tags = v2;
@@ -251,14 +252,14 @@ class _HomeViewState extends State<HomeView> {
                       Row(
                         children: [
                           Expanded(
-                            child: Container(
+                            child: SizedBox(
                               height: 80,
                               child: Center(
                                 child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        organized ['total'].toString (),
+                                        organized['total'].toString(),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
@@ -283,7 +284,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        organized ['today'].toString (),
+                                        organized['today'].toString(),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
@@ -385,6 +386,69 @@ class _HomeViewState extends State<HomeView> {
           ],
         );
       },
+    );
+  }
+}
+
+class HomeAwardsView extends StatefulWidget {
+  const HomeAwardsView({Key? key}) : super(key: key);
+
+  @override
+  State<HomeAwardsView> createState() => _HomeAwardsViewState();
+}
+
+class _HomeAwardsViewState extends State<HomeAwardsView> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  color: Colors.white,
+                  height: 600,
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: [
+                      const Icon(
+                        kMinusIcon,
+                        color: kGreyDarker,
+                        size: 30,
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'You’re looking at',
+                              style: kLookingAtText,
+                            ),
+                          ],
+                        ),
+                      ),
+                      GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: 8,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 4,
+                          ),
+                          itemBuilder: (BuildContext context, index) {
+                            return Container();
+                          })
+                    ],
+                  ));
+            });
+      },
+      child: widget,
     );
   }
 }
