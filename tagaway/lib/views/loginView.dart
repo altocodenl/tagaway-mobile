@@ -115,7 +115,7 @@ class _LoginViewState extends State<LoginView> {
                           padding: EdgeInsets.only(bottom: 10.0, top: 10),
                           child: Text(
                             'tagaway',
-                            style: kAcpicMain,
+                            style: kTagawayMain,
                           ),
                         ),
                         const Padding(

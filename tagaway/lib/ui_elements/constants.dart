@@ -148,7 +148,7 @@ const kAcpicSplash = TextStyle(
   color: kAltoBlue,
 );
 
-const kAcpicMain = TextStyle(
+const kTagawayMain = TextStyle(
   fontFamily: 'Montserrat-Regular',
   fontWeight: FontWeight.bold,
   fontSize: 30,
@@ -331,6 +331,13 @@ const kTagListElementText = TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.bold,
   color: kGreyDarker,
+);
+
+const kPhoneViewAchievementsNumber = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 18,
+  fontWeight: FontWeight.bold,
+  color: kAltoOrganized,
 );
 
 const kHomeStackedTagText = TextStyle(

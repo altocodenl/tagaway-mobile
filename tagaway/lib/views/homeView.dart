@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -37,8 +37,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
-        ['hometags', 'tags', 'account', 'homeThumbs', 'organized'], (v1, v2, v3, v4, Organized) {
+    cancelListener = StoreService.instance
+        .listen(['hometags', 'tags', 'account', 'homeThumbs', 'organized'],
+            (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
         tags = v2;
@@ -115,7 +116,8 @@ class _HomeViewState extends State<HomeView> {
         ),
         title: Row(
           children: [
-            const Expanded(flex: 2, child: Text('tagaway', style: kAcpicMain)),
+            const Expanded(
+                flex: 2, child: Text('tagaway', style: kTagawayMain)),
             Padding(
               padding: const EdgeInsets.only(top: 1.0),
               child: Text(
@@ -258,7 +260,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        organized ['total'].toString (),
+                                        organized['total'].toString(),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
@@ -283,7 +285,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        organized ['today'].toString (),
+                                        organized['today'].toString(),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
