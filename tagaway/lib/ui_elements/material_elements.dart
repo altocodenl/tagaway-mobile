@@ -1175,7 +1175,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
     super.initState();
     cancelListener = StoreService.instance.listen([
       (type == 'local' ? 'pivMap:' : 'orgMap:') + id,
-      'tagMap:' + id,
+      'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':' + id,
       'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'),
       'displayMode',
       'deleteMode',

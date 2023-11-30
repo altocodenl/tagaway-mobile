@@ -194,7 +194,6 @@ class _CarrouselViewState extends State<CarrouselView>
       itemCount: widget.pivs.length,
       itemBuilder: (context, index) {
         var piv = widget.pivs[index];
-        debug(['piv', piv['local'] == true, piv]);
         var date = DateTime.fromMillisecondsSinceEpoch(piv['date']);
 
         Future<File?> file = loadImage(piv['piv']);

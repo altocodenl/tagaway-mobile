@@ -71,7 +71,7 @@
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged in LocalView/UploadedView
 - currentlyDeleting(Local|Uploaded) <bool>: if set, we are in delete mode in LocalView/UploadedView
 - currentlyDeletingModal(Local|Uploaded) <bool>: if set, we are showing the delete confirmation modal for Local/Uploaded view.
-- currentlyDeletingPivs(Local|Uploaded) <list>: list of pivs that are currently being deleted, either Local or Uploaded.
+- currentlyDeletingPivs(Local|Uploaded) <list>: list of ids of pivs that are currently being deleted, either Local or Uploaded.
 - displayMode <obj>: if set, has the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `showOrganized` shows organized pivs in the local view; `cameraOnly` hides non-camera pivs from the local view.
 - deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
@@ -104,7 +104,7 @@
 - showButtons(Local|Uploaded) (boolean): if true, shows buttons to perform actions in LocalView/UploadedView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
-- tagMap:<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the current tag
+- tagMap(Local|Uploaded):<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the tags currently being applied
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
 - uploadQueue [<string>, ...] [DISK]: list of ids of pivs that are going to be uploaded - deleted on logout.
 - timeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
@@ -2126,16 +2126,22 @@ We first define two local variables, a `pivId` that will hold the id of the piv 
       var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 ```
 
-We determine whether we are tagging or untagging the piv by reading `tagMap:ID`. If it's set to an empty string, this will be a tag operation; otherwise, it will be an untag operation.
+We will also define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:` depending on `type`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not.
 
 ```dart
-      var untag = StoreService.instance.get ('tagMap:' + pivId) != '';
+      var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
 ```
 
-If this is an untag operation, we will set `tagMap:ID` to `''`, otherwise we will set it to `true`. Besides holding state for us, doing this also allows us to immediately show the piv as tagged or untagged, before the operation is sent to the server.
+We determine whether we are tagging or untagging the piv by reading `tagMap(Local|Uploaded):ID`. If it's set to an empty string, this will be a tag operation; otherwise, it will be an untag operation.
 
 ```dart
-      StoreService.instance.set ('tagMap:' + pivId, untag ? '' : true);
+      var untag = StoreService.instance.get (tagMapPrefix + pivId) != '';
+```
+
+If this is an untag operation, we will set `tagMap(Local|Uploaded):ID` to `''`, otherwise we will set it to `true`. Besides holding state for us, doing this also allows us to immediately show the piv as tagged or untagged, before the operation is sent to the server.
+
+```dart
+      StoreService.instance.set (tagMapPrefix + pivId, untag ? '' : true);
 ```
 
 If we are tagging a local piv (and a local piv on the local view, not the uploaded view), we need to add it to `currentlyTaggingPivs`. We first check whether `currentlyTaggingPivs` already exists. If not, we initialize it to an empty list.
@@ -2303,16 +2309,23 @@ We create two arrays, one to hold all existing entries of `tagMap:ID` and anothe
 
 You might ask: why not remove all the existing `pivMap` entries and add new ones? The answer is: performance. There might be hundreds of pivs, each of them with a widget that depends on each of their flags; for that reason, most of this function is concerned with doing a "diff", and only adding the necesssary `tagMap` entries that are needed.
 
+We will define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:`, depending on the `view`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not.
+
+
+```dart
+      var tagMapPrefix = 'tagMap' + (view == 'local' ? 'Local' : 'Uploaded') + ':';
+```
+
 We iterate all the keys in the store.
 
 ```dart
       StoreService.instance.store.keys.toList ().forEach ((k) {
 ```
 
-If we find a `tagMap:ID` entry, we add the `ID` to `existing`.
+If we find a `tagMap` entry, we add the `ID` to `existing`.
 
 ```
-         if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
+         if (RegExp ('^' + tagMapPrefix).hasMatch (k)) existing.add (k.split (':') [1]);
 ```
 
 Now, how do we know whether a piv's id should be included in `New`? There are three sources:
@@ -2429,10 +2442,10 @@ For all the `New` entries:
       New.forEach ((id) {
 ```
 
-If the new entry doesn't exist yet, we set `tagMap:ID` to `true`. Otherwise, we remove it from the `existing` list.
+If the new entry doesn't exist yet, we set `tagMap(Local|Uploaded):ID` to `true`. Otherwise, we remove it from the `existing` list.
 
 ```dart
-        if (! existing.contains (id)) StoreService.instance.set ('tagMap:' + id, true);
+        if (! existing.contains (id)) StoreService.instance.set (tagMapPrefix + id, true);
         else existing.remove (id);
       });
 ```
@@ -2441,7 +2454,7 @@ By now, all the entries in `existing` are stale, since if they weren't, they wou
 
 ```dart
       existing.forEach ((id) {
-        StoreService.instance.remove ('tagMap:' + id);
+        StoreService.instance.remove (tagMapPrefix + id);
       });
 ```
 

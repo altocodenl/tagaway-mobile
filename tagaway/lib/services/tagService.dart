@@ -132,8 +132,10 @@ class TagService {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
       var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
 
-      var untag = StoreService.instance.get ('tagMap:' + pivId) != '';
-      StoreService.instance.set ('tagMap:' + pivId, untag ? '' : true);
+      var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
+
+      var untag = StoreService.instance.get (tagMapPrefix + pivId) != '';
+      StoreService.instance.set (tagMapPrefix + pivId, untag ? '' : true);
 
       if (! untag && type == 'local') {
          var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
@@ -185,8 +187,10 @@ class TagService {
 
       var existing = [], New = [];
 
+      var tagMapPrefix = 'tagMap' + (view == 'local' ? 'Local' : 'Uploaded') + ':';
+
       StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (RegExp ('^tagMap:').hasMatch (k)) existing.add (k.split (':') [1]);
+         if (RegExp ('^' + tagMapPrefix).hasMatch (k)) existing.add (k.split (':') [1]);
          if (RegExp ('^pendingTags:').hasMatch (k)) {
              var pendingTags = StoreService.instance.get (k);
              var tagsContained = true;
@@ -223,30 +227,52 @@ class TagService {
       });
 
       New.forEach ((id) {
-        if (! existing.contains (id)) StoreService.instance.set ('tagMap:' + id, true);
+        if (! existing.contains (id)) StoreService.instance.set (tagMapPrefix + id, true);
         else existing.remove (id);
       });
       existing.forEach ((id) {
-        StoreService.instance.remove ('tagMap:' + id);
+        StoreService.instance.remove (tagMapPrefix + id);
       });
 
    }
 
    selectAll (String view, String operation, bool select) {
 
+      var ids = [];
+
       // get all local on the current page, or all uploaded that match the month
       // all uploaded is all pivs in the query, because we get them one at a time
-      var localPage = StoreService.instance.get ('localPage');
+      if (view == 'local') {
+         var currentPage = StoreService.instance.get ('localPage:' + StoreService.instance.get ('localPage').toString ());
+         currentPage ['pivs'].forEach ((piv) => ids.add (piv.id));
+      }
+      else {
+         var queryResult = StoreService.instance.get ('queryResult');
+         queryResult ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) ids.add (piv.id);
+            else                       ids.add (piv ['id']);
+         });
+      }
+
+
 
       if (operation == 'delete') {
-                    //var pivsToDelete = StoreService.instance .get('currentlyDeletingPivs' + widget.view);
+         //var pivsToDelete = StoreService.instance .get('currentlyDeletingPivs' + widget.view);
+         // DELETE
+         // TagService.instance.toggleDeletion(asset.id, view);
+         // TagService.instance.toggleDeletion(piv['id'], 'uploaded');
       }
 
       //var ids;
       // toggleTags (dynamic piv, dynamic tags, view.toLowerCase ()) async {
       // toggleDeletion (String id, String view) {
-
       if (operation == 'tag') {
+         /*
+                TagService.instance.toggleTags(
+                    asset,
+                    StoreService.instance.get('currentlyTagging' + View),
+                    view == 'local' ? 'local' : 'uploadedLocal');
+                */
       }
    }
 
