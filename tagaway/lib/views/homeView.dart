@@ -13,6 +13,8 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/accountView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../services/sizeService.dart';
+
 class HomeView extends StatefulWidget {
   static const String id = 'home';
 
@@ -249,59 +251,61 @@ class _HomeViewState extends State<HomeView> {
                   )
                 : Stack(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        organized['total'].toString(),
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: kAltoOrganized),
-                                      ),
-                                      Text(
-                                        'organized',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: kGreyDarker),
-                                      ),
-                                    ]),
+                      HomeAwardsView(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 80,
+                                child: Center(
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          organized['total'].toString(),
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: kAltoOrganized),
+                                        ),
+                                        Text(
+                                          'organized',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: kGreyDarker),
+                                        ),
+                                      ]),
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        organized['today'].toString(),
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: kAltoOrganized),
-                                      ),
-                                      Text(
-                                        'today',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: kGreyDarker),
-                                      ),
-                                    ]),
+                            Expanded(
+                              child: Container(
+                                height: 80,
+                                child: Center(
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          organized['today'].toString(),
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: kAltoOrganized),
+                                        ),
+                                        Text(
+                                          'today',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: kGreyDarker),
+                                        ),
+                                      ]),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       Padding(
                           padding: const EdgeInsets.only(
@@ -391,7 +395,9 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class HomeAwardsView extends StatefulWidget {
-  const HomeAwardsView({Key? key}) : super(key: key);
+  final Widget child;
+
+  const HomeAwardsView({Key? key, required this.child}) : super(key: key);
 
   @override
   State<HomeAwardsView> createState() => _HomeAwardsViewState();
@@ -400,15 +406,19 @@ class HomeAwardsView extends StatefulWidget {
 class _HomeAwardsViewState extends State<HomeAwardsView> {
   @override
   Widget build(BuildContext context) {
+    print(SizeService.instance.screenHeight(context).toString());
     return GestureDetector(
       onTap: () {
         showModalBottomSheet<void>(
             context: context,
+            isScrollControlled: true,
             builder: (BuildContext context) {
               return Container(
                   padding: const EdgeInsets.only(left: 12, right: 12),
                   color: Colors.white,
-                  height: 600,
+                  height: SizeService.instance.screenHeight(context) > 860
+                      ? SizeService.instance.screenHeight(context) * .8
+                      : SizeService.instance.screenHeight(context) * .77,
                   child: ListView(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
@@ -421,14 +431,19 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
                       const Padding(
                         padding: EdgeInsets.only(bottom: 10.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'You’re looking at',
+                              'Your Achievements',
                               style: kLookingAtText,
                             ),
                           ],
                         ),
+                      ),
+                      Text(
+                        SizeService.instance.screenHeight(context).toString(),
+                        style: kLookingAtText,
+                        textAlign: TextAlign.center,
                       ),
                       GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -448,7 +463,7 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
                   ));
             });
       },
-      child: widget,
+      child: widget.child,
     );
   }
 }
