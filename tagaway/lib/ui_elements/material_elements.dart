@@ -919,10 +919,14 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
     ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
         if (Usertags != '') {
-          var lastNTags = StoreService.instance.get('lastNTags');
-          if (lastNTags == '') lastNTags = [];
-          usertags = List.from(lastNTags)
-            ..addAll(Usertags.where((tag) => !lastNTags.contains(tag)));
+          var firstTags = StoreService.instance.get('lastNTags');
+          if (firstTags == '') firstTags = [];
+          var hometags = StoreService.instance.get('hometags');
+          if (hometags == '') hometags = [];
+          // Add lastNTags and hometags first
+          firstTags..addAll (hometags.where((tag) => !firstTags.contains(tag)));
+          usertags = List.from(firstTags)
+            ..addAll(Usertags.where((tag) => !firstTags.contains(tag)));
           usertags = usertags
               .where((tag) =>
                   RegExp(TagFilter, caseSensitive: false).hasMatch(tag))

@@ -9,7 +9,6 @@
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
 - Small improvements
-   - Put hometags at top of tagging list
    - Long tap to open while tagging or deleting to see piv
    - Start button should disappear on "you're all done"
    - Back button should not take you to login (Tom)
