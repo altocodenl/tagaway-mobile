@@ -343,10 +343,11 @@ class _SignUpFormViewState extends State<SignUpFormView> {
                                         });
                                         navigationDelayer = Timer(
                                             const Duration(seconds: 2), () {
-                                          Navigator.pushReplacementNamed(
-                                              context, 'login',
-                                              arguments: ShowVerifyBanner(
-                                                  'showVerifyBanner'));
+                                          if (mounted)
+                                            Navigator.pushReplacementNamed(
+                                                context, 'login',
+                                                arguments: ShowVerifyBanner(
+                                                    'showVerifyBanner'));
                                           userNameController.clear();
                                           repeatUserNameController.clear();
                                           emailController.clear();
