@@ -514,3 +514,164 @@ class _TopRowState extends State<TopRow> {
     );
   }
 }
+
+class GridSeeMoreElement extends StatefulWidget {
+  const GridSeeMoreElement({Key? key}) : super(key: key);
+
+  @override
+  State<GridSeeMoreElement> createState() => _GridSeeMoreElementState();
+}
+
+class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
+  dynamic cancelListener;
+
+  dynamic queryTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'queryTags',
+    ], (v1) {
+      setState(() {
+        if (v1 != '') queryTags = v1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  color: Colors.white,
+                  height: 600,
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: [
+                      const Icon(
+                        kMinusIcon,
+                        color: kGreyDarker,
+                        size: 30,
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              'You’re looking at',
+                              style: kLookingAtText,
+                            ),
+                          ],
+                        ),
+                      ),
+                      GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: queryTags.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 4,
+                          ),
+                          itemBuilder: (BuildContext context, index) {
+                            var tag = queryTags[index];
+                            return GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, 'querySelector');
+                                },
+                                child: GridTagElement(
+                                    view: 'uploaded',
+                                    gridTagElementIcon: tagIcon(tag),
+                                    iconColor: tagIconColor(tag),
+                                    gridTagName: tagTitle(tag)));
+                          })
+                    ],
+                  ));
+            });
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: Container(
+          height: 40,
+          padding: const EdgeInsets.only(left: 12, right: 12),
+          decoration: const BoxDecoration(
+              color: kGreyLighter,
+              borderRadius: BorderRadius.all(Radius.circular(10))),
+          child: const Center(
+            child: FaIcon(
+              kEllipsisIcon,
+              color: kGreyDarker,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class GridMonthElement extends StatelessWidget {
+  const GridMonthElement(
+      {Key? key,
+      required this.roundedIcon,
+      required this.roundedIconColor,
+      required this.month,
+      required this.whiteOrAltoBlueDashIcon,
+      required this.onTap})
+      : super(key: key);
+
+  final IconData roundedIcon;
+  final Color roundedIconColor;
+  final String month;
+  final Color whiteOrAltoBlueDashIcon;
+  final dynamic onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Container(
+              color: Colors.transparent,
+              width: 50,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    roundedIcon,
+                    color: roundedIconColor,
+                    size: 12,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            Text(month, style: kHorizontalMonth),
+            FaIcon(
+              kMinusIcon,
+              color: whiteOrAltoBlueDashIcon,
+            )
+          ],
+        ));
+  }
+}
+

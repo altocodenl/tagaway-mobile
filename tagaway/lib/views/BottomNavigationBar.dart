@@ -80,3 +80,66 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
         ),
       );
 }
+
+class UploadingNumber extends StatefulWidget {
+  const UploadingNumber({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<UploadingNumber> createState() => _UploadingNumberState();
+}
+
+class _UploadingNumberState extends State<UploadingNumber> {
+  dynamic cancelListener;
+  int numeroli = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen(['uploadQueue'], (v1) {
+      if (v1 != '') setState(() => numeroli = v1.length);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (numeroli == 0) return const Text('');
+    return Positioned(
+      left: SizeService.instance.screenWidth(context) * .31,
+      top: 10,
+      child: SizedBox(
+        height: 30,
+        child: Center(
+          child: Column(
+            children: [
+              Text(
+                numeroli.toString(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: kAltoBlue),
+              ),
+              const Icon(
+                kArrowLeftLong,
+                color: kAltoBlue,
+                size: 15,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

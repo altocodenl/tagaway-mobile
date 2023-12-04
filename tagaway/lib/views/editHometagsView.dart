@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -93,3 +95,80 @@ class _EditHometagsViewState extends State<EditHometagsView> {
     );
   }
 }
+
+class EditTagListElement extends StatelessWidget {
+  const EditTagListElement({
+    Key? key,
+    required this.tagColor,
+    required this.tagName,
+    required this.onTapOnRedCircle,
+    required this.onTagElementVerticalDragDown,
+  }) : super(key: key);
+
+  final Color tagColor;
+  final String tagName;
+  final Function onTapOnRedCircle;
+  final Function onTagElementVerticalDragDown;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onTapOnRedCircle(),
+            child: Container(
+              child: const Icon(
+                FontAwesomeIcons.circleMinus,
+                color: kAltoRed,
+              ),
+              color: Colors.transparent,
+              margin: const EdgeInsets.only(left: 10, right: 12),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onVerticalDragDown: onTagElementVerticalDragDown(),
+              child: Container(
+                height: 70,
+                decoration: const BoxDecoration(
+                    color: kGreyLighter,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12),
+                  child: Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: FaIcon(
+                          kTagIcon,
+                          color: tagColor,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          tagName,
+                          style: kTagListElementText,
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12.0),
+                        // child: FaIcon(
+                        //   FontAwesomeIcons.bars,
+                        //   color: kGrey,
+                        // ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

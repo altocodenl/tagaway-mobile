@@ -9,6 +9,9 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:video_player/video_player.dart';
+
+import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -466,3 +469,178 @@ class _CarrouselViewState extends State<CarrouselView>
     );
   }
 }
+
+class CloudVideoPlayerWidget extends StatefulWidget {
+  const CloudVideoPlayerWidget({Key? key, required this.pivId})
+      : super(key: key);
+  final String pivId;
+
+  @override
+  State<CloudVideoPlayerWidget> createState() => _CloudVideoPlayerWidgetState();
+}
+
+class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  bool initialized = false;
+
+  @override
+  void initState() {
+    _initVideo();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  _initVideo() async {
+    _controller = VideoPlayerController.network(
+      (kTagawayVideoURL) + (widget.pivId),
+      httpHeaders: {
+        'cookie': StoreService.instance.get('cookie'),
+        'Range': 'bytes=0-',
+      },
+    );
+    // Play the video again when it ends
+    _controller.setLooping(true);
+    // initialize the controller and notify UI when done
+    _controller.initialize().then((_) => setState(() {
+          initialized = true;
+          _controller.play();
+        }));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _controller.value.isInitialized
+        ? Stack(
+            children: [
+              Container(
+                alignment: Alignment.topCenter,
+                decoration: const BoxDecoration(
+                  color: kGreyDarkest,
+                ),
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+              Align(
+                alignment: const Alignment(0.8, .7),
+                child: FloatingActionButton(
+                  backgroundColor: kAltoBlue,
+                  onPressed: () {
+                    // Wrap the play or pause in a call to `setState`. This ensures the
+                    // correct icon is shown.
+                    setState(() {
+                      // If the video is playing, pause it.
+                      if (_controller.value.isPlaying) {
+                        _controller.pause();
+                      } else {
+                        // If the video is paused, play it.
+                        _controller.play();
+                      }
+                    });
+                  },
+                  // Display the correct icon depending on the state of the player.
+                  child: Icon(
+                    _controller.value.isPlaying
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : const Center(
+            child: CircularProgressIndicator(
+            backgroundColor: kGreyDarkest,
+            color: kAltoBlue,
+          ));
+  }
+}
+
+class VideoPending extends StatelessWidget {
+  const VideoPending({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: 12.0,
+          right: 12,
+          bottom: SizeService.instance.screenHeight(context) * .1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Image.asset(
+              'images/tag blue with white - 400x400.png',
+              scale: 4,
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: Text(
+              'Your video is currently being converted in our servers.',
+              textAlign: TextAlign.center,
+              style: kBigTitle,
+            ),
+          ),
+          const Text(
+            'Please try again in a few seconds.',
+            textAlign: TextAlign.center,
+            style: kPlainText,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class VideoError extends StatelessWidget {
+  const VideoError({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: 12.0,
+          right: 12,
+          bottom: SizeService.instance.screenHeight(context) * .1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Image.asset(
+              'images/tag blue with white - 400x400.png',
+              scale: 4,
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 20),
+            child: Text(
+              'There\'s an error with your video.',
+              textAlign: TextAlign.center,
+              style: kBigTitle,
+            ),
+          ),
+          const Text(
+            'The problem is on our side. Sorry.',
+            textAlign: TextAlign.center,
+            style: kPlainText,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
