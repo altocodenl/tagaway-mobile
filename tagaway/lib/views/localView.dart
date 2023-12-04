@@ -593,3 +593,194 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
     );
   }
 }
+
+class PhoneViewSettings extends StatefulWidget {
+  const PhoneViewSettings({Key? key}) : super(key: key);
+
+  @override
+  State<PhoneViewSettings> createState() => _PhoneViewSettingsState();
+}
+
+class _PhoneViewSettingsState extends State<PhoneViewSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  color: Colors.white,
+                  height: 250,
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: const [
+                      Icon(
+                        kMinusIcon,
+                        color: kGreyDarker,
+                        size: 30,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Settings',
+                              style: kPlainTextBoldDarkest,
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Hide organized pivs',
+                                    style: kPlainTextBold,
+                                  ),
+                                ),
+                                Expanded(child: ShowOrganizedPivsSwitch()),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Show only camera pivs',
+                                    style: kPlainTextBold,
+                                  ),
+                                ),
+                                Expanded(child: ShowCameraPivs()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ));
+            });
+      },
+      child: const Center(
+        child: FaIcon(
+          kGearIcon,
+          color: kGrey,
+          size: 25,
+        ),
+      ),
+    );
+  }
+}
+
+class ShowOrganizedPivsSwitch extends StatefulWidget {
+  const ShowOrganizedPivsSwitch({super.key});
+
+  @override
+  State<ShowOrganizedPivsSwitch> createState() => _ShowOrganizedPivsSwitch();
+}
+
+class _ShowOrganizedPivsSwitch extends State<ShowOrganizedPivsSwitch> {
+  dynamic cancelListener;
+  dynamic displayMode;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener =
+        StoreService.instance.listen(['displayMode'], (DisplayMode) {
+      setState(() {
+        displayMode = DisplayMode;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Transform.scale(
+          scale: SizeService.instance.screenWidth(context) < 380 ? 1.2 : 1.5,
+          child: Switch(
+            activeTrackColor: kAltoBlue,
+            activeColor: Colors.white,
+            inactiveTrackColor: kGreyLight,
+            value: displayMode['showOrganized'],
+            onChanged: (bool value) {
+              StoreService.instance.set('displayMode', {
+                'showOrganized': value ? true : false,
+                'cameraOnly': displayMode['cameraOnly']
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ShowCameraPivs extends StatefulWidget {
+  const ShowCameraPivs({Key? key}) : super(key: key);
+
+  @override
+  State<ShowCameraPivs> createState() => _ShowCameraPivsState();
+}
+
+class _ShowCameraPivsState extends State<ShowCameraPivs> {
+  dynamic cancelListener;
+  dynamic displayMode;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener =
+        StoreService.instance.listen(['displayMode'], (DisplayMode) {
+      setState(() {
+        displayMode = DisplayMode;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Transform.scale(
+          scale: SizeService.instance.screenWidth(context) < 380 ? 1.2 : 1.5,
+          child: Switch(
+            activeTrackColor: kAltoBlue,
+            activeColor: Colors.white,
+            inactiveTrackColor: kGreyLight,
+            value: displayMode['cameraOnly'],
+            onChanged: (bool value) {
+              StoreService.instance.set('displayMode', {
+                'showOrganized': displayMode['showOrganized'],
+                'cameraOnly': value ? true : false
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

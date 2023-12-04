@@ -171,4 +171,3 @@ class EditTagListElement extends StatelessWidget {
     );
   }
 }
-

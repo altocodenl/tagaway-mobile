@@ -608,4 +608,3 @@ class QuerySelectionTagElement extends StatelessWidget {
     );
   }
 }
-

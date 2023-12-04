@@ -643,4 +643,3 @@ class VideoError extends StatelessWidget {
     );
   }
 }
-

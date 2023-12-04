@@ -674,4 +674,3 @@ class GridMonthElement extends StatelessWidget {
         ));
   }
 }
-
