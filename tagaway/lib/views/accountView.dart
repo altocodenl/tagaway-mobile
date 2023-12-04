@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/sizeService.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/offlineView.dart';
@@ -190,6 +191,59 @@ class _AccountViewState extends State<AccountView> {
           ),
         )),
       ),
+    );
+  }
+}
+
+class GeotaggingSwitch extends StatefulWidget {
+  const GeotaggingSwitch({super.key});
+
+  @override
+  State<GeotaggingSwitch> createState() => _GeotaggingSwitchState();
+}
+
+class _GeotaggingSwitchState extends State<GeotaggingSwitch> {
+  dynamic cancelListener;
+  dynamic account = {'geo': false};
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen(['account'], (v1) {
+      setState(() {
+        if (v1 != '') account = v1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Transform.scale(
+          scale: SizeService.instance.screenWidth(context) < 380 ? 1.2 : 1.5,
+          child: Switch(
+            activeTrackColor: kAltoBlue,
+            activeColor: Colors.white,
+            inactiveTrackColor: kGreyLight,
+            value: account['geo'] != null,
+            onChanged: (bool value) {
+              setState(() {
+                AuthService.instance.geotagging(value ? 'enable' : 'disable');
+                // We do this to give instant feedback.
+                account = {'geo': value};
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 }

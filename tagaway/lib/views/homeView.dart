@@ -1,7 +1,10 @@
 import 'dart:core';
+import 'dart:math' as math;
 
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:open_mail_app/open_mail_app.dart';
+
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
@@ -118,7 +121,8 @@ class _HomeViewState extends State<HomeView> {
         ),
         title: Row(
           children: [
-            const Expanded(flex: 2, child: Text('tagaway', style: kAcpicMain)),
+            const Expanded(
+                flex: 2, child: Text('tagaway', style: kTagawayMain)),
             Padding(
               padding: const EdgeInsets.only(top: 1.0),
               child: Text(
@@ -466,4 +470,571 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
       child: widget.child,
     );
   }
+}
+
+class HomeCard extends StatelessWidget {
+  const HomeCard(
+      {Key? key,
+      required this.color,
+      required this.tag,
+      required this.thumb,
+      required this.deg})
+      : super(key: key);
+
+  final Color color;
+  final String tag;
+  final String thumb;
+  final int deg;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: Stack(
+        children: [
+          Transform.rotate(
+              angle: deg * math.pi / 180.0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  border: Border.all(color: Colors.transparent),
+                  image: DecorationImage(
+                      /* Full BW
+                  colorFilter: ColorFilter.matrix(<double>[
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                  ]),
+                  */
+                      colorFilter: ColorFilter.matrix(<double>[
+                        0.7,
+                        0.1,
+                        0.1,
+                        0,
+                        0,
+                        0.1,
+                        0.7,
+                        0.1,
+                        0,
+                        0,
+                        0.1,
+                        0.1,
+                        0.7,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ]),
+                      fit: BoxFit.cover,
+                      image: NetworkImage(kTagawayThumbSURL + thumb, headers: {
+                        'cookie': StoreService.instance.get('cookie'),
+                      })),
+                ),
+              )),
+          Transform.rotate(
+              angle: deg * math.pi / 180.0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(.4),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                ),
+              )),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: 75,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(.8),
+                borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    left: 8.0, right: 8.0, top: 8, bottom: 8),
+                child: Center(
+                    child: Text(
+                  tag,
+                  textAlign: TextAlign.center,
+                  style: kHomeStackedTagText,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                )),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class UserMenuElementTransparent extends StatelessWidget {
+  const UserMenuElementTransparent({
+    Key? key,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: Container(
+        height: 50,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        child: Center(
+            child: Text(
+          textOnElement,
+          style: kPlainTextBold,
+        )),
+      ),
+    );
+  }
+}
+
+class UserMenuElementLightGrey extends StatelessWidget {
+  const UserMenuElementLightGrey({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kGreyLight,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Center(
+              child: Text(
+            textOnElement,
+            style: kPlainText,
+          )),
+        ),
+      ),
+    );
+  }
+}
+
+class UserMenuElementKBlue extends StatelessWidget {
+  const UserMenuElementKBlue({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kAltoBlue,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: FaIcon(
+                  kBroomIcon,
+                  color: Colors.white,
+                ),
+              ),
+              Center(
+                  child: Text(
+                textOnElement,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class UserMenuElementDarkGrey extends StatelessWidget {
+  const UserMenuElementDarkGrey({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final Function onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap(),
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kGreyDarker,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Center(
+              child: Text(textOnElement,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 16,
+                    color: Colors.white,
+                  ))),
+        ),
+      ),
+    );
+  }
+}
+
+void TagawaySpaceCleanerModal1(
+    BuildContext context, int availableBytes, int potentialCleanup) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Center(
+        child: Container(
+          height: 400,
+          width: 340,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              border: Border.all(color: kGreyLight, width: .5)),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 15.0),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 8),
+                        child: FaIcon(
+                          kBroomIcon,
+                          color: kAltoBlue,
+                        ),
+                      ),
+                      Text(
+                        'Clean up space?',
+                        textAlign: TextAlign.center,
+                        style: kDoneEditText,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
+                  child: Text(
+                    'You have ' +
+                        printBytes(availableBytes) +
+                        ' of available space in your device.',
+                    textAlign: TextAlign.center,
+                    style: kPlainTextBold,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
+                  child: Text(
+                    'Would you like to free up space by deleting your already organized photos and videos?',
+                    textAlign: TextAlign.center,
+                    style: kPlainTextBold,
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
+                  child: Text(
+                    'You will free up to ' +
+                        printBytes(potentialCleanup) +
+                        ' of space.',
+                    textAlign: TextAlign.center,
+                    style: kPlainTextBold,
+                  ),
+                ),
+                Container(
+                  width: 200,
+                  decoration: BoxDecoration(
+                      color: kGreyDarker,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: Visibility(
+                    visible: false,
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                        child: Text(
+                          'No. Don’t ask me again.',
+                          textAlign: TextAlign.center,
+                          style: kButtonText,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  width: 200,
+                  decoration: BoxDecoration(
+                      color: kGreyDarker,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                      child: Text(
+                        'Not now.',
+                        textAlign: TextAlign.center,
+                        style: kButtonText,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  width: 200,
+                  decoration: BoxDecoration(
+                      color: kAltoBlue,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      TagawaySpaceCleanerModal2(context);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                      child: Text(
+                        'Tell me more.',
+                        textAlign: TextAlign.center,
+                        style: kButtonText,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+void TagawaySpaceCleanerModal2(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Center(
+        child: Container(
+          height: 450,
+          width: 340,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              border: Border.all(color: kGreyLight, width: .5)),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 15.0),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 8),
+                        child: FaIcon(
+                          kBroomIcon,
+                          color: kAltoBlue,
+                        ),
+                      ),
+                      Text(
+                        'Tagaway Space Cleaner',
+                        textAlign: TextAlign.center,
+                        style: kDoneEditText,
+                      ),
+                    ],
+                  ),
+                ),
+                const Padding(
+                    padding: EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Tagaway will delete ',
+                        style: kPlainTextBold, // default text style
+                        children: <TextSpan>[
+                          TextSpan(text: 'only ', style: kPlainTextBoldDarkest),
+                          TextSpan(
+                              text:
+                                  'the photos and videos that you have organized.',
+                              style: kPlainTextBold),
+                        ],
+                      ),
+                    )),
+                const Padding(
+                    padding: EdgeInsets.only(bottom: 10.0, right: 20, left: 20),
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Your organized photos and videos are ',
+                        style: kPlainTextBold, // default text style
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'safe in Tagaway’s cloud',
+                              style: kPlainTextBoldDarkest),
+                          TextSpan(
+                              text:
+                                  ', which you can always access from this app or Tagaway Web (from web you can download the high-quality versions).',
+                              style: kPlainTextBold),
+                        ],
+                      ),
+                    )),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0, right: 20, left: 20),
+                  child: Text(
+                    'Delete your organized photos and videos from this device?',
+                    textAlign: TextAlign.center,
+                    style: kPlainTextBold,
+                  ),
+                ),
+                Container(
+                  width: 320,
+                  decoration: BoxDecoration(
+                      color: kGreyDarker,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                      child: Text(
+                        'No, take me back.',
+                        textAlign: TextAlign.center,
+                        style: kButtonText,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  width: 320,
+                  decoration: BoxDecoration(
+                      color: kAltoBlue,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      PivService.instance.deletePivsByRange('3m', true);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                      child: Text(
+                        'Yes, but organized pivs 3 months or older.',
+                        textAlign: TextAlign.center,
+                        style: kButtonText,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  width: 320,
+                  decoration: BoxDecoration(
+                      color: kAltoBlue,
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: kGreyLight, width: .5)),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      PivService.instance.deletePivsByRange('all', true);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 10, bottom: 10.0),
+                      child: Text(
+                        'Yes, delete all organized pivs.',
+                        textAlign: TextAlign.center,
+                        style: kButtonText,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

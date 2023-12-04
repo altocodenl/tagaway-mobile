@@ -35,8 +35,8 @@ class _DistributorState extends State<Distributor> {
     }
     // If checkSession determines that the session is no longer valid, it will take care itself of sending the user to the login page.
     else {
-       var code = await AuthService.instance.checkSession ();
-       if (code != 200) return;
+      var code = await AuthService.instance.checkSession();
+      if (code != 200) return;
     }
     // If we are here, user has cookie. We assume the cookie to be valid; if it's expired, let the auth service handle that.
     var permissionStatus = await checkPermission();
@@ -44,11 +44,13 @@ class _DistributorState extends State<Distributor> {
     if (permissionStatus == 'granted' || permissionStatus == 'limited') {
       // Load all local pivs
       PivService.instance.loadLocalPivs();
-      StoreService.instance.set ('displayMode', {'showOrganized': false, 'cameraOnly': false});
+      StoreService.instance
+          .set('displayMode', {'showOrganized': false, 'cameraOnly': false});
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');
     }
 
-    var userWasAskedPermission = StoreService.instance.get('userWasAskedPermission');
+    var userWasAskedPermission =
+        StoreService.instance.get('userWasAskedPermission');
     return Navigator.pushReplacementNamed(
         context,
         userWasAskedPermission == true

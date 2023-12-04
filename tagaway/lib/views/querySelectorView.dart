@@ -4,7 +4,6 @@ import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/ui_elements/material_elements.dart';
 
 class QuerySelectorView extends StatefulWidget {
   static const String id = 'querySelector';
@@ -551,6 +550,57 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             backgroundColor: kAltoBlue,
             label: Text('See ' + queryResult['total'].toString() + ' pivs',
                 style: kSelectAllButton),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class QuerySelectionTagElement extends StatelessWidget {
+  const QuerySelectionTagElement({
+    Key? key,
+    required this.elementColor,
+    required this.icon,
+    required this.iconColor,
+    required this.tagTitle,
+    required this.onTap,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final Color elementColor;
+  final IconData icon;
+  final Color iconColor;
+  final String tagTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+            color: elementColor,
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Row(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(
+                    right: SizeService.instance.screenWidth(context) < 380
+                        ? 8
+                        : 12.0),
+                child: FaIcon(
+                  icon,
+                  color: iconColor,
+                  size: 20,
+                ),
+              ),
+              Text(
+                tagTitle,
+                style: kLookingAtText,
+              ),
+            ],
           ),
         ),
       ),

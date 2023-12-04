@@ -108,7 +108,8 @@ class LocalGridItem extends StatelessWidget {
                             border:
                                 Border.all(color: Colors.white, width: 1.5)),
                         // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
-                        child: GridItemSelection(asset.id, view == 'local' ? 'local' : 'localUploaded',
+                        child: GridItemSelection(asset.id,
+                            view == 'local' ? 'local' : 'localUploaded',
                             key: Key(asset.id + ':' + now().toString())))),
                 Visibility(
                     visible: view == 'uploaded',
