@@ -1392,6 +1392,7 @@ class _DeleteButtonState extends State<DeleteButton> {
         onPressed: () {
           StoreService.instance.set('currentlyDeleting' + widget.view, true);
           StoreService.instance.set('showButtons' + widget.view, false);
+          StoreService.instance.set('showSelectAllButton' + widget.view, true);
         },
         backgroundColor: kAltoRed,
         child: const Icon(kTrashCanIcon),

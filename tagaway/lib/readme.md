@@ -5,11 +5,12 @@
 - Select all
    - Functionality
    - Add select all button when starting to delete already
-- Show "achievements view" with all that you have organized (Tom)
 - You're all done (Tom)
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
+- Show "achievements view" with all that you have organized (Tom)
 - Edit/delete tags view, openable from query selector (Tom)
+- Info view for each piv on cloud (Tom)
 - Small improvements
    - Land in phone by default, after logging in
    - Put hometags at top of tagging list
@@ -21,7 +22,6 @@
    - Update number of pivs when deleting uploaded
    - Swipe sideways to navigate months in uploaded
    - Tag as organized/unorganized
-- Info view for each piv on cloud (Tom)
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
    - Backend
@@ -2471,6 +2471,90 @@ By now, all the entries in `existing` are stale, since if they weren't, they wou
 We are done! This concludes the function.
 
 ```dart
+   }
+```
+
+We now define `selectAll`, the function that will select all pivs for the purpose of a tagging or deleting operation. The function takes three arguments:
+
+- `view` (either `local` or `uploaded`).
+- `operation` (either `tag` or `delete`).
+- `select` (either `true` or `false`). If it is `true`, this means we want everything selected; if it is `false`, we want everything deselected.
+
+```dart
+   selectAll (String view, String operation, bool select) {
+```
+
+If we are (de)selecting local pivs:
+
+```dart
+      if (view == 'local') {
+```
+
+We get the current page of local pivs being shown and iterate its pivs.
+
+```dart
+         var currentPage = StoreService.instance.get ('localPage:' + StoreService.instance.get ('localPage').toString ());
+         currentPage ['pivs'].forEach ((piv) {
+```
+
+If we are deleting pivs, we call `toggleDeletion`, passing the piv's id, the view (`local`) and the `select` flag set to `true`, to make sure the piv is added to the list of pivs to be deleted if it's not, and is left inside the list if it already is there.
+
+```dart
+            if (operation == 'delete') toggleDeletion (piv.id, 'local', select);
+```
+
+Likewise with the `tag` operation: we invoke `toggleTags`, only that we also pass the list of `tags` being applied to the local pivs.
+
+```dart
+            if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingLocal'), 'local', select);
+```
+
+This concludes the case for local pivs.
+
+```dart
+         });
+      }
+```
+
+If we are (de)selecting uploaded pivs:
+
+```dart
+      if (view == 'uploaded') {
+```
+
+We get all the pivs from the current query, which are stored in `queryResult`, and iterate them.
+
+```dart
+         var queryResult = StoreService.instance.get ('queryResult');
+         queryResult ['pivs'].forEach ((piv) {
+```
+
+If this is a local piv (which will be the case if `piv.local` is `true`), inserted there by `localQuery` (which will be defined below), we do almost the same we did in the local block above, except that we pass different parameters:
+
+- To `toggleDeletion`, we will pass the view `uploaded`.
+- To `toggleTags`, we will pass the tags applied to uploaded pivs, and as view we will pass `localUploaded` (which lets `toggleTags` know this is a local piv within the uploaded view).
+
+```dart
+            if (piv ['local'] == true) {
+               if (operation == 'delete') toggleDeletion (piv ['piv'].id, 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv ['piv'], StoreService.instance.get ('currentlyTaggingUploaded'), 'localUploaded', select);
+            }
+```
+
+If this is a normal uploaded piv, we will invoke the same two functions we just did above, with the only difference being that we will pass `uploaded` as the third argument to `toggleTags`.
+
+```dart
+            else {
+               if (operation == 'delete') toggleDeletion (piv ['id'], 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingUploaded'), 'uploaded', select);
+            }
+```
+
+This concludes the function.
+
+```dart
+         });
+      }
    }
 ```
 
