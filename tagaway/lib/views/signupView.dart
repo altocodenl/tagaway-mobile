@@ -37,7 +37,7 @@ class SignUpView extends StatelessWidget {
                         tag: 'welcome',
                         child: Text(
                           'Welcome to tagaway',
-                          style: kAcpicMain,
+                          style: kTagawayMain,
                         ),
                       ),
                     ),

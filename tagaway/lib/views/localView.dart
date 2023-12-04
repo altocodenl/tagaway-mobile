@@ -58,16 +58,19 @@ class _LocalViewState extends State<LocalView> {
           children: [
             Grid(localPagesIndex: index),
             TopRow(localPagesIndex: index),
-            DoneButton(view: 'Local'),
-            AddMoreTagsButton(view: 'Local'),
-            StartButton(buttonText: 'Start', view: 'Local'),
-            SelectAllButton(view: 'Local'),
-            DeleteButton(view: 'Local'),
-            TagButton(view: 'Local'),
-            TagPivsScrollableList(view: 'Local'),
-            DeleteModal(view: 'Local'),
-            RenameTagModal(view: 'Local'),
-            DeleteTagModal(view: 'Local'),
+            const DoneButton(view: 'Local'),
+            const AddMoreTagsButton(view: 'Local'),
+            const Visibility(
+                visible: false,
+                child: StartButton(buttonText: 'Start', view: 'Local')),
+            const SelectAllButton(view: 'Local'),
+            const DeleteButton(view: 'Local'),
+            const TagButton(view: 'Local'),
+            const TagPivsScrollableList(view: 'Local'),
+            const DeleteModal(view: 'Local'),
+            const RenameTagModal(view: 'Local'),
+            const DeleteTagModal(view: 'Local'),
+            const PhoneAchievementsView()
           ],
         );
       },
@@ -100,7 +103,7 @@ class _GridState extends State<Grid> {
       if (page != '') {
         var existingIds = page['pivs'].map((asset) => asset.id).toList();
         var newIds = v1['pivs'].map((asset) => asset.id).toList();
-        if (DeepCollectionEquality().equals(existingIds, newIds)) return;
+        if (const DeepCollectionEquality().equals(existingIds, newIds)) return;
       }
       setState(() {
         page = v1;
@@ -350,6 +353,243 @@ class _TopRowState extends State<TopRow> {
               )
             : Container()
       ],
+    );
+  }
+}
+
+class PhoneAchievementsView extends StatefulWidget {
+  const PhoneAchievementsView({Key? key}) : super(key: key);
+
+  @override
+  State<PhoneAchievementsView> createState() => _PhoneAchievementsViewState();
+}
+
+class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: SizeService.instance.screenHeight(context) < 710
+          ? const Alignment(0, 1)
+          : SizeService.instance.screenHeight(context) > 860
+              ? const Alignment(0, .5)
+              : const Alignment(0, .7),
+      child: Container(
+        padding: const EdgeInsets.only(top: 20),
+        width: SizeService.instance.screenWidth(context) * .85,
+        height: SizeService.instance.screenHeight(context) < 710
+            ? SizeService.instance.screenHeight(context) * .72
+            : SizeService.instance.screenHeight(context) > 870
+                ? SizeService.instance.screenHeight(context) * .55
+                : SizeService.instance.screenHeight(context) > 711 &&
+                        SizeService.instance.screenHeight(context) < 800
+                    ? SizeService.instance.screenHeight(context) * .68
+                    : SizeService.instance.screenHeight(context) * .62,
+        decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+            border: Border.all(color: kGreyLight, width: .5)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: SizeService.instance.screenHeight(context) < 710
+                  ? const EdgeInsets.only(bottom: 10)
+                  : const EdgeInsets.only(bottom: 20),
+              child: const Text(
+                'Congrats! You\'re done!',
+                style: kCenterPhoneGridTitle,
+              ),
+            ),
+            GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        size: 20,
+                        color: kTagColor18,
+                      ),
+                    ),
+                    Expanded(
+                        child: Text(
+                      'Family',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyDarker,
+                      ),
+                    )),
+                    Text(
+                      '22',
+                      style: kPhoneViewAchievementsNumber,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        size: 20,
+                        color: kTagColor12,
+                      ),
+                    ),
+                    Expanded(
+                        child: Text(
+                      'Friends',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyDarker,
+                      ),
+                    )),
+                    Text(
+                      '53',
+                      style: kPhoneViewAchievementsNumber,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            GestureDetector(
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 12.0),
+                      child: FaIcon(
+                        kTagIcon,
+                        size: 20,
+                        color: kTagColor8,
+                      ),
+                    ),
+                    Expanded(
+                        child: Text(
+                      'Vacations',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontFamily: 'Montserrat-Regular',
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: kGreyDarker,
+                      ),
+                    )),
+                    Text(
+                      '13',
+                      style: kPhoneViewAchievementsNumber,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: FaIcon(
+                      kTagsIcon,
+                      size: 20,
+                      color: kAltoBlue,
+                    ),
+                  ),
+                  Expanded(
+                      child: Text(
+                    'Others',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat-Regular',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kGreyDarker,
+                    ),
+                  )),
+                  Text(
+                    '32',
+                    style: kPhoneViewAchievementsNumber,
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: FaIcon(
+                      kTagIcon,
+                      color: Colors.transparent,
+                    ),
+                  ),
+                  Expanded(
+                      child: Text(
+                    'Total organized',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat-Regular',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kGreyDarker,
+                    ),
+                  )),
+                  Text(
+                    '110',
+                    style: kPhoneViewAchievementsNumber,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: SizeService.instance.screenHeight(context) < 710
+                  ? const EdgeInsets.only(top: 20, bottom: 10)
+                  : const EdgeInsets.only(top: 20, bottom: 20),
+              child: const Text(
+                'Ready?',
+                style: kCenterPhoneGridTitle,
+              ),
+            ),
+            FloatingActionButton.extended(
+              onPressed: () {},
+              extendedPadding: const EdgeInsets.only(left: 20, right: 20),
+              heroTag: null,
+              backgroundColor: kAltoBlue,
+              elevation: 20,
+              label: const Text('Keep Going!', style: kStartButton),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
