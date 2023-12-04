@@ -2,9 +2,6 @@
 
 ## TODO
 
-- Select all
-   - Functionality
-   - Add select all button when starting to delete already
 - You're all done (Tom)
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
@@ -12,7 +9,6 @@
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
 - Small improvements
-   - Land in phone by default, after logging in
    - Put hometags at top of tagging list
    - Long tap to open while tagging or deleting to see piv
    - Start button should disappear on "you're all done"

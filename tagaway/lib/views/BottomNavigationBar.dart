@@ -22,16 +22,16 @@ class BottomNavigationView extends StatefulWidget {
 class _BottomNavigationViewState extends State<BottomNavigationView> {
   dynamic cancelListener;
 
-  int viewIndex = 0;
+  int viewIndex = 1;
   final screens = [const HomeView(), const LocalView(), const ShareView()];
 
   @override
   void initState() {
     super.initState();
     cancelListener = StoreService.instance.listen(['viewIndex'], (v1) {
-      if (v1 == '') return StoreService.instance.set('viewIndex', 0);
+      if (v1 == '') return StoreService.instance.set('viewIndex', 1);
       setState(() {
-        viewIndex = v1 == '' ? 0 : v1;
+        viewIndex = v1;
       });
     });
   }
