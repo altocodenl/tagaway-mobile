@@ -71,7 +71,7 @@ class _LocalViewState extends State<LocalView> {
             const DeleteModal(view: 'Local'),
             const RenameTagModal(view: 'Local'),
             const DeleteTagModal(view: 'Local'),
-            const PhoneAchievementsView()
+            // const PhoneAchievementsView()
           ],
         );
       },
