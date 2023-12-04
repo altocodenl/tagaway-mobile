@@ -43,6 +43,24 @@ class LocalGridItem extends StatelessWidget {
           );
         }
         return GestureDetector(
+            onLongPress: () {
+              if (view == 'local')
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return LocalCarrousel(pivFile: asset, page: page);
+                }));
+              else {
+                var pivs = [];
+                if (StoreService.instance.get('queryResult') != '')
+                  pivs = StoreService.instance.get('queryResult')['pivs'];
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) {
+                    return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                  }),
+                );
+              }
+            },
             onTap: () {
               var View = view[0].toUpperCase() + view.substring(1);
               if (StoreService.instance.get('currentlyDeleting' + View) != '') {

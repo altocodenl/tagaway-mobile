@@ -72,6 +72,14 @@ class UploadedGridItem extends StatelessWidget {
               )
             : Container(),
         GestureDetector(
+          onLongPress: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) {
+                return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+              }),
+            );
+          },
           onTap: () {
             if (StoreService.instance.get('currentlyDeletingUploaded') != '') {
               TagService.instance.toggleDeletion(piv['id'], 'uploaded');
@@ -529,6 +537,7 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
               Align(
                 alignment: const Alignment(0.8, .7),
                 child: FloatingActionButton(
+                  key: const Key('playPause'),
                   backgroundColor: kAltoBlue,
                   onPressed: () {
                     // Wrap the play or pause in a call to `setState`. This ensures the

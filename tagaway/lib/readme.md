@@ -9,14 +9,13 @@
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
 - Small improvements
-   - Long tap to open while tagging or deleting to see piv
+   - Tag as organized/unorganized
    - Start button should disappear on "you're all done"
    - Back button should not take you to login (Tom)
    - In uploaded, reset of slide bar when going to a previous month
    - Confirm on delete single uploaded piv
    - Update number of pivs when deleting uploaded
    - Swipe sideways to navigate months in uploaded
-   - Tag as organized/unorganized
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
    - Backend

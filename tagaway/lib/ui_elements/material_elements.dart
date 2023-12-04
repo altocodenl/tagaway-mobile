@@ -704,9 +704,9 @@ class _StartButtonState extends State<StartButton> {
       child: Visibility(
         visible: !showButtons,
         child: FloatingActionButton.extended(
+          key: const Key('startButton'),
           extendedPadding: const EdgeInsets.only(left: 20, right: 20),
           heroTag: null,
-          key: Key('startTagging' + widget.view),
           onPressed: () {
             StoreService.instance.set('showButtons' + widget.view, true);
           },
@@ -715,6 +715,7 @@ class _StartButtonState extends State<StartButton> {
           label: Text(widget.buttonText, style: kStartButton),
         ),
         replacement: FloatingActionButton(
+          key: const Key('startButton'),
           onPressed: () {
             setState(() {
               StoreService.instance.set('showButtons' + widget.view, false);
@@ -847,6 +848,7 @@ class _DoneButtonState extends State<DoneButton> {
     return Align(
         alignment: const Alignment(0.8, .9),
         child: FloatingActionButton.extended(
+          key: const Key('doneButton'),
           onPressed: () {
             // Done tagging
             if (currentlyTagging != '') {

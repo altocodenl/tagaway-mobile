@@ -581,6 +581,7 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
               ),
             ),
             FloatingActionButton.extended(
+              key: const Key('keepOnGoing'),
               onPressed: () {},
               extendedPadding: const EdgeInsets.only(left: 20, right: 20),
               heroTag: null,
