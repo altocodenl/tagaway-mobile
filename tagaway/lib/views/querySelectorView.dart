@@ -4,7 +4,6 @@ import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/ui_elements/material_elements.dart';
 
 class QuerySelectorView extends StatefulWidget {
   static const String id = 'querySelector';

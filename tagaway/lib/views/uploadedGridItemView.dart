@@ -16,7 +16,6 @@ import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/views/localGridItemView.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 

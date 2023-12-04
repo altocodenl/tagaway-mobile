@@ -6,7 +6,6 @@ import 'package:tagaway/services/storeService.dart';
 
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/shareView.dart';
