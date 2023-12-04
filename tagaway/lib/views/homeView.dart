@@ -37,8 +37,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
-        ['hometags', 'tags', 'account', 'homeThumbs', 'organized'], (v1, v2, v3, v4, Organized) {
+    cancelListener = StoreService.instance
+        .listen(['hometags', 'tags', 'account', 'homeThumbs', 'organized'],
+            (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
         tags = v2;
@@ -258,7 +259,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        organized ['total'].toString (),
+                                        organized['total'].toString(),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
@@ -283,7 +284,7 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        organized ['today'].toString (),
+                                        organized['today'].toString(),
                                         style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,
