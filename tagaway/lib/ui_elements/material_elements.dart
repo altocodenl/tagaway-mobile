@@ -778,6 +778,7 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () {
           StoreService.instance.set('swiped' + widget.view, true);
           StoreService.instance.set('showButtons' + widget.view, false);
