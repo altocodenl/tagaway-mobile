@@ -607,30 +607,6 @@ class HomeCard extends StatelessWidget {
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                   border: Border.all(color: Colors.transparent),
                   image: DecorationImage(
-                      /* Full BW
-                  colorFilter: ColorFilter.matrix(<double>[
-                    0.2126,
-                    0.7152,
-                    0.0722,
-                    0,
-                    0,
-                    0.2126,
-                    0.7152,
-                    0.0722,
-                    0,
-                    0,
-                    0.2126,
-                    0.7152,
-                    0.0722,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    1,
-                    0,
-                  ]),
-                  */
                       colorFilter: ColorFilter.matrix(<double>[
                         0.7,
                         0.1,
