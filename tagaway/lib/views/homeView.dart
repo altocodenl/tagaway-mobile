@@ -1,10 +1,9 @@
 import 'dart:core';
 import 'dart:math' as math;
 
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:open_mail_app/open_mail_app.dart';
-
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
@@ -15,6 +14,8 @@ import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/accountView.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../services/sizeService.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'home';
@@ -253,59 +254,61 @@ class _HomeViewState extends State<HomeView> {
                   )
                 : Stack(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        organized['total'].toString(),
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: kAltoOrganized),
-                                      ),
-                                      Text(
-                                        'organized',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: kGreyDarker),
-                                      ),
-                                    ]),
+                      HomeAwardsView(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 80,
+                                child: Center(
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          organized['total'].toString(),
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: kAltoOrganized),
+                                        ),
+                                        Text(
+                                          'organized',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: kGreyDarker),
+                                        ),
+                                      ]),
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        organized['today'].toString(),
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: kAltoOrganized),
-                                      ),
-                                      Text(
-                                        'today',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: kGreyDarker),
-                                      ),
-                                    ]),
+                            Expanded(
+                              child: Container(
+                                height: 80,
+                                child: Center(
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          organized['today'].toString(),
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.bold,
+                                              color: kAltoOrganized),
+                                        ),
+                                        Text(
+                                          'today',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: kGreyDarker),
+                                        ),
+                                      ]),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       Padding(
                           padding: const EdgeInsets.only(
@@ -391,6 +394,184 @@ class _HomeViewState extends State<HomeView> {
         );
       },
     );
+  }
+}
+
+class HomeAwardsView extends StatefulWidget {
+  final Widget child;
+
+  const HomeAwardsView({Key? key, required this.child}) : super(key: key);
+
+  @override
+  State<HomeAwardsView> createState() => _HomeAwardsViewState();
+}
+
+class _HomeAwardsViewState extends State<HomeAwardsView> {
+  @override
+  Widget build(BuildContext context) {
+    print(SizeService.instance.screenHeight(context).toString());
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return Container(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  color: Colors.white,
+                  height: SizeService.instance.screenHeight(context) > 860
+                      ? SizeService.instance.screenHeight(context) * .8
+                      : SizeService.instance.screenHeight(context) * .77,
+                  child: Stack(
+                    children: [
+                      ListView(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        children: [
+                          const Icon(
+                            kMinusIcon,
+                            color: kGreyDarker,
+                            size: 30,
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Your Achievements',
+                                  style: kLookingAtText,
+                                ),
+                              ],
+                            ),
+                          ),
+                          GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: 8,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                              ),
+                              itemBuilder: (BuildContext context, index) {
+                                return const HexagonWidget();
+                              }),
+                        ],
+                      ),
+                      Align(
+                        alignment: const Alignment(0, .8),
+                        child: FloatingActionButton.extended(
+                          onPressed: () {},
+                          extendedPadding:
+                              const EdgeInsets.only(left: 20, right: 20),
+                          heroTag: null,
+                          backgroundColor: kAltoBlue,
+                          elevation: 20,
+                          label: const Text('Keep Going!', style: kStartButton),
+                        ),
+                      )
+                    ],
+                  ));
+            });
+      },
+      child: widget.child,
+    );
+  }
+}
+
+class HexagonWidget extends StatelessWidget {
+  const HexagonWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        CustomPaint(
+          painter: HexagonPainter(),
+          child: const SizedBox(
+            width: 200,
+            height: 200,
+          ),
+        ),
+        const Align(
+          alignment: Alignment(0, -.5),
+          child: Text(
+            'December',
+            style: kButtonText,
+          ),
+        ),
+        const Align(
+          alignment: Alignment(0, 0),
+          child: Text(
+            '2012',
+            style: TextStyle(
+              fontFamily: 'Montserrat-Regular',
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        Align(
+          alignment: const Alignment(0, .7),
+          child: Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.white, width: 1.5)),
+            child: const Icon(
+              kCircleCheckIcon,
+              color: kAltoOrganized,
+              size: 15,
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+              // color: Colors.white,
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(color: Colors.white, width: 1.5)),
+        )
+      ],
+    );
+  }
+}
+
+class HexagonPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = kAltoBlue
+      ..style = PaintingStyle.fill;
+
+    var path = Path();
+
+    // Radius is half the width of the container
+    double radius = size.width / 2;
+    // Angle for hexagon points (60 degrees in radians)
+    double angle = math.pi / 3;
+
+    // Calculate the points for a regular hexagon
+    for (int i = 0; i < 6; i++) {
+      double x = radius * math.cos(angle * i - math.pi / 6) +
+          radius; // Adjust for upward point
+      double y = radius * math.sin(angle * i - math.pi / 6) + radius;
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }
 
