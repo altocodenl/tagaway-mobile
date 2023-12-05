@@ -105,6 +105,7 @@ const kShareUsersIcon = FontAwesomeIcons.userGroup;
 const kPersonDiggingIcon = FontAwesomeIcons.personDigging;
 const kSelectAllIcon = FontAwesomeIcons.checkDouble;
 const kDeselectIcon = FontAwesomeIcons.xmark;
+const kCheckIcon = FontAwesomeIcons.check;
 
 const tagColors = [
   kTagColor1,

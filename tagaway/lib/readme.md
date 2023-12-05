@@ -2,9 +2,14 @@
 
 ## TODO
 
-- You're all done (Tom)
+
+- seed empty tags on list with (example)
+- if you type "org", show organized and to organize
+- Slight green or red filter on pivs as you select them for either tagging or deletion (Tom)
+- You're all done
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
+   - Adjust heights of lines (Tom)
 - Show "achievements view" with all that you have organized (Tom)
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)

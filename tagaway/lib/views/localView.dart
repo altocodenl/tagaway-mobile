@@ -71,7 +71,7 @@ class _LocalViewState extends State<LocalView> {
             const DeleteModal(view: 'Local'),
             const RenameTagModal(view: 'Local'),
             const DeleteTagModal(view: 'Local'),
-            // const PhoneAchievementsView()
+            const PhoneAchievementsView()
           ],
         );
       },
@@ -547,13 +547,14 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                   Padding(
                     padding: EdgeInsets.only(right: 12.0),
                     child: FaIcon(
-                      kTagIcon,
-                      color: Colors.transparent,
+                      kCheckIcon,
+                      color: kAltoOrganized,
+                      size: 20
                     ),
                   ),
                   Expanded(
                       child: Text(
-                    'Total organized',
+                    'Total',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     softWrap: false,
@@ -571,13 +572,37 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                 ],
               ),
             ),
-            Padding(
-              padding: SizeService.instance.screenHeight(context) < 710
-                  ? const EdgeInsets.only(top: 20, bottom: 10)
-                  : const EdgeInsets.only(top: 20, bottom: 20),
-              child: const Text(
-                'Ready?',
-                style: kCenterPhoneGridTitle,
+            const Padding(
+              padding: EdgeInsets.only(top: 0, bottom: 40.0, left: 20, right: 20),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 12.0),
+                    child: FaIcon(
+                      kCircleCheckIcon,
+                      color: kAltoOrganized,
+                      size: 20
+                    ),
+                  ),
+                  Expanded(
+                      child: Text(
+                    'All time organized',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat-Regular',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: kGreyDarker,
+                    ),
+                  )),
+                  Text(
+                    '2020',
+                    style: kPhoneViewAchievementsNumber,
+                  ),
+                ],
               ),
             ),
             FloatingActionButton.extended(
