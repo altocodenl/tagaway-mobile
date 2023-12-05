@@ -546,11 +546,7 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                 children: [
                   Padding(
                     padding: EdgeInsets.only(right: 12.0),
-                    child: FaIcon(
-                      kCheckIcon,
-                      color: kAltoOrganized,
-                      size: 20
-                    ),
+                    child: FaIcon(kCheckIcon, color: kAltoOrganized, size: 20),
                   ),
                   Expanded(
                       child: Text(
@@ -573,17 +569,15 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.only(top: 0, bottom: 40.0, left: 20, right: 20),
+              padding:
+                  EdgeInsets.only(top: 0, bottom: 40.0, left: 20, right: 20),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Padding(
                     padding: EdgeInsets.only(right: 12.0),
-                    child: FaIcon(
-                      kCircleCheckIcon,
-                      color: kAltoOrganized,
-                      size: 20
-                    ),
+                    child: FaIcon(kCircleCheckIcon,
+                        color: kAltoOrganized, size: 20),
                   ),
                   Expanded(
                       child: Text(
