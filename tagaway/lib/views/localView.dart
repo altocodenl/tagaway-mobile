@@ -62,7 +62,7 @@ class _LocalViewState extends State<LocalView> {
             const DoneButton(view: 'Local'),
             const AddMoreTagsButton(view: 'Local'),
             const Visibility(
-                visible: false,
+                visible: true,
                 child: StartButton(buttonText: 'Start', view: 'Local')),
             const SelectAllButton(view: 'Local'),
             const DeleteButton(view: 'Local'),
@@ -71,7 +71,7 @@ class _LocalViewState extends State<LocalView> {
             const DeleteModal(view: 'Local'),
             const RenameTagModal(view: 'Local'),
             const DeleteTagModal(view: 'Local'),
-            const PhoneAchievementsView()
+            //const PhoneAchievementsView()
           ],
         );
       },

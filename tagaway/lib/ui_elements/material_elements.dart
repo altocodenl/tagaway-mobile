@@ -98,18 +98,20 @@ class RoundedButton extends StatelessWidget {
 }
 
 class TagListElement extends StatefulWidget {
-  const TagListElement({
-    Key? key,
-    required this.tagColor,
-    required this.tagName,
-    required this.view,
-    required this.onTap,
-  }) : super(key: key);
+  const TagListElement(
+      {Key? key,
+      required this.tagColor,
+      required this.tagName,
+      required this.view,
+      required this.onTap,
+      this.icon})
+      : super(key: key);
 
   final Color tagColor;
   final String tagName;
   final String view;
   final Function onTap;
+  final dynamic icon;
 
   @override
   State<TagListElement> createState() => _TagListElementState();
@@ -144,7 +146,7 @@ class _TagListElementState extends State<TagListElement> {
                     Padding(
                       padding: const EdgeInsets.only(right: 12.0),
                       child: FaIcon(
-                        kTagIcon,
+                        widget.icon == null ? kTagIcon : widget.icon,
                         color: widget.tagColor,
                       ),
                     ),
@@ -935,11 +937,20 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
               .toList();
           if (TagFilter != '' && !usertags.contains(TagFilter))
             usertags.insert(0, TagFilter + ' (new tag)');
-          // Remove from usertags tags that already are in currentlyTagging
+          if (usertags.length == 0)
+            usertags.addAll([
+              'Family (example)',
+              'Holidays (example)',
+              'Friends (example)'
+            ]);
+          // Remove tags from usertags that already are in currentlyTagging
           if (CurrentlyTagging != '')
             usertags = usertags
                 .where((tag) => !CurrentlyTagging.contains(tag))
                 .toList();
+          if (RegExp('^org').hasMatch(TagFilter)) {
+            usertags.add('o::');
+          }
         }
 
         swiped = Swiped == true;
@@ -1071,17 +1082,27 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                                       RegExp(' \\(new tag\\)\$'), '');
                                   actualTag = actualTag.trim();
                                 }
+                                if (usertags.length == 3 &&
+                                    RegExp(' \\(example\\)\$').hasMatch(tag)) {
+                                  actualTag = tag.replaceFirst(
+                                      RegExp(' \\(example\\)\$'), '');
+                                  actualTag = actualTag.trim();
+                                }
                                 return TagListElement(
                                   // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
                                   key: Key(widget.view + '-' + tag),
-                                  tagColor: tagColor(actualTag),
-                                  tagName: tag,
+                                  tagColor: tag == 'o::'
+                                      ? kAltoOrganized
+                                      : tagColor(actualTag),
+                                  tagName: tag == 'o::' ? 'Organized' : tag,
                                   view: widget.view.toLowerCase(),
+                                  icon: tag == 'o::' ? kCircleCheckIcon : null,
                                   onTap: () {
                                     // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
                                     return () {
-                                      if (RegExp('^[a-z]::')
-                                          .hasMatch(actualTag))
+                                      if (tag != 'o::' &&
+                                          RegExp('^[a-z]::')
+                                              .hasMatch(actualTag))
                                         return showSnackbar(
                                             'Alas, you cannot use that tag.',
                                             'yellow');
