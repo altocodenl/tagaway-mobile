@@ -213,7 +213,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                                   elementColor: kSelectedTag,
                                   icon: tagIcon(tag),
                                   iconColor: tagIconColor(tag),
-                                  tagTitle: tagTitle(tag));
+                                  tagTitle: shorten(tagTitle(tag)));
                             }),
                       ),
                     ])),
