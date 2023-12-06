@@ -13,7 +13,6 @@
 - Small improvements
    - Back button should not take you to login (Tom)
    - Confirm on delete single uploaded piv (Tom)
-   - Do not show start button in local if there are no pivs
    - In uploaded, reset of slide bar when going to a previous month
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
