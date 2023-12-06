@@ -561,7 +561,7 @@ class _TagButtonState extends State<TagButton> {
           StoreService.instance.set('swiped' + widget.view, true);
           StoreService.instance.set('showButtons' + widget.view, false);
         },
-        backgroundColor: kAltoBlue,
+        backgroundColor: kAltoOrganized,
         child: const Icon(kTagIcon),
       ),
     );
@@ -619,7 +619,7 @@ class _SelectAllButtonState extends State<SelectAllButton> {
               .selectAll(widget.view.toLowerCase(), operation, status);
         },
         backgroundColor: status == true
-            ? (operation == 'tag' ? kAltoGreen : kAltoRed)
+            ? (operation == 'tag' ? kAltoOrganized: kAltoRed)
             : kAltoBlue,
         key: Key('selectAll-' + widget.view),
         label: Row(
@@ -783,7 +783,7 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
           StoreService.instance.set('swiped' + widget.view, true);
           StoreService.instance.set('showButtons' + widget.view, false);
         },
-        backgroundColor: kAltoBlue,
+        backgroundColor: kAltoOrganized,
         key: Key('addMoreTags-' + widget.view),
         label: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -881,7 +881,7 @@ class _DoneButtonState extends State<DoneButton> {
               }
             }
           },
-          backgroundColor: currentlyDeleting ? kAltoRed : kAltoBlue,
+          backgroundColor: currentlyDeleting ? kAltoRed : kAltoOrganized,
           label: const Text('Done', style: kSelectAllButton),
           icon: const Icon(Icons.done),
         ));
