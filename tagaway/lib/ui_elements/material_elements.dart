@@ -852,6 +852,7 @@ class _DoneButtonState extends State<DoneButton> {
         alignment: const Alignment(0.8, .9),
         child: FloatingActionButton.extended(
           key: const Key('doneButton'),
+          heroTag: null,
           onPressed: () {
             // Done tagging
             if (currentlyTagging != '') {
