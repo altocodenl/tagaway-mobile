@@ -354,10 +354,9 @@ class _GridItemSelectionState extends State<GridItemSelection> {
       'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':' + id,
       'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'),
       'displayMode',
-      'deleteMode',
       'currentlyDeleting' + (type == 'local' ? 'Local' : 'Uploaded'),
       'currentlyDeletingPivs' + (type == 'local' ? 'Local' : 'Uploaded')
-    ], (v1, v2, v3, v4, v5, v6, v7) {
+    ], (v1, v2, v3, v4, v6, v7) {
       setState(() {
         // Tagging mode: set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
         if (v3 != '') {
