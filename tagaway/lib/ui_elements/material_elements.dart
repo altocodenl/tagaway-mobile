@@ -361,6 +361,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
         // Tagging mode: set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
         if (v3 != '') {
           mode = v2 == '' ? 'gray' : 'green';
+          // Deleting mode
         } else if (v6 != '') {
           var currentlyDeletingPivs = v7;
           if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
@@ -1673,5 +1674,66 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
               valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
             )),
     );
+  }
+}
+
+class GridItemMask extends StatefulWidget {
+  final String id;
+  final String type;
+
+  const GridItemMask(this.id, this.type, {Key? key}) : super(key: key);
+
+  @override
+  State<GridItemMask> createState() => _GridItemMaskState(id, type);
+}
+
+class _GridItemMaskState extends State<GridItemMask> {
+  dynamic cancelListener;
+  final String id;
+  final String type;
+  var mask = 'none';
+
+  _GridItemMaskState(this.id, this.type);
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen([
+      'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':' + id,
+      'currentlyDeletingPivs' + (type == 'local' ? 'Local' : 'Uploaded'),
+      'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'),
+      'currentlyDeleting' + (type == 'local' ? 'Local' : 'Uploaded'),
+    ], (Tagged, CurrentlyDeletingPivs, CurrentlyTagging, CurrentlyDeleting) {
+      setState(() {
+        if (CurrentlyTagging == '' && CurrentlyDeleting == '') mask = 'none';
+        if (CurrentlyDeleting != '') {
+          if (CurrentlyDeletingPivs == '') CurrentlyDeletingPivs = [];
+          mask = CurrentlyDeletingPivs.contains(id) ? 'delete' : 'none';
+        }
+        if (CurrentlyTagging != '') {
+          if (type == 'localUploaded')
+            mask = 'tag';
+          else
+            mask = Tagged != '' ? 'tag' : 'none';
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (mask == 'none')
+      return const Visibility(visible: false, child: Text(''));
+    return Positioned.fill(
+        child: IgnorePointer(
+            child: Container(
+                color: (mask == 'tag' ? kAltoOrganized : kAltoRed)
+                    .withOpacity(0.3))));
   }
 }

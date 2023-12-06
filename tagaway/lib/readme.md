@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Slight green or red filter on pivs as you select them for either tagging or deletion (Tom)
 - You're all done
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs

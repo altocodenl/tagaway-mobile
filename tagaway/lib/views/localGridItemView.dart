@@ -134,6 +134,9 @@ class LocalGridItem extends StatelessWidget {
                     child: Align(
                         alignment: const Alignment(-0.9, -.9),
                         child: UploadingIcon())),
+                GridItemMask(
+                    asset.id, view == 'local' ? 'local' : 'localUploaded',
+                    key: Key(asset.id + '-mask:' + now().toString())),
               ],
             ));
       },
