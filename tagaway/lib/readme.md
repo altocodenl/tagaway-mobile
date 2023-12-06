@@ -9,9 +9,7 @@
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
 - Swipe sideways to navigate months in uploaded
-- Small improvements
-   - Confirm on delete single uploaded piv (Tom)
-   - In uploaded, reset of slide bar when going to a previous month
+- Confirm on delete single uploaded piv (Tom)
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
    - Backend

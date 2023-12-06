@@ -141,6 +141,7 @@ class _UploadGridState extends State<UploadGrid> {
                             onPressed: () {
                               TagService.instance
                                   .queryPivsForMonth(monthEdges['nextMonth']);
+                              gridController.jumpTo(0);
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(40, 40),
@@ -197,6 +198,7 @@ class _UploadGridState extends State<UploadGrid> {
                             onPressed: () {
                               TagService.instance.queryPivsForMonth(
                                   monthEdges['previousMonth']);
+                              gridController.jumpTo(0);
                             },
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(40, 40),
@@ -412,6 +414,9 @@ class _TopRowState extends State<TopRow> {
                                               TagService.instance
                                                   .queryPivsForMonth(
                                                       [month[0], month[1]]);
+                                              StoreService.instance
+                                                  .get('gridController')
+                                                  .jumpTo(0);
                                             }
                                           }));
                                     });
