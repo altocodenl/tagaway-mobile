@@ -2,22 +2,19 @@
 
 ## TODO
 
-- Slight green or red filter on pivs as you select them for either tagging or deletion (Tom)
 - You're all done
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
    - Adjust heights of lines (Tom)
-- Show "achievements view" with all that you have organized (Tom)
+- Show "achievements view" with all that you have organized
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
+- Swipe sideways to navigate months in uploaded
 - Small improvements
-   - Tag as organized/unorganized
-   - Start button should disappear on "you're all done"
    - Back button should not take you to login (Tom)
+   - Confirm on delete single uploaded piv (Tom)
+   - Do not show start button in local if there are no pivs
    - In uploaded, reset of slide bar when going to a previous month
-   - Confirm on delete single uploaded piv
-   - Update number of pivs when deleting uploaded
-   - Swipe sideways to navigate months in uploaded
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
    - Backend
