@@ -619,7 +619,7 @@ class _SelectAllButtonState extends State<SelectAllButton> {
               .selectAll(widget.view.toLowerCase(), operation, status);
         },
         backgroundColor: status == true
-            ? (operation == 'tag' ? kAltoOrganized: kAltoRed)
+            ? (operation == 'tag' ? kAltoOrganized : kAltoRed)
             : kAltoBlue,
         key: Key('selectAll-' + widget.view),
         label: Row(
@@ -662,8 +662,9 @@ class _StartButtonState extends State<StartButton> {
     cancelListener = StoreService.instance.listen([
       'showButtons' + widget.view,
       'currentlyTagging' + widget.view,
-      'currentlyDeleting' + widget.view
-    ], (ShowButtons, CurrentlyTagging, CurrentlyDeleting) {
+      'currentlyDeleting' + widget.view,
+      widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage'
+    ], (ShowButtons, CurrentlyTagging, CurrentlyDeleting, localPage) {
       if (CurrentlyTagging != '' &&
           StoreService.instance.get('viewIndex') ==
               (widget.view == 'Local' ? 1 : 0))
@@ -672,9 +673,16 @@ class _StartButtonState extends State<StartButton> {
 
       setState(() {
         showButtons = ShowButtons == true;
+        var emptyPage = false;
+        if (widget.view == 'Local') {
+          var page =
+              StoreService.instance.get('localPage:' + localPage.toString());
+          if (page == '' || page['pivs'].length == 0) emptyPage = true;
+        }
         visible = secondElapsed &&
             CurrentlyTagging == '' &&
-            CurrentlyDeleting != true;
+            CurrentlyDeleting != true &&
+            emptyPage == false;
       });
     });
 
@@ -682,11 +690,18 @@ class _StartButtonState extends State<StartButton> {
       if (mounted) {
         setState(() {
           secondElapsed = true;
+          var emptyPage = false;
+          if (widget.view == 'Local') {
+            var page = StoreService.instance.get('localPage:' +
+                StoreService.instance.get('localPage').toString());
+            if (page == '' || page['pivs'].length == 0) emptyPage = true;
+          }
           visible = secondElapsed &&
               StoreService.instance.get('currentlyTagging' + widget.view) ==
                   '' &&
               StoreService.instance.get('currentlyDeleting' + widget.view) !=
-                  true;
+                  true &&
+              emptyPage == false;
         });
       }
     });
