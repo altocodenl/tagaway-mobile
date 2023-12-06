@@ -518,40 +518,59 @@ class TagService {
       });
 
       if (response ['code'] != 200) {
-         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:C:' + response ['code'].toString (), 'yellow');
+         return response ['code'];
+      }
+
+      if (! listEquals (queryTags, tags)) return 409;
+
+      var queryResultForPivs = response ['body'];
+      // This is done here because we want to avoid an early ronin return
+      queryResultForPivs = localQuery (tags, currentMonth, queryResultForPivs);
+
+      if (queryResultForPivs ['total'] == 0 && tags.length > 0) {
+         StoreService.instance.remove ('currentlyTaggingUploaded');
+         StoreService.instance.remove ('showSelectAllButtonUploaded');
+         return StoreService.instance.set ('queryTags', []);
+      }
+
+      if (tags.contains ('o::')) {
+         queryResultForPivs ['pivs'].forEach ((piv) {
+            if (piv ['local'] == true) return;
+            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+         });
+      }
+      // We don't await on purpose
+      else queryOrganizedIds (queryResultForPivs ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
+
+      response = await ajax ('post', 'query', {
+         'tags': tags,
+         'sort': 'newest',
+         'timeHeader': true,
+         'from': 1,
+         'to': 1
+      });
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:D:' + response ['code'].toString (), 'yellow');
          return response ['code'];
       }
 
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
+      queryResult ['pivs'] = queryResultForPivs ['pivs'];
       queryResult = localQuery (tags, currentMonth, queryResult);
 
-      if (queryResult ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.remove ('currentlyTaggingUploaded');
-         StoreService.instance.remove ('showSelectAllButtonUploaded');
-         return StoreService.instance.set ('queryTags', []);
-      }
-
-      var oldQueryResult = StoreService.instance.get ('queryResult');
-
       StoreService.instance.set ('queryResult', {
-         'total':       oldQueryResult ['total'],
-         'tags':        oldQueryResult ['tags'],
-         'timeHeader':  oldQueryResult ['timeHeader'],
+         'total':       queryResult ['total'],
+         'tags':        queryResult ['tags'],
+         'timeHeader':  queryResult ['timeHeader'],
          'pivs':        queryResult ['pivs']
       });
-      // Not mute on purpose!
-
-      if (tags.contains ('o::')) {
-         queryResult ['pivs'].forEach ((piv) {
-            if (piv ['local'] == true) return;
-            StoreService.instance.set ('orgMap:' + piv ['id'], true);
-         });
-      }
-      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
       getTags ();
+
       return 200;
    }
 

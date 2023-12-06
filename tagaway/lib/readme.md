@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Green
 - You're all done
    - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
    - Show button to "keep on going", which jumps to the previous page with unorganized pivs
@@ -14,8 +13,8 @@
 - Small improvements
    - Back button should not take you to login (Tom)
    - Confirm on delete single uploaded piv (Tom)
+   - Do not show start button in local if there are no pivs
    - In uploaded, reset of slide bar when going to a previous month
-   - Update number of pivs when deleting one piv in uploaded
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
    - Backend
