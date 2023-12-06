@@ -409,7 +409,6 @@ class HomeAwardsView extends StatefulWidget {
 class _HomeAwardsViewState extends State<HomeAwardsView> {
   @override
   Widget build(BuildContext context) {
-    print(SizeService.instance.screenHeight(context).toString());
     return GestureDetector(
       onTap: () {
         showModalBottomSheet<void>(

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -71,7 +70,7 @@ class _LocalViewState extends State<LocalView> {
             const DeleteModal(view: 'Local'),
             const RenameTagModal(view: 'Local'),
             const DeleteTagModal(view: 'Local'),
-            //const PhoneAchievementsView()
+            // const PhoneAchievementsView()
           ],
         );
       },
@@ -540,7 +539,8 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.all(20.0),
+              padding:
+                  EdgeInsets.only(top: 10.0, bottom: 20, left: 20, right: 20),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
@@ -568,10 +568,13 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                 ],
               ),
             ),
-            const Padding(
-              padding:
-                  EdgeInsets.only(top: 0, bottom: 40.0, left: 20, right: 20),
-              child: Row(
+            Padding(
+              padding: SizeService.instance.screenHeight(context) < 710
+                  ? const EdgeInsets.only(
+                      top: 10, bottom: 20, left: 20, right: 20)
+                  : const EdgeInsets.only(
+                      top: 10, bottom: 40, left: 20, right: 20),
+              child: const Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Padding(
