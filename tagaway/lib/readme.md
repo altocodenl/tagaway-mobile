@@ -3,13 +3,14 @@
 ## TODO
 
 - You're all done
-   - Show "score" (list of tags and the amount of pivs of each); when you click on each, it takes you to cloud (tag + month).
-   - Show button to "keep on going", which jumps to the previous page with unorganized pivs
+   - Go to tag query
+   - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
+   - Annotate
 - Show "achievements view" with all that you have organized
+- Swipe sideways to navigate months in uploaded
+- Confirm on delete single uploaded piv
 - Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
-- Swipe sideways to navigate months in uploaded
-- Confirm on delete single uploaded piv (Tom)
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
    - Backend

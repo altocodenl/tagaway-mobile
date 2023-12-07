@@ -380,6 +380,39 @@ class TagService {
       return queryResult;
    }
 
+   getLocalAchievements (page) async {
+      if (page == '') return [];
+      var response = await ajax ('post', 'query', {
+         'tags': [],
+         'sort': 'newest',
+         'mindate': page ['from'],
+         'maxdate': page ['to'],
+         'from': 1,
+         'to': 1
+      });
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
+         return [];
+      }
+
+      var output = [];
+
+      response ['body'] ['tags'].keys.forEach ((tag) {
+         if (RegExp ('^[a-z]::').hasMatch (tag)) return;
+         var value = response ['body'] ['tags'] [tag];
+         output.add ([tag, value]);
+      });
+      output.sort ((a, b) {
+         return (b [1] as int).compareTo ((a [1] as int));
+      });
+      if (output.length > 5) output = output.sublist (0, 5);
+      output.add (['Total', response ['body'] ['total']]);
+      output.add (['All time organized', StoreService.instance.get ('organized') ['total']]);
+
+      return output;
+   }
+
    queryPivs ([refresh = false, preserveMonth = false]) async {
 
       var tags = StoreService.instance.get ('queryTags');

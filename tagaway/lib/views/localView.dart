@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
@@ -60,9 +61,7 @@ class _LocalViewState extends State<LocalView> {
             TopRow(localPagesIndex: index),
             const DoneButton(view: 'Local'),
             const AddMoreTagsButton(view: 'Local'),
-            const Visibility(
-                visible: true,
-                child: StartButton(buttonText: 'Start', view: 'Local')),
+            const StartButton(buttonText: 'Start', view: 'Local'),
             const SelectAllButton(view: 'Local'),
             const DeleteButton(view: 'Local'),
             const TagButton(view: 'Local'),
@@ -70,7 +69,7 @@ class _LocalViewState extends State<LocalView> {
             const DeleteModal(view: 'Local'),
             const RenameTagModal(view: 'Local'),
             const DeleteTagModal(view: 'Local'),
-            // const PhoneAchievementsView()
+            PhoneAchievementsView(localPagesIndex: index)
           ],
         );
       },
@@ -358,15 +357,59 @@ class _TopRowState extends State<TopRow> {
 }
 
 class PhoneAchievementsView extends StatefulWidget {
-  const PhoneAchievementsView({Key? key}) : super(key: key);
+  const PhoneAchievementsView({Key? key, required this.localPagesIndex})
+      : super(key: key);
+
+  final dynamic localPagesIndex;
 
   @override
   State<PhoneAchievementsView> createState() => _PhoneAchievementsViewState();
 }
 
 class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
+  dynamic cancelListener;
+  var currentPage;
+  var rows = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = StoreService.instance.listen(
+        ['localPage:' + widget.localPagesIndex.toString()], (LocalPage) {
+      setState(() {
+        currentPage = LocalPage;
+        (() async {
+          rows = await TagService.instance.getLocalAchievements(currentPage);
+        })();
+      });
+    });
+
+    // We add a timeout when we initialize the widget because `computeLocalPages` might not be done by the time we render this widget, and we need it to be done in order to render this widget correctly
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return;
+      setState(() {
+        currentPage = StoreService.instance
+            .get('localPage:' + widget.localPagesIndex.toString());
+        (() async {
+          rows = await TagService.instance.getLocalAchievements(currentPage);
+        })();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // No page loaded yet, or there are no pivs at all on the page, or there are pivs left to organize
+    if (currentPage == '' ||
+        currentPage['total'] == 0 ||
+        currentPage['pivs'].length > 0) return Container();
+    if (rows.length == 0) return Container();
     return Align(
       alignment: SizeService.instance.screenHeight(context) < 710
           ? const Alignment(0, 1)
@@ -400,145 +443,47 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                 style: kCenterPhoneGridTitle,
               ),
             ),
-            GestureDetector(
-              child: const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 12.0),
-                      child: FaIcon(
-                        kTagIcon,
-                        size: 20,
-                        color: kTagColor18,
+            Column(
+                children: rows.map((row) {
+              if (row[0] == 'Total' || row[0] == 'All time organized')
+                return Container();
+              return GestureDetector(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(right: 12.0),
+                        child: FaIcon(
+                          kTagIcon,
+                          size: 20,
+                          color: tagColor(row[0]),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                        child: Text(
-                      'Family',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat-Regular',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: kGreyDarker,
+                      Expanded(
+                          child: Text(
+                        row[0],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: TextStyle(
+                          fontFamily: 'Montserrat-Regular',
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: kGreyDarker,
+                        ),
+                      )),
+                      Text(
+                        row[1].toString(),
+                        style: kPhoneViewAchievementsNumber,
                       ),
-                    )),
-                    Text(
-                      '22',
-                      style: kPhoneViewAchievementsNumber,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            GestureDetector(
-              child: const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 12.0),
-                      child: FaIcon(
-                        kTagIcon,
-                        size: 20,
-                        color: kTagColor12,
-                      ),
-                    ),
-                    Expanded(
-                        child: Text(
-                      'Friends',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat-Regular',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: kGreyDarker,
-                      ),
-                    )),
-                    Text(
-                      '53',
-                      style: kPhoneViewAchievementsNumber,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            GestureDetector(
-              child: const Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 12.0),
-                      child: FaIcon(
-                        kTagIcon,
-                        size: 20,
-                        color: kTagColor8,
-                      ),
-                    ),
-                    Expanded(
-                        child: Text(
-                      'Vacations',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat-Regular',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: kGreyDarker,
-                      ),
-                    )),
-                    Text(
-                      '13',
-                      style: kPhoneViewAchievementsNumber,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 12.0),
-                    child: FaIcon(
-                      kTagsIcon,
-                      size: 20,
-                      color: kAltoBlue,
-                    ),
+                    ],
                   ),
-                  Expanded(
-                      child: Text(
-                    'Others',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-Regular',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: kGreyDarker,
-                    ),
-                  )),
-                  Text(
-                    '32',
-                    style: kPhoneViewAchievementsNumber,
-                  ),
-                ],
-              ),
-            ),
-            const Padding(
+                ),
+              );
+            }).toList()),
+            Padding(
               padding:
                   EdgeInsets.only(top: 10.0, bottom: 20, left: 20, right: 20),
               child: Row(
@@ -562,7 +507,7 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                     ),
                   )),
                   Text(
-                    '110',
+                    rows[rows.length - 2][1].toString(),
                     style: kPhoneViewAchievementsNumber,
                   ),
                 ],
@@ -574,7 +519,7 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                       top: 10, bottom: 20, left: 20, right: 20)
                   : const EdgeInsets.only(
                       top: 10, bottom: 40, left: 20, right: 20),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Padding(
@@ -596,7 +541,7 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                     ),
                   )),
                   Text(
-                    '2020',
+                    rows[rows.length - 1][1].toString(),
                     style: kPhoneViewAchievementsNumber,
                   ),
                 ],
