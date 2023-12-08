@@ -2680,10 +2680,11 @@ We will iterate all the `pendingTags` keys. Each of them belongs to a local piv 
       StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
 ```
 
-We will get the local piv and the list of pending tags.
+We will get the local piv and the list of pending tags. If there's no matching local piv for this key, we will ignore the key.
 
 ```dart
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
+         if (piv == null) return;
          var pendingTags = StoreService.instance.get (k);
 ```
 

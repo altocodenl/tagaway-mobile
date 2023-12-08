@@ -321,6 +321,7 @@ class TagService {
 
       StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
+         if (piv == null) return;
          var pendingTags = StoreService.instance.get (k);
 
          if (pendingTags == '') return;
