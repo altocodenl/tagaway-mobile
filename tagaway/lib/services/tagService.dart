@@ -402,6 +402,7 @@ class TagService {
       var localCount = {}, localQueryTotal = 0;
       StoreService.instance.getKeys ('^pendingTags:').forEach ((key) {
          var piv = localPivsById [key.replaceAll ('pendingTags:', '')];
+         if (piv == null) return;
          if (page ['from'] > ms (piv.createDateTime) || page ['to'] < ms (piv.createDateTime)) return;
 
          localQueryTotal++;
