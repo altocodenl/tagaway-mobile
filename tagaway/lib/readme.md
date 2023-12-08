@@ -4,6 +4,7 @@
 
 - You're all done
    - Update score whenever tagging
+   - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
 - Show "achievements view" with all that you have organized

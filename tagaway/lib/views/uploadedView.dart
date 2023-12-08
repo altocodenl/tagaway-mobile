@@ -414,9 +414,12 @@ class _TopRowState extends State<TopRow> {
                                               TagService.instance
                                                   .queryPivsForMonth(
                                                       [month[0], month[1]]);
-                                              StoreService.instance
-                                                  .get('gridController')
-                                                  .jumpTo(0);
+                                              if (StoreService.instance
+                                                      .get('gridController') !=
+                                                  '')
+                                                StoreService.instance
+                                                    .get('gridController')
+                                                    .jumpTo(0);
                                             }
                                           }));
                                     });
