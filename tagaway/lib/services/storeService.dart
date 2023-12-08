@@ -133,4 +133,9 @@ class StoreService {
       }
    }
 
+   getKeys (String match) {
+      var regex = RegExp (match);
+      return store.keys.where ((k) => regex.hasMatch (k)).toList ();
+   }
+
 }

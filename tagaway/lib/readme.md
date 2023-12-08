@@ -3,7 +3,7 @@
 ## TODO
 
 - You're all done
-   - Go to tag query
+   - Update score whenever tagging
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
 - Show "achievements view" with all that you have organized
@@ -71,7 +71,7 @@
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
 - localPage <int>: the local page currently being shown.
-- localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER}` - contains all the pages of local pivs to be shown, one per grid.
+- localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER, dateTags: ['d::MN', 'd::YYYY']}` - contains all the pages of local pivs to be shown, one per grid.
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
 - localYear <str>: displayed year in LocalView time header
@@ -876,8 +876,7 @@ We define a list `cloudIds` with all the ids of cloud pivs that we want to check
 We iterate the `pivMap` entries.
 
 ```dart
-      for (var k in StoreService.instance.store.keys.toList ()) {
-         if (! RegExp ('^pivMap:').hasMatch (k)) continue;
+      for (var k in StoreService.instance.getKeys ('^pivMap:')) {
 ```
 
 We get the `pivMap:ID` entry, which can contain the id of the cloud counterpart of this local piv.
@@ -999,8 +998,7 @@ We first construct an object/map where each key is the id of a local piv. The va
 We are now going to iterate the existing `hashMap` entries, to see which entries exist.
 
 ```dart
-      for (var k in StoreService.instance.store.keys.toList ()) {
-         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
 ```
 
 If we find a `hashMap:ID` entry where `ID` does not correspond to a local piv, we remove that entry. Note we remove it from disk.
@@ -1033,13 +1031,7 @@ We will create another object/map where each key is the id of a local piv that h
 We are now going to iterate the existing `hashMap` entries, to see which entries exist.
 
 ```dart
-      for (var k in StoreService.instance.store.keys.toList ()) {
-```
-
-If this entry is not a hashMap, we ignore it.
-
-```dart
-         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
 ```
 
 We extract the piv id from `hashMap:ID`. We then set the key `id` of `hashesToQuery` to the value of the hash of this piv.
@@ -1225,9 +1217,10 @@ Each page has the following properties:
 - `pivs`, the actual pivs that should be shown on the page.
 - `from`, the earliest timestamp that a piv that belongs to this page can have.
 - `from`, the latest timestamp that a piv that belongs to this page can have.
+- `dateTags`, the relevant year and month tags for that month.
 
 ```javasscript
-         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow)};
+         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow), 'dateTags': ['d::M' + Now.month.toString (), 'd::' + Now.year.toString ()]};
 ```
 
 We convert the result to a list.
@@ -1367,11 +1360,17 @@ We set `left` to either 0 or 1 depending on whether the piv is left.
             'left': pivIsLeft ? 1 : 0,
 ```
 
-We finally add `from` and `to` to the page. The logic for `to` is not so straightforward: if the date of the piv is in any month except December, we just take the beginning of the next month as our `to`. If the piv is in December, then we use January of the following year as our `to` instead.
+We add `from` and `to` to the page. The logic for `to` is not so straightforward: if the date of the piv is in any month except December, we just take the beginning of the next month as our `to`. If the piv is in December, then we use January of the following year as our `to` instead.
 
 ```dart
             'from': ms (DateTime (pivDate.year, pivDate.month, 1)),
-            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month + 1, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1
+            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month + 1, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1,
+```
+
+We finally add `dateTags`.
+
+```dart
+            'dateTags': ['d::M' + pivDate.month.toString (), 'd::' + pivDate.year.toString ()]
          });
 ```
 
@@ -1839,8 +1838,7 @@ We store usertags in a local variable, because we'll use it repeatedly below.
 We iterate all the `pendingTags` entries to see if there are any usertags in there that are not in the server yet. This might be the case if a user tagged a queued piv with a new tag that is not on the server yet.
 
 ```dart
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
          var pendingTags = StoreService.instance.get (k);
 ```
 
@@ -1929,8 +1927,8 @@ This midnight heuristic, by the way, will break while the user travels to an ear
 We iterate the `pendingTags:ID` keys; each of them represents an organized piv that hasn't been uploaded yet. We will increment `organizedNow` by that amount.
 
 ```dart
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (RegExp ('^pendingTags:').hasMatch (k) && StoreService.instance.get (k) != '') organizedNow++;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
+         if (StoreService.instance.get (k) != '') organizedNow++;
       });
 ```
 
@@ -2604,8 +2602,8 @@ We iterate the local tags and if we find a month tag or a year tag, we set it in
 
 ```dart
       tags.forEach ((tag) {
-         if (RegExp('^d::[0-9]').hasMatch(tag)) monthTag = tag;
-         if (RegExp('^d::M').hasMatch(tag))     yearTag = tag;
+         if (RegExp('^d::[0-9]').hasMatch(tag)) yearTag = tag;
+         if (RegExp('^d::M').hasMatch(tag))     monthTag = tag;
       });
 ```
 
@@ -2678,8 +2676,7 @@ We will create a list `localPivsToAdd`, which we will only use if `currentMonth`
 We will iterate all the `pendingTags` keys. Each of them belongs to a local piv in the queue.
 
 ```dart
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
 ```
 
 We will get the local piv and the list of pending tags.

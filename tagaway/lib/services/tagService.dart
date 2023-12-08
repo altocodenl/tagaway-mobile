@@ -51,8 +51,7 @@ class TagService {
          return ! RegExp ('^[a-z]::').hasMatch (tag);
       }).toList ();
 
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
          var pendingTags = StoreService.instance.get (k);
          if (pendingTags != '') pendingTags.forEach ((tag) {
             if (! usertags.contains (tag)) usertags.add (tag);
@@ -76,8 +75,8 @@ class TagService {
          'organized': organizedNow
       }, 'disk');
 
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (RegExp ('^pendingTags:').hasMatch (k) && StoreService.instance.get (k) != '') organizedNow++;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
+         if (StoreService.instance.get (k) != '') organizedNow++;
       });
 
       StoreService.instance.set ('organized', {
@@ -283,8 +282,8 @@ class TagService {
 
       var monthTag, yearTag;
       tags.forEach ((tag) {
-         if (RegExp('^d::[0-9]').hasMatch(tag)) monthTag = tag;
-         if (RegExp('^d::M').hasMatch(tag))     yearTag = tag;
+         if (RegExp('^d::[0-9]').hasMatch(tag)) yearTag = tag;
+         if (RegExp('^d::M').hasMatch(tag))     monthTag = tag;
       });
 
       if (yearTag  != null) yearTag  = int.parse (yearTag.substring (3));
@@ -320,8 +319,7 @@ class TagService {
       //PivService.instance.localPivs.forEach ((piv) {
          //var pendingTags = ['a local tag'];
 
-      StoreService.instance.store.keys.toList ().forEach ((k) {
-         if (! RegExp ('^pendingTags:').hasMatch (k)) return;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          var pendingTags = StoreService.instance.get (k);
 
@@ -396,6 +394,26 @@ class TagService {
          return [];
       }
 
+      var localPivsById = {};
+      PivService.instance.localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+
+      var localCount = {}, localQueryTotal = 0;
+      StoreService.instance.getKeys ('^pendingTags:').forEach ((key) {
+         var piv = localPivsById [key.replaceAll ('pendingTags:', '')];
+         if (page ['from'] > ms (piv.createDateTime) || page ['to'] < ms (piv.createDateTime)) return;
+
+         localQueryTotal++;
+
+         var pendingTags = StoreService.instance.get (key);
+         if (pendingTags == '') pendingTags = [];
+         pendingTags.forEach ((tag) {
+            if (localCount [tag] == null) localCount [tag] = 0;
+            localCount [tag]++;
+         });
+      });
+
       var output = [];
 
       response ['body'] ['tags'].keys.forEach ((tag) {
@@ -403,11 +421,18 @@ class TagService {
          var value = response ['body'] ['tags'] [tag];
          output.add ([tag, value]);
       });
+
+      localCount.keys.forEach ((tag) {
+         var matchingRow = output.indexWhere((row) => row [0] == tag);
+         if (matchingRow == -1) output.add ([tag, localCount [tag]]);
+         else output [matchingRow] [1] += localCount [tag];
+      });
+
       output.sort ((a, b) {
          return (b [1] as int).compareTo ((a [1] as int));
       });
       if (output.length > 5) output = output.sublist (0, 5);
-      output.add (['Total', response ['body'] ['total']]);
+      output.add (['Total', response ['body'] ['total'] + localQueryTotal]);
       output.add (['All time organized', StoreService.instance.get ('organized') ['total']]);
 
       return output;

@@ -227,8 +227,7 @@ class PivService {
    queryOrganizedLocalPivs () async {
       var cloudIds = [];
 
-      for (var k in StoreService.instance.store.keys.toList ()) {
-         if (! RegExp ('^pivMap:').hasMatch (k)) continue;
+      for (var k in StoreService.instance.getKeys ('^pivMap:')) {
          var cloudId = StoreService.instance.get (k);
          if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
       }
@@ -269,8 +268,7 @@ class PivService {
          localPivIds [v.id] = true;
       });
 
-      for (var k in StoreService.instance.store.keys.toList ()) {
-         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
          var id = k.replaceAll ('hashMap:', '');
          if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
       }
@@ -279,8 +277,7 @@ class PivService {
    queryExistingHashes () async {
       var hashesToQuery = {};
 
-      for (var k in StoreService.instance.store.keys.toList ()) {
-         if (! RegExp ('^hashMap:').hasMatch (k)) continue;
+      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
          var id = k.replaceAll ('hashMap:', '');
          hashesToQuery [id] = StoreService.instance.get (k);
       }
@@ -339,7 +336,7 @@ class PivService {
       DateTime firstDayOfMonth = DateTime (Now.year, Now.month, 1);
 
       var pages = [['Today', today], ['This week', monday], ['This month', firstDayOfMonth]].map ((pair) {
-         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow)};
+         return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow), 'dateTags': ['d::M' + Now.month.toString (), 'd::' + Now.year.toString ()]};
       }).toList ();
 
       var displayMode = StoreService.instance.get ('displayMode');
@@ -374,7 +371,8 @@ class PivService {
             'pivs': showPiv ? [piv] : [],
             'left': pivIsLeft ? 1 : 0,
             'from': ms (DateTime (pivDate.year, pivDate.month, 1)),
-            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month + 1, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1
+            'to':   ms (pivDate.month < 12 ? DateTime (pivDate.year, pivDate.month + 1, 1) : DateTime (pivDate.year + 1, 1, 1)) - 1,
+            'dateTags': ['d::M' + pivDate.month.toString (), 'd::' + pivDate.year.toString ()]
          });
       });
 

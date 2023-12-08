@@ -448,6 +448,13 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
               if (row[0] == 'Total' || row[0] == 'All time organized')
                 return Container();
               return GestureDetector(
+                onTap: () {
+                  StoreService.instance.set(
+                      'queryTags', [row[0]]..addAll(currentPage['dateTags']));
+                  TagService.instance.queryPivs();
+                  StoreService.instance.set('viewIndex', 0);
+                  Navigator.pushReplacementNamed(context, 'uploaded');
+                },
                 child: Padding(
                   padding: EdgeInsets.all(20.0),
                   child: Row(
