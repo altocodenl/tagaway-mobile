@@ -2,10 +2,8 @@
 
 ## TODO
 
-- Count organized today properly by adding date when piv was added to queue
-- Bad file descriptor error
-- range error
 - tag L:404
+- Count organized today properly by adding date when piv was added to queue
 - Disappearing bottom navigation after coming back from edit home tags
 - When editing home tags, see changes immediately
 - You're all done
