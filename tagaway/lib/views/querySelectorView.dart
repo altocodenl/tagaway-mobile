@@ -213,7 +213,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                                   elementColor: kSelectedTag,
                                   icon: tagIcon(tag),
                                   iconColor: tagIconColor(tag),
-                                  tagTitle: shorten(tagTitle(tag)));
+                                  tagTitle: shorten(tagTitle(tag), context));
                             }),
                       ),
                     ])),
@@ -498,14 +498,33 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                                 : kGreyLighter,
                             icon: tagIcon(city),
                             iconColor: tagIconColor(city),
-                            tagTitle: shorten(tagTitle(city)));
+                            tagTitle: shorten(tagTitle(city), context));
                       }),
                 )),
             Visibility(
                 visible: usertags.length > 0,
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Text('Your tags', style: kQuerySelectorSubtitles),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Row(
+                    children: [
+                      const Text('Your tags', style: kQuerySelectorSubtitles),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kAltoOrganized,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            onPressed: () {},
+                            child: const Text(
+                              'Manage',
+                              style: kButtonText,
+                            )),
+                      )
+                    ],
+                  ),
                 )),
             Visibility(
                 visible: usertags.length > 0,
@@ -535,7 +554,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                                 : kGreyLighter,
                             icon: tagIcon(tag),
                             iconColor: tagIconColor(tag),
-                            tagTitle: shorten(tagTitle(tag)));
+                            tagTitle: shorten(tagTitle(tag), context));
                       }),
                 )),
           ],
