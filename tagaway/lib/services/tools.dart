@@ -89,6 +89,9 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
     redirectToOfflineView ();
     return {'code': 0};
   }
+  catch (error) {
+     return {'code': -1, error: error};
+  }
 }
 
 Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async {
@@ -144,6 +147,9 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
       ]);
     redirectToOfflineView ();
     return {'code': 0};
+  }
+  catch (error) {
+     return {'code': -1, error: error};
   }
 }
 
