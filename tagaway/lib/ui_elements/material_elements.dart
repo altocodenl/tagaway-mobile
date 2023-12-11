@@ -656,6 +656,28 @@ class _StartButtonState extends State<StartButton> {
   bool showButtons = false;
   dynamic cancelListener;
 
+  determineVisibility() {
+    var currentlyTagging =
+        StoreService.instance.get('currentlyTagging' + widget.view);
+    var currentlyDeleting =
+        StoreService.instance.get('currentlyDeleting' + widget.view);
+    var emptyPage = false;
+    if (widget.view == 'Local') {
+      var page = StoreService.instance.get(
+          'localPage:' + StoreService.instance.get('localPage').toString());
+      if (page == '' || page['pivs'].length == 0) emptyPage = true;
+      // If page is not loaded yet, call the function recursively after one second.
+      if (page == '')
+        Future.delayed(const Duration(seconds: 1), determineVisibility);
+    }
+    setState(() {
+      visible = secondElapsed &&
+          currentlyTagging == '' &&
+          currentlyDeleting != true &&
+          emptyPage == false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -664,46 +686,25 @@ class _StartButtonState extends State<StartButton> {
       'currentlyTagging' + widget.view,
       'currentlyDeleting' + widget.view,
       widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage'
-    ], (ShowButtons, CurrentlyTagging, CurrentlyDeleting, localPage) {
-      if (CurrentlyTagging != '' &&
+    ], (showButtons, currentlyTagging, currentlyDeleting, localPage) {
+      if (currentlyTagging != '' &&
           StoreService.instance.get('viewIndex') ==
               (widget.view == 'Local' ? 1 : 0))
         TagService.instance
-            .getTaggedPivs(CurrentlyTagging, widget.view.toLowerCase());
+            .getTaggedPivs(currentlyTagging, widget.view.toLowerCase());
 
       setState(() {
-        showButtons = ShowButtons == true;
-        var emptyPage = false;
-        if (widget.view == 'Local') {
-          var page =
-              StoreService.instance.get('localPage:' + localPage.toString());
-          if (page == '' || page['pivs'].length == 0) emptyPage = true;
-        }
-        visible = secondElapsed &&
-            CurrentlyTagging == '' &&
-            CurrentlyDeleting != true &&
-            emptyPage == false;
+        showButtons = showButtons == true;
+        determineVisibility();
       });
     });
 
     Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          secondElapsed = true;
-          var emptyPage = false;
-          if (widget.view == 'Local') {
-            var page = StoreService.instance.get('localPage:' +
-                StoreService.instance.get('localPage').toString());
-            if (page == '' || page['pivs'].length == 0) emptyPage = true;
-          }
-          visible = secondElapsed &&
-              StoreService.instance.get('currentlyTagging' + widget.view) ==
-                  '' &&
-              StoreService.instance.get('currentlyDeleting' + widget.view) !=
-                  true &&
-              emptyPage == false;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        secondElapsed = true;
+        determineVisibility();
+      });
     });
   }
 

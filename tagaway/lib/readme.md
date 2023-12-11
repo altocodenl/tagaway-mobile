@@ -2,6 +2,12 @@
 
 ## TODO
 
+- Count organized today properly by adding date when piv was added to queue
+- Bad file descriptor error
+- range error
+- tag L:404
+- Disappearing bottom navigation after coming back from edit home tags
+- When editing home tags, see changes immediately
 - You're all done
    - Update score whenever tagging
    - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
