@@ -200,6 +200,8 @@ class PivService {
 
    loadLocalPivs () async {
 
+      if (localPivs.length > 0) return;
+
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();
       computeLocalPages ();

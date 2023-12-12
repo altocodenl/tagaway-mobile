@@ -767,6 +767,14 @@ We now define `loadLocalPivs`, a function that is a sort of entry point for load
    loadLocalPivs () async {
 ```
 
+Before we start doing anything, we check whether `localPivs` actually has pivs inside. If it does, this means that `loadLocalPivs` has already been executed during this run of the app; hence, there's no need to anything else, and we return.
+
+An example of when this can happen is if the app loses connection and then recovers it; in that case, the user will be redirected to the offline view, and then, when the connection returns, to the distributor view, which in turn will invoke this function. The check below prevents us from doing all the initialization again if we already did it.
+
+```dart
+      if (localPivs.length > 0) return;
+```
+
 This function will start by doing four things:
 
 - Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. We will wait for this operation to be done before continuing, to avoid the screen flickering or abrupt changes when this info is loaded.
