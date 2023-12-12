@@ -254,7 +254,9 @@ class PivService {
       if (queue == '' || queue.length == 0) return;
 
       localPivs.forEach ((v) {
-         if (queue.contains (v.id)) uploadQueue.add (v);
+         if (! queue.contains (v.id)) return;
+         uploadQueue.add (v);
+         StoreService.instance.set ('pivMap:' + v.id, true);
       });
 
       queuePiv (null);

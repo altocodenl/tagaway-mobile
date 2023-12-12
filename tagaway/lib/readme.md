@@ -2,9 +2,7 @@
 
 ## TODO
 
-- Restart error
 - Start button timeout
-- When restarting app, add orgMap:true
 - tag L:404
 - Count organized today properly by adding date when piv was added to queue
 - When editing home tags, see changes immediately
@@ -954,11 +952,18 @@ We get the dry upload queue which will be in the `uploadQueue` key. If there's n
 
 We iterate the local pivs and for each of them whose id is in the queue, we add them to `uploadQueue`. Note that this works because in the dry upload queue (the one stored at the `uploadQueue` key), we only store ids.
 
-Note also that this will not restore the upload queue in the same order than the dry upload queue had them. The reason is purely practical: if we don't care about the order, we can simply add the queued pivs in the order they appear in `localPivs`. If we had to do it in the original order, we'd have to create a dictionary mapping each id of a local piv to an index, and then add the local pivs to the queue using those indexes.
+Note also that this will not restore the upload queue in the same order than the dry upload queue had them. The reason is purely practical: if we don't care about the order, we can simply add the queued pivs in the order they appear in `localPivs`. If we had to do it in the original order, we'd have to create a dictionary mapping each id of a local piv to an index, and then add the local pivs to the queue using those indexes. In any case, we will call `queuePiv` below, which will sort the upload queue.
 
 ```dart
       localPivs.forEach ((v) {
-         if (queue.contains (v.id)) uploadQueue.add (v);
+         if (! queue.contains (v.id)) return;
+         uploadQueue.add (v);
+```
+
+We also set the `pivMap:ID` entry to `true`, as was done by `queuePiv` when this piv was originally added to the queue, to indicate that this piv should be considered as organized.
+
+```dart
+         StoreService.instance.set ('pivMap:' + v.id, true);
       });
 ```
 
