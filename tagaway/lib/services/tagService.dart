@@ -92,6 +92,9 @@ class TagService {
       if ((add && hometags.contains (tag)) || (! add && ! hometags.contains (tag))) return;
 
       add ? hometags.add (tag) : hometags.remove (tag);
+
+      StoreService.instance.set ('hometags', hometags);
+
       var response = await ajax ('post', 'hometags', {'hometags': hometags});
 
       if (response ['code'] != 200) {

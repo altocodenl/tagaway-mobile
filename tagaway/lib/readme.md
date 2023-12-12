@@ -2,7 +2,6 @@
 
 ## TODO
 
-- When editing home tags, see changes immediately
 - Start button timeout
 - tag L:404
 - Count organized today properly by adding date when piv was added to queue
@@ -2014,6 +2013,12 @@ If we want to add the tag to the hometags and it is already there, or we want to
 
 ```dart
       if ((add && hometags.contains (tag)) || (! add && ! hometags.contains (tag))) return;
+```
+
+To avoid the user to keep on waiting for a server response, we immediately update the `hometags` key so that the UI is updated. If the call later fails, the hometags will revert to what they were when we invoke `getTags` below, which will re-update `hometags` with what comes from the server.
+
+```dart
+      StoreService.instance.set ('hometags', hometags);
 ```
 
 We invoke `POST /hometags` passing the updated hometags.
