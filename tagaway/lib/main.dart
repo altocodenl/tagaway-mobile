@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -13,6 +14,7 @@ import 'package:tagaway/views/editHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/loginView.dart';
+import 'package:tagaway/views/manageTagsView.dart';
 import 'package:tagaway/views/offlineView.dart';
 import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
@@ -99,6 +101,7 @@ class Tagaway extends StatelessWidget {
         'requestPermission': (context) => const RequestPermissionView(),
         'share': (context) => const ShareView(),
         'signup': (context) => const SignUpView(),
+        'manageTags': (context) => const ManageTagsView(),
         'signupForm': (context) => const SignUpFormView(),
         'uploaded': (context) => const UploadedView(),
       },

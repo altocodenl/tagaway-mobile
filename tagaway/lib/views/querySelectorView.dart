@@ -517,7 +517,10 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(
+                                  context, 'manageTags');
+                            },
                             child: const Text(
                               'Manage',
                               style: kButtonText,
