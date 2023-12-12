@@ -142,8 +142,7 @@ class TagService {
       StoreService.instance.set (tagMapPrefix + pivId, untag ? '' : true);
 
       if (! untag && type == 'local') {
-         var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
-         if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+         var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
          currentlyTaggingPivs.add (pivId);
          StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
       }
@@ -165,8 +164,7 @@ class TagService {
          }
       }
 
-      var pendingTags = StoreService.instance.get ('pending:' + pivId);
-      if (pendingTags == '') pendingTags = [];
+      var pendingTags = getList ('pendingTags:' + pivId);
 
       tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
 
@@ -408,8 +406,7 @@ class TagService {
 
          localQueryTotal++;
 
-         var pendingTags = StoreService.instance.get (key);
-         if (pendingTags == '') pendingTags = [];
+         var pendingTags = getList (key);
          pendingTags.forEach ((tag) {
             if (localCount [tag] == null) localCount [tag] = 0;
             localCount [tag]++;
@@ -442,8 +439,7 @@ class TagService {
 
    queryPivs ([refresh = false, preserveMonth = false]) async {
 
-      var tags = StoreService.instance.get ('queryTags');
-      if (tags == '') tags = [];
+      var tags = getList ('queryTags');
       tags.sort ();
 
       if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
@@ -559,8 +555,7 @@ class TagService {
 
    queryPivsForMonth (dynamic currentMonth) async {
 
-      var tags = StoreService.instance.get ('queryTags');
-      if (tags == '') tags = [];
+      var tags = getList ('queryTags');
       tags.sort ();
 
       // The streams join here. We get all the pivs for the month. We only care about the pivs.
@@ -685,8 +680,7 @@ class TagService {
       }
 
       await getTags ();
-      var queryTags = StoreService.instance.get ('queryTags');
-      if (queryTags == '') queryTags = [];
+      var queryTags = getList ('queryTags');
       if (queryTags.contains (from)) {
          queryTags.remove (from);
          queryTags.add (to);
@@ -702,8 +696,7 @@ class TagService {
          return;
       }
       await getTags ();
-      var queryTags = StoreService.instance.get ('queryTags');
-      if (queryTags == '') queryTags = [];
+      var queryTags = getList ('queryTags');
       // Is this conditional necessary?
       if (queryTags.contains (tag)) queryTags.remove (tag);
       StoreService.instance.set ('queryTags', queryTags);
@@ -712,8 +705,7 @@ class TagService {
 
    toggleDeletion (String id, String view, [selectAll = null]) {
       var key = 'currentlyDeletingPivs' + (view == 'local' ? 'Local' : 'Uploaded');
-      var currentlyDeletingPivs = StoreService.instance.get (key);
-      if (currentlyDeletingPivs == '') currentlyDeletingPivs = [];
+      var currentlyDeletingPivs = getList (key);
       // copy
       currentlyDeletingPivs = currentlyDeletingPivs.toList ();
       if (selectAll != null) {

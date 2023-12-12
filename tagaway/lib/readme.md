@@ -2,10 +2,10 @@
 
 ## TODO
 
+- When editing home tags, see changes immediately
 - Start button timeout
 - tag L:404
 - Count organized today properly by adding date when piv was added to queue
-- When editing home tags, see changes immediately
 - You're all done
    - Score sometimes doesn't show after reloading app
    - Update score whenever tagging
@@ -1282,8 +1282,7 @@ We get `currentlyTaggingPivs`, a list of pivs currently being tagged. If there's
 The reason we need this list is to avoid prematurely hiding pivs that are just being tagged. As soon as a piv is tagged, it is marked as organized, so if `displayMode` is `'all'`, that piv would immediately disappear, which is undesirable. By having a reference to this list, we can prevent prematurely removing those pivs from the local page.
 
 ```dart
-      var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
-      if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+      var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
 ```
 
 We iterate `localPivs`, which is the list of all local pivs held by our `pivService`. For each of them:
@@ -2187,8 +2186,7 @@ If we are tagging a local piv (and a local piv on the local view, not the upload
 
 ```dart
       if (! untag && type == 'local') {
-         var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
-         if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+         var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
 ```
 
 We then the piv id to `currentlyTaggingPivs` and update the key in the store.
@@ -2259,11 +2257,10 @@ We fall through to the logic that will upload the piv, by closing the conditiona
 
 Before uploading the local piv, we will store this tag (or remove this tag) from a list that holds all the tags that should be applied to a local piv *once* it is uploaded.
 
-We get the key `pending:ID`; if it's an empty string, we initialize it to an array.
+We get the key `pendingTags:ID`; if it's an empty string, we initialize it to an array.
 
 ```dart
-      var pendingTags = StoreService.instance.get ('pending:' + pivId);
-      if (pendingTags == '') pendingTags = [];
+      var pendingTags = getList ('pendingTags:' + pivId);
 ```
 
 If we are tagging, we add each of the tags to `pendingTags`; if we are untagging, we remove each of the tags from it.
@@ -2919,8 +2916,7 @@ We don't want to bring back all the information at once because 1) that takes si
 We get `queryTags` from the store. If it is not initialized yet, we set the local variable to an empty list.
 
 ```dart
-      var tags = StoreService.instance.get ('queryTags');
-      if (tags == '') tags = [];
+      var tags = getList ('queryTags');
 ```
 
 We sort the received tags, because we'll need to compare them to the tags of a previous query; since the order of the tags doesn't affect the result of the query, we need to compare sorted list of tags to determine if the two lists are the same or not.

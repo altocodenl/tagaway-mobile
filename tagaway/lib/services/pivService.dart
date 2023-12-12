@@ -356,8 +356,7 @@ class PivService {
       }).toList ();
 
       var displayMode = StoreService.instance.get ('displayMode');
-      var currentlyTaggingPivs = StoreService.instance.get ('currentlyTaggingPivs');
-      if (currentlyTaggingPivs == '') currentlyTaggingPivs = [];
+      var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
 
       localPivs.forEach ((piv) {
 
