@@ -78,7 +78,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
       'body': jsonDecode(
           response.body == '' ? '{}' : utf8.decode(response.bodyBytes))
     };
-  } on SocketException catch (_) {
+   } catch (error) {
     if (ajaxLogs)
       debug([
         method,
@@ -88,9 +88,6 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
       ]);
     redirectToOfflineView ();
     return {'code': 0};
-  }
-  catch (error) {
-     return {'code': -1, error: error};
   }
 }
 
@@ -137,7 +134,7 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
       'headers': response.headers,
       'body': jsonDecode(rbody == '' ? '{}' : rbody)
     };
-  } on SocketException catch (_) {
+  } catch (error) {
     if (ajaxLogs)
       debug([
         'post',
@@ -147,9 +144,6 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
       ]);
     redirectToOfflineView ();
     return {'code': 0};
-  }
-  catch (error) {
-     return {'code': -1, error: error};
   }
 }
 
