@@ -2,11 +2,14 @@
 
 ## TODO
 
+- Restart error
+- Start button timeout
+- When restarting app, add orgMap:true
 - tag L:404
 - Count organized today properly by adding date when piv was added to queue
-- Disappearing bottom navigation after coming back from edit home tags
 - When editing home tags, see changes immediately
 - You're all done
+   - Score sometimes doesn't show after reloading app
    - Update score whenever tagging
    - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
@@ -318,7 +321,18 @@ We define `uploadPiv`, the function that will actually upload a piv to the serve
 We get the actual file of the piv. This functionality is provided by PhotoManager.
 
 ```dart
-      File file = await piv.originFile;
+      var file;
+      try {
+         file = await piv.originFile;
+      }
+```
+
+Note we wrapped the above in a `try` block. Sometimes, the file might not be available; for example, because it was removed with another app while the file was on the upload queue. For that reason, we cannot be sure there will be a piv. If there's not, we return an object with key `code` equalling `-1`, to indicate that the file was missing and nothing else can be done.
+
+```dart
+      catch (error) {
+         return {'code': -1};
+      }
 ```
 
 We get the `uploadId` from `startUpload`, which will either give us an existing upload group id or make a new one; if we get `false`, the operation failed and we cannot proceed, so we don't do anything else. In this case, we don't even print an error, since that will have been done by `startUpload`.
@@ -576,6 +590,16 @@ If we obtained a 200, the piv was successfully uploaded. In this case, we simply
       if (result ['code'] == 200) {
          if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
          updateDryUploadQueue ();
+      }
+```
+
+If we obtained a -1 code, the file for this piv is no longer available. We report the error with code `UPLOAD:-1`, remove the piv from the upload queue and update the dry upload queue. As with the 200 code above, we will not return since we will do further actions in this case.
+
+```dart
+      else if (result ['code'] == -1) {
+         if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
+         updateDryUploadQueue ();
+         showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
       }
 ```
 

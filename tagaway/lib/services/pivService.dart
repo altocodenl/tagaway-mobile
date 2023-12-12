@@ -43,7 +43,13 @@ class PivService {
    }
 
    uploadPiv (dynamic piv) async {
-      File file = await piv.originFile;
+      var file;
+      try {
+         file = await piv.originFile;
+      }
+      catch (error) {
+         return {'code': -1};
+      }
 
       var uploadId = await startUpload ();
       if (uploadId == false) return;
@@ -121,6 +127,12 @@ class PivService {
       if (result ['code'] == 200) {
          if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
          updateDryUploadQueue ();
+      }
+
+      else if (result ['code'] == -1) {
+         if (uploadQueue.length > 0) uploadQueue.remove (nextPiv);
+         updateDryUploadQueue ();
+         showSnackbar ('There was an error uploading your piv - CODE UPLOAD:' + result ['code'].toString (), 'yellow');
       }
 
       else if (result ['code'] == 400) {
