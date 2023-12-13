@@ -3,6 +3,7 @@
 ## TODO
 
 - determineVisibility
+
 - Duplicated delorean
 - Start button timeout
 - tag L:404
@@ -490,11 +491,11 @@ Note however we do not unconditionally set `pivMap:ID` to `true`: if `pivMap:ID`
          if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
 ```
 
-We check whether the piv is already in the upload queue.
+We check whether the piv is already in the upload queue. We add a check to see if `uploadQueue` is not empty because Dart seems to throw a range error if we iterate it when it is empty. I say "seems" because we haven't bothered to replicate it.
 
 ```dart
          bool pivAlreadyInQueue = false;
-         uploadQueue.forEach ((queuedPiv) {
+         if (uploadQueue.length > 0) uploadQueue.forEach ((queuedPiv) {
             if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
          });
 ```
