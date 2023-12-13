@@ -200,7 +200,7 @@ class PivService {
 
    loadLocalPivs () async {
 
-      if (localPivs.length > 0) return;
+      if (localPivs.length > 0) return queuePiv (null);
 
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();

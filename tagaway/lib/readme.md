@@ -2,6 +2,9 @@
 
 ## TODO
 
+
+- Duplicated delorean
+- Restart uploads when coming back online
 - Start button timeout
 - tag L:404
 - Count organized today properly by adding date when piv was added to queue
@@ -764,12 +767,12 @@ We now define `loadLocalPivs`, a function that is a sort of entry point for load
    loadLocalPivs () async {
 ```
 
-Before we start doing anything, we check whether `localPivs` actually has pivs inside. If it does, this means that `loadLocalPivs` has already been executed during this run of the app; hence, there's no need to anything else, and we return.
+Before we start doing anything, we check whether `localPivs` actually has pivs inside. If it does, this means that `loadLocalPivs` has already been executed during this run of the app. In this case, we just call `queuePiv` to start processing the upload queue, which should already be present - and may be empty, or not. There's no need to do anything else, so we return.
 
 An example of when this can happen is if the app loses connection and then recovers it; in that case, the user will be redirected to the offline view, and then, when the connection returns, to the distributor view, which in turn will invoke this function. The check below prevents us from doing all the initialization again if we already did it.
 
 ```dart
-      if (localPivs.length > 0) return;
+      if (localPivs.length > 0) return queuePiv (null);
 ```
 
 This function will start by doing four things:
