@@ -2,11 +2,8 @@
 
 ## TODO
 
-- determineVisibility
-
+- determineVisibility?
 - Duplicated delorean
-- Start button timeout
-- tag L:404
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
    - Score sometimes doesn't show after reloading app
@@ -14,6 +11,7 @@
    - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
+- tag L:404
 - Show "achievements view" with all that you have organized
 - Swipe sideways to navigate months in uploaded
 - Confirm on delete single uploaded piv
