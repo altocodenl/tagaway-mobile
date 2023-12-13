@@ -2,9 +2,8 @@
 
 ## TODO
 
-
+- determineVisibility
 - Duplicated delorean
-- Restart uploads when coming back online
 - Start button timeout
 - tag L:404
 - Count organized today properly by adding date when piv was added to queue

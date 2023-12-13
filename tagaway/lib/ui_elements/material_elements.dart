@@ -666,16 +666,11 @@ class _StartButtonState extends State<StartButton> {
       var page = StoreService.instance.get(
           'localPage:' + StoreService.instance.get('localPage').toString());
       if (page == '' || page['pivs'].length == 0) emptyPage = true;
-      // If page is not loaded yet, call the function recursively after one second.
-      if (page == '')
-        Future.delayed(const Duration(seconds: 1), determineVisibility);
-    }
-    setState(() {
-      visible = secondElapsed &&
+      return secondElapsed &&
           currentlyTagging == '' &&
           currentlyDeleting != true &&
           emptyPage == false;
-    });
+    }
   }
 
   @override
@@ -695,7 +690,7 @@ class _StartButtonState extends State<StartButton> {
 
       setState(() {
         showButtons = showButtons == true;
-        determineVisibility();
+        visible = determineVisibility();
       });
     });
 
@@ -703,7 +698,7 @@ class _StartButtonState extends State<StartButton> {
       if (!mounted) return;
       setState(() {
         secondElapsed = true;
-        determineVisibility();
+        visible = determineVisibility();
       });
     });
   }
