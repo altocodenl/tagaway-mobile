@@ -656,7 +656,7 @@ class _StartButtonState extends State<StartButton> {
   bool showButtons = false;
   dynamic cancelListener;
 
-  determineVisibility() {
+  bool determineVisibility() {
     var currentlyTagging =
         StoreService.instance.get('currentlyTagging' + widget.view);
     var currentlyDeleting =
@@ -667,7 +667,7 @@ class _StartButtonState extends State<StartButton> {
           'localPage:' + StoreService.instance.get('localPage').toString());
       if (page == '' || page['pivs'].length == 0) emptyPage = true;
     }
-    return secondElapsed &&
+    return secondElapsed == true &&
         currentlyTagging == '' &&
         currentlyDeleting != true &&
         emptyPage == false;
