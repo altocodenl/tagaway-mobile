@@ -683,7 +683,7 @@ class _StartButtonState extends State<StartButton> {
       widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage',
       // Respond to changes on the first page, since that one can take long to load and will affect the appearance of the start button when loading the app. There should be a better way to do this, but I cannot think of it now.
       widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage:0'
-    ], (showButtons, currentlyTagging, currentlyDeleting, localPage,
+    ], (ShowButtons, currentlyTagging, currentlyDeleting, localPage,
         localPage0) {
       if (currentlyTagging != '' &&
           StoreService.instance.get('viewIndex') ==
@@ -692,7 +692,7 @@ class _StartButtonState extends State<StartButton> {
             .getTaggedPivs(currentlyTagging, widget.view.toLowerCase());
 
       setState(() {
-        showButtons = showButtons == true;
+        showButtons = ShowButtons == true;
         visible = determineVisibility();
       });
     });
@@ -731,7 +731,7 @@ class _StartButtonState extends State<StartButton> {
           label: Text(widget.buttonText, style: kStartButton),
         ),
         replacement: FloatingActionButton(
-          key: const Key('startButton'),
+          key: const Key('xButton'),
           onPressed: () {
             setState(() {
               StoreService.instance.set('showButtons' + widget.view, false);
