@@ -666,11 +666,11 @@ class _StartButtonState extends State<StartButton> {
       var page = StoreService.instance.get(
           'localPage:' + StoreService.instance.get('localPage').toString());
       if (page == '' || page['pivs'].length == 0) emptyPage = true;
-      return secondElapsed == true &&
-          currentlyTagging == '' &&
-          currentlyDeleting != true &&
-          emptyPage == false;
     }
+    return secondElapsed &&
+        currentlyTagging == '' &&
+        currentlyDeleting != true &&
+        emptyPage == false;
   }
 
   @override
