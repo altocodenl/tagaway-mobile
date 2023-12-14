@@ -583,6 +583,8 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResultForPivs = response ['body'];
+      // We copy these to pass them below to avoid a double adding of local pivs
+      var pivsWithoutLocal = List.from (response ['body'] ['pivs']);
       // This is done here because we want to avoid an early ronin return
       queryResultForPivs = localQuery (tags, currentMonth, queryResultForPivs);
 
@@ -617,7 +619,7 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
-      queryResult ['pivs'] = queryResultForPivs ['pivs'];
+      queryResult ['pivs'] = pivsWithoutLocal;
       queryResult = localQuery (tags, currentMonth, queryResult);
 
       StoreService.instance.set ('queryResult', {
