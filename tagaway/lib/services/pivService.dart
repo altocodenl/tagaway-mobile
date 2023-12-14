@@ -96,9 +96,9 @@ class PivService {
          if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
 
          bool pivAlreadyInQueue = false;
-         if (uploadQueue.length > 0) uploadQueue.forEach ((queuedPiv) {
+         for (var queuedPiv in uploadQueue) {
             if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
-         });
+         }
          if (pivAlreadyInQueue) return;
 
          uploadQueue.add (piv);

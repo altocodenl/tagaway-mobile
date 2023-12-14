@@ -2,7 +2,6 @@
 
 ## TODO
 
-- determineVisibility?
 - Duplicated delorean
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
@@ -489,13 +488,13 @@ Note however we do not unconditionally set `pivMap:ID` to `true`: if `pivMap:ID`
          if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
 ```
 
-We check whether the piv is already in the upload queue. We add a check to see if `uploadQueue` is not empty because Dart seems to throw a range error if we iterate it when it is empty. I say "seems" because we haven't bothered to replicate it.
+We check whether the piv is already in the upload queue. We use a for loop because sometimes Dart throws unexplicable range errors when we iterate the`uploadQueue` with a `forEach`.
 
 ```dart
          bool pivAlreadyInQueue = false;
-         if (uploadQueue.length > 0) uploadQueue.forEach ((queuedPiv) {
+         for (var queuedPiv in uploadQueue) {
             if (piv.id == queuedPiv.id) pivAlreadyInQueue = true;
-         });
+         }
 ```
 
 If the piv is already in the queue, there's nothing else to do, so we return.
@@ -2602,7 +2601,7 @@ The function takes three parameters:
    localQuery (tags, currentMonth, queryResult) {
 ```
 
-The purpose of `localQuery` is to enrich `queryResult` by potentially adding local pivs, tags and increasing the total number of pivs in the query.
+The purpose of `localQuery` is to enrich `queryResult` by potentially adding local pivs, tags, increasing the total number of pivs and modifying the time header in the query.
 
 If the current query includes untagged pivs, or pivs marked as to be organized, no local pivs can be included in the query. This is because all local pivs that are queued have, by definition, at least one tag, and will automatically be marked as organized. In this case, we can just return `queryResult` as is.
 
@@ -3026,7 +3025,7 @@ Otherwise, we extract the year and the month of the last month of the query, whi
       }
 ```
 
-We add local pivs to the result by invoking `localQuery`. This function will update the query result adding local pivs that are currently in the upload queue and that match the current query. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
+We modify `queryResult` by invoking `localQuery`. This function will update the query result adding local pivs, tags and potentially modifying the total and time header. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
 
 ```dart
       queryResult = localQuery (tags, currentMonth, queryResult);
@@ -3167,7 +3166,7 @@ We store the result of the second query in a `secondQueryResult` variable.
       var secondQueryResult = response ['body'];
 ```
 
-We add local pivs to the result by invoking `localQuery`. This function will update the query result adding local pivs that are currently in the upload queue and that match the current query.
+We modify `queryResult` by invoking `localQuery`.
 
 ```dart
       secondQueryResult = localQuery (tags, StoreService.instance.get ('currentMonth'), secondQueryResult);
