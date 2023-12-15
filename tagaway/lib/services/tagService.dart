@@ -454,6 +454,8 @@ class TagService {
 
       var firstLoadSize = 300;
 
+      StoreService.instance.set ('queryInProgress', true);
+
       var response = await ajax ('post', 'query', {
          'tags': tags,
          'sort': 'newest',
@@ -464,6 +466,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+         StoreService.instance.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -517,7 +520,10 @@ class TagService {
 
       getTags ();
 
-      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
+      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) {
+         StoreService.instance.remove ('queryInProgress');
+         return 200;
+      }
 
       response = await ajax ('post', 'query', {
          'tags': tags,
@@ -528,6 +534,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
+         StoreService.instance.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -551,6 +558,7 @@ class TagService {
       }
       else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
+      StoreService.instance.remove ('queryInProgress');
       return 200;
    }
 
@@ -568,6 +576,8 @@ class TagService {
       StoreService.instance.set ('currentMonth', currentMonth);
       computeTimeHeader (false);
 
+      StoreService.instance.set ('queryInProgress', true);
+
       var response = await ajax ('post', 'query', {
          'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
          'sort': 'newest',
@@ -577,6 +587,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:C:' + response ['code'].toString (), 'yellow');
+         StoreService.instance.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -613,6 +624,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:D:' + response ['code'].toString (), 'yellow');
+         StoreService.instance.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -631,6 +643,7 @@ class TagService {
 
       getTags ();
 
+      StoreService.instance.remove ('queryInProgress');
       return 200;
    }
 

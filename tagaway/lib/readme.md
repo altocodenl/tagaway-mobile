@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Duplicated delorean
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
    - Score sometimes doesn't show after reloading app
@@ -91,6 +90,7 @@
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - renameTag(Local|Uploaded) <str>: tag currently being renamed in LocalView/UploadedView
 - queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
+- queryInProgress <bool>: if set to `true`, indicates that a query is currently taking place.
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
 - queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
@@ -2965,6 +2965,12 @@ In our first query, we will load up to 300 pivs. This is because we want the que
       var firstLoadSize = 300;
 ```
 
+Before we send the query, we set the `queryInProgress` store key to `true`. This is used by the QuerySelector view to give feedback to the user on how long a query takes to complete.
+
+```dart
+      StoreService.instance.set ('queryInProgress', true);
+```
+
 We invoke `POST /query` in the server. We're going to pass the `tags` we received and get the latest pivs first. We also want to get the time header information, and we want to get the pivs starting from the first (which, in terms of dates, will be the last).
 
 ```dart
@@ -2989,9 +2995,10 @@ If we didn't get back a 200 code, we have encountered an error. If we experience
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
 ```
 
-Whatever the error is, we cannot continue executing the function, so we return its response code.
+Whatever the error is, we cannot continue executing the function, so we remove the `queryInProgress` key and return the code from the response.
 
 ```dart
+         StoreService.instance.remove ('queryInProgress');
          return response ['code'];
       }
 ```
@@ -2999,6 +3006,8 @@ Whatever the error is, we cannot continue executing the function, so we return i
 If the tags in the query changed in the meantime, we don't do anything else in this function execution, since there will be another instance of queryPivs being executed concurrently that will be in charge of updating `queryResult`. We do return a 409 to indicate that there was a conflict between this query and another one executed shortly afterwards.
 
 This check is a great example of why we copied `tags` before setting it to `queryTags`, and why we hold `queryTags` as part of the class. Tagaway is very interactive and the queries can take over half a second, so it's perfectly possible for the user to trigger a new query before the results of the old query are available.
+
+Note that in this case we do not remove the `queryInProgress` key since there will be another instance of `queryPivs` being executed, which will in turn set and unset this key.
 
 ```dart
       if (! listEquals (queryTags, tags)) return 409;
@@ -3035,7 +3044,7 @@ If we currently have tags in our query, and we got no pivs back, it may be the c
 
 We will also reset the query by setting `queryTags` to an empty list. There will be listeners in the views which, when we update `queryTags`, invoke `queryPivs` again, so we don't need to perform a recursive invocation to the function here.
 
-In this case, there is nothing else to do, so we `return`.
+In this case, there is nothing else to do, so we `return`. As with the case where we responded 409, in this case we do not remove the `queryInProgress` key since the act of changing `queryTags` will trigger another instance of `queryPivs` being executed, which will in turn set and unset this key.
 
 Note that if we have local pivs that match the query, they will already be in `queryResult`, so we won't consider this to be a ronin query.
 
@@ -3117,12 +3126,15 @@ While we are at it, it's a good idea to refresh the list of tags. This is useful
       getTags ();
 ```
 
-If the last piv in `queryResult ['pivs']` is not a placeholder entry, or if there are no pivs in the query, then we loaded all the pivs we needed. We return 200.
+If the last piv in `queryResult ['pivs']` is not a placeholder entry, or if there are no pivs in the query, then we loaded all the pivs we needed. We return 200 after removing the `queryInProgress` key.
 
 Note: to know if we are missing pivs or not, we cannot compare the length of `queryResult ['pivs']` against `queryResult ['timeHeader'] [1]` because we already changed the length of the former!
 
 ```dart
-      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
+      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) {
+         StoreService.instance.remove ('queryInProgress');
+         return 200;
+      }
 ```
 
 If we're here, we need to get all the pivs for the month. We do so by requesting all the pivs from 1 to the total number of pivs in the month.
@@ -3147,9 +3159,10 @@ As before, if we didn't get back a 200 code, we have encountered an error. If we
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
 ```
 
-Whatever the error is, we cannot continue executing the function, so we return its response code.
+Whatever the error is, we cannot continue executing the function, so we return its response code after removing the `queryInProgress` key.
 
 ```dart
+         StoreService.instance.remove ('queryInProgress');
          return response ['code'];
       }
 ```
@@ -3200,9 +3213,10 @@ Otherwise, we don't know whether they are organized or not, so we ask the server
       else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 ```
 
-We return a 200 to indicate success and close the function.
+We remove the `queryInProgress` key and return a 200 to indicate success and close the function.
 
 ```dart
+      StoreService.instance.remove ('queryInProgress');
       return 200;
    }
 ```

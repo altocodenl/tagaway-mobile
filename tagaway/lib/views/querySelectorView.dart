@@ -32,6 +32,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic expandCountries = false;
   dynamic filteredYears = [];
   dynamic filteredCountries = [];
+  dynamic queryInProgress = false;
 
   // This function will be called every time the text changes
   searchQueryChanged() {
@@ -46,7 +47,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
       StoreService.instance.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
     cancelListener = StoreService.instance
-        .listen(['queryTags', 'queryResult', 'queryFilter'], (v1, v2, v3) {
+        .listen(['queryTags', 'queryResult', 'queryFilter', 'queryInProgress'],
+            (v1, v2, v3, QueryInProgress) {
       // queryPivs will not make an invocation if `queryResult` or `queryFilter` change because it will check if the tags have changed.
       TagService.instance.queryPivs();
       setState(() {
@@ -55,6 +57,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           if (v3 == '' || queryTags.contains(tag)) return true;
           return tag.toLowerCase().contains(v3.toLowerCase());
         }
+
+        queryInProgress = QueryInProgress;
 
         if (v2 == '') return;
         queryResult = v2;
@@ -166,7 +170,6 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   },
                   child: const Text('Clear', style: kPlainTextBold)),
             ),
-            // IconButton(icon: const Icon(Icons.add), onPressed: () {}),
           ],
         ),
         body: SafeArea(
@@ -548,8 +551,12 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               Navigator.pushReplacementNamed(context, 'uploaded');
             },
             backgroundColor: kAltoBlue,
-            label: Text('See ' + queryResult['total'].toString() + ' pivs',
-                style: kSelectAllButton),
+            label: queryInProgress == true
+                ? CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                : Text('See ' + queryResult['total'].toString() + ' pivs',
+                    style: kSelectAllButton),
           ),
         ),
       ),
