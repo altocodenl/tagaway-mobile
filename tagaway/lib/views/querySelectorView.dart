@@ -552,8 +552,12 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             },
             backgroundColor: kAltoBlue,
             label: queryInProgress == true
-                ? CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
                   )
                 : Text('See ' + queryResult['total'].toString() + ' pivs',
                     style: kSelectAllButton),
