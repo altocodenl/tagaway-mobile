@@ -768,8 +768,10 @@ Before we start doing anything, we check whether `localPivs` actually has pivs i
 
 An example of when this can happen is if the app loses connection and then recovers it; in that case, the user will be redirected to the offline view, and then, when the connection returns, to the distributor view, which in turn will invoke this function. The check below prevents us from doing all the initialization again if we already did it.
 
+Why do we check whether `localPivs` is not `null`? We are getting intermittent "Range Errors" from Dart, so we hope this check will avoid the (to us) impossible situation of `localPivs` not being a list.
+
 ```dart
-      if (localPivs.length > 0) return queuePiv (null);
+      if (localPivs != null && localPivs.length > 0) return queuePiv (null);
 ```
 
 This function will start by doing four things:
