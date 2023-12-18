@@ -12,7 +12,6 @@
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
 - Local view doesn't show circular loader at the beginning
-- Query selector doesn't show circular loader at the beginning
 - tag L:404
 - Cache queries for hometags?
 - Show "achievements view" with all that you have organized
@@ -1326,8 +1325,10 @@ We determine if the piv is considered "left", that is, if it still has to be org
 
 However, if we are only showing camera pivs, and the piv is not a camera piv, we will not consider it as "left".
 
+We check that `displayMode` is initialized because sometimes we see an error in this line when logging out.
+
 ```dart
-         if (displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
+         if (displayMode != '' && displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
 ```
 
 We check whether the piv is currently being tagged, by checking if it is inside `currentlyTaggingPivs`.

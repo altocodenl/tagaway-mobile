@@ -367,7 +367,7 @@ class PivService {
          var cloudId        = StoreService.instance.get ('pivMap:' + piv.id);
          var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
          var pivIsLeft      = ! pivIsOrganized;
-         if (displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
+         if (displayMode != '' && displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 

@@ -435,7 +435,8 @@ class TagService {
       });
       if (output.length > 5) output = output.sublist (0, 5);
       output.add (['Total', response ['body'] ['total'] + localQueryTotal]);
-      output.add (['All time organized', StoreService.instance.get ('organized') ['total']]);
+      var organized = StoreService.instance.get ('organized');
+      if (organized != '') output.add (['All time organized', StoreService.instance.get ('organized') ['total']]);
 
       return output;
    }
