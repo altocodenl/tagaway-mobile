@@ -70,9 +70,8 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
             path == 'query' ? body : '',
       ]);
 
-    // If we get a 403, it must be because the cookie has expired. We delete it locally.
-    if (response.statusCode == 403) {
-      if (! RegExp ('^auth').hasMatch (path)) showSnackbar ('Your session has expired. Please log in.', 'yellow');
+    if (response.statusCode == 403 && ! RegExp ('^auth').hasMatch (path)) {
+      showSnackbar ('Your session has expired. Please log in.', 'yellow');
       await AuthService.instance.cleanupKeys ();
     }
 
@@ -127,9 +126,9 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
         (rbody.length / 1000).round().toString() + 'kb'
       ]);
 
-    // If we get a 403, it must be because the cookie has expired. We delete it locally.
-    if (response.statusCode == 403) {
-      if (! RegExp ('^auth').hasMatch (path)) showSnackbar ('Your session has expired. Please log in.', 'yellow');
+    // If we get a 403 and this is not an auth route, it must be because the cookie has expired. We delete it locally.
+    if (response.statusCode == 403 && ! RegExp ('^auth').hasMatch (path)) {
+      showSnackbar ('Your session has expired. Please log in.', 'yellow');
       await AuthService.instance.cleanupKeys ();
     }
 
