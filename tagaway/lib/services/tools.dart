@@ -66,7 +66,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
                 .round()
                 .toString() +
             'kb',
-            path == 'query' ? 'queryPerf:' + responseBody ['perf'] ['total'].toString () + 'ms' : '',
+            path == 'query' && responseBody ['perf'] != null ? 'queryPerf:' + responseBody ['perf'] ['total'].toString () + 'ms' : '',
             path == 'query' ? body : '',
       ]);
 
