@@ -942,9 +942,6 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
           var firstTags = StoreService.instance.get('lastNTags');
           if (firstTags == '') firstTags = [];
           var hometags = StoreService.instance.get('hometags');
-          if (hometags == '') hometags = [];
-          // Add lastNTags and hometags first
-          firstTags..addAll(hometags.where((tag) => !firstTags.contains(tag)));
           usertags = List.from(firstTags)
             ..addAll(Usertags.where((tag) => !firstTags.contains(tag)));
           usertags = usertags

@@ -3,9 +3,7 @@
 ## TODO
 
 - Snackbar from the top in signup/login (Tom)
-- Do not add home tags to the last n tags
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
-- Too many home tag recomputation
 - Show circle when loading first batch of tags
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
@@ -14,6 +12,8 @@
    - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
+- Local view doesn't show circular loader at the beginning
+- Query selector doesn't show circular loader at the beginning
 - tag L:404
 - Cache queries for hometags?
 - Show "achievements view" with all that you have organized
@@ -2077,10 +2077,10 @@ If the tag is already in `lastNTags`, we remove it. We will then put it at the f
       lastNTags.insert (0, tag);
 ```
 
-Inspired by old phone numbers, we will remember up to seven tags.
+We will remember up to nine tags.
 
 ```dart
-      var N = 7;
+      var N = 9;
 ```
 
 If we have more than seven tags, we will remove the last one.
