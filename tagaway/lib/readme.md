@@ -2,6 +2,11 @@
 
 ## TODO
 
+- Snackbar from the top in signup/login (Tom)
+- Do not add home tags to the last n tags
+- When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
+- Too many home tag recomputation
+- Show circle when loading first batch of tags
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
    - Score sometimes doesn't show after reloading app
@@ -10,6 +15,7 @@
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
 - tag L:404
+- Cache queries for hometags?
 - Show "achievements view" with all that you have organized
 - Swipe sideways to navigate months in uploaded
 - Confirm on delete single uploaded piv
@@ -555,6 +561,12 @@ We sort the upload queue to contain the smallest pivs first.
 ```dart
          return sizeA.compareTo (sizeB);
       });
+```
+
+If there are no pivs left in the upload queue, there's nothing left to do, so we return.
+
+```dart
+      if (uploadQueue.length == 0) return;
 ```
 
 Now that we sorted `uploadQueue`, we pick up the next piv from the queue.

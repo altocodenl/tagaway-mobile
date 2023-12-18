@@ -116,6 +116,8 @@ class PivService {
          return sizeA.compareTo (sizeB);
       });
 
+      if (uploadQueue.length == 0) return;
+
       var nextPiv = uploadQueue [0];
 
       var result = await uploadPiv (nextPiv);
