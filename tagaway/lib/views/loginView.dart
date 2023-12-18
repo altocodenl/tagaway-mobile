@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
+
+import '../services/authService.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -49,9 +50,9 @@ class _LoginViewState extends State<LoginView> {
           },
           elevation: 1,
           padding: const EdgeInsets.all(20),
-          content: Center(
+          content: const Center(
             child: Row(
-              children: const [
+              children: [
                 Icon(
                   kEmailValidation,
                   color: kAltoBlue,
@@ -78,6 +79,7 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    print('I am logIn and I am rebuilding');
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     final check =

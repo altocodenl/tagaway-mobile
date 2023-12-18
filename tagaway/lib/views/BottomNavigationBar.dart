@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/storeService.dart';
-
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
-import 'package:tagaway/views/shareView.dart';
 
 class BottomNavigationView extends StatefulWidget {
   static const String id = 'bottomNavigation';
@@ -23,7 +21,10 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   dynamic cancelListener;
 
   int viewIndex = 1;
-  final screens = [const HomeView(), const LocalView(), const ShareView()];
+  final screens = [
+    const HomeView(), const LocalView()
+    // , const ShareView()
+  ];
 
   @override
   void initState() {
@@ -70,8 +71,8 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                       icon: FaIcon(kHomeIcon), label: 'Home'),
                   BottomNavigationBarItem(
                       icon: FaIcon(kMobilePhoneIcon), label: 'Phone'),
-                  BottomNavigationBarItem(
-                      icon: FaIcon(kShareUsersIcon), label: 'Share'),
+                  // BottomNavigationBarItem(
+                  //     icon: FaIcon(kShareUsersIcon), label: 'Share'),
                 ],
               ),
               const UploadingNumber()
