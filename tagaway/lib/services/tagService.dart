@@ -454,7 +454,9 @@ class TagService {
 
       var firstLoadSize = 300;
 
-      StoreService.instance.set ('queryInProgress', true);
+      Future.delayed (Duration (milliseconds: 1), () {
+        StoreService.instance.set ('queryInProgress', true);
+      });
 
       var response = await ajax ('post', 'query', {
          'tags': tags,

@@ -32,7 +32,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic expandCountries = false;
   dynamic filteredYears = [];
   dynamic filteredCountries = [];
-  dynamic queryInProgress = false;
+  bool queryInProgress = false;
 
   // This function will be called every time the text changes
   searchQueryChanged() {
@@ -49,7 +49,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     cancelListener = StoreService.instance
         .listen(['queryTags', 'queryResult', 'queryFilter', 'queryInProgress'],
             (v1, v2, v3, QueryInProgress) {
-      // queryPivs will not make an invocation if `queryResult` or `queryFilter` change because it will check if the tags have changed.
+      // queryPivs will not make a call to the server if `queryResult` or `queryFilter` change because it will check if the tags have changed.
       TagService.instance.queryPivs();
       setState(() {
         queryTags = v1;
@@ -58,7 +58,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           return tag.toLowerCase().contains(v3.toLowerCase());
         }
 
-        queryInProgress = QueryInProgress;
+        queryInProgress = QueryInProgress != '';
 
         if (v2 == '') return;
         queryResult = v2;

@@ -4,7 +4,6 @@
 
 - Snackbar from the top in signup/login (Tom)
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
-- Show circle when loading first batch of tags
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
    - Score sometimes doesn't show after reloading app
@@ -2981,8 +2980,12 @@ In our first query, we will load up to 300 pivs. This is because we want the que
 
 Before we send the query, we set the `queryInProgress` store key to `true`. This is used by the QuerySelector view to give feedback to the user on how long a query takes to complete.
 
+Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this, for some reason, the view will be redrawn but the value of `queryInProgress` will not be updated. The timeout solves the issue.
+
 ```dart
-      StoreService.instance.set ('queryInProgress', true);
+      Future.delayed (Duration (milliseconds: 1), () {
+        StoreService.instance.set ('queryInProgress', true);
+      });
 ```
 
 We invoke `POST /query` in the server. We're going to pass the `tags` we received and get the latest pivs first. We also want to get the time header information, and we want to get the pivs starting from the first (which, in terms of dates, will be the last).
