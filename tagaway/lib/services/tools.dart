@@ -53,6 +53,8 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
           body: jsonEncode(body));
     }
 
+    var responseBody = response.body == '' ? {} : jsonDecode (utf8.decode (response.bodyBytes));
+
     if (ajaxLogs)
       debug([
         method,
@@ -63,7 +65,9 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
                     1000)
                 .round()
                 .toString() +
-            'kb'
+            'kb',
+            path == 'query' ? 'queryPerf:' + responseBody ['perf'] ['total'].toString () + 'ms' : '',
+            path == 'query' ? body : '',
       ]);
 
     // If we get a 403, it must be because the cookie has expired. We delete it locally.
@@ -75,8 +79,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
     return {
       'code': response.statusCode,
       'headers': response.headers,
-      'body': jsonDecode(
-          response.body == '' ? '{}' : utf8.decode(response.bodyBytes))
+      'body': responseBody
     };
    } catch (error) {
     if (ajaxLogs)
@@ -84,7 +87,8 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
         method,
         '/' + path,
         (now() - start).toString() + 'ms',
-        'Socket Exception'
+        'Socket Exception',
+        error
       ]);
     redirectToOfflineView ();
     return {'code': 0};

@@ -2,6 +2,9 @@
 
 ## TODO
 
+- Snackbar from the top in signup/login (Tom)
+- When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
+- Show circle when loading first batch of tags
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
    - Score sometimes doesn't show after reloading app
@@ -9,7 +12,10 @@
    - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
+- Local view doesn't show circular loader at the beginning
+- Query selector doesn't show circular loader at the beginning
 - tag L:404
+- Cache queries for hometags?
 - Show "achievements view" with all that you have organized
 - Swipe sideways to navigate months in uploaded
 - Confirm on delete single uploaded piv
@@ -557,6 +563,12 @@ We sort the upload queue to contain the smallest pivs first.
       });
 ```
 
+If there are no pivs left in the upload queue, there's nothing left to do, so we return.
+
+```dart
+      if (uploadQueue.length == 0) return;
+```
+
 Now that we sorted `uploadQueue`, we pick up the next piv from the queue.
 
 ```dart
@@ -768,8 +780,10 @@ Before we start doing anything, we check whether `localPivs` actually has pivs i
 
 An example of when this can happen is if the app loses connection and then recovers it; in that case, the user will be redirected to the offline view, and then, when the connection returns, to the distributor view, which in turn will invoke this function. The check below prevents us from doing all the initialization again if we already did it.
 
+Why do we check whether `localPivs` is not `null`? We are getting intermittent "Range Errors" from Dart, so we hope this check will avoid the (to us) impossible situation of `localPivs` not being a list.
+
 ```dart
-      if (localPivs.length > 0) return queuePiv (null);
+      if (localPivs != null && localPivs.length > 0) return queuePiv (null);
 ```
 
 This function will start by doing four things:
@@ -2063,10 +2077,10 @@ If the tag is already in `lastNTags`, we remove it. We will then put it at the f
       lastNTags.insert (0, tag);
 ```
 
-Inspired by old phone numbers, we will remember up to seven tags.
+We will remember up to nine tags.
 
 ```dart
-      var N = 7;
+      var N = 9;
 ```
 
 If we have more than seven tags, we will remove the last one.

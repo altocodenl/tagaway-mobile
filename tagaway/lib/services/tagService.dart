@@ -110,7 +110,7 @@ class TagService {
       if (lastNTags.contains (tag)) lastNTags.remove (tag);
       lastNTags.insert (0, tag);
 
-      var N = 7;
+      var N = 9;
       if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
       StoreService.instance.set ('lastNTags', lastNTags, 'disk');
    }

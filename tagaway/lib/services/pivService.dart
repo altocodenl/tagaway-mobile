@@ -116,6 +116,8 @@ class PivService {
          return sizeA.compareTo (sizeB);
       });
 
+      if (uploadQueue.length == 0) return;
+
       var nextPiv = uploadQueue [0];
 
       var result = await uploadPiv (nextPiv);
@@ -200,7 +202,7 @@ class PivService {
 
    loadLocalPivs () async {
 
-      if (localPivs.length > 0) return queuePiv (null);
+      if (localPivs != null && localPivs.length > 0) return queuePiv (null);
 
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();
