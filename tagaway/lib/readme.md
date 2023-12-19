@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Snackbar from the top in signup/login (Tom)
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
 - Count organized today properly by adding date when piv was added to queue
 - You're all done

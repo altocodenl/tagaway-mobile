@@ -875,8 +875,6 @@ class _DoneButtonState extends State<DoneButton> {
               StoreService.instance
                   .remove('hideAddMoreTagsButton' + widget.view);
               StoreService.instance.remove('showSelectAllButton' + widget.view);
-              // We update the tag list in case we just created a new one.
-              TagService.instance.getTags();
               if (widget.view == 'Local') {
                 StoreService.instance.remove('currentlyTaggingPivs');
                 PivService.instance.queryOrganizedLocalPivs();
