@@ -406,9 +406,7 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   @override
   Widget build(BuildContext context) {
     // No page loaded yet, or there are no pivs at all on the page, or there are pivs left to organize
-    if (currentPage == '' ||
-        currentPage['total'] == 0 ||
-        currentPage['pivs'].length > 0) return Container();
+    if (currentPage == '' || currentPage['pivs'].length > 0) return Container();
     if (rows.length == 0) return Container();
     return Align(
       alignment: SizeService.instance.screenHeight(context) < 710
