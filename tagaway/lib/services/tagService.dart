@@ -25,27 +25,8 @@ class TagService {
 
       updateOrganizedCount (response ['body'] ['organized']);
 
-      var homeThumbs = {};
-
-      if (response ['body'] ['hometags'].length == 0) StoreService.instance.set ('hometags', []);
-      else response ['body'] ['hometags'].forEach ((tag) async {
-         var res = await ajax ('post', 'query', {
-            'tags':    [tag],
-            'sort':    'newest',
-            'from':    1,
-            'to':      1,
-         });
-
-         if (res ['code'] != 200) {
-            if (! [0, 403].contains (res ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + res ['code'].toString (), 'yellow');
-            return;
-         }
-         if (res ['body'] ['pivs'].length > 0) homeThumbs [tag] = res ['body'] ['pivs'] [0];
-         if (homeThumbs.length == response ['body'] ['hometags'].length) {
-            StoreService.instance.set ('hometags', response ['body'] ['hometags']);
-            StoreService.instance.set ('homeThumbs', homeThumbs);
-         }
-      });
+      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
+      StoreService.instance.set ('homeThumbs', response ['body'] ['homeThumbs']);
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);

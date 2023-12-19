@@ -10,9 +10,9 @@
    - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
+
 - Local view doesn't show circular loader at the beginning
 - tag L:404
-- Cache queries for hometags?
 - Show "achievements view" with all that you have organized
 - Swipe sideways to navigate months in uploaded
 - Confirm on delete single uploaded piv
@@ -1820,62 +1820,11 @@ We invoke `updateOrganizedCount` passing to it the current total number of organ
       updateOrganizedCount (response ['body'] ['organized']);
 ```
 
-We will create a `homeThumbs` object where we'll store information for the last piv of each hometag.
+We update the `hometags` and `homeThumbs` keys with what comes from the response body.
 
 ```dart
-      var homeThumbs = {};
-```
-
-If there are no hometags, we will just set them to an empty list.
-
-```dart
-      if (response ['body'] ['hometags'].length == 0) StoreService.instance.set ('hometags', []);
-```
-
-Otherwise, for each of the hometags, we will make a call to `POST /query` to get the last piv of that tag. We want to get the piv info to put it as the thumbnail of the hometag in the home view.
-
-We fire off the requests simultaneously; the `forEach` doesn't wait on each iteration to be done, even if there's an `await` inside.
-
-```dart
-      else response ['body'] ['hometags'].forEach ((tag) async {
-         var res = await ajax ('post', 'query', {
-            'tags':    [tag],
-            'sort':    'newest',
-            'from':    1,
-            'to':      1,
-         });
-```
-
-If we got an error code 0, we have no connection. If we got a 403, it is almost certainly because our session has expired. In both cases, other parts of the code will print an error message. If, however, the error was neither a 0 nor a 403, we will report it with a code `HOMETAGS:CODE`.
-
-```dart
-         if (res ['code'] != 200) {
-            if (! [0, 403].contains (res ['code'])) showSnackbar ('There was an error getting your tags - CODE TAGS:' + res ['code'].toString (), 'yellow');
-            return;
-         }
-```
-
-We will set the piv in the `tag` entry of `homeThumbs`.
-
-Note we will only do this if there are pivs on the query - if for some reason we encounter a ronin (empty) query, we do not set it, since then there will be no piv to show. This situation can only happen when a home tag has just disappeared because it was removed from all the pivs it was in; in this case, the home tag will very shortly disappear, so we do not have to be concerned with showing the home tag without a piv.
-
-```dart
-         if (res ['body'] ['pivs'].length > 0) homeThumbs [tag] = res ['body'] ['pivs'] [0];
-```
-
-If this is the last hometag for which we got the piv, we will set both `hometags` and `homeThumbs` in the store. We do this simultaneously to avoid hometags being shown before they have their thumbnails available.
-
-```dart
-         if (homeThumbs.length == response ['body'] ['hometags'].length) {
-            StoreService.instance.set ('hometags', response ['body'] ['hometags']);
-            StoreService.instance.set ('homeThumbs', homeThumbs);
-         }
-```
-
-This concludes the iteration over the hometags.
-
-```dart
-      });
+      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
+      StoreService.instance.set ('homeThumbs', response ['body'] ['homeThumbs']);
 ```
 
 We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.
