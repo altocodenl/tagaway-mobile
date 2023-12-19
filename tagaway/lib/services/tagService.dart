@@ -362,7 +362,10 @@ class TagService {
    }
 
    getLocalAchievements (page) async {
-      if (page == '') return [];
+      var storageKey = 'localAchievements:' + page.toString ();
+      page = StoreService.instance.get ('localPage:' + page.toString ());
+
+      if (page == '') return StoreService.instance.set (storageKey, []);
       var response = await ajax ('post', 'query', {
          'tags': [],
          'sort': 'newest',
@@ -374,7 +377,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
-         return [];
+         return StoreService.instance.set (storageKey, []);
       }
 
       var localPivsById = {};
@@ -414,12 +417,12 @@ class TagService {
       output.sort ((a, b) {
          return (b [1] as int).compareTo ((a [1] as int));
       });
-      if (output.length > 5) output = output.sublist (0, 5);
+      if (output.length > 3) output = output.sublist (0, 3);
       output.add (['Total', response ['body'] ['total'] + localQueryTotal]);
       var organized = StoreService.instance.get ('organized');
       if (organized != '') output.add (['All time organized', StoreService.instance.get ('organized') ['total']]);
 
-      return output;
+      return StoreService.instance.set (storageKey, output);
    }
 
    queryPivs ([refresh = false, preserveMonth = false]) async {

@@ -374,26 +374,23 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
-        ['localPage:' + widget.localPagesIndex.toString()], (LocalPage) {
+    cancelListener = StoreService.instance
+        .listen(['localPage', 'localAchievements:*'], (localPage, Rows) {
+      TagService.instance.getLocalAchievements(localPage);
       setState(() {
-        currentPage = LocalPage;
-        (() async {
-          rows = await TagService.instance.getLocalAchievements(currentPage);
-        })();
+        currentPage =
+            StoreService.instance.get('localPage:' + localPage.toString());
+        Rows = StoreService.instance
+            .get('localAchievements:' + localPage.toString());
+        rows = Rows == '' ? [] : Rows;
       });
     });
 
     // We add a timeout when we initialize the widget because `computeLocalPages` might not be done by the time we render this widget, and we need it to be done in order to render this widget correctly
     Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
-      setState(() {
-        currentPage = StoreService.instance
-            .get('localPage:' + widget.localPagesIndex.toString());
-        (() async {
-          rows = await TagService.instance.getLocalAchievements(currentPage);
-        })();
-      });
+      TagService.instance
+          .getLocalAchievements(StoreService.instance.get('localPage'));
     });
   }
 
@@ -407,7 +404,6 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   Widget build(BuildContext context) {
     // No page loaded yet, or there are no pivs at all on the page, or there are pivs left to organize
     if (currentPage == '' || currentPage['pivs'].length > 0) return Container();
-    if (rows.length == 0) return Container();
     return Align(
       alignment: SizeService.instance.screenHeight(context) < 710
           ? const Alignment(0, 1)
@@ -441,53 +437,58 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                 style: kCenterPhoneGridTitle,
               ),
             ),
-            Column(
-                children: rows.map((row) {
-              if (row[0] == 'Total' || row[0] == 'All time organized')
-                return Container();
-              return GestureDetector(
-                onTap: () {
-                  StoreService.instance.set(
-                      'queryTags', [row[0]]..addAll(currentPage['dateTags']));
-                  TagService.instance.queryPivs();
-                  StoreService.instance.set('viewIndex', 0);
-                  Navigator.pushReplacementNamed(context, 'uploaded');
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 12.0),
-                        child: FaIcon(
-                          kTagIcon,
-                          size: 20,
-                          color: tagColor(row[0]),
-                        ),
-                      ),
-                      Expanded(
-                          child: Text(
-                        row[0],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: false,
-                        style: TextStyle(
-                          fontFamily: 'Montserrat-Regular',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: kGreyDarker,
-                        ),
-                      )),
-                      Text(
-                        row[1].toString(),
-                        style: kPhoneViewAchievementsNumber,
-                      ),
-                    ],
-                  ),
+            Visibility(
+                visible: rows.length == 0,
+                child: const CircularProgressIndicator(
+                  color: kAltoBlue,
                 ),
-              );
-            }).toList()),
+                replacement: Column(
+                    children: rows.map((row) {
+                  if (row[0] == 'Total' || row[0] == 'All time organized')
+                    return Container();
+                  return GestureDetector(
+                    onTap: () {
+                      StoreService.instance.set('queryTags',
+                          [row[0]]..addAll(currentPage['dateTags']));
+                      TagService.instance.queryPivs();
+                      StoreService.instance.set('viewIndex', 0);
+                      Navigator.pushReplacementNamed(context, 'uploaded');
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 12.0),
+                            child: FaIcon(
+                              kTagIcon,
+                              size: 20,
+                              color: tagColor(row[0]),
+                            ),
+                          ),
+                          Expanded(
+                              child: Text(
+                            row[0],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            style: TextStyle(
+                              fontFamily: 'Montserrat-Regular',
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: kGreyDarker,
+                            ),
+                          )),
+                          Text(
+                            row[1].toString(),
+                            style: kPhoneViewAchievementsNumber,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList())),
             Padding(
               padding:
                   EdgeInsets.only(top: 10.0, bottom: 20, left: 20, right: 20),
@@ -512,7 +513,9 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                     ),
                   )),
                   Text(
-                    rows[rows.length - 2][1].toString(),
+                    rows.length == 0
+                        ? '...'
+                        : rows[rows.length - 2][1].toString(),
                     style: kPhoneViewAchievementsNumber,
                   ),
                 ],
@@ -546,7 +549,9 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                     ),
                   )),
                   Text(
-                    rows[rows.length - 1][1].toString(),
+                    rows.length == 0
+                        ? '...'
+                        : rows[rows.length - 1][1].toString(),
                     style: kPhoneViewAchievementsNumber,
                   ),
                 ],

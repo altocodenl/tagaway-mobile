@@ -2,21 +2,19 @@
 
 ## TODO
 
+- Show "achievements view" with all that you have organized
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
 - Count organized today properly by adding date when piv was added to queue
 - You're all done
    - Score sometimes doesn't show after reloading app
    - Update score whenever tagging
-   - Only show top 3 tags, compute "other tags" and don't go anywhere if you click there
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
-
-- Local view doesn't show circular loader at the beginning
+- Edit/delete tags view, openable from query selector (Tom)
+-----
 - tag L:404
-- Show "achievements view" with all that you have organized
 - Swipe sideways to navigate months in uploaded
 - Confirm on delete single uploaded piv
-- Edit/delete tags view, openable from query selector (Tom)
 - Info view for each piv on cloud (Tom)
 - Finish annotated source code: tagService, storeService, tools.
 - Sharebox
@@ -3116,7 +3114,7 @@ If we're here, we need to get all the pivs for the month. We do so by requesting
 
 Why did we get them all and not those after `firstLoadSize`? Or why didn't we get them using extra tags for the year and the month of the last month? Quite simply, because if there is an inconsistency created by the delay between the two queries (when, in the background, there are uploads/taggings or deletions/untaggings that affect the query), we want to glaze over it by showing still the same amount of pivs as in the first query.
 
-There might be room for improvement here, but this is a good solution for the time being. We're choosing performance over correctness. In the absence of updates between the first and second query, there will be no inconsistencies.
+There might be room for improvement here, but this is a good solution for the time being. We're choosing (client-side) performance over correctness. In the absence of updates between the first and second query, there will be no inconsistencies.
 
 As before, if we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another error message already shown by the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:B:CODE`.
 

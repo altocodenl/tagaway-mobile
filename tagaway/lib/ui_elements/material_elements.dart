@@ -878,6 +878,8 @@ class _DoneButtonState extends State<DoneButton> {
               if (widget.view == 'Local') {
                 StoreService.instance.remove('currentlyTaggingPivs');
                 PivService.instance.queryOrganizedLocalPivs();
+                TagService.instance.getLocalAchievements(
+                    StoreService.instance.get('localPage'));
               }
               // We update the list of organized pivs for those uploaded pivs that have a local counterpart
               // Done deleting
