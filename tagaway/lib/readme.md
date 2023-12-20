@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Avoid double query when loading tags
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
 -----
 - Edit/delete tags view, openable from query selector (Tom)
@@ -1801,10 +1800,10 @@ TagService, like the rest of our services, will be initialized as a singleton. T
    static final TagService instance = TagService._ ();
 ```
 
-PivService has only properties that hold data: `queryTags`, which will be initialized to an empty string, but will be replaced by a list of tags when a query is done. The reason we keep it here, side by side with another list of tags that we keep in the store (in a key named `queryTags`) is that we want to compare the class property against the value in the store to see if the query changed - in that way, we can save a roundtrip to the server.
+PivService has only properties that hold data: `queryTags`, which will be initialized to an empty list, but will be replaced by a list of tags when a query is done. The reason we keep it here, side by side with another list of tags that we keep in the store (in a key named `queryTags`) is that we want to compare the class property against the value in the store to see if the query changed - in that way, we can save a roundtrip to the server.
 
 ```dart
-   dynamic queryTags = '';
+   dynamic queryTags = [];
 ```
 
 We now define `getTags`, the function that will get the list of tags from the server.
@@ -2921,7 +2920,7 @@ We sort the received tags, because we'll need to compare them to the tags of a p
 
 We will determine now whether we can avoid querying the server at all. To avoid querying the server at all, three things need to happen at the same time!
 
-1. `queryResult`, the result of the last query, is not an empty string. If it is an empty string, we haven't yet performed the first query, so we definitely need to query the server.
+1. `queryResult`, the result of the last query, is not an empty string. If it is an empty string, we haven't yet performed the first query, so we definitely need to query the server. However, if `queryResult` is an empty string but there is a query in progress, this means that there's already a first query being done but not completed, so that's why we add the nested condition that if `queryResult` is an empty string but `queryInProgress` is `true`, the first query is already happening so we can skip the query if the other two parts also allow us to.
 2. `refresh` is `false`, so we are not forced to refresh the query.
 3. `tags` is equal to `queryTags`.
 
@@ -2930,7 +2929,7 @@ If all three conditions are true simultaneously, we will `return` since there's 
 In practice, this only happens when switching between the query selector view and the cloud view, where the query is already done but the view doesn't know whether the existing query is fresh.
 
 ```dart
-      if (store.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
+      if ((store.get ('queryResult') != '' || store.get ('queryInProgress') == true) && refresh == false && listEquals (tags, queryTags)) return;
 ```
 
 If `preserveMonth` is `true`, and `currentMonth` is also set, rather than continuing, we will just invoke `queryPivsForMonth` (a function defined below) passing the current month, and immediately return. This will refresh the query while preserving the current month.
@@ -3113,6 +3112,12 @@ We update `queryResult` in its entirety, with a normal (non-mute) update. This w
       });
 ```
 
+We will now remove the `queryInProgress` key. While we might have to perform another query, the tags or the total will not be updated. Since the `queryInProgress` key is only used by the query selector to show the tags and total of the current query, we can safely remove that key now and avoid unnecessarily waiting for a further query that we might execute below.
+
+```dart
+      store.remove ('queryInProgress');
+```
+
 While we are at it, it's a good idea to refresh the list of tags. This is useful if some background uploads created tags in the meantime. Note we don't `await` for `getTags`, we simply run it in parallel as we did with `queryOrganizedIds`.
 
 ```dart
@@ -3124,10 +3129,7 @@ If the last piv in `queryResult ['pivs']` is not a placeholder entry, or if ther
 Note: to know if we are missing pivs or not, we cannot compare the length of `queryResult ['pivs']` against `queryResult ['timeHeader'] [1]` because we already changed the length of the former!
 
 ```dart
-      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) {
-         store.remove ('queryInProgress');
-         return 200;
-      }
+      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
 ```
 
 If we're here, we need to get all the pivs for the month. We do so by requesting all the pivs from 1 to the total number of pivs in the month.
@@ -3152,10 +3154,9 @@ As before, if we didn't get back a 200 code, we have encountered an error. If we
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
 ```
 
-Whatever the error is, we cannot continue executing the function, so we return its response code after removing the `queryInProgress` key.
+Whatever the error is, we cannot continue executing the function, so we return its response code.
 
 ```dart
-         store.remove ('queryInProgress');
          return response ['code'];
       }
 ```
@@ -3206,10 +3207,9 @@ Otherwise, we don't know whether they are organized or not, so we ask the server
       else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 ```
 
-We remove the `queryInProgress` key and return a 200 to indicate success and close the function.
+We return a 200 to indicate success and close the function.
 
 ```dart
-      store.remove ('queryInProgress');
       return 200;
    }
 ```

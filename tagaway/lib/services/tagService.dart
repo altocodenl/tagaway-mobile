@@ -10,7 +10,7 @@ class TagService {
    TagService._ ();
    static final TagService instance = TagService._ ();
 
-   dynamic queryTags = '';
+   dynamic queryTags = [];
 
    getTags () async {
       var response = await ajax ('get', 'tags');
@@ -428,7 +428,7 @@ class TagService {
       var tags = getList ('queryTags');
       tags.sort ();
 
-      if (store.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
+      if ((store.get ('queryResult') != '' || store.get ('queryInProgress') == true) && refresh == false && listEquals (tags, queryTags)) return;
 
       var currentMonth = store.get ('currentMonth');
       if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
@@ -503,12 +503,11 @@ class TagService {
          'pivs':        queryResult ['pivs']
       });
 
+      store.remove ('queryInProgress');
+
       getTags ();
 
-      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) {
-         store.remove ('queryInProgress');
-         return 200;
-      }
+      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
 
       response = await ajax ('post', 'query', {
          'tags': tags,
@@ -519,7 +518,6 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
-         store.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -543,7 +541,6 @@ class TagService {
       }
       else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
-      store.remove ('queryInProgress');
       return 200;
    }
 
