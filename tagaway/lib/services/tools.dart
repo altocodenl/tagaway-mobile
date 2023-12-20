@@ -70,6 +70,8 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
             path == 'query' ? body : '',
       ]);
 
+    if (ajaxLogs && path == 'query' && responseBody is Map) debug ([responseBody ['perf']]);
+
     if (response.statusCode == 403 && ! RegExp ('^auth').hasMatch (path)) {
       showSnackbar ('Your session has expired. Please log in.', 'yellow');
       await AuthService.instance.cleanupKeys ();

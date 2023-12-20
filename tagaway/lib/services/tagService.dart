@@ -361,6 +361,9 @@ class TagService {
       return queryResult;
    }
 
+   // TODO: annotate
+   // - load it always when page changes: in case it wasn't loaded before, and to give it a time-based refresh
+   // - when a page changes that is the current page and has a non '' score achievement, call it
    getLocalAchievements (page) async {
       var storageKey = 'localAchievements:' + page.toString ();
       page = StoreService.instance.get ('localPage:' + page.toString ());

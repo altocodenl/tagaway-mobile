@@ -368,29 +368,41 @@ class PhoneAchievementsView extends StatefulWidget {
 
 class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   dynamic cancelListener;
+  dynamic cancelListener2;
   var currentPage;
   var rows = [];
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['localPage', 'localAchievements:*'], (localPage, Rows) {
-      TagService.instance.getLocalAchievements(localPage);
+    cancelListener =
+        StoreService.instance.listen(['localPage'], (localPageIndex) {
+      // There are N PhoneAchievementsView widgets active, and usually two active; doing this check allows us to avoid doing unnecessary calls to `getLocalAchievements`.
+      var localPage = StoreService.instance.get(
+          'localPage:' + StoreService.instance.get('localPage').toString());
+      if (localPage == '') localPage = {'pivs': []};
+
+      if (widget.localPagesIndex == localPageIndex &&
+          localPage['pivs'].length == 0)
+        TagService.instance.getLocalAchievements(localPageIndex);
       setState(() {
         currentPage =
-            StoreService.instance.get('localPage:' + localPage.toString());
-        Rows = StoreService.instance
-            .get('localAchievements:' + localPage.toString());
+            StoreService.instance.get('localPage:' + localPageIndex.toString());
+        var Rows = StoreService.instance.get('localAchievements:' +
+            StoreService.instance.get('localPage').toString());
         rows = Rows == '' ? [] : Rows;
       });
     });
-
-    // We add a timeout when we initialize the widget because `computeLocalPages` might not be done by the time we render this widget, and we need it to be done in order to render this widget correctly
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      TagService.instance
-          .getLocalAchievements(StoreService.instance.get('localPage'));
+    // We add a separate listener to not make the call to `getLocalAchievements` if the value of `localAchievements` just changed
+    cancelListener2 = StoreService.instance.listen(['localAchievements:*'],
+        (localAchievements) {
+      setState(() {
+        currentPage = StoreService.instance.get(
+            'localPage:' + StoreService.instance.get('localPage').toString());
+        var Rows = StoreService.instance.get('localAchievements:' +
+            StoreService.instance.get('localPage').toString());
+        rows = Rows == '' ? [] : Rows;
+      });
     });
   }
 
@@ -398,12 +410,14 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
   }
 
   @override
   Widget build(BuildContext context) {
     // No page loaded yet, or there are no pivs at all on the page, or there are pivs left to organize
     if (currentPage == '' || currentPage['pivs'].length > 0) return Container();
+
     return Align(
       alignment: SizeService.instance.screenHeight(context) < 710
           ? const Alignment(0, 1)

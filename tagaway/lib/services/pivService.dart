@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -395,7 +396,17 @@ class PivService {
 
       StoreService.instance.set ('localPagesLength', pages.length);
       pages.asMap ().forEach ((index, page) {
+         var oldPage = StoreService.instance.get ('localPage:' + index.toString ());
+
          StoreService.instance.set ('localPage:' + index.toString (), page);
+
+         if (
+           index == StoreService.instance.get ('localPage')
+           &&
+           ! DeepCollectionEquality ().equals (oldPage, page)
+           &&
+           (page ['pivs'] as List).length == 0
+         ) TagService.instance.getLocalAchievements (index);
       });
 
       if (StoreService.instance.get ('localPagesListener') == '') {

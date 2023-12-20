@@ -2,21 +2,23 @@
 
 ## TODO
 
-- Show "achievements view" with all that you have organized
+- Avoid double query when loading tags
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
-- Count organized today properly by adding date when piv was added to queue
 - You're all done
-   - Score sometimes doesn't show after reloading app
-   - Update score whenever tagging
    - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
    - Annotate
-- Edit/delete tags view, openable from query selector (Tom)
 -----
+- Edit/delete tags view, openable from query selector (Tom)
+- Show "achievements view" with all that you have organized
+
+- Count organized today properly by adding date when piv was added to queue
 - tag L:404
+
 - Swipe sideways to navigate months in uploaded
 - Confirm on delete single uploaded piv
 - Info view for each piv on cloud (Tom)
 - Finish annotated source code: tagService, storeService, tools.
+
 - Sharebox
    - Backend
       - List
@@ -75,6 +77,7 @@
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
+- localAchievements:<int> [[TAG, INT], ...]: for the local page <int>, a summary of the most prevalent tags, as well as the total for the page and the all-time organized number.
 - localPage <int>: the local page currently being shown.
 - localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER, dateTags: ['d::MN', 'd::YYYY']}` - contains all the pages of local pivs to be shown, one per grid.
 - localPagesLength <int>: number of local pages.
@@ -196,6 +199,7 @@ We start by importing native packages, then libraries, and finally other parts o
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -1437,15 +1441,44 @@ We are now done constructing `pages` and are ready to perform updates in the sto
       StoreService.instance.set ('localPagesLength', pages.length);
 ```
 
-We iterate the pages, noting both the page itself and its index. We then update `localPage:INDEX` with the new page.
+We iterate the pages, noting both the page itself and its index.
+
 
 ```dart
       pages.asMap ().forEach ((index, page) {
-         StoreService.instance.set ('localPage:' + index.toString (), page);
-      });
 ```
 
-This concludes the updating of the pages in the store.
+We make a reference to the current value of the page, before updating it. We'll see why in a minute.
+
+```dart
+         var oldPage = StoreService.instance.get ('localPage:' + index.toString ());
+```
+
+We update `localPage:INDEX` with the new page.
+
+```dart
+         StoreService.instance.set ('localPage:' + index.toString (), page);
+```
+
+Now for a bit of involved logic!
+1. If the page we are currently iterating is the same one being shown (which will be the case if `index` is equal to the key `localPage`).
+2. And the page we just computed is different from the page already stored.
+3. And the page has no pivs to be shown.
+4. Then we will invoke `getLocalAchievements` passing the `index` as its argument.
+
+The need for this is the following: we need to update the `localAchievements:INDEX` key when the corresponding local page changes; but only if the page is being shown - otherwise, we would be making unnecessary calls to the server. We also don't need to compute it if there are pivs in the page, because then, the view that shows local achievements will not be visible.
+
+```dart
+         if (
+           index == StoreService.instance.get ('localPage')
+           &&
+           ! DeepCollectionEquality ().equals (oldPage, page)
+           &&
+           (page ['pivs'] as List).length == 0
+         ) TagService.instance.getLocalAchievements (index);
+```
+
+We close the loop over the pages.
 
 ```dart
       });
