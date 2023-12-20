@@ -297,10 +297,6 @@ class TagService {
 
       var localPivsToAdd = [];
 
-      // TODO: remove these lines which are just for testing. If testing, these two lines replace the four below them.
-      //PivService.instance.localPivs.forEach ((piv) {
-         //var pendingTags = ['a local tag'];
-
       StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          if (piv == null) return;

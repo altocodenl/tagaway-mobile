@@ -4,9 +4,6 @@
 
 - Avoid double query when loading tags
 - When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
-- You're all done
-   - Dynamize button to "keep going", which jumps to the previous page with unorganized pivs
-   - Annotate
 -----
 - Edit/delete tags view, openable from query selector (Tom)
 - Show "achievements view" with all that you have organized
@@ -80,6 +77,7 @@
 - localAchievements:<int> [[TAG, INT], ...]: for the local page <int>, a summary of the most prevalent tags, as well as the total for the page and the all-time organized number.
 - localPage <int>: the local page currently being shown.
 - localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER, dateTags: ['d::MN', 'd::YYYY']}` - contains all the pages of local pivs to be shown, one per grid.
+- localPageController <page controller>: controller that drives the local pages.
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.
 - localYear <str>: displayed year in LocalView time header

@@ -310,3 +310,5 @@ printBytes (int bytes) {
    if (bytes < 1000 * 1000 * 1000) return ((bytes / (1000 * 100)).round () / 10).toString () + 'MB';
    return ((bytes / (1000 * 1000 * 100)).round () / 10).toString () + 'GB';
 }
+
+var store = StoreService.instance;

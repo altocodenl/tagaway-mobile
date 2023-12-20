@@ -29,6 +29,7 @@ class _LocalViewState extends State<LocalView> {
   void initState() {
     super.initState();
     StoreService.instance.set('localPage', 0);
+    StoreService.instance.set('localPageController', pageController);
     pageController.addListener(() {
       var maxPage = StoreService.instance.get('localPagesLength');
       if (maxPage == '') maxPage = 0;
@@ -573,7 +574,32 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
             ),
             FloatingActionButton.extended(
               key: const Key('keepOnGoing'),
-              onPressed: () {},
+              onPressed: () {
+                var currentPageIndex = store.get('localPage');
+                var jumpToIndex;
+                store.getKeys('^localPage:').forEach((pageIndex) {
+                  if (jumpToIndex != null)
+                    return; // We have a match, no need to do anything else.
+
+                  pageIndex = pageIndex.split(':');
+                  pageIndex = int.parse(pageIndex[1]);
+                  // If page is less than this, ignore it.
+                  if (pageIndex < currentPageIndex) return;
+
+                  if (store
+                          .get('localPage:' + pageIndex.toString())['pivs']
+                          .length >
+                      0) jumpToIndex = pageIndex;
+                });
+
+                if (jumpToIndex != null)
+                  store.get('localPageController').jumpToPage(jumpToIndex);
+                else
+                  SnackBarGlobal.buildSnackBar(
+                      context,
+                      'You are all done organizing! If only we were like you...',
+                      'green');
+              },
               extendedPadding: const EdgeInsets.only(left: 20, right: 20),
               heroTag: null,
               backgroundColor: kAltoBlue,
