@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class QuerySelectorView extends StatefulWidget {
@@ -36,17 +36,16 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
 
   // This function will be called every time the text changes
   searchQueryChanged() {
-    StoreService.instance.set('queryFilter', searchQueryController.text);
+    store.set('queryFilter', searchQueryController.text);
   }
 
   @override
   void initState() {
     super.initState();
     searchQueryController.addListener(searchQueryChanged);
-    if (StoreService.instance.get('queryTags') == '')
-      StoreService.instance.set('queryTags', []);
+    if (store.get('queryTags') == '') store.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
-    cancelListener = StoreService.instance
+    cancelListener = store
         .listen(['queryTags', 'queryResult', 'queryFilter', 'queryInProgress'],
             (v1, v2, v3, QueryInProgress) {
       // queryPivs will not make a call to the server if `queryResult` or `queryFilter` change because it will check if the tags have changed.
@@ -129,7 +128,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 color: kGreyDarker,
               ),
               onPressed: () {
-                StoreService.instance.set('queryTags', []);
+                store.set('queryTags', []);
                 Navigator.pushReplacementNamed(context, 'bottomNavigation');
               }),
           title: TextField(
@@ -164,7 +163,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               child: GestureDetector(
                   onTap: () {
                     setState(() {
-                      StoreService.instance.set('queryTags', []);
+                      store.set('queryTags', []);
                       searchQueryController.clear();
                     });
                   },

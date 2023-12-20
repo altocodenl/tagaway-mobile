@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/pivService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/views/uploadedGridItemView.dart';
@@ -50,8 +49,8 @@ class LocalGridItem extends StatelessWidget {
                 }));
               else {
                 var pivs = [];
-                if (StoreService.instance.get('queryResult') != '')
-                  pivs = StoreService.instance.get('queryResult')['pivs'];
+                if (store.get('queryResult') != '')
+                  pivs = store.get('queryResult')['pivs'];
 
                 Navigator.push(
                   context,
@@ -63,18 +62,17 @@ class LocalGridItem extends StatelessWidget {
             },
             onTap: () {
               var View = view[0].toUpperCase() + view.substring(1);
-              if (StoreService.instance.get('currentlyDeleting' + View) != '') {
+              if (store.get('currentlyDeleting' + View) != '') {
                 TagService.instance.toggleDeletion(asset.id, view);
-                StoreService.instance.set('showSelectAllButton' + View, true);
-              } else if (StoreService.instance.get('currentlyTagging' + View) !=
-                  '') {
+                store.set('showSelectAllButton' + View, true);
+              } else if (store.get('currentlyTagging' + View) != '') {
                 // Tagging/untagging is the same, whether we are in the local or the uploaded grid
                 TagService.instance.toggleTags(
                     asset,
-                    StoreService.instance.get('currentlyTagging' + View),
+                    store.get('currentlyTagging' + View),
                     view == 'local' ? 'local' : 'localUploaded');
-                StoreService.instance.set('hideAddMoreTagsButton' + View, true);
-                StoreService.instance.set('showSelectAllButton' + View, true);
+                store.set('hideAddMoreTagsButton' + View, true);
+                store.set('showSelectAllButton' + View, true);
               } else {
                 if (view == 'local')
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -82,8 +80,8 @@ class LocalGridItem extends StatelessWidget {
                   }));
                 else {
                   var pivs = [];
-                  if (StoreService.instance.get('queryResult') != '')
-                    pivs = StoreService.instance.get('queryResult')['pivs'];
+                  if (store.get('queryResult') != '')
+                    pivs = store.get('queryResult')['pivs'];
 
                   Navigator.push(
                     context,

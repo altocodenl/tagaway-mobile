@@ -202,7 +202,6 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 ```
@@ -371,8 +370,8 @@ If we do not get a 200, we return the response and do not do anything else. The 
 We set a `pivMap` entry for this piv, mapping it to the id of the freshly uploaded piv. We also add a reverse entry (`rpivMap`) connecting the freshly uploaded piv with its local counterpart.
 
 ```dart
-      StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
-      StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+      store.set ('pivMap:'  + piv.id, response ['body'] ['id']);
+      store.set ('rpivMap:' + response ['body'] ['id'], piv.id);
 ```
 
 We set the `hashMap` for this piv. The client and the server determine this hash in the same way using the same algorithm, so if we overwrite our local entry, it should make no difference. The reason we write this `hashMap` here is that if we are uploading a piv that hasn't been hashed by the client yet, we can already set it and save the client the expense of hashing the piv.
@@ -380,13 +379,13 @@ We set the `hashMap` for this piv. The client and the server determine this hash
 Note the `hashMap` entry is stored in disk and will persist if the app restarts.
 
 ```dart
-      StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash'], 'disk');
+      store.set ('hashMap:' + piv.id, response ['body'] ['hash'], 'disk');
 ```
 
 After the piv is successfully added, it is now time to tag it. If there are tags that should be applied to it, they will be at the `pendingTags:ID` key.
 
 ```dart
-      var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
+      var pendingTags = store.get ('pendingTags:' + piv.id);
 ```
 
 If there are pending tags, then we will start by setting `orgMap:ID` (the `orgMap` entry for the uploaded counterpart of this local piv) to `true`. The rationale is the following: if the piv will be tagged, we automatically consider it as tagged. Therefore, it is correct to set this entry.
@@ -395,7 +394,7 @@ The practical reason for preventively setting this entry is that the tagging ope
 
 ```dart
       if (pendingTags != '') {
-         StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
+         store.set ('orgMap:' + response ['body'] ['id'], true);
 ```
 
 We now invoke `tagCloudPiv`, passing to it `pendingTags`, as well as the id of the cloud id.
@@ -422,15 +421,15 @@ This concludes the logic for tagging the uploaded piv.
 We remove the `pendingTags` key. Note we do this on disk as well, since that key needs to persist if the app is restarted. A drawback of not awaiting for the results of each tagging operation is that if there are any errors in the tagging, the pending tags will be lost.
 
 ```dart
-      StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
+      store.remove ('pendingTags:' + piv.id, 'disk');
 ```
 
 If the piv was set to be deleted, but we couldn't delete it yet because it was queued to be uploaded first, it is now safe to delete it. We invoke `deleteLocalPivs` passing the piv id inside an array. We also remove the `pendingDeletion` key, also from disk.
 
 ```dart
-      if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') {
+      if (store.get ('pendingDeletion:' + piv.id) != '') {
          deleteLocalPivs ([piv.id]);
-         StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
+         store.remove ('pendingDeletion:' + piv.id, 'disk');
       }
 ```
 
@@ -461,7 +460,7 @@ We store `dryUploadQueue` in the `uploadQueue` key; note we store this key in di
 This concludes the function.
 
 ```dart
-      StoreService.instance.set ('uploadQueue', dryUploadQueue, 'disk');
+      store.set ('uploadQueue', dryUploadQueue, 'disk');
    }
 ```
 
@@ -488,7 +487,7 @@ For this reason, we preemptively set `pivMap:ID` to `true`, to indicate that the
 Note however we do not unconditionally set `pivMap:ID` to `true`: if `pivMap:ID` is already set, we do not overwrite it. This precaution might be rarely useful, but not useless, if by chance the user tags a piv that just has completed uploading.
 
 ```dart
-         if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
+         if (store.get ('pivMap:' + piv.id) == '') store.set ('pivMap:' + piv.id, true);
 ```
 
 We check whether the piv is already in the upload queue. We use a for loop because sometimes Dart throws unexplicable range errors when we iterate the`uploadQueue` with a `forEach`.
@@ -542,8 +541,8 @@ Getting the size of the piv is not as easy as it may seem; if we want to get the
 
 ```dart
       uploadQueue.sort ((a, b) {
-         var sizeA = StoreService.instance.get ('hashMap:' + a.id);
-         var sizeB = StoreService.instance.get ('hashMap:' + b.id);
+         var sizeA = store.get ('hashMap:' + a.id);
+         var sizeB = store.get ('hashMap:' + b.id);
 ```
 
 If a piv has no hash cmoputed, we set its size (for the purposes of hashing) to a large number (1GB). Otherwise, we get the size from the second part of the hash.
@@ -754,7 +753,7 @@ For each of the loaded pivs, we set the entry `cameraPiv:ID` to `true`. This is 
 
 ```dart
          for (var piv in assets) {
-            StoreService.instance.set ('cameraPiv:' + piv.id, true);
+            store.set ('cameraPiv:' + piv.id, true);
          }
 ```
 
@@ -841,7 +840,7 @@ Note: because this function is called by `distributorView`, and because `distrib
 
 ```dart
          for (var piv in page) {
-            StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+            store.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
 ```
 
 If we are in iOS, we will also try to determine whether this piv is in the camera. iOS has no way to query this directly, so we do an approximation by getting the piv's MIME type and see if it is a HEIC or a MOV. If it is, we consider it a camera piv and therefore set `cameraPiv:ID`. Note that we already did this earlier for Android by invoking `loadAndroidCameraPivs`.
@@ -849,7 +848,7 @@ If we are in iOS, we will also try to determine whether this piv is in the camer
 ```dart
          if (Platform.isIOS) {
             var mime = await piv.mimeTypeAsync;
-            if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
+            if (['image/heic', 'video/quicktime'].contains (mime)) store.set ('cameraPiv:' + piv.id, true);
          }
 ```
 
@@ -876,7 +875,7 @@ Note we sort the pivs after we have added the full page of pivs, rather than aft
 Now for a hack: after adding each page of pivs, we want to make `computeLocalPages` recompute the local pages. For this reason, we set a dummy key (`cameraPiv:foo`) to a value it didn't have before. Since the listener set by `computeLocalPages` will be triggered by a change to any key starting with `cameraPiv`, this will work. Earlier we considered doing this by making the listener of `computeLocalPages` also be triggered by changes to `pivDate`; however, that could have triggered more than one redraw for each added page, which is undesirable. For that reason, we go with this dummy key approach instead, to make sure that the pages are recomputed at most only once per page of local pivs loaded.
 
 ```dart
-         StoreService.instance.set ('cameraPiv:foo', now ());
+         store.set ('cameraPiv:foo', now ());
 ```
 
 We increase `offset` by `pageSize`; at this point, the loop will start again until there are no more pivs left to load.
@@ -921,13 +920,13 @@ We define a list `cloudIds` with all the ids of cloud pivs that we want to check
 We iterate the `pivMap` entries.
 
 ```dart
-      for (var k in StoreService.instance.getKeys ('^pivMap:')) {
+      for (var k in store.getKeys ('^pivMap:')) {
 ```
 
 We get the `pivMap:ID` entry, which can contain the id of the cloud counterpart of this local piv.
 
 ```dart
-         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+         var cloudId = store.get ('pivMap:' + piv.id);
 ```
 
 If the entry is empty, or it is set to `true` (which will be the case for local pivs currently in the upload queue), we ignore it. Otherwise, we add it to `cloudIds`.
@@ -955,7 +954,7 @@ We now define `reviveUploads`, the function that restores the upload queue from 
 We get the dry upload queue which will be in the `uploadQueue` key. If there's no entry at all, or if the entry returns an empty list, we don't do anything else.
 
 ```dart
-      var queue = StoreService.instance.get ('uploadQueue');
+      var queue = store.get ('uploadQueue');
 
       if (queue == '' || queue.length == 0) return;
 ```
@@ -973,7 +972,7 @@ Note also that this will not restore the upload queue in the same order than the
 We also set the `pivMap:ID` entry to `true`, as was done by `queuePiv` when this piv was originally added to the queue, to indicate that this piv should be considered as organized.
 
 ```dart
-         StoreService.instance.set ('pivMap:' + v.id, true);
+         store.set ('pivMap:' + v.id, true);
       });
 ```
 
@@ -1050,14 +1049,14 @@ We first construct an object/map where each key is the id of a local piv. The va
 We are now going to iterate the existing `hashMap` entries, to see which entries exist.
 
 ```dart
-      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
+      for (var k in store.getKeys ('^hashMap:')) {
 ```
 
 If we find a `hashMap:ID` entry where `ID` does not correspond to a local piv, we remove that entry. Note we remove it from disk.
 
 ```dart
          var id = k.replaceAll ('hashMap:', '');
-         if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
+         if (localPivIds [id] == null) await store.remove (k, 'disk');
       }
 ```
 
@@ -1083,7 +1082,7 @@ We will create another object/map where each key is the id of a local piv that h
 We are now going to iterate the existing `hashMap` entries, to see which entries exist.
 
 ```dart
-      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
+      for (var k in store.getKeys ('^hashMap:')) {
 ```
 
 We extract the piv id from `hashMap:ID`. We then set the key `id` of `hashesToQuery` to the value of the hash of this piv.
@@ -1092,7 +1091,7 @@ Because local pivs might not have been loaded yet, we might be querying a hash o
 
 ```dart
          var id = k.replaceAll ('hashMap:', '');
-         hashesToQuery [id] = StoreService.instance.get (k);
+         hashesToQuery [id] = store.get (k);
       }
 ```
 
@@ -1118,8 +1117,8 @@ We iterate the queried hashes. Each of them will connect the id of a local piv w
 If there is a cloud piv that matches this piv, we set the `pivMap:ID` and `rpivMap:ID` for this pair of pivs. `pivMap` points from a local id to a cloud id, whereas `rpivMap` (the `r` stands for `reverse`) points from a cloud id to a local id.
 
 ```dart
-         StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
-         StoreService.instance.set ('rpivMap:' + uploadedId, localId);
+         store.set ('pivMap:'  + localId,    uploadedId);
+         store.set ('rpivMap:' + uploadedId, localId);
       });
 ```
 
@@ -1129,10 +1128,10 @@ Note we check that `oldUploadedId` is neither an empty string nor `true`.
 
 ```dart
          else {
-            var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
+            var oldUploadedId = store.get ('pivMap:' + localId);
             if (oldUploadedId != '' && oldUploadedId != true) {
-               StoreService.instance.remove ('pivMap:'  + localId);
-               StoreService.instance.remove ('rpivMap:' + oldUploadedId);
+               store.remove ('pivMap:'  + localId);
+               store.remove ('rpivMap:' + oldUploadedId);
             }
          }
 ```
@@ -1168,7 +1167,7 @@ If more pivs are added to `localPivs`, they will be ignored during the current e
 If there's no hashMap entry for the piv, we move on to the next piv.
 
 ```dart
-         if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+         if (store.get ('hashMap:' + piv.id) != '') continue;
 ```
 
 We invoke `hashPiv`, another function that performs the hashing for us and that is defined in `tools.dart`. Note that instead of executing this function directly, we do it through `flutterCompute`. This function, provided by the Flutter Isolate library, allows us to run this function in an isolate.
@@ -1190,7 +1189,7 @@ If `hashPiv` returns `false`, this means that the asset was deleted and the file
 We set the `hashMap:ID` entry to the hash we just obtained. Note we do this in disk.
 
 ```dart
-         StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+         store.set ('hashMap:' + piv.id, hash, 'disk');
 ```
 
 We now check if the local piv we just hashed as an uploaded counterpart, by invoking `queryHashes`.
@@ -1209,8 +1208,8 @@ If this local piv has a cloud counterpart, we will set the `pivMap` and `rpivMap
 
 ```dart
          if (queriedHash [piv.id] != null) {
-            StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
-            StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+            store.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
+            store.set ('rpivMap:' + queriedHash [piv.id], piv.id);
 ```
 
 We will also invoke `queryOrganizedIds`, so that if this piv is organized, we will know it. Note we don't `await` for this since this update can happen in the background - we want to keep on hashing pivs as fast as possible.
@@ -1284,7 +1283,7 @@ We convert the result to a list.
 We get the `displayMode` from the store, which will be an object of the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`.
 
 ```dart
-      var displayMode = StoreService.instance.get ('displayMode');
+      var displayMode = store.get ('displayMode');
 ```
 
 We get `currentlyTaggingPivs`, a list of pivs currently being tagged. If there's no such key in the store, we will initialize our local variable to an empty array.
@@ -1304,7 +1303,7 @@ We iterate `localPivs`, which is the list of all local pivs held by our `pivServ
 If the piv is scheduled for deletion after it is uploaded, we do not consider it at all for any pages.
 
 ```dart
-         if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') return;
+         if (store.get ('pendingDeletion:' + piv.id) != '') return;
 ```
 
 We determine whether the local piv is organized by checking if there's an `orgMap` entry for its cloud counterpart. We get the cloud counterpart of the local piv by querying `pivMap:ID`.
@@ -1312,8 +1311,8 @@ We determine whether the local piv is organized by checking if there's an `orgMa
 It might be that `pivMap:ID` is set to `true`. This happens if the local piv is currently in the upload queue. In this case, we consider the piv to be organized, since we assume that any pending tagging operation will mark as organized the cloud counterpart of this local piv.
 
 ```dart
-         var cloudId        = StoreService.instance.get ('pivMap:' + piv.id);
-         var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
+         var cloudId        = store.get ('pivMap:' + piv.id);
+         var pivIsOrganized = cloudId == true || store.get ('orgMap:' + cloudId) != '';
 ```
 
 We determine if the piv is considered "left", that is, if it still has to be organized. If the piv is not organized, we consider it as left.
@@ -1327,7 +1326,7 @@ However, if we are only showing camera pivs, and the piv is not a camera piv, we
 We check that `displayMode` is initialized because sometimes we see an error in this line when logging out.
 
 ```dart
-         if (displayMode != '' && displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
+         if (displayMode != '' && displayMode ['cameraOnly'] == true && store.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
 ```
 
 We check whether the piv is currently being tagged, by checking if it is inside `currentlyTaggingPivs`.
@@ -1341,7 +1340,7 @@ We determine whether the piv should be shown and store the result in `showPiv`. 
 - `displayMode.cameraOnly` is `false` or the piv is a camera piv.
 
 ```dart
-         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || store.get ('cameraPiv:' + piv.id) == true));
 ```
 
 We initialize two variables: `placed`, to determine whether the piv has been already placed in a page; and `pivDate`, the create datetime of the piv. `pivDate` will instruct us in which page to place the piv.
@@ -1436,7 +1435,7 @@ Before we close the iteration on local pivs, you might ask: how do you know that
 We are now done constructing `pages` and are ready to perform updates in the store. We first set `localPagesLength` to the length of local pages.
 
 ```dart
-      StoreService.instance.set ('localPagesLength', pages.length);
+      store.set ('localPagesLength', pages.length);
 ```
 
 We iterate the pages, noting both the page itself and its index.
@@ -1449,13 +1448,13 @@ We iterate the pages, noting both the page itself and its index.
 We make a reference to the current value of the page, before updating it. We'll see why in a minute.
 
 ```dart
-         var oldPage = StoreService.instance.get ('localPage:' + index.toString ());
+         var oldPage = store.get ('localPage:' + index.toString ());
 ```
 
 We update `localPage:INDEX` with the new page.
 
 ```dart
-         StoreService.instance.set ('localPage:' + index.toString (), page);
+         store.set ('localPage:' + index.toString (), page);
 ```
 
 Now for a bit of involved logic!
@@ -1468,7 +1467,7 @@ The need for this is the following: we need to update the `localAchievements:IND
 
 ```dart
          if (
-           index == StoreService.instance.get ('localPage')
+           index == store.get ('localPage')
            &&
            ! DeepCollectionEquality ().equals (oldPage, page)
            &&
@@ -1487,8 +1486,8 @@ If this is the first time that `computeLocalPages` is executed, we will set up a
 Notice that we store the listener in the `localPagesListener` key of the store, so by checking whether `localPagesListener` is set, we will know whether this logic has been already executed once or not.
 
 ```dart
-      if (StoreService.instance.get ('localPagesListener') == '') {
-         StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
+      if (store.get ('localPagesListener') == '') {
+         store.set ('localPagesListener', store.listen ([
 ```
 
 The listener will be matched if there's a change on any of these store keys:
@@ -1556,7 +1555,7 @@ If a piv in the queue is not included in `ids`, we don't care about it.
 If we are here, this piv in the queue should also be deleted. If this is the case, we will set a key `pendingDeletion:ID`, which will mark it for deletion once it is uploaded. Note we set this key in the disk.
 
 ```dart
-         StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
+         store.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
 ```
 
 We will also remove this id from `ids`, since we don't want to delete it now.
@@ -1711,9 +1710,9 @@ We iterate the local pivs.
 If we have a `hashMap` entry for the piv, and we also have a `pivMap` entry for the piv, we are certain that the piv is also in the cloud.
 
 ```dart
-         var hash = StoreService.instance.get ('hashMap:' + piv.id);
+         var hash = store.get ('hashMap:' + piv.id);
          if (hash == '') return;
-         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+         var cloudId = store.get ('pivMap:' + piv.id);
          if (cloudId == '') return;
 ```
 
@@ -1786,7 +1785,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:tagaway/services/pivService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
 ```
 
@@ -1840,7 +1838,7 @@ If there was an error, there's nothing else to do, so we return.
 If we're here, the request was successful. We set `tags` in the store.
 
 ```dart
-      StoreService.instance.set ('tags', response ['body'] ['tags']);
+      store.set ('tags', response ['body'] ['tags']);
 ```
 
 We invoke `updateOrganizedCount` passing to it the current total number of organized pivs. This function will update this number, as well as a count of all the pivs organized today.
@@ -1852,8 +1850,8 @@ We invoke `updateOrganizedCount` passing to it the current total number of organ
 We update the `hometags` and `homeThumbs` keys with what comes from the response body.
 
 ```dart
-      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
-      StoreService.instance.set ('homeThumbs', response ['body'] ['homeThumbs']);
+      store.set ('hometags', response ['body'] ['hometags']);
+      store.set ('homeThumbs', response ['body'] ['homeThumbs']);
 ```
 
 We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.
@@ -1869,8 +1867,8 @@ We store usertags in a local variable, because we'll use it repeatedly below.
 We iterate all the `pendingTags` entries to see if there are any usertags in there that are not in the server yet. This might be the case if a user tagged a queued piv with a new tag that is not on the server yet.
 
 ```dart
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
-         var pendingTags = StoreService.instance.get (k);
+      store.getKeys ('^pendingTags:').forEach ((k) {
+         var pendingTags = store.get (k);
 ```
 
 For each pending tag, if it is not contained in `usertags`, we add it.
@@ -1891,7 +1889,7 @@ We sort the usertags so that they are ordered again, in case we added some from 
 We now set `usertags` in the store.
 
 ```dart
-      StoreService.instance.set ('usertags', usertags);
+      store.set ('usertags', usertags);
 ```
 
 We will now go through the tags inside the `lastNTags` key and remove those that are not included in `usertags`. The resulting list will be again set to `lastNTags`. Effectively, this gets rid of any stale tags inside `lastNTags`.
@@ -1899,7 +1897,7 @@ We will now go through the tags inside the `lastNTags` key and remove those that
 Note we store `lastNTags` in disk, because we want the list to persist when the app is closed.
 
 ```dart
-      StoreService.instance.set ('lastNTags', getList (StoreService.instance.get ('lastNTags')).where ((tag) {
+      store.set ('lastNTags', getList (store.get ('lastNTags')).where ((tag) {
          return usertags.contains (tag);
       }).toList (), 'disk');
 ```
@@ -1934,13 +1932,13 @@ We get the key `organizedAtDaybreak`, which, if it exists, will have been create
 By daybreak, we mean the first time in the current day that the user has used the app - and therefore, received the total count of organized pivs at that moment.
 
 ```dart
-      var organizedAtDaybreak = StoreService.instance.get ('organizedAtDaybreak');
+      var organizedAtDaybreak = store.get ('organizedAtDaybreak');
 ```
 
 If the key doesn't exist, or the key was set yesterday (which we'll know because the midnight date is less than the midnight for the current date) we will (over)write the `organizedAtDaybreak` key.
 
 ```dart
-      if (organizedAtDaybreak == '' || organizedAtDaybreak ['midnight'] < ms (midnight)) StoreService.instance.set ('organizedAtDaybreak', {
+      if (organizedAtDaybreak == '' || organizedAtDaybreak ['midnight'] < ms (midnight)) store.set ('organizedAtDaybreak', {
 ```
 
 The shape of the key is `{midnight: INT (milliseconds of the date at midnight, local time), organized: INT (number of organized pivs the first time we checked that date)}`.
@@ -1958,8 +1956,8 @@ This midnight heuristic, by the way, will break while the user travels to an ear
 We iterate the `pendingTags:ID` keys; each of them represents an organized piv that hasn't been uploaded yet. We will increment `organizedNow` by that amount.
 
 ```dart
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
-         if (StoreService.instance.get (k) != '') organizedNow++;
+      store.getKeys ('^pendingTags:').forEach ((k) {
+         if (store.get (k) != '') organizedNow++;
       });
 ```
 
@@ -1968,9 +1966,9 @@ We finally set the key `organized`, which is the one used by the view to show ho
 Note that `today` is simply the total organized pivs minus the pivs organized at midnight.
 
 ```dart
-      StoreService.instance.set ('organized', {
+      store.set ('organized', {
          'total': organizedNow,
-         'today': organizedNow - StoreService.instance.get ('organizedAtDaybreak') ['organized']
+         'today': organizedNow - store.get ('organizedAtDaybreak') ['organized']
       });
 ```
 
@@ -2009,7 +2007,7 @@ If we want to add the tag to the hometags and it is already there, or we want to
 To avoid the user to keep on waiting for a server response, we immediately update the `hometags` key so that the UI is updated. If the call later fails, the hometags will revert to what they were when we invoke `getTags` below, which will re-update `hometags` with what comes from the server.
 
 ```dart
-      StoreService.instance.set ('hometags', hometags);
+      store.set ('hometags', hometags);
 ```
 
 We invoke `POST /hometags` passing the updated hometags.
@@ -2069,7 +2067,7 @@ If we have more than seven tags, we will remove the last one.
 We update `lastNTags` in the store and close the function.
 
 ```dart
-      StoreService.instance.set ('lastNTags', lastNTags, 'disk');
+      store.set ('lastNTags', lastNTags, 'disk');
    }
 ```
 
@@ -2113,7 +2111,7 @@ We pass a single id to `queryOrganizedIds` because if this cloud piv has a local
 We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add the first tag in `tags` to the hometags. This allows us to "seed" the hometags with a first tag.
 
 ```dart
-      var hometags = StoreService.instance.get ('hometags');
+      var hometags = store.get ('hometags');
       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
 ```
 
@@ -2148,7 +2146,7 @@ We first define two local variables, a `pivId` that will hold the id of the piv 
 
 ```dart
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
-      var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
+      var cloudId = type == 'uploaded' ? pivId      : store.get ('pivMap:' + pivId);
 ```
 
 We will also define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:` depending on `type`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not.
@@ -2161,7 +2159,7 @@ If the `selectAll` argument is passed, we will check whether the piv is tagged. 
 
 ```dart
       if (selectAll != null) {
-         var tagged = StoreService.instance.get (tagMapPrefix + pivId) != '';
+         var tagged = store.get (tagMapPrefix + pivId) != '';
          if (tagged == selectAll) return;
       }
 ```
@@ -2169,13 +2167,13 @@ If the `selectAll` argument is passed, we will check whether the piv is tagged. 
 We determine whether we are tagging or untagging the piv by reading `tagMap(Local|Uploaded):ID`. If it's set to an empty string, this will be a tag operation; otherwise, it will be an untag operation.
 
 ```dart
-      var untag = StoreService.instance.get (tagMapPrefix + pivId) != '';
+      var untag = store.get (tagMapPrefix + pivId) != '';
 ```
 
 If this is an untag operation, we will set `tagMap(Local|Uploaded):ID` to `''`, otherwise we will set it to `true`. Besides holding state for us, doing this also allows us to immediately show the piv as tagged or untagged, before the operation is sent to the server.
 
 ```dart
-      StoreService.instance.set (tagMapPrefix + pivId, untag ? '' : true);
+      store.set (tagMapPrefix + pivId, untag ? '' : true);
 ```
 
 If we are tagging a local piv (and a local piv on the local view, not the uploaded view), we need to add it to `currentlyTaggingPivs`. We first check whether `currentlyTaggingPivs` already exists. If not, we initialize it to an empty list.
@@ -2189,7 +2187,7 @@ We then the piv id to `currentlyTaggingPivs` and update the key in the store.
 
 ```dart
          currentlyTaggingPivs.add (pivId);
-         StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
+         store.set ('currentlyTaggingPivs', currentlyTaggingPivs);
       }
 ```
 
@@ -2240,8 +2238,8 @@ If we are here, it's because we attempted to tag a local piv that had a cloud co
 We remove the `pivMap` and `rpivMap` entries for this local piv and its deleted cloud counterpart.
 
 ```dart
-            StoreService.instance.remove ('pivMap:'  + pivId);
-            StoreService.instance.remove ('rpivMap:' + cloudId);
+            store.remove ('pivMap:'  + pivId);
+            store.remove ('rpivMap:' + cloudId);
          }
 ```
 
@@ -2268,8 +2266,8 @@ If we are tagging, we add each of the tags to `pendingTags`; if we are untagging
 If `pendingTags` has one or more tags in it, we store it in the store. Note we use the `'disk'` parameter since we want this data to persist even if the app is restarted. If the list has no tags, we directly remove the key from the store.
 
 ```dart
-      if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + pivId, pendingTags, 'disk');
-      else                        StoreService.instance.remove ('pendingTags:' + pivId, 'disk');
+      if (pendingTags.length > 0) store.set    ('pendingTags:' + pivId, pendingTags, 'disk');
+      else                        store.remove ('pendingTags:' + pivId, 'disk');
 ```
 
 If we are tagging the piv, all we have left to do is call the `queuePiv` function of the `PivService`.
@@ -2287,7 +2285,7 @@ Now for an interesting bit of logic. If we are untagging a local piv that hasn't
 We first unset `pivMap:ID`, which was temporarily set to `true` when the piv was queued by a previous tagging operation.
 
 ```dart
-         StoreService.instance.remove ('pivMap:' + pivId);
+         store.remove ('pivMap:' + pivId);
 ```
 
 We will now find index of this piv in the `uploadQueue` of the PivService. Note we use `asMap` to be able to iterate the list and still get both its index and the piv itself at the same time.
@@ -2351,7 +2349,7 @@ We will define a `tagMapPrefix` variable which will be either `tagMapLocal:` or 
 We iterate all the keys in the store.
 
 ```dart
-      StoreService.instance.store.keys.toList ().forEach ((k) {
+      store.store.keys.toList ().forEach ((k) {
 ```
 
 If we find a `tagMap` entry, we add the `ID` to `existing`.
@@ -2374,7 +2372,7 @@ We will do the latter first. If this is a `pendingTags` entry:
 We will get the pending tags for this piv.
 
 ```dart
-             var pendingTags = StoreService.instance.get (k);
+             var pendingTags = store.get (k);
 ```
 
 We will now determine whether all of the `tags` are included inside `pendingTags`. If this is the case, we will consider this local piv to be tagged already with `tags`.
@@ -2434,7 +2432,7 @@ A very, very subtle point: if there are local pivs inside the pivs of the last q
 
 ```dart
       var queryIds;
-      if (view == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
+      if (view == 'uploaded') queryIds = store.get ('queryResult') ['pivs'].map ((v) => v ['id']);
 ```
 
 We iterate the piv ids we got from the server.
@@ -2455,7 +2453,7 @@ If we are in the local view, we check whether the piv has a `rpivMap:ID` entry, 
 
 ```dart
          else {
-            var id = StoreService.instance.get ('rpivMap:' + v);
+            var id = store.get ('rpivMap:' + v);
             if (id != '') New.add (id);
          }
 ```
@@ -2477,7 +2475,7 @@ For all the `New` entries:
 If the new entry doesn't exist yet, we set `tagMap(Local|Uploaded):ID` to `true`. Otherwise, we remove it from the `existing` list.
 
 ```dart
-        if (! existing.contains (id)) StoreService.instance.set (tagMapPrefix + id, true);
+        if (! existing.contains (id)) store.set (tagMapPrefix + id, true);
         else existing.remove (id);
       });
 ```
@@ -2486,7 +2484,7 @@ By now, all the entries in `existing` are stale, since if they weren't, they wou
 
 ```dart
       existing.forEach ((id) {
-        StoreService.instance.remove (tagMapPrefix + id);
+        store.remove (tagMapPrefix + id);
       });
 ```
 
@@ -2515,7 +2513,7 @@ If we are (de)selecting local pivs:
 We get the current page of local pivs being shown and iterate its pivs.
 
 ```dart
-         var currentPage = StoreService.instance.get ('localPage:' + StoreService.instance.get ('localPage').toString ());
+         var currentPage = store.get ('localPage:' + store.get ('localPage').toString ());
          currentPage ['pivs'].forEach ((piv) {
 ```
 
@@ -2528,7 +2526,7 @@ If we are deleting pivs, we call `toggleDeletion`, passing the piv's id, the vie
 Likewise with the `tag` operation: we invoke `toggleTags`, only that we also pass the list of `tags` being applied to the local pivs.
 
 ```dart
-            if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingLocal'), 'local', select);
+            if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingLocal'), 'local', select);
 ```
 
 This concludes the case for local pivs.
@@ -2547,7 +2545,7 @@ If we are (de)selecting uploaded pivs:
 We get all the pivs from the current query, which are stored in `queryResult`, and iterate them.
 
 ```dart
-         var queryResult = StoreService.instance.get ('queryResult');
+         var queryResult = store.get ('queryResult');
          queryResult ['pivs'].forEach ((piv) {
 ```
 
@@ -2559,7 +2557,7 @@ If this is a local piv (which will be the case if `piv.local` is `true`), insert
 ```dart
             if (piv ['local'] == true) {
                if (operation == 'delete') toggleDeletion (piv ['piv'].id, 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv ['piv'], StoreService.instance.get ('currentlyTaggingUploaded'), 'localUploaded', select);
+               if (operation == 'tag')    toggleTags (piv ['piv'], store.get ('currentlyTaggingUploaded'), 'localUploaded', select);
             }
 ```
 
@@ -2568,7 +2566,7 @@ If this is a normal uploaded piv, we will invoke the same two functions we just 
 ```dart
             else {
                if (operation == 'delete') toggleDeletion (piv ['id'], 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingUploaded'), 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingUploaded'), 'uploaded', select);
             }
 ```
 
@@ -2711,7 +2709,7 @@ We will create a list `localPivsToAdd`, which we will only use if `currentMonth`
 We will iterate all the `pendingTags` keys. Each of them belongs to a local piv in the queue.
 
 ```dart
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
+      store.getKeys ('^pendingTags:').forEach ((k) {
 ```
 
 We will get the local piv and the list of pending tags. If there's no matching local piv for this key, we will ignore the key.
@@ -2719,7 +2717,7 @@ We will get the local piv and the list of pending tags. If there's no matching l
 ```dart
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          if (piv == null) return;
-         var pendingTags = StoreService.instance.get (k);
+         var pendingTags = store.get (k);
 ```
 
 If the `pendingTags` has just been removed, we ignore this piv.
@@ -2860,7 +2858,7 @@ We set `minDateCurrentMonth` and `maxDateCurrentMonth` as we did in the case whe
 We set the current month, since it is not set yet since there are no server pivs that match the query.
 
 ```dart
-         StoreService.instance.set ('currentMonth', year.toString () + ':' + month.toString ());
+         store.set ('currentMonth', year.toString () + ':' + month.toString ());
 ```
 
 We iterate the `localPivsToAdd` again and add those to the list that match to the current month.
@@ -2932,13 +2930,13 @@ If all three conditions are true simultaneously, we will `return` since there's 
 In practice, this only happens when switching between the query selector view and the cloud view, where the query is already done but the view doesn't know whether the existing query is fresh.
 
 ```dart
-      if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
+      if (store.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
 ```
 
 If `preserveMonth` is `true`, and `currentMonth` is also set, rather than continuing, we will just invoke `queryPivsForMonth` (a function defined below) passing the current month, and immediately return. This will refresh the query while preserving the current month.
 
 ```dart
-      var currentMonth = StoreService.instance.get ('currentMonth');
+      var currentMonth = store.get ('currentMonth');
       if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
 ```
 
@@ -2962,7 +2960,7 @@ Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this,
 
 ```dart
       Future.delayed (Duration (milliseconds: 1), () {
-        StoreService.instance.set ('queryInProgress', true);
+        store.set ('queryInProgress', true);
       });
 ```
 
@@ -2993,7 +2991,7 @@ If we didn't get back a 200 code, we have encountered an error. If we experience
 Whatever the error is, we cannot continue executing the function, so we remove the `queryInProgress` key and return the code from the response.
 
 ```dart
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return response ['code'];
       }
 ```
@@ -3017,7 +3015,7 @@ We return the result of the body in a local variable `queryResult`.
 If the server also didn't bring a last month, this must be a ronin query (a query without pivs). In this case, we remove `currentMonth`. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device. It could also happen if the user selects a tag that is only possessed by pivs in the upload queue and haven't been uploaded yet.
 
 ```dart
-      if (queryResult ['lastMonth'] == null) StoreService.instance.remove ('currentMonth');
+      if (queryResult ['lastMonth'] == null) store.remove ('currentMonth');
 ```
 
 Otherwise, we extract the year and the month of the last month of the query, which will be present in the `lastMonth` key of the object returned by the server. We then set them in the `currentMonth` key of the store.
@@ -3025,7 +3023,7 @@ Otherwise, we extract the year and the month of the last month of the query, whi
 ```dart
       else {
          var lastMonth = queryResult ['lastMonth'] [0].split (':');
-         StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
+         store.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
       }
 ```
 
@@ -3045,16 +3043,16 @@ Note that if we have local pivs that match the query, they will already be in `q
 
 ```dart
       if (queryResult ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.remove ('currentlyTaggingUploaded');
-         StoreService.instance.remove ('showSelectAllButtonUploaded');
-         return StoreService.instance.set ('queryTags', []);
+         store.remove ('currentlyTaggingUploaded');
+         store.remove ('showSelectAllButtonUploaded');
+         return store.set ('queryTags', []);
       }
 ```
 
 We will now put everything in place so that the time header can be computed. We start by setting the `timeHeader` inside `queryResult`. We do this just to put the data in there, but we don't want a redraw to be triggered yet, so we pass the `'mute'` flag. We must also add placeholders for the other fields (`total`, `tags` and `pivs`), since if the query is slow and another change redraws the view, an error will be thrown by the view if these fields are missing from `queryResult`.
 
 ```dart
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'timeHeader':  queryResult ['timeHeader'],
          'total':       0,
          'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
@@ -3084,7 +3082,7 @@ Note that we exclude local pivs, since those should not have an `orgMap` entry.
       if (tags.contains ('o::')) {
          queryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
-            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+            store.set ('orgMap:' + piv ['id'], true);
          });
       }
 ```
@@ -3107,7 +3105,7 @@ If we have more pivs in the month than the pivs we brought, we will generate pla
 We update `queryResult` in its entirety, with a normal (non-mute) update. This will trigger a redraw of the grid and already show pivs.
 
 ```dart
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
@@ -3127,7 +3125,7 @@ Note: to know if we are missing pivs or not, we cannot compare the length of `qu
 
 ```dart
       if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) {
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return 200;
       }
 ```
@@ -3157,7 +3155,7 @@ As before, if we didn't get back a 200 code, we have encountered an error. If we
 Whatever the error is, we cannot continue executing the function, so we return its response code after removing the `queryInProgress` key.
 
 ```dart
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return response ['code'];
       }
 ```
@@ -3177,13 +3175,13 @@ We store the result of the second query in a `secondQueryResult` variable.
 We modify `queryResult` by invoking `localQuery`.
 
 ```dart
-      secondQueryResult = localQuery (tags, StoreService.instance.get ('currentMonth'), secondQueryResult);
+      secondQueryResult = localQuery (tags, store.get ('currentMonth'), secondQueryResult);
 ```
 
 We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest as it was before. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
 
 ```dart
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
@@ -3197,7 +3195,7 @@ As before, we check whether the returned pivs are organized or not. If the `'o::
       if (tags.contains ('o::')) {
          secondQueryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
-            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+            store.set ('orgMap:' + piv ['id'], true);
          });
       }
 ```
@@ -3211,7 +3209,7 @@ Otherwise, we don't know whether they are organized or not, so we ask the server
 We remove the `queryInProgress` key and return a 200 to indicate success and close the function.
 
 ```dart
-      StoreService.instance.remove ('queryInProgress');
+      store.remove ('queryInProgress');
       return 200;
    }
 ```

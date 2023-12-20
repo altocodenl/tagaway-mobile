@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/homeView.dart';
@@ -29,8 +29,8 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['viewIndex'], (v1) {
-      if (v1 == '') return StoreService.instance.set('viewIndex', 1);
+    cancelListener = store.listen(['viewIndex'], (v1) {
+      if (v1 == '') return store.set('viewIndex', 1);
       setState(() {
         viewIndex = v1;
       });
@@ -62,9 +62,9 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
                 unselectedLabelStyle: kBottomNavigationText,
                 selectedLabelStyle: kBottomNavigationText,
                 onTap: (index) {
-                  StoreService.instance.set('viewIndex', index);
-                  StoreService.instance.remove('showButtonsLocal');
-                  StoreService.instance.remove('swipedLocal');
+                  store.set('viewIndex', index);
+                  store.remove('showButtonsLocal');
+                  store.remove('swipedLocal');
                 },
                 items: const [
                   BottomNavigationBarItem(
@@ -98,7 +98,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['uploadQueue'], (v1) {
+    cancelListener = store.listen(['uploadQueue'], (v1) {
       if (v1 != '') setState(() => numeroli = v1.length);
     });
   }

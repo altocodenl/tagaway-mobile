@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -22,8 +22,7 @@ class _AddHometagsViewState extends State<AddHometagsView> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['hometags', 'tags'], (v1, v2) {
+    cancelListener = store.listen(['hometags', 'tags'], (v1, v2) {
       setState(() {
         hometags = v1;
         tags = v2;

@@ -12,7 +12,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -34,8 +33,7 @@ class UploadedGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     var pivs = [];
-    if (StoreService.instance.get('queryResult') != '')
-      pivs = StoreService.instance.get('queryResult')['pivs'];
+    if (store.get('queryResult') != '') pivs = store.get('queryResult')['pivs'];
     var piv = {};
     if (pivIndex < pivs.length) piv = pivs[pivIndex];
     if (piv['id'] == null)
@@ -44,7 +42,7 @@ class UploadedGridItem extends StatelessWidget {
       children: [
         CachedNetworkImage(
             imageUrl: (kTagawayThumbMURL) + (piv['id']),
-            httpHeaders: {'cookie': StoreService.instance.get('cookie')},
+            httpHeaders: {'cookie': store.get('cookie')},
             placeholder: (context, url) => const Center(
                     child: CircularProgressIndicator(
                   color: kAltoBlue,
@@ -81,17 +79,14 @@ class UploadedGridItem extends StatelessWidget {
             );
           },
           onTap: () {
-            if (StoreService.instance.get('currentlyDeletingUploaded') != '') {
+            if (store.get('currentlyDeletingUploaded') != '') {
               TagService.instance.toggleDeletion(piv['id'], 'uploaded');
-              StoreService.instance.set('showSelectAllButtonUploaded', true);
-            } else if (StoreService.instance.get('currentlyTaggingUploaded') !=
-                '') {
+              store.set('showSelectAllButtonUploaded', true);
+            } else if (store.get('currentlyTaggingUploaded') != '') {
               TagService.instance.toggleTags(
-                  piv,
-                  StoreService.instance.get('currentlyTaggingUploaded'),
-                  'uploaded');
-              StoreService.instance.set('hideAddMoreTagsButtonUploaded', true);
-              StoreService.instance.set('showSelectAllButtonUploaded', true);
+                  piv, store.get('currentlyTaggingUploaded'), 'uploaded');
+              store.set('hideAddMoreTagsButtonUploaded', true);
+              store.set('showSelectAllButtonUploaded', true);
             } else {
               Navigator.push(
                 context,
@@ -301,9 +296,7 @@ class _CarrouselViewState extends State<CarrouselView>
                     visible: piv['vid'] == null,
                     child: CachedNetworkImage(
                         imageUrl: (kTagawayThumbMURL) + (piv['id']),
-                        httpHeaders: {
-                          'cookie': StoreService.instance.get('cookie')
-                        },
+                        httpHeaders: {'cookie': store.get('cookie')},
                         filterQuality: FilterQuality.high,
                         placeholder: (context, url) => const Center(
                                 child: CircularProgressIndicator(
@@ -402,10 +395,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                 final response = await http.get(
                                     Uri.parse(
                                         (kTagawayThumbMURL) + (piv['id'])),
-                                    headers: {
-                                      'cookie':
-                                          StoreService.instance.get('cookie')
-                                    });
+                                    headers: {'cookie': store.get('cookie')});
                                 final bytes = response.bodyBytes;
                                 final temp = await getTemporaryDirectory();
                                 final path = '${temp.path}/image.jpg';
@@ -416,10 +406,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                     'Preparing your video for sharing...');
                                 final response = await http.get(
                                     Uri.parse((kTagawayVideoURL) + (piv['id'])),
-                                    headers: {
-                                      'cookie':
-                                          StoreService.instance.get('cookie')
-                                    });
+                                    headers: {'cookie': store.get('cookie')});
 
                                 final bytes = response.bodyBytes;
                                 final temp = await getTemporaryDirectory();
@@ -455,8 +442,7 @@ class _CarrouselViewState extends State<CarrouselView>
                             } else {
                               PivService.instance.uploadQueue
                                   .remove(piv['piv']);
-                              StoreService.instance
-                                  .remove('pendingTags:' + piv['piv'].id);
+                              store.remove('pendingTags:' + piv['piv'].id);
                               Navigator.pop(context);
                             }
                           },
@@ -508,7 +494,7 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
     _controller = VideoPlayerController.network(
       (kTagawayVideoURL) + (widget.pivId),
       httpHeaders: {
-        'cookie': StoreService.instance.get('cookie'),
+        'cookie': store.get('cookie'),
         'Range': 'bytes=0-',
       },
     );

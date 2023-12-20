@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:tagaway/services/pivService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
 
 class TagService {
@@ -21,28 +20,28 @@ class TagService {
          return;
       }
 
-      StoreService.instance.set ('tags', response ['body'] ['tags']);
+      store.set ('tags', response ['body'] ['tags']);
 
       updateOrganizedCount (response ['body'] ['organized']);
 
-      StoreService.instance.set ('hometags', response ['body'] ['hometags']);
-      StoreService.instance.set ('homeThumbs', response ['body'] ['homeThumbs']);
+      store.set ('hometags', response ['body'] ['hometags']);
+      store.set ('homeThumbs', response ['body'] ['homeThumbs']);
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);
       }).toList ();
 
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
-         var pendingTags = StoreService.instance.get (k);
+      store.getKeys ('^pendingTags:').forEach ((k) {
+         var pendingTags = store.get (k);
          if (pendingTags != '') pendingTags.forEach ((tag) {
             if (! usertags.contains (tag)) usertags.add (tag);
          });
       });
       usertags.sort ();
 
-      StoreService.instance.set ('usertags', usertags);
+      store.set ('usertags', usertags);
 
-      StoreService.instance.set ('lastNTags', getList ('lastNTags').where ((tag) {
+      store.set ('lastNTags', getList ('lastNTags').where ((tag) {
          return usertags.contains (tag);
       }).toList (), 'disk');
    }
@@ -50,19 +49,19 @@ class TagService {
    updateOrganizedCount (organizedNow) {
 
       var midnight = DateTime (DateTime.now ().year, DateTime.now ().month, DateTime.now ().day);
-      var organizedAtDaybreak = StoreService.instance.get ('organizedAtDaybreak');
-      if (organizedAtDaybreak == '' || organizedAtDaybreak ['midnight'] < ms (midnight)) StoreService.instance.set ('organizedAtDaybreak', {
+      var organizedAtDaybreak = store.get ('organizedAtDaybreak');
+      if (organizedAtDaybreak == '' || organizedAtDaybreak ['midnight'] < ms (midnight)) store.set ('organizedAtDaybreak', {
          'midnight': ms (midnight),
          'organized': organizedNow
       }, 'disk');
 
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
-         if (StoreService.instance.get (k) != '') organizedNow++;
+      store.getKeys ('^pendingTags:').forEach ((k) {
+         if (store.get (k) != '') organizedNow++;
       });
 
-      StoreService.instance.set ('organized', {
+      store.set ('organized', {
          'total': organizedNow,
-         'today': organizedNow - StoreService.instance.get ('organizedAtDaybreak') ['organized']
+         'today': organizedNow - store.get ('organizedAtDaybreak') ['organized']
       });
    }
 
@@ -74,7 +73,7 @@ class TagService {
 
       add ? hometags.add (tag) : hometags.remove (tag);
 
-      StoreService.instance.set ('hometags', hometags);
+      store.set ('hometags', hometags);
 
       var response = await ajax ('post', 'hometags', {'hometags': hometags});
 
@@ -93,7 +92,7 @@ class TagService {
 
       var N = 9;
       if (lastNTags.length > N) lastNTags = lastNTags.sublist (0, N);
-      StoreService.instance.set ('lastNTags', lastNTags, 'disk');
+      store.set ('lastNTags', lastNTags, 'disk');
    }
 
    tagCloudPiv (String id, dynamic tags, bool del) async {
@@ -104,7 +103,7 @@ class TagService {
 
       await queryOrganizedIds ([id]);
 
-      var hometags = StoreService.instance.get ('hometags');
+      var hometags = store.get ('hometags');
       if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
 
       queryPivs (true, true);
@@ -113,22 +112,22 @@ class TagService {
 
    toggleTags (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
-      var cloudId = type == 'uploaded' ? pivId      : StoreService.instance.get ('pivMap:' + pivId);
+      var cloudId = type == 'uploaded' ? pivId      : store.get ('pivMap:' + pivId);
 
       var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
 
       if (selectAll != null) {
-         var tagged = StoreService.instance.get (tagMapPrefix + pivId) != '';
+         var tagged = store.get (tagMapPrefix + pivId) != '';
          if (tagged == selectAll) return;
       }
 
-      var untag = StoreService.instance.get (tagMapPrefix + pivId) != '';
-      StoreService.instance.set (tagMapPrefix + pivId, untag ? '' : true);
+      var untag = store.get (tagMapPrefix + pivId) != '';
+      store.set (tagMapPrefix + pivId, untag ? '' : true);
 
       if (! untag && type == 'local') {
          var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
          currentlyTaggingPivs.add (pivId);
-         StoreService.instance.set ('currentlyTaggingPivs', currentlyTaggingPivs);
+         store.set ('currentlyTaggingPivs', currentlyTaggingPivs);
       }
 
       tags.forEach ((tag) => updateLastNTags (tag));
@@ -143,8 +142,8 @@ class TagService {
          if (code == 200) return;
 
          if (code == 404) {
-            StoreService.instance.remove ('pivMap:'  + pivId);
-            StoreService.instance.remove ('rpivMap:' + cloudId);
+            store.remove ('pivMap:'  + pivId);
+            store.remove ('rpivMap:' + cloudId);
          }
       }
 
@@ -152,13 +151,13 @@ class TagService {
 
       tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
 
-      if (pendingTags.length > 0) StoreService.instance.set    ('pendingTags:' + pivId, pendingTags, 'disk');
-      else                        StoreService.instance.remove ('pendingTags:' + pivId, 'disk');
+      if (pendingTags.length > 0) store.set    ('pendingTags:' + pivId, pendingTags, 'disk');
+      else                        store.remove ('pendingTags:' + pivId, 'disk');
 
       if (! untag) return PivService.instance.queuePiv (piv);
 
       if (pendingTags.length == 0) {
-         StoreService.instance.remove ('pivMap:' + pivId);
+         store.remove ('pivMap:' + pivId);
          var uploadQueueIndex;
          PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
             if (queuedPiv.id == pivId) uploadQueueIndex = index;
@@ -175,10 +174,10 @@ class TagService {
 
       var tagMapPrefix = 'tagMap' + (view == 'local' ? 'Local' : 'Uploaded') + ':';
 
-      StoreService.instance.store.keys.toList ().forEach ((k) {
+      store.store.keys.toList ().forEach ((k) {
          if (RegExp ('^' + tagMapPrefix).hasMatch (k)) existing.add (k.split (':') [1]);
          if (RegExp ('^pendingTags:').hasMatch (k)) {
-             var pendingTags = StoreService.instance.get (k);
+             var pendingTags = store.get (k);
              var tagsContained = true;
              tags.forEach ((tag) {
                 if (! pendingTags.contains (tag)) tagsContained = false;
@@ -201,23 +200,23 @@ class TagService {
       }
 
       var queryIds;
-      if (view == 'uploaded') queryIds = StoreService.instance.get ('queryResult') ['pivs'].map ((v) => v ['id']);
+      if (view == 'uploaded') queryIds = store.get ('queryResult') ['pivs'].map ((v) => v ['id']);
       response ['body'].forEach ((v) {
          if (view == 'uploaded') {
             if (queryIds.contains (v)) New.add (v);
          }
          else {
-            var id = StoreService.instance.get ('rpivMap:' + v);
+            var id = store.get ('rpivMap:' + v);
             if (id != '') New.add (id);
          }
       });
 
       New.forEach ((id) {
-        if (! existing.contains (id)) StoreService.instance.set (tagMapPrefix + id, true);
+        if (! existing.contains (id)) store.set (tagMapPrefix + id, true);
         else existing.remove (id);
       });
       existing.forEach ((id) {
-        StoreService.instance.remove (tagMapPrefix + id);
+        store.remove (tagMapPrefix + id);
       });
 
    }
@@ -225,22 +224,22 @@ class TagService {
    selectAll (String view, String operation, bool select) {
 
       if (view == 'local') {
-         var currentPage = StoreService.instance.get ('localPage:' + StoreService.instance.get ('localPage').toString ());
+         var currentPage = store.get ('localPage:' + store.get ('localPage').toString ());
          currentPage ['pivs'].forEach ((piv) {
             if (operation == 'delete') toggleDeletion (piv.id, 'local', select);
-            if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingLocal'), 'local', select);
+            if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingLocal'), 'local', select);
          });
       }
       if (view == 'uploaded') {
-         var queryResult = StoreService.instance.get ('queryResult');
+         var queryResult = store.get ('queryResult');
          queryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) {
                if (operation == 'delete') toggleDeletion (piv ['piv'].id, 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv ['piv'], StoreService.instance.get ('currentlyTaggingUploaded'), 'localUploaded', select);
+               if (operation == 'tag')    toggleTags (piv ['piv'], store.get ('currentlyTaggingUploaded'), 'localUploaded', select);
             }
             else {
                if (operation == 'delete') toggleDeletion (piv ['id'], 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv, StoreService.instance.get ('currentlyTaggingUploaded'), 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingUploaded'), 'uploaded', select);
             }
          });
       }
@@ -297,10 +296,10 @@ class TagService {
 
       var localPivsToAdd = [];
 
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((k) {
+      store.getKeys ('^pendingTags:').forEach ((k) {
          var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
          if (piv == null) return;
-         var pendingTags = StoreService.instance.get (k);
+         var pendingTags = store.get (k);
 
          if (pendingTags == '') return;
 
@@ -342,7 +341,7 @@ class TagService {
          if (month == 12) maxDateCurrentMonth = DateTime.utc (year + 1, 1,         1).millisecondsSinceEpoch;
          else             maxDateCurrentMonth = DateTime.utc (year,     month + 1, 1).millisecondsSinceEpoch;
 
-         StoreService.instance.set ('currentMonth', year.toString () + ':' + month.toString ());
+         store.set ('currentMonth', year.toString () + ':' + month.toString ());
 
          localPivsToAdd.forEach ((piv) {
             if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
@@ -362,9 +361,9 @@ class TagService {
    // - when a page changes that is the current page and has a non '' score achievement, call it
    getLocalAchievements (page) async {
       var storageKey = 'localAchievements:' + page.toString ();
-      page = StoreService.instance.get ('localPage:' + page.toString ());
+      page = store.get ('localPage:' + page.toString ());
 
-      if (page == '') return StoreService.instance.set (storageKey, []);
+      if (page == '') return store.set (storageKey, []);
       var response = await ajax ('post', 'query', {
          'tags': [],
          'sort': 'newest',
@@ -376,7 +375,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
-         return StoreService.instance.set (storageKey, []);
+         return store.set (storageKey, []);
       }
 
       var localPivsById = {};
@@ -385,7 +384,7 @@ class TagService {
       });
 
       var localCount = {}, localQueryTotal = 0;
-      StoreService.instance.getKeys ('^pendingTags:').forEach ((key) {
+      store.getKeys ('^pendingTags:').forEach ((key) {
          var piv = localPivsById [key.replaceAll ('pendingTags:', '')];
          if (piv == null) return;
          if (page ['from'] > ms (piv.createDateTime) || page ['to'] < ms (piv.createDateTime)) return;
@@ -418,10 +417,10 @@ class TagService {
       });
       if (output.length > 3) output = output.sublist (0, 3);
       output.add (['Total', response ['body'] ['total'] + localQueryTotal]);
-      var organized = StoreService.instance.get ('organized');
-      if (organized != '') output.add (['All time organized', StoreService.instance.get ('organized') ['total']]);
+      var organized = store.get ('organized');
+      if (organized != '') output.add (['All time organized', store.get ('organized') ['total']]);
 
-      return StoreService.instance.set (storageKey, output);
+      return store.set (storageKey, output);
    }
 
    queryPivs ([refresh = false, preserveMonth = false]) async {
@@ -429,9 +428,9 @@ class TagService {
       var tags = getList ('queryTags');
       tags.sort ();
 
-      if (StoreService.instance.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
+      if (store.get ('queryResult') != '' && refresh == false && listEquals (tags, queryTags)) return;
 
-      var currentMonth = StoreService.instance.get ('currentMonth');
+      var currentMonth = store.get ('currentMonth');
       if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
 
       queryTags = List.from (tags);
@@ -439,7 +438,7 @@ class TagService {
       var firstLoadSize = 300;
 
       Future.delayed (Duration (milliseconds: 1), () {
-        StoreService.instance.set ('queryInProgress', true);
+        store.set ('queryInProgress', true);
       });
 
       var response = await ajax ('post', 'query', {
@@ -452,27 +451,27 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return response ['code'];
       }
 
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
-      if (queryResult ['lastMonth'] == null) StoreService.instance.remove ('currentMonth');
+      if (queryResult ['lastMonth'] == null) store.remove ('currentMonth');
       else {
          var lastMonth = queryResult ['lastMonth'] [0].split (':');
-         StoreService.instance.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
+         store.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
       }
-      queryResult = localQuery (tags, StoreService.instance.get ('currentMonth'), queryResult);
+      queryResult = localQuery (tags, store.get ('currentMonth'), queryResult);
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.remove ('currentlyTaggingUploaded');
-         StoreService.instance.remove ('showSelectAllButtonUploaded');
-         return StoreService.instance.set ('queryTags', []);
+         store.remove ('currentlyTaggingUploaded');
+         store.remove ('showSelectAllButtonUploaded');
+         return store.set ('queryTags', []);
       }
 
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'timeHeader':  queryResult ['timeHeader'],
          'total':       0,
          'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
@@ -488,7 +487,7 @@ class TagService {
       if (tags.contains ('o::')) {
          queryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
-            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+            store.set ('orgMap:' + piv ['id'], true);
          });
       }
       else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
@@ -497,7 +496,7 @@ class TagService {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
 
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
@@ -507,7 +506,7 @@ class TagService {
       getTags ();
 
       if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) {
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return 200;
       }
 
@@ -520,16 +519,16 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return response ['code'];
       }
 
       if (! listEquals (queryTags, tags)) return 409;
 
       var secondQueryResult = response ['body'];
-      secondQueryResult = localQuery (tags, StoreService.instance.get ('currentMonth'), secondQueryResult);
+      secondQueryResult = localQuery (tags, store.get ('currentMonth'), secondQueryResult);
 
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
@@ -539,12 +538,12 @@ class TagService {
       if (tags.contains ('o::')) {
          secondQueryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
-            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+            store.set ('orgMap:' + piv ['id'], true);
          });
       }
       else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
-      StoreService.instance.remove ('queryInProgress');
+      store.remove ('queryInProgress');
       return 200;
    }
 
@@ -559,10 +558,10 @@ class TagService {
       var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
 
       // Do it quickly to show changes to the user before the roundtrip
-      StoreService.instance.set ('currentMonth', currentMonth);
+      store.set ('currentMonth', currentMonth);
       computeTimeHeader (false);
 
-      StoreService.instance.set ('queryInProgress', true);
+      store.set ('queryInProgress', true);
 
       var response = await ajax ('post', 'query', {
          'tags': ([...tags]..addAll (currentMonthTags)).toSet ().toList (),
@@ -573,7 +572,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:C:' + response ['code'].toString (), 'yellow');
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -586,15 +585,15 @@ class TagService {
       queryResultForPivs = localQuery (tags, currentMonth, queryResultForPivs);
 
       if (queryResultForPivs ['total'] == 0 && tags.length > 0) {
-         StoreService.instance.remove ('currentlyTaggingUploaded');
-         StoreService.instance.remove ('showSelectAllButtonUploaded');
-         return StoreService.instance.set ('queryTags', []);
+         store.remove ('currentlyTaggingUploaded');
+         store.remove ('showSelectAllButtonUploaded');
+         return store.set ('queryTags', []);
       }
 
       if (tags.contains ('o::')) {
          queryResultForPivs ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
-            StoreService.instance.set ('orgMap:' + piv ['id'], true);
+            store.set ('orgMap:' + piv ['id'], true);
          });
       }
       // We don't await on purpose
@@ -610,7 +609,7 @@ class TagService {
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:D:' + response ['code'].toString (), 'yellow');
-         StoreService.instance.remove ('queryInProgress');
+         store.remove ('queryInProgress');
          return response ['code'];
       }
 
@@ -620,7 +619,7 @@ class TagService {
       queryResult ['pivs'] = pivsWithoutLocal;
       queryResult = localQuery (tags, currentMonth, queryResult);
 
-      StoreService.instance.set ('queryResult', {
+      store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
          'timeHeader':  queryResult ['timeHeader'],
@@ -629,16 +628,16 @@ class TagService {
 
       getTags ();
 
-      StoreService.instance.remove ('queryInProgress');
+      store.remove ('queryInProgress');
       return 200;
    }
 
   toggleQueryTag (String tag) {
     // We copy it to avoid the update not triggering anything
-    var queryTags = StoreService.instance.get ('queryTags').toList ();
+    var queryTags = store.get ('queryTags').toList ();
     if (queryTags.contains (tag)) queryTags.remove (tag);
     else                          queryTags.add (tag);
-    StoreService.instance.set ('queryTags', queryTags);
+    store.set ('queryTags', queryTags);
   }
 
   deleteUploadedPivs (dynamic ids) async {
@@ -653,7 +652,7 @@ class TagService {
        if (localPivsById [id] == null) return;
        filteredIds.remove (id);
        PivService.instance.uploadQueue.remove (localPivsById [id]);
-       StoreService.instance.remove ('pendingTags:' + id);
+       store.remove ('pendingTags:' + id);
     });
 
     if (filteredIds.length == 0) return;
@@ -666,13 +665,13 @@ class TagService {
     }
 
     filteredIds.forEach ((id) {
-       var localPivId = StoreService.instance.get ('rpivMap:' + id);
+       var localPivId = store.get ('rpivMap:' + id);
        if (localPivId != '') {
-         StoreService.instance.remove ('pivMap:' + localPivId);
-         StoreService.instance.remove ('rpivMap:' + id);
+         store.remove ('pivMap:' + localPivId);
+         store.remove ('rpivMap:' + id);
        }
     });
-    StoreService.instance.remove ('currentlyDeletingPivsUploaded');
+    store.remove ('currentlyDeletingPivsUploaded');
     await queryPivs (true, true);
   }
 
@@ -689,7 +688,7 @@ class TagService {
          queryTags.remove (from);
          queryTags.add (to);
       }
-      StoreService.instance.set ('queryTags', queryTags);
+      store.set ('queryTags', queryTags);
       await queryPivs (true, true);
    }
 
@@ -703,7 +702,7 @@ class TagService {
       var queryTags = getList ('queryTags');
       // Is this conditional necessary?
       if (queryTags.contains (tag)) queryTags.remove (tag);
-      StoreService.instance.set ('queryTags', queryTags);
+      store.set ('queryTags', queryTags);
       await queryPivs (true, true);
    }
 
@@ -717,13 +716,13 @@ class TagService {
       }
       if (! currentlyDeletingPivs.contains (id)) currentlyDeletingPivs.add (id);
       else currentlyDeletingPivs.remove (id);
-      StoreService.instance.set (key, currentlyDeletingPivs);
+      store.set (key, currentlyDeletingPivs);
    }
 
    // This is for the uploaded grid only
    getMonthEdges () {
-      var currentMonth = StoreService.instance.get ('currentMonth');
-      var timeHeader = StoreService.instance.get ('timeHeader');
+      var currentMonth = store.get ('currentMonth');
+      var timeHeader = store.get ('timeHeader');
       if (currentMonth == '' || timeHeader == '') return {'previousMonth': '', 'nextMonth': ''};
       var nonWhiteMonths = [];
       var index = -1;
@@ -759,15 +758,15 @@ class TagService {
 
       // These sets are sync, so we don't need to await.
       ids.forEach ((id) {
-         StoreService.instance.set ('orgMap:' + id, organizedIds [id] == true ? true : '');
+         store.set ('orgMap:' + id, organizedIds [id] == true ? true : '');
       });
    }
 
    computeTimeHeader ([updateYearUploaded = true]) {
       var output      = [];
       var min, max;
-      var timeHeader = StoreService.instance.get ('queryResult') ['timeHeader'];
-      var currentMonth = StoreService.instance.get ('currentMonth');
+      var timeHeader = store.get ('queryResult') ['timeHeader'];
+      var currentMonth = store.get ('currentMonth');
       // We initialize the current month to an array signifying there's no current month.
       if (currentMonth == '') currentMonth = [0, 1];
       timeHeader.keys.forEach ((v) {
@@ -815,7 +814,7 @@ class TagService {
          }).toList ();
       }
 
-      StoreService.instance.set ('timeHeader', semesters);
+      store.set ('timeHeader', semesters);
 
       var newCurrentPage;
       semesters.asMap ().forEach ((k, semester) {
@@ -827,9 +826,9 @@ class TagService {
         });
       });
 
-      var currentPage = StoreService.instance.get ('timeHeaderPage');
+      var currentPage = store.get ('timeHeaderPage');
       if (currentPage != newCurrentPage) {
-         var pageController = StoreService.instance.get ('timeHeaderController');
+         var pageController = store.get ('timeHeaderController');
          // The conditional prevents scrolling semesters if the uploaded view is not active.
          // new current page might be null if suddenly there's no more pages due to untagging
          // or if there is no current month because there's no pivs
@@ -838,7 +837,7 @@ class TagService {
          }
       }
 
-      if (updateYearUploaded) StoreService.instance.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
+      if (updateYearUploaded) store.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
    }
 
 }

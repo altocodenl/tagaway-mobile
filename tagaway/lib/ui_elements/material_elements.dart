@@ -11,7 +11,6 @@ import 'package:video_player/video_player.dart';
 
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -237,7 +236,7 @@ class DeleteAndRenameTagModal extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                StoreService.instance.set(
+                store.set(
                     view == 'local' ? 'deleteTagLocal' : 'deleteTagUploaded',
                     tagName);
               },
@@ -251,7 +250,7 @@ class DeleteAndRenameTagModal extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                StoreService.instance.set(
+                store.set(
                     view == 'local' ? 'renameTagLocal' : 'renameTagUploaded',
                     tagName);
               },
@@ -285,8 +284,8 @@ class GridTagElement extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (view == 'local' ||
-            StoreService.instance.get('currentlyTaggingUploaded') != '') return;
+        if (view == 'local' || store.get('currentlyTaggingUploaded') != '')
+          return;
         Navigator.pushReplacementNamed(context, 'querySelector');
       },
       child: Padding(
@@ -349,7 +348,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       (type == 'local' ? 'pivMap:' : 'orgMap:') + id,
       'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':' + id,
       'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'),
@@ -374,9 +373,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
               : (type == 'uploaded'
                   ? v1 != ''
                   // If the piv is local and is currently being uploaded (`v1 == true`) we consider it as organized.
-                  : (v1 == true ||
-                      StoreService.instance.get('orgMap:' + v1.toString()) !=
-                          ''));
+                  : (v1 == true || store.get('orgMap:' + v1.toString()) != ''));
           mode = organized ? 'green' : 'gray';
           if (type == 'local' && v4 != 'all') mode = 'none';
         }
@@ -480,8 +477,7 @@ class _DeleteButtonState extends State<DeleteButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
+    cancelListener = store.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -504,9 +500,9 @@ class _DeleteButtonState extends State<DeleteButton> {
         elevation: 10,
         key: const Key('delete'),
         onPressed: () {
-          StoreService.instance.set('currentlyDeleting' + widget.view, true);
-          StoreService.instance.set('showButtons' + widget.view, false);
-          StoreService.instance.set('showSelectAllButton' + widget.view, true);
+          store.set('currentlyDeleting' + widget.view, true);
+          store.set('showButtons' + widget.view, false);
+          store.set('showSelectAllButton' + widget.view, true);
         },
         backgroundColor: kAltoRed,
         child: const Icon(kTrashCanIcon),
@@ -534,8 +530,7 @@ class _TagButtonState extends State<TagButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['showButtons' + widget.view], (v1) {
+    cancelListener = store.listen(['showButtons' + widget.view], (v1) {
       setState(() {
         visible = v1 == true;
       });
@@ -558,8 +553,8 @@ class _TagButtonState extends State<TagButton> {
         elevation: 10,
         key: const Key('tag'),
         onPressed: () {
-          StoreService.instance.set('swiped' + widget.view, true);
-          StoreService.instance.set('showButtons' + widget.view, false);
+          store.set('swiped' + widget.view, true);
+          store.set('showButtons' + widget.view, false);
         },
         backgroundColor: kAltoOrganized,
         child: const Icon(kTagIcon),
@@ -587,7 +582,7 @@ class _SelectAllButtonState extends State<SelectAllButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
+    cancelListener = store.listen(
         ['showSelectAllButton' + widget.view, 'currentlyTagging' + widget.view],
         (v1, v2) {
       setState(() {
@@ -613,8 +608,7 @@ class _SelectAllButtonState extends State<SelectAllButton> {
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
         onPressed: () {
-          StoreService.instance
-              .set('showSelectAllButton' + widget.view, !status);
+          store.set('showSelectAllButton' + widget.view, !status);
           TagService.instance
               .selectAll(widget.view.toLowerCase(), operation, status);
         },
@@ -657,14 +651,11 @@ class _StartButtonState extends State<StartButton> {
   dynamic cancelListener;
 
   bool determineVisibility() {
-    var currentlyTagging =
-        StoreService.instance.get('currentlyTagging' + widget.view);
-    var currentlyDeleting =
-        StoreService.instance.get('currentlyDeleting' + widget.view);
+    var currentlyTagging = store.get('currentlyTagging' + widget.view);
+    var currentlyDeleting = store.get('currentlyDeleting' + widget.view);
     var emptyPage = false;
     if (widget.view == 'Local') {
-      var page = StoreService.instance.get(
-          'localPage:' + StoreService.instance.get('localPage').toString());
+      var page = store.get('localPage:' + store.get('localPage').toString());
       if (page == '' || page['pivs'].length == 0) emptyPage = true;
     }
     return secondElapsed == true &&
@@ -676,7 +667,7 @@ class _StartButtonState extends State<StartButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       'showButtons' + widget.view,
       'currentlyTagging' + widget.view,
       'currentlyDeleting' + widget.view,
@@ -686,8 +677,7 @@ class _StartButtonState extends State<StartButton> {
     ], (ShowButtons, currentlyTagging, currentlyDeleting, localPage,
         localPage0) {
       if (currentlyTagging != '' &&
-          StoreService.instance.get('viewIndex') ==
-              (widget.view == 'Local' ? 1 : 0))
+          store.get('viewIndex') == (widget.view == 'Local' ? 1 : 0))
         TagService.instance
             .getTaggedPivs(currentlyTagging, widget.view.toLowerCase());
 
@@ -724,7 +714,7 @@ class _StartButtonState extends State<StartButton> {
           extendedPadding: const EdgeInsets.only(left: 20, right: 20),
           heroTag: null,
           onPressed: () {
-            StoreService.instance.set('showButtons' + widget.view, true);
+            store.set('showButtons' + widget.view, true);
           },
           backgroundColor: kAltoBlue,
           elevation: 20,
@@ -734,7 +724,7 @@ class _StartButtonState extends State<StartButton> {
           key: const Key('xButton'),
           onPressed: () {
             setState(() {
-              StoreService.instance.set('showButtons' + widget.view, false);
+              store.set('showButtons' + widget.view, false);
             });
           },
           backgroundColor: Colors.white,
@@ -767,7 +757,7 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       'currentlyTagging' + widget.view,
       'hideAddMoreTagsButton' + widget.view
     ], (CurrentlyTagging, Hide) {
@@ -794,8 +784,8 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
       child: FloatingActionButton.extended(
         heroTag: null,
         onPressed: () {
-          StoreService.instance.set('swiped' + widget.view, true);
-          StoreService.instance.set('showButtons' + widget.view, false);
+          store.set('swiped' + widget.view, true);
+          store.set('showButtons' + widget.view, false);
         },
         backgroundColor: kAltoOrganized,
         key: Key('addMoreTags-' + widget.view),
@@ -842,7 +832,7 @@ class _DoneButtonState extends State<DoneButton> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(
+    cancelListener = store.listen(
         ['currentlyTagging' + widget.view, 'currentlyDeleting' + widget.view],
         (CurrentlyTagging, CurrentlyDeleting) {
       setState(() {
@@ -870,28 +860,26 @@ class _DoneButtonState extends State<DoneButton> {
           onPressed: () {
             // Done tagging
             if (currentlyTagging != '') {
-              StoreService.instance.set('swiped' + widget.view, false);
-              StoreService.instance.remove('currentlyTagging' + widget.view);
-              StoreService.instance
-                  .remove('hideAddMoreTagsButton' + widget.view);
-              StoreService.instance.remove('showSelectAllButton' + widget.view);
+              store.set('swiped' + widget.view, false);
+              store.remove('currentlyTagging' + widget.view);
+              store.remove('hideAddMoreTagsButton' + widget.view);
+              store.remove('showSelectAllButton' + widget.view);
               if (widget.view == 'Local') {
-                StoreService.instance.remove('currentlyTaggingPivs');
+                store.remove('currentlyTaggingPivs');
                 PivService.instance.queryOrganizedLocalPivs();
-                TagService.instance.getLocalAchievements(
-                    StoreService.instance.get('localPage'));
+                TagService.instance
+                    .getLocalAchievements(store.get('localPage'));
               }
               // We update the list of organized pivs for those uploaded pivs that have a local counterpart
               // Done deleting
             } else {
-              var currentlyDeleting = StoreService.instance
-                  .get('currentlyDeletingPivs' + widget.view);
-              StoreService.instance.remove('showSelectAllButton' + widget.view);
+              var currentlyDeleting =
+                  store.get('currentlyDeletingPivs' + widget.view);
+              store.remove('showSelectAllButton' + widget.view);
               if (currentlyDeleting != '' && currentlyDeleting.length > 0) {
-                StoreService.instance
-                    .set('currentlyDeletingModal' + widget.view, true);
+                store.set('currentlyDeletingModal' + widget.view, true);
               } else {
-                StoreService.instance.remove('currentlyDeleting' + widget.view);
+                store.remove('currentlyDeleting' + widget.view);
               }
             }
           },
@@ -923,15 +911,13 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
   // When clicking on one of the buttons of this widget, we want the ScrollableDraggableSheet to be opened. Unfortunately, the methods provided in the controller for it (`animate` and `jumpTo`) change the scroll position of the sheet, but not its height.
   // For this reason, we need to set the `currentScrollableSize` directly. This is not a clean solution, and it lacks an animation. But it's the best we've come up with so far.
   // For more info, refer to https://github.com/flutter/flutter/issues/45009
-  double initialScrollableSize =
-      StoreService.instance.get('initialScrollableSize');
-  double currentScrollableSize =
-      StoreService.instance.get('initialScrollableSize');
+  double initialScrollableSize = store.get('initialScrollableSize');
+  double currentScrollableSize = store.get('initialScrollableSize');
 
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       'usertags',
       'currentlyTagging' + widget.view,
       'tagFilter' + widget.view,
@@ -939,9 +925,8 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
     ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
         if (Usertags != '') {
-          var firstTags = StoreService.instance.get('lastNTags');
+          var firstTags = store.get('lastNTags');
           if (firstTags == '') firstTags = [];
-          var hometags = StoreService.instance.get('hometags');
           usertags = List.from(firstTags)
             ..addAll(Usertags.where((tag) => !firstTags.contains(tag)));
           usertags = usertags
@@ -994,9 +979,9 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
         child: NotificationListener<DraggableScrollableNotification>(
             onNotification: (state) {
               if (state.extent < (initialScrollableSize + 0.0001))
-                StoreService.instance.set('swiped' + widget.view, false);
+                store.set('swiped' + widget.view, false);
               if (state.extent > (0.77 - 0.0001))
-                StoreService.instance.set('swiped' + widget.view, true);
+                store.set('swiped' + widget.view, true);
               return true;
             },
             child: DraggableScrollableSheet(
@@ -1020,8 +1005,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              StoreService.instance
-                                  .set('swiped' + widget.view, false);
+                              store.set('swiped' + widget.view, false);
                             },
                             child: const Center(
                               child: Padding(
@@ -1075,8 +1059,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                                   ),
                                 ),
                                 onChanged: (String query) {
-                                  StoreService.instance
-                                      .set('tagFilter' + widget.view, query);
+                                  store.set('tagFilter' + widget.view, query);
                                 },
                               ),
                             ),
@@ -1119,18 +1102,15 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                                         return showSnackbar(
                                             'Alas, you cannot use that tag.',
                                             'yellow');
-                                      StoreService.instance
-                                          .set('swiped' + widget.view, false);
-                                      var currentlyTagging =
-                                          StoreService.instance.get(
-                                              'currentlyTagging' + widget.view);
-                                      StoreService.instance.set(
+                                      store.set('swiped' + widget.view, false);
+                                      var currentlyTagging = store.get(
+                                          'currentlyTagging' + widget.view);
+                                      store.set(
                                           'currentlyTagging' + widget.view,
                                           currentlyTagging == ''
                                               ? [actualTag]
                                               : currentlyTagging + [actualTag]);
-                                      StoreService.instance
-                                          .remove('tagFilter' + widget.view);
+                                      store.remove('tagFilter' + widget.view);
                                       searchTagController.clear();
                                     };
                                   },
@@ -1164,8 +1144,8 @@ class _DeleteModalState extends State<DeleteModal> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['currentlyDeletingModal' + widget.view], (CurrentlyDeleting) {
+    cancelListener = store.listen(['currentlyDeletingModal' + widget.view],
+        (CurrentlyDeleting) {
       setState(() {
         visible = CurrentlyDeleting == true;
       });
@@ -1243,18 +1223,15 @@ class _DeleteModalState extends State<DeleteModal> {
                 ),
                 child: GestureDetector(
                   onTap: () {
-                    var pivsToDelete = StoreService.instance
-                        .get('currentlyDeletingPivs' + widget.view);
+                    var pivsToDelete =
+                        store.get('currentlyDeletingPivs' + widget.view);
                     if (widget.view == 'Local')
                       PivService.instance.deleteLocalPivs(pivsToDelete);
                     else
                       TagService.instance.deleteUploadedPivs(pivsToDelete);
-                    StoreService.instance
-                        .remove('currentlyDeleting' + widget.view);
-                    StoreService.instance
-                        .remove('currentlyDeletingPivs' + widget.view);
-                    StoreService.instance
-                        .remove('currentlyDeletingModal' + widget.view);
+                    store.remove('currentlyDeleting' + widget.view);
+                    store.remove('currentlyDeletingPivs' + widget.view);
+                    store.remove('currentlyDeletingModal' + widget.view);
                   },
                   child: const Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -1270,12 +1247,9 @@ class _DeleteModalState extends State<DeleteModal> {
                 width: double.infinity,
                 child: GestureDetector(
                   onTap: () {
-                    StoreService.instance
-                        .remove('currentlyDeleting' + widget.view);
-                    StoreService.instance
-                        .remove('currentlyDeletingPivs' + widget.view);
-                    StoreService.instance
-                        .remove('currentlyDeletingModal' + widget.view);
+                    store.remove('currentlyDeleting' + widget.view);
+                    store.remove('currentlyDeletingPivs' + widget.view);
+                    store.remove('currentlyDeletingModal' + widget.view);
                   },
                   child: const Padding(
                     padding: EdgeInsets.only(top: 10.0),
@@ -1314,8 +1288,7 @@ class _RenameTagModalState extends State<RenameTagModal> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['renameTag' + widget.view], (RenameTag) {
+    cancelListener = store.listen(['renameTag' + widget.view], (RenameTag) {
       setState(() {
         renameTag = RenameTag;
         if (renameTag != '') renameTagController.text = renameTag;
@@ -1389,7 +1362,7 @@ class _RenameTagModalState extends State<RenameTagModal> {
                     onTap: () {
                       TagService.instance
                           .renameTag(renameTag, renameTagController.text);
-                      StoreService.instance.remove('renameTag' + widget.view);
+                      store.remove('renameTag' + widget.view);
                     },
                     child: const Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -1405,7 +1378,7 @@ class _RenameTagModalState extends State<RenameTagModal> {
                   width: double.infinity,
                   child: GestureDetector(
                     onTap: () {
-                      StoreService.instance.remove('renameTag' + widget.view);
+                      store.remove('renameTag' + widget.view);
                     },
                     child: const Padding(
                       padding: EdgeInsets.only(top: 10.0),
@@ -1444,8 +1417,7 @@ class _DeleteTagModalState extends State<DeleteTagModal> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['deleteTag' + widget.view], (DeleteTag) {
+    cancelListener = store.listen(['deleteTag' + widget.view], (DeleteTag) {
       setState(() {
         deleteTag = DeleteTag;
       });
@@ -1521,7 +1493,7 @@ class _DeleteTagModalState extends State<DeleteTagModal> {
               child: GestureDetector(
                 onTap: () {
                   TagService.instance.deleteTag(deleteTag);
-                  StoreService.instance.remove('deleteTag' + widget.view);
+                  store.remove('deleteTag' + widget.view);
                 },
                 child: const Padding(
                   padding: EdgeInsets.only(top: 10, bottom: 10.0),
@@ -1537,7 +1509,7 @@ class _DeleteTagModalState extends State<DeleteTagModal> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  StoreService.instance.remove('deleteTag' + widget.view);
+                  store.remove('deleteTag' + widget.view);
                 },
                 child: const Padding(
                   padding: EdgeInsets.only(top: 10.0),
@@ -1710,7 +1682,7 @@ class _GridItemMaskState extends State<GridItemMask> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':' + id,
       'currentlyDeletingPivs' + (type == 'local' ? 'Local' : 'Uploaded'),
       'currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'),

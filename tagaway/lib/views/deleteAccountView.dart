@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -68,7 +68,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       onPressed: () {
                         AuthService.instance.deleteAccount().then((value) {
                           if (value == 200) {
-                            StoreService.instance.reset();
+                            store.reset();
                             SnackBarGlobal.buildSnackBar(context,
                                 'Your account has been deleted.', 'green');
                             Navigator.pushReplacementNamed(

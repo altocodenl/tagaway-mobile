@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:flutter/material.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/views/BottomNavigationBar.dart';
@@ -44,7 +43,7 @@ void reportError(exception, stacktrace, context) {
   };
   debug(['CAUGHT ERROR', error]);
   // Save the error to disk in case we lose connectivity
-  StoreService.instance.set('previousError', error, 'disk');
+  store.set('previousError', error, 'disk');
   // Submit the error to the server
   ajax('post', 'error', error);
 }
@@ -62,9 +61,9 @@ void main() {
   runZonedGuarded(() {
     runApp(const Tagaway());
     // Reload store
-    StoreService.instance.load();
+    store.load();
     // Submit previous error if any
-    StoreService.instance.reportPreviousError();
+    store.reportPreviousError();
   }, (error, stacktrace) {
     reportError(error.toString(), stacktrace.toString(), '');
   });

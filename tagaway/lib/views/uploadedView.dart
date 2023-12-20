@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/localGridItemView.dart';
@@ -59,13 +59,11 @@ class _UploadGridState extends State<UploadGrid> {
   void initState() {
     super.initState();
 
-    StoreService.instance.set('gridControllerUploaded', gridController);
+    store.set('gridControllerUploaded', gridController);
 
-    if (StoreService.instance.get('queryTags') == '')
-      StoreService.instance.set('queryTags', []);
+    if (store.get('queryTags') == '') store.set('queryTags', []);
 
-    cancelListener =
-        StoreService.instance.listen(['queryTags', 'queryResult'], (v1, v2) {
+    cancelListener = store.listen(['queryTags', 'queryResult'], (v1, v2) {
       // queryPivs will not make an invocation if `queryResult` changes because it will check if the tags have changed.
       TagService.instance.queryPivs();
       if (v2 != '')
@@ -258,9 +256,9 @@ class _TopRowState extends State<TopRow> {
   @override
   void initState() {
     super.initState();
-    StoreService.instance.set('timeHeaderController', pageController);
-    StoreService.instance.set('timeHeaderPage', 0);
-    cancelListener = StoreService.instance.listen([
+    store.set('timeHeaderController', pageController);
+    store.set('timeHeaderPage', 0);
+    cancelListener = store.listen([
       'currentlyTaggingUploaded',
       'timeHeader',
       'queryTags',
@@ -301,16 +299,12 @@ class _TopRowState extends State<TopRow> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          StoreService.instance.remove('showButtonsUploaded');
-                          StoreService.instance
-                              .remove('currentlyTaggingUploaded');
-                          StoreService.instance
-                              .remove('currentlyDeletingUploaded');
-                          StoreService.instance
-                              .remove('currentlyDeletingModalUploaded');
-                          StoreService.instance
-                              .remove('currentlyDeletingPivsUploaded');
-                          StoreService.instance.set('queryTags', []);
+                          store.remove('showButtonsUploaded');
+                          store.remove('currentlyTaggingUploaded');
+                          store.remove('currentlyDeletingUploaded');
+                          store.remove('currentlyDeletingModalUploaded');
+                          store.remove('currentlyDeletingPivsUploaded');
+                          store.set('queryTags', []);
                           Navigator.pushReplacementNamed(
                               context, 'bottomNavigation');
                         },
@@ -371,8 +365,8 @@ class _TopRowState extends State<TopRow> {
                           scrollDirection: Axis.horizontal,
                           controller: pageController,
                           onPageChanged: (int index) {
-                            StoreService.instance.set('timeHeaderPage', index);
-                            StoreService.instance.set(
+                            store.set('timeHeaderPage', index);
+                            store.set(
                                 'yearUploaded',
                                 timeHeader[timeHeader.length - index - 1][0][0]
                                     .toString());
@@ -414,10 +408,9 @@ class _TopRowState extends State<TopRow> {
                                               TagService.instance
                                                   .queryPivsForMonth(
                                                       [month[0], month[1]]);
-                                              if (StoreService.instance
-                                                      .get('gridController') !=
+                                              if (store.get('gridController') !=
                                                   '')
-                                                StoreService.instance
+                                                store
                                                     .get('gridController')
                                                     .jumpTo(0);
                                             }
@@ -538,7 +531,7 @@ class _GridSeeMoreElementState extends State<GridSeeMoreElement> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       'queryTags',
     ], (v1) {
       setState(() {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
@@ -22,7 +22,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['hometags'], (v) {
+    cancelListener = store.listen(['hometags'], (v) {
       setState(() => hometags = v);
     });
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/offlineView.dart';
@@ -209,7 +209,7 @@ class _GeotaggingSwitchState extends State<GeotaggingSwitch> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance.listen(['account'], (v1) {
+    cancelListener = store.listen(['account'], (v1) {
       setState(() {
         if (v1 != '') account = v1;
       });

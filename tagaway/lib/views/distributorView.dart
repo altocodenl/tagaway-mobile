@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/permissionService.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 class Distributor extends StatefulWidget {
@@ -25,10 +25,10 @@ class _DistributorState extends State<Distributor> {
 
   distributor() async {
     // By awaiting here, we also ensure that subsequent gets to the store service will not have to await, since it will be already loaded.
-    var cookie = await StoreService.instance.getAwait('cookie');
+    var cookie = await store.getAwait('cookie');
     if (cookie == '') {
       // If user has no cookie...
-      var recurringUser = StoreService.instance.get('recurringUser');
+      var recurringUser = store.get('recurringUser');
       // If user is recurring, send to login; otherwise, send to signup.
       return Navigator.pushReplacementNamed(
           context, recurringUser == true ? 'login' : 'signup');
@@ -44,13 +44,11 @@ class _DistributorState extends State<Distributor> {
     if (permissionStatus == 'granted' || permissionStatus == 'limited') {
       // Load all local pivs
       PivService.instance.loadLocalPivs();
-      StoreService.instance
-          .set('displayMode', {'showOrganized': false, 'cameraOnly': false});
+      store.set('displayMode', {'showOrganized': false, 'cameraOnly': false});
       return Navigator.pushReplacementNamed(context, 'bottomNavigation');
     }
 
-    var userWasAskedPermission =
-        StoreService.instance.get('userWasAskedPermission');
+    var userWasAskedPermission = store.get('userWasAskedPermission');
     return Navigator.pushReplacementNamed(
         context,
         userWasAskedPermission == true
@@ -61,7 +59,7 @@ class _DistributorState extends State<Distributor> {
   @override
   Widget build(BuildContext context) {
     // It used to be the case that we needed this to be more than zero, but we now hide the tip of the scrollable sheet when it's not swiped.
-    StoreService.instance.set('initialScrollableSize', 0.0);
+    store.set('initialScrollableSize', 0.0);
     return Container(
       color: Colors.grey[50],
       child: const Center(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 
 class SizeService {
   SizeService._privateConstructor();
@@ -60,7 +60,7 @@ class SizeService {
 
   double gridTagUploadedQueryElementMaxWidthCalculator(context) {
     var screenWidth = MediaQuery.of(context).size.width;
-    var numberOfTags = StoreService.instance.get('queryTags');
+    var numberOfTags = store.get('queryTags');
     if (numberOfTags == '') {
       numberOfTags = 0;
     } else {

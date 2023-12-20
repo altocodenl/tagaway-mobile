@@ -6,7 +6,6 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 
@@ -65,23 +64,23 @@ class PivService {
 
       if (response ['code'] != 200) return response;
 
-      StoreService.instance.set ('pivMap:'  + piv.id, response ['body'] ['id']);
-      StoreService.instance.set ('rpivMap:' + response ['body'] ['id'], piv.id);
+      store.set ('pivMap:'  + piv.id, response ['body'] ['id']);
+      store.set ('rpivMap:' + response ['body'] ['id'], piv.id);
 
-      StoreService.instance.set ('hashMap:' + piv.id, response ['body'] ['hash'], 'disk');
+      store.set ('hashMap:' + piv.id, response ['body'] ['hash'], 'disk');
 
-      var pendingTags = StoreService.instance.get ('pendingTags:' + piv.id);
+      var pendingTags = store.get ('pendingTags:' + piv.id);
       if (pendingTags != '') {
-         StoreService.instance.set ('orgMap:' + response ['body'] ['id'], true);
+         store.set ('orgMap:' + response ['body'] ['id'], true);
          var code = await TagService.instance.tagCloudPiv (response ['body'] ['id'], pendingTags, false);
          if (! [0, 200, 403].contains (code)) showSnackbar ('There was an error tagging your piv - CODE TAG:L:' + code.toString (), 'yellow');
          if (code != 200) return {'code': code};
       }
 
-      StoreService.instance.remove ('pendingTags:' + piv.id, 'disk');
-      if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') {
+      store.remove ('pendingTags:' + piv.id, 'disk');
+      if (store.get ('pendingDeletion:' + piv.id) != '') {
          deleteLocalPivs ([piv.id]);
-         StoreService.instance.remove ('pendingDeletion:' + piv.id, 'disk');
+         store.remove ('pendingDeletion:' + piv.id, 'disk');
       }
       return response;
    }
@@ -89,12 +88,12 @@ class PivService {
    updateDryUploadQueue () async {
       var dryUploadQueue = [];
       uploadQueue.forEach ((v) => dryUploadQueue.add (v.id));
-      StoreService.instance.set ('uploadQueue', dryUploadQueue, 'disk');
+      store.set ('uploadQueue', dryUploadQueue, 'disk');
    }
 
    queuePiv (dynamic piv) async {
       if (piv != null) {
-         if (StoreService.instance.get ('pivMap:' + piv.id) == '') StoreService.instance.set ('pivMap:' + piv.id, true);
+         if (store.get ('pivMap:' + piv.id) == '') store.set ('pivMap:' + piv.id, true);
 
          bool pivAlreadyInQueue = false;
          for (var queuedPiv in uploadQueue) {
@@ -110,8 +109,8 @@ class PivService {
       }
 
       uploadQueue.sort ((a, b) {
-         var sizeA = StoreService.instance.get ('hashMap:' + a.id);
-         var sizeB = StoreService.instance.get ('hashMap:' + b.id);
+         var sizeA = store.get ('hashMap:' + a.id);
+         var sizeB = store.get ('hashMap:' + b.id);
          sizeA = sizeA == '' ? 1000 * 1000 * 1000 : int.parse (sizeA.split (':') [1]);
          sizeB = sizeB == '' ? 1000 * 1000 * 1000 : int.parse (sizeB.split (':') [1]);
          return sizeA.compareTo (sizeB);
@@ -194,7 +193,7 @@ class PivService {
          if (assets.isEmpty) break;
 
          for (var piv in assets) {
-            StoreService.instance.set ('cameraPiv:' + piv.id, true);
+            store.set ('cameraPiv:' + piv.id, true);
          }
 
          start += count;
@@ -222,16 +221,16 @@ class PivService {
          if (page.isEmpty) break;
 
          for (var piv in page) {
-            StoreService.instance.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
+            store.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
             if (Platform.isIOS) {
                var mime = await piv.mimeTypeAsync;
-               if (['image/heic', 'video/quicktime'].contains (mime)) StoreService.instance.set ('cameraPiv:' + piv.id, true);
+               if (['image/heic', 'video/quicktime'].contains (mime)) store.set ('cameraPiv:' + piv.id, true);
             }
             localPivs.add (piv);
          }
 
          localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
-         StoreService.instance.set ('cameraPiv:foo', now ());
+         store.set ('cameraPiv:foo', now ());
 
          offset += pageSize;
       }
@@ -244,22 +243,22 @@ class PivService {
    queryOrganizedLocalPivs () async {
       var cloudIds = [];
 
-      for (var k in StoreService.instance.getKeys ('^pivMap:')) {
-         var cloudId = StoreService.instance.get (k);
+      for (var k in store.getKeys ('^pivMap:')) {
+         var cloudId = store.get (k);
          if (cloudId != '' && cloudId != true) cloudIds.add (cloudId);
       }
       await TagService.instance.queryOrganizedIds (cloudIds);
    }
 
    reviveUploads () {
-      var queue = StoreService.instance.get ('uploadQueue');
+      var queue = store.get ('uploadQueue');
 
       if (queue == '' || queue.length == 0) return;
 
       localPivs.forEach ((v) {
          if (! queue.contains (v.id)) return;
          uploadQueue.add (v);
-         StoreService.instance.set ('pivMap:' + v.id, true);
+         store.set ('pivMap:' + v.id, true);
       });
 
       queuePiv (null);
@@ -287,18 +286,18 @@ class PivService {
          localPivIds [v.id] = true;
       });
 
-      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
+      for (var k in store.getKeys ('^hashMap:')) {
          var id = k.replaceAll ('hashMap:', '');
-         if (localPivIds [id] == null) await StoreService.instance.remove (k, 'disk');
+         if (localPivIds [id] == null) await store.remove (k, 'disk');
       }
    }
 
    queryExistingHashes () async {
       var hashesToQuery = {};
 
-      for (var k in StoreService.instance.getKeys ('^hashMap:')) {
+      for (var k in store.getKeys ('^hashMap:')) {
          var id = k.replaceAll ('hashMap:', '');
-         hashesToQuery [id] = StoreService.instance.get (k);
+         hashesToQuery [id] = store.get (k);
       }
 
       var queriedHashes = await queryHashes (hashesToQuery);
@@ -307,14 +306,14 @@ class PivService {
 
       queriedHashes.forEach ((localId, uploadedId) {
          if (uploadedId != null) {
-            StoreService.instance.set ('pivMap:'  + localId,    uploadedId);
-            StoreService.instance.set ('rpivMap:' + uploadedId, localId);
+            store.set ('pivMap:'  + localId,    uploadedId);
+            store.set ('rpivMap:' + uploadedId, localId);
          }
          else {
-            var oldUploadedId = StoreService.instance.get ('pivMap:' + localId);
+            var oldUploadedId = store.get ('pivMap:' + localId);
             if (oldUploadedId != '' && oldUploadedId != true) {
-               StoreService.instance.remove ('pivMap:'  + localId);
-               StoreService.instance.remove ('rpivMap:' + oldUploadedId);
+               store.remove ('pivMap:'  + localId);
+               store.remove ('rpivMap:' + oldUploadedId);
             }
          }
       });
@@ -326,18 +325,18 @@ class PivService {
          if (i >= localPivs.length) break;
          var piv = localPivs [i];
 
-         if (StoreService.instance.get ('hashMap:' + piv.id) != '') continue;
+         if (store.get ('hashMap:' + piv.id) != '') continue;
 
          var hash = await flutterCompute (hashPiv, piv.id);
          if (hash == false) continue;
-         StoreService.instance.set ('hashMap:' + piv.id, hash, 'disk');
+         store.set ('hashMap:' + piv.id, hash, 'disk');
 
          var queriedHash = await queryHashes ({piv.id: hash});
          if (queriedHash == false) break;
 
          if (queriedHash [piv.id] != null) {
-            StoreService.instance.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
-            StoreService.instance.set ('rpivMap:' + queriedHash [piv.id], piv.id);
+            store.set ('pivMap:'  + piv.id,               queriedHash [piv.id]);
+            store.set ('rpivMap:' + queriedHash [piv.id], piv.id);
             TagService.instance.queryOrganizedIds ([queriedHash [piv.id]]);
          }
       }
@@ -358,21 +357,21 @@ class PivService {
          return {'title': pair [0], 'total': 0, 'left': 0, 'pivs': [], 'from': ms (pair [1]), 'to': ms (tomorrow), 'dateTags': ['d::M' + Now.month.toString (), 'd::' + Now.year.toString ()]};
       }).toList ();
 
-      var displayMode = StoreService.instance.get ('displayMode');
+      var displayMode = store.get ('displayMode');
       var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
 
       localPivs.forEach ((piv) {
 
-         if (StoreService.instance.get ('pendingDeletion:' + piv.id) != '') return;
+         if (store.get ('pendingDeletion:' + piv.id) != '') return;
 
-         var cloudId        = StoreService.instance.get ('pivMap:' + piv.id);
-         var pivIsOrganized = cloudId == true || StoreService.instance.get ('orgMap:' + cloudId) != '';
+         var cloudId        = store.get ('pivMap:' + piv.id);
+         var pivIsOrganized = cloudId == true || store.get ('orgMap:' + cloudId) != '';
          var pivIsLeft      = ! pivIsOrganized;
-         if (displayMode != '' && displayMode ['cameraOnly'] == true && StoreService.instance.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
+         if (displayMode != '' && displayMode ['cameraOnly'] == true && store.get ('cameraPiv:' + piv.id) != true) pivIsLeft = false;
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 
-         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || StoreService.instance.get ('cameraPiv:' + piv.id) == true));
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || store.get ('cameraPiv:' + piv.id) == true));
 
          var placed = false, pivDate = piv.createDateTime;
          pages.forEach ((page) {
@@ -394,14 +393,14 @@ class PivService {
          });
       });
 
-      StoreService.instance.set ('localPagesLength', pages.length);
+      store.set ('localPagesLength', pages.length);
       pages.asMap ().forEach ((index, page) {
-         var oldPage = StoreService.instance.get ('localPage:' + index.toString ());
+         var oldPage = store.get ('localPage:' + index.toString ());
 
-         StoreService.instance.set ('localPage:' + index.toString (), page);
+         store.set ('localPage:' + index.toString (), page);
 
          if (
-           index == StoreService.instance.get ('localPage')
+           index == store.get ('localPage')
            &&
            ! DeepCollectionEquality ().equals (oldPage, page)
            &&
@@ -409,8 +408,8 @@ class PivService {
          ) TagService.instance.getLocalAchievements (index);
       });
 
-      if (StoreService.instance.get ('localPagesListener') == '') {
-         StoreService.instance.set ('localPagesListener', StoreService.instance.listen ([
+      if (store.get ('localPagesListener') == '') {
+         store.set ('localPagesListener', store.listen ([
             'cameraPiv:*',
             'currentlyTaggingPivs',
             'displayMode',
@@ -429,7 +428,7 @@ class PivService {
    deleteLocalPivs (ids, [reportBytes = null]) async {
       uploadQueue.forEach ((queuedPiv) {
          if (! ids.contains (queuedPiv.id)) return;
-         StoreService.instance.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
+         store.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
          ids.remove (queuedPiv.id);
       });
 
@@ -469,9 +468,9 @@ class PivService {
       var totalSize = 0, pivsToDelete = [];
 
       localPivs.forEach ((piv) {
-         var hash = StoreService.instance.get ('hashMap:' + piv.id);
+         var hash = store.get ('hashMap:' + piv.id);
          if (hash == '') return;
-         var cloudId = StoreService.instance.get ('pivMap:' + piv.id);
+         var cloudId = store.get ('pivMap:' + piv.id);
          if (cloudId == '') return;
          if (deletionType == '3m') {
             var date = piv.createDateTime.millisecondsSinceEpoch;

@@ -1,6 +1,5 @@
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/services/storeService.dart';
 
 class AuthService {
    AuthService._privateConstructor ();
@@ -15,9 +14,9 @@ class AuthService {
       int timezone = DateTime.now ().timeZoneOffset.inMinutes.toInt ();
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
       if (response ['code'] == 200) {
-         StoreService.instance.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
-         StoreService.instance.set ('csrf',   response ['body']    ['csrf'], 'disk');
-         StoreService.instance.set ('recurringUser', true, 'disk');
+         store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
+         store.set ('csrf',   response ['body']    ['csrf'], 'disk');
+         store.set ('recurringUser', true, 'disk');
       }
       // Error code 1 signifies that the user must verify their email
       if (response ['code'] == 403 && response ['body'] ['error'] == 'verify') return 1;
@@ -42,19 +41,19 @@ class AuthService {
    }
 
    cleanupKeys () async {
-      await StoreService.instance.remove ('cookie',      'disk');
-      await StoreService.instance.remove ('csrf',        'disk');
-      await StoreService.instance.remove ('lastNTags',   'disk');
-      await StoreService.instance.remove ('uploadQueue', 'disk');
-      await StoreService.instance.remove ('pendingTags:*',     'disk');
-      await StoreService.instance.remove ('pendingDeletion:*', 'disk');
-      await StoreService.instance.remove ('organizedAtDaybreak', 'disk');
-      StoreService.instance.store = {};
+      await store.remove ('cookie',      'disk');
+      await store.remove ('csrf',        'disk');
+      await store.remove ('lastNTags',   'disk');
+      await store.remove ('uploadQueue', 'disk');
+      await store.remove ('pendingTags:*',     'disk');
+      await store.remove ('pendingDeletion:*', 'disk');
+      await store.remove ('organizedAtDaybreak', 'disk');
+      store.store = {};
       navigatorKey.currentState!.pushReplacementNamed ('login');
       // We wait a full second because if we try to reload the store from disk while redraws are taking place after the logout, things break.
       // The only reason we need to reload is to avoid re-hashing if the user logs back in in the current run of the app.
       Future.delayed(const Duration(seconds: 1), () {
-        StoreService.instance.load ();
+        store.load ();
       });
    }
 
@@ -72,7 +71,7 @@ class AuthService {
    Future <int> getAccount () async {
       var response = await ajax ('get', 'account', {});
       if (response ['code'] == 200) {
-         StoreService.instance.set ('account', response ['body']);
+         store.set ('account', response ['body']);
       }
       return response ['code'];
    }

@@ -12,6 +12,8 @@ import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/authService.dart';
 
+var store = StoreService.instance;
+
 int now () {
   return DateTime.now().millisecondsSinceEpoch;
 }
@@ -32,7 +34,7 @@ bool ajaxLogs = true;
 // We need to specify <String, dynamic> because otherwise Dart will try to infer the type of all the keys of the body as being of the same type, which very often will not be the case.
 Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = const {}]) async {
   // Note the await
-  String cookie = await StoreService.instance.getAwait ('cookie');
+  String cookie = await store.getAwait ('cookie');
   int start = now ();
   var response;
   try {
@@ -42,7 +44,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
     } else {
 
       if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover') {
-        body ['csrf'] = await StoreService.instance.getAwait ('csrf');
+        body ['csrf'] = await store.getAwait ('csrf');
       }
       var httpOperation = method == 'post' ? http.post : http.put;
       response = await httpOperation(Uri.parse(kAltoPicAppURL + '/' + path),
@@ -100,8 +102,8 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
   var request =
       http.MultipartRequest('post', Uri.parse(kAltoPicAppURL + '/' + path));
 
-  request.headers['cookie'] = await StoreService.instance.getAwait('cookie');
-  request.fields['csrf'] = await StoreService.instance.getAwait('csrf');
+  request.headers['cookie'] = await store.getAwait('cookie');
+  request.fields['csrf'] = await store.getAwait('csrf');
 
   fields.forEach((k, v) => request.fields[k] = v.toString());
   try {
@@ -289,7 +291,7 @@ pad (n) {
 
 // `getTags` has a call that requires this to be typed
 List getList (dynamic key) {
-   var value = StoreService.instance.get (key);
+   var value = store.get (key);
    if (value == '') return [];
    // We return a copy.
    return value.toList ();
@@ -310,5 +312,3 @@ printBytes (int bytes) {
    if (bytes < 1000 * 1000 * 1000) return ((bytes / (1000 * 100)).round () / 10).toString () + 'MB';
    return ((bytes / (1000 * 1000 * 100)).round () / 10).toString () + 'GB';
 }
-
-var store = StoreService.instance;

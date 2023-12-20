@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -28,14 +27,14 @@ class _LocalViewState extends State<LocalView> {
   @override
   void initState() {
     super.initState();
-    StoreService.instance.set('localPage', 0);
-    StoreService.instance.set('localPageController', pageController);
+    store.set('localPage', 0);
+    store.set('localPageController', pageController);
     pageController.addListener(() {
-      var maxPage = StoreService.instance.get('localPagesLength');
+      var maxPage = store.get('localPagesLength');
       if (maxPage == '') maxPage = 0;
       if (pageController.page! >= maxPage)
         pageController.jumpToPage(maxPage - 1);
-      StoreService.instance.set('localPage', pageController.page!.round());
+      store.set('localPage', pageController.page!.round());
     });
   }
 
@@ -97,8 +96,8 @@ class _GridState extends State<Grid> {
   @override
   void initState() {
     super.initState();
-    cancelListener = StoreService.instance
-        .listen(['localPage:' + widget.localPagesIndex.toString()], (v1) {
+    cancelListener =
+        store.listen(['localPage:' + widget.localPagesIndex.toString()], (v1) {
       // If the list of ids in page['pivs'] is unchanged, we don't update the state to avoid redrawing the grid and experiencing a flicker.
       if (page != '') {
         var existingIds = page['pivs'].map((asset) => asset.id).toList();
@@ -204,7 +203,7 @@ class _TopRowState extends State<TopRow> {
   void initState() {
     PhotoManager.requestPermissionExtend();
     super.initState();
-    cancelListener = StoreService.instance.listen([
+    cancelListener = store.listen([
       'currentlyTaggingLocal',
       'localPage:' + (widget.localPagesIndex - 1).toString(),
       'localPage:' + widget.localPagesIndex.toString(),
@@ -376,32 +375,30 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['localPage'], (localPageIndex) {
+    cancelListener = store.listen(['localPage'], (localPageIndex) {
       // There are N PhoneAchievementsView widgets active, and usually two active; doing this check allows us to avoid doing unnecessary calls to `getLocalAchievements`.
-      var localPage = StoreService.instance.get(
-          'localPage:' + StoreService.instance.get('localPage').toString());
+      var localPage =
+          store.get('localPage:' + store.get('localPage').toString());
       if (localPage == '') localPage = {'pivs': []};
 
       if (widget.localPagesIndex == localPageIndex &&
           localPage['pivs'].length == 0)
         TagService.instance.getLocalAchievements(localPageIndex);
       setState(() {
-        currentPage =
-            StoreService.instance.get('localPage:' + localPageIndex.toString());
-        var Rows = StoreService.instance.get('localAchievements:' +
-            StoreService.instance.get('localPage').toString());
+        currentPage = store.get('localPage:' + localPageIndex.toString());
+        var Rows =
+            store.get('localAchievements:' + store.get('localPage').toString());
         rows = Rows == '' ? [] : Rows;
       });
     });
     // We add a separate listener to not make the call to `getLocalAchievements` if the value of `localAchievements` just changed
-    cancelListener2 = StoreService.instance.listen(['localAchievements:*'],
-        (localAchievements) {
+    cancelListener2 =
+        store.listen(['localAchievements:*'], (localAchievements) {
       setState(() {
-        currentPage = StoreService.instance.get(
-            'localPage:' + StoreService.instance.get('localPage').toString());
-        var Rows = StoreService.instance.get('localAchievements:' +
-            StoreService.instance.get('localPage').toString());
+        currentPage =
+            store.get('localPage:' + store.get('localPage').toString());
+        var Rows =
+            store.get('localAchievements:' + store.get('localPage').toString());
         rows = Rows == '' ? [] : Rows;
       });
     });
@@ -463,10 +460,10 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
                     return Container();
                   return GestureDetector(
                     onTap: () {
-                      StoreService.instance.set('queryTags',
+                      store.set('queryTags',
                           [row[0]]..addAll(currentPage['dateTags']));
                       TagService.instance.queryPivs();
-                      StoreService.instance.set('viewIndex', 0);
+                      store.set('viewIndex', 0);
                       Navigator.pushReplacementNamed(context, 'uploaded');
                     },
                     child: Padding(
@@ -712,8 +709,7 @@ class _ShowOrganizedPivsSwitch extends State<ShowOrganizedPivsSwitch> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['displayMode'], (DisplayMode) {
+    cancelListener = store.listen(['displayMode'], (DisplayMode) {
       setState(() {
         displayMode = DisplayMode;
       });
@@ -739,7 +735,7 @@ class _ShowOrganizedPivsSwitch extends State<ShowOrganizedPivsSwitch> {
             inactiveTrackColor: kGreyLight,
             value: displayMode['showOrganized'],
             onChanged: (bool value) {
-              StoreService.instance.set('displayMode', {
+              store.set('displayMode', {
                 'showOrganized': value ? true : false,
                 'cameraOnly': displayMode['cameraOnly']
               });
@@ -765,8 +761,7 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
   @override
   void initState() {
     super.initState();
-    cancelListener =
-        StoreService.instance.listen(['displayMode'], (DisplayMode) {
+    cancelListener = store.listen(['displayMode'], (DisplayMode) {
       setState(() {
         displayMode = DisplayMode;
       });
@@ -792,7 +787,7 @@ class _ShowCameraPivsState extends State<ShowCameraPivs> {
             inactiveTrackColor: kGreyLight,
             value: displayMode['cameraOnly'],
             onChanged: (bool value) {
-              StoreService.instance.set('displayMode', {
+              store.set('displayMode', {
                 'showOrganized': displayMode['showOrganized'],
                 'cameraOnly': value ? true : false
               });

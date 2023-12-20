@@ -1,7 +1,7 @@
 // IMPORT FLUTTER PACKAGES
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:tagaway/services/storeService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
 // IMPORT UI ELEMENTS
@@ -49,8 +49,7 @@ class RequestPermissionView extends StatelessWidget {
                     title: 'Upload Pictures',
                     colour: kAltoBlue,
                     onPressed: () async {
-                      await StoreService.instance
-                          .set('userWasAskedPermission', true, 'disk');
+                      await store.set('userWasAskedPermission', true, 'disk');
                       await PhotoManager.requestPermissionExtend();
                       Navigator.pushReplacementNamed(context, 'distributor');
                     }),
