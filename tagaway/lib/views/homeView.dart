@@ -254,62 +254,64 @@ class _HomeViewState extends State<HomeView> {
                   )
                 : Stack(
                     children: [
-                      HomeAwardsView(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 80,
-                                child: Center(
-                                  child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          organized['total'].toString(),
-                                          style: TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: kAltoOrganized),
-                                        ),
-                                        Text(
-                                          'organized',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: kGreyDarker),
-                                        ),
-                                      ]),
-                                ),
+                      // TOOD: uncomment & dynamize
+                      //HomeAwardsView(
+                      //child: Row(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        organized['total'].toString(),
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: kAltoOrganized),
+                                      ),
+                                      Text(
+                                        'organized',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: kGreyDarker),
+                                      ),
+                                    ]),
                               ),
                             ),
-                            Expanded(
-                              child: Container(
-                                height: 80,
-                                child: Center(
-                                  child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          organized['today'].toString(),
-                                          style: TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: kAltoOrganized),
-                                        ),
-                                        Text(
-                                          'today',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: kGreyDarker),
-                                        ),
-                                      ]),
-                                ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        organized['today'].toString(),
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                            color: kAltoOrganized),
+                                      ),
+                                      Text(
+                                        'today',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: kGreyDarker),
+                                      ),
+                                    ]),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      //),
                       Padding(
                           padding: const EdgeInsets.only(
                               left: 12, right: 12, top: 80 + 7),
