@@ -2,17 +2,18 @@
 
 ## TODO
 
-- When tagging uploaded pivs, don't tag them as you tap, but rather accumulate them in a list.
------
-- Edit/delete tags view, openable from query selector (Tom)
+- Random wheel in home with jump to month by currentMonth
+- Random in carrousel by tags, swipe down
+
 - Show "achievements view" with all that you have organized
+- Edit/delete tags view, openable from query selector
+- Info view for each piv on cloud (Tom)
 
 - Count organized today properly by adding date when piv was added to queue
 - tag L:404
+- Confirm on delete single uploaded piv
 
 - Swipe sideways to navigate months in uploaded
-- Confirm on delete single uploaded piv
-- Info view for each piv on cloud (Tom)
 - Finish annotated source code: tagService, storeService, tools.
 
 - Sharebox
@@ -59,7 +60,6 @@
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
 - csrf <str> [DISK]: csrf token of current session, brought from server - deleted on logout.
 - currentMonth `[<int (year)>, <int (month)>]`: if set, indicates the current month of the uploaded view.
-- currentlyTaggingPivs <list>: list of *local* piv ids currently being tagged, to avoid hiding them before the operation is complete.
 - currentlyTagging(Local|Uploaded) <str>: tag currently being tagged in LocalView/UploadedView
 - currentlyDeleting(Local|Uploaded) <bool>: if set, we are in delete mode in LocalView/UploadedView
 - currentlyDeletingModal(Local|Uploaded) <bool>: if set, we are showing the delete confirmation modal for Local/Uploaded view.
@@ -107,6 +107,7 @@
    where <month> is [<year>, <month>, 'white|gray|green', <undefined>|<pivId of last piv in month>]
 - timeHeaderController <page controller>: controller that drives the timeHeader
 - timeHeaderPage <int>: page in timeHeader currently displayed.
+- toggleTags(Local|Uploaded) {ID: true|false, ...}: indicates the local/uploaded pivs that are marked for tagging/untagging.
 - usertags [<string>, ...]: list of user tags, computed from the tags brought from the server.
 - userWasAskedPermission (boolean) [DISK]: whether the user was already asked for piv access permission once
 - viewIndex <int>: 0 if on HomeView, 1 if on LocalView, 2 if on ShareView
@@ -1285,12 +1286,16 @@ We get the `displayMode` from the store, which will be an object of the form `{s
       var displayMode = store.get ('displayMode');
 ```
 
-We get `currentlyTaggingPivs`, a list of pivs currently being tagged. If there's no such key in the store, we will initialize our local variable to an empty array.
+We get `toggleTagsLocal`, a map with the list of local pivs currently being tagged/untagged and store it in a local variable `currentlyTaggingPivs`. If there's no such key in the store, we will initialize it to an empty map. We will then iterate the map and for those entries where `taggedLocally` is `true`, we will return the id of the piv.
 
 The reason we need this list is to avoid prematurely hiding pivs that are just being tagged. As soon as a piv is tagged, it is marked as organized, so if `displayMode` is `'all'`, that piv would immediately disappear, which is undesirable. By having a reference to this list, we can prevent prematurely removing those pivs from the local page.
 
 ```dart
-      var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
+      var currentlyTaggingPivs = store.get ('toggleTagsLocal');
+      if (currentlyTaggingPivs == '') currentlyTaggingPivs = {};
+      currentlyTaggingPivs = currentlyTaggingPivs.map ((id, tagged) {
+         if (tagged == true) return id;
+      }).where ((value) => value != null).toList ();
 ```
 
 We iterate `localPivs`, which is the list of all local pivs held by our `pivService`. For each of them:
@@ -1492,17 +1497,17 @@ Notice that we store the listener in the `localPagesListener` key of the store, 
 The listener will be matched if there's a change on any of these store keys:
 
 - All of the `cameraPiv` entries, which indicate which pivs belong to the camera roll.
-- `currentlyTaggingPivs`: the list of local pivs currently being tagged.
 - `displayMode`: whether to show all local pivs or just the unorganized ones.
 - All of the `pivMap` entries, which map a local piv to a cloud piv and which, together with `orgMap`, determines whether the local piv is organized or not.
 - All of the `orgMap` entries, which together with `pivMap`, determines whether the local piv is organized or not.
+- `toggleTagsLocal`: the list of local pivs currently being (un)tagged.
 
 ```dart
             'cameraPiv:*',
-            'currentlyTaggingPivs',
             'displayMode',
             'pivMap:*',
             'orgMap:*',
+            'toggleTagsLocal'
          ], (v1, v2, v3, v4, v5) {
 ```
 
@@ -2148,7 +2153,7 @@ We first define two local variables, a `pivId` that will hold the id of the piv 
       var cloudId = type == 'uploaded' ? pivId      : store.get ('pivMap:' + pivId);
 ```
 
-We will also define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:` depending on `type`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not.
+We will also define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:` depending on `type`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not. Note this will also be `tagMapUploaded:` for `localUploaded` pivs.
 
 ```dart
       var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
@@ -2522,10 +2527,10 @@ If we are deleting pivs, we call `toggleDeletion`, passing the piv's id, the vie
             if (operation == 'delete') toggleDeletion (piv.id, 'local', select);
 ```
 
-Likewise with the `tag` operation: we invoke `toggleTags`, only that we also pass the list of `tags` being applied to the local pivs.
+Likewise with the `tag` operation: we invoke `toggleTags` as well.
 
 ```dart
-            if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingLocal'), 'local', select);
+            if (operation == 'tag')    toggleTags (piv, 'local', select);
 ```
 
 This concludes the case for local pivs.
@@ -2548,24 +2553,24 @@ We get all the pivs from the current query, which are stored in `queryResult`, a
          queryResult ['pivs'].forEach ((piv) {
 ```
 
-If this is a local piv (which will be the case if `piv.local` is `true`), inserted there by `localQuery` (which will be defined below), we do almost the same we did in the local block above, except that we pass different parameters:
+If this is a local piv (which will be the case if `piv.local` is `true`), inserted there by `localQuery` (which will be defined below), we do almost the same we did in the local block above, except that we pass different parameters.
 
 - To `toggleDeletion`, we will pass the view `uploaded`.
-- To `toggleTags`, we will pass the tags applied to uploaded pivs, and as view we will pass `localUploaded` (which lets `toggleTags` know this is a local piv within the uploaded view).
+- To `toggleTags`, we will pass the view `uploaded`.
 
 ```dart
             if (piv ['local'] == true) {
                if (operation == 'delete') toggleDeletion (piv ['piv'].id, 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv ['piv'], store.get ('currentlyTaggingUploaded'), 'localUploaded', select);
+               if (operation == 'tag')    toggleTags (piv ['piv'], 'uploaded', select);
             }
 ```
 
-If this is a normal uploaded piv, we will invoke the same two functions we just did above, with the only difference being that we will pass `uploaded` as the third argument to `toggleTags`.
+If this is a normal uploaded piv, we will invoke the same two functions we just did above.
 
 ```dart
             else {
                if (operation == 'delete') toggleDeletion (piv ['id'], 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingUploaded'), 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv, 'uploaded', select);
             }
 ```
 
@@ -2857,7 +2862,7 @@ We set `minDateCurrentMonth` and `maxDateCurrentMonth` as we did in the case whe
 We set the current month, since it is not set yet since there are no server pivs that match the query.
 
 ```dart
-         store.set ('currentMonth', year.toString () + ':' + month.toString ());
+         store.set ('currentMonth', [year, month]);
 ```
 
 We iterate the `localPivsToAdd` again and add those to the list that match to the current month.
@@ -3065,10 +3070,10 @@ Now that `queryResult.timeHeader` and `currentMonth` are placed, we can compute 
       computeTimeHeader ();
 ```
 
-If we got the last 300 pivs, we might have gotten too many pivs! To know this, we look at the number of pivs belonging to the last month in `lastMonth`. If we have less than 300 pivs for the last month, we remove the extra pivs from `queryResult ['pivs']`. Note we do not do this if we get no pivs from the query.
+If we got the last 300 pivs, we might have gotten too many pivs! To know this, we look at the number of pivs belonging to the last month in `lastMonth`. If we have less than 300 pivs for the last month, we remove the extra pivs from `queryResult ['pivs']`. Note we do not do this if we get no pivs from the query. Note also we check whether `queryResult.lastMonth` exists, because if there are no cloud pivs in the query, you could have a scenario where the total is more than 0 but there's no `lastMonth` field.
 
 ```dart
-      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
+      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
          queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 ```
@@ -3097,7 +3102,7 @@ Also note that we exclude local pivs from the query.
 If we have more pivs in the month than the pivs we brought, we will generate placeholder entries in `queryResult ['pivs']` for those that we don't have yet. This will allow us later to add the missing pivs without triggering a redraw. We know how many pivs we're missing because that info comes back in `queryResult ['lastMonth'] [1]`.
 
 ```dart
-      if (queryResult ['total'] > 0 && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
+      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
 ```

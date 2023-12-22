@@ -359,7 +359,7 @@ class _GridItemSelectionState extends State<GridItemSelection> {
       setState(() {
         // Tagging mode: set mode to `green` for pivs that are tagged and `gray` for those that are not. This goes for local and uploaded.
         if (v3 != '') {
-          mode = v2 == '' ? 'gray' : 'green';
+          mode = v2 == true ? 'green' : 'gray';
           // Deleting mode
         } else if (v6 != '') {
           var currentlyDeletingPivs = v7;
@@ -860,12 +860,13 @@ class _DoneButtonState extends State<DoneButton> {
           onPressed: () {
             // Done tagging
             if (currentlyTagging != '') {
+              TagService.instance.doneTagging(widget.view.toLowerCase());
               store.set('swiped' + widget.view, false);
               store.remove('currentlyTagging' + widget.view);
               store.remove('hideAddMoreTagsButton' + widget.view);
               store.remove('showSelectAllButton' + widget.view);
+              store.remove('toggleTags' + widget.view);
               if (widget.view == 'Local') {
-                store.remove('currentlyTaggingPivs');
                 PivService.instance.queryOrganizedLocalPivs();
                 TagService.instance
                     .getLocalAchievements(store.get('localPage'));
@@ -1698,7 +1699,7 @@ class _GridItemMaskState extends State<GridItemMask> {
           if (type == 'localUploaded')
             mask = 'tag';
           else
-            mask = Tagged != '' ? 'tag' : 'none';
+            mask = Tagged == true ? 'tag' : 'none';
         }
       });
     });

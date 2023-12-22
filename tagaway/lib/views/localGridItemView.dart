@@ -67,10 +67,7 @@ class LocalGridItem extends StatelessWidget {
                 store.set('showSelectAllButton' + View, true);
               } else if (store.get('currentlyTagging' + View) != '') {
                 // Tagging/untagging is the same, whether we are in the local or the uploaded grid
-                TagService.instance.toggleTags(
-                    asset,
-                    store.get('currentlyTagging' + View),
-                    view == 'local' ? 'local' : 'localUploaded');
+                TagService.instance.toggleTags(asset, 'local');
                 store.set('hideAddMoreTagsButton' + View, true);
                 store.set('showSelectAllButton' + View, true);
               } else {

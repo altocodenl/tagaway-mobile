@@ -358,7 +358,13 @@ class PivService {
       }).toList ();
 
       var displayMode = store.get ('displayMode');
-      var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
+
+      var currentlyTaggingPivs = store.get ('toggleTagsLocal');
+      if (currentlyTaggingPivs == '') currentlyTaggingPivs = {};
+      currentlyTaggingPivs = currentlyTaggingPivs.entries
+         .where ((entry) => entry.value == true)
+         .map ((entry) => entry.key)
+         .toList ();
 
       localPivs.forEach ((piv) {
 
@@ -411,10 +417,10 @@ class PivService {
       if (store.get ('localPagesListener') == '') {
          store.set ('localPagesListener', store.listen ([
             'cameraPiv:*',
-            'currentlyTaggingPivs',
             'displayMode',
             'pivMap:*',
             'orgMap:*',
+            'toggleTagsLocal'
          ], (v1, v2, v3, v4, v5) {
             recomputeLocalPages = true;
          }));

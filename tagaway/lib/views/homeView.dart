@@ -326,6 +326,8 @@ class _HomeViewState extends State<HomeView> {
                               itemCount: hometags.length,
                               itemBuilder: (BuildContext context, int index) {
                                 var tag = hometags[index];
+                                // If homeThumb hasn't loaded yet, do not return anything.
+                                if (homeThumbs[tag] == null) return Container();
                                 return GestureDetector(
                                     onTap: () {
                                       store.set('queryTags', [tag]);

@@ -392,8 +392,8 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
       });
     });
     // We add a separate listener to not make the call to `getLocalAchievements` if the value of `localAchievements` just changed
-    cancelListener2 =
-        store.listen(['localAchievements:*'], (localAchievements) {
+    cancelListener2 = store.listen(['localAchievements:*', 'localPage:*'],
+        (localAchievements, localPages) {
       setState(() {
         currentPage =
             store.get('localPage:' + store.get('localPage').toString());

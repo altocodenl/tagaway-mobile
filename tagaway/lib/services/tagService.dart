@@ -95,7 +95,8 @@ class TagService {
       store.set ('lastNTags', lastNTags, 'disk');
    }
 
-   tagCloudPiv (String id, dynamic tags, bool del) async {
+   // TODO: remove
+   tagCloudPiv (dynamic id, dynamic tags, bool del) async {
       for (var tag in tags) {
          var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
          if (response ['code'] != 200) return response ['code'];
@@ -110,7 +111,109 @@ class TagService {
       return 200;
    }
 
-   toggleTags (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
+   // TODO: annotate
+   // type can only be local or uploaded
+   toggleTags (dynamic piv, String type, [selectAll = null]) async {
+
+      var pivId;
+      try {
+        pivId = piv.id;
+      }
+      catch (error) {
+         pivId = piv ['id'];
+      }
+
+      var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
+
+      // No need to store what's on the server, because 1) if things changed in the meantime, go with the latest user assertion; 2) it's OK to do no-ops, as long as you accumulate them in 1-2 requests.
+      var state = store.get ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'));
+      if (state == '') state = {};
+
+      // if false/'', set to true; if true, set to false. This is the toggle.
+      if (selectAll != null) state [pivId] = selectAll;
+      else                   state [pivId] = store.get (tagMapPrefix + pivId) != true;
+
+      store.set (tagMapPrefix + pivId, state [pivId]);
+      store.set ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'), state);
+   }
+
+   // TODO: annotate
+   doneTagging (String type) async {
+
+      var tags = store.get ('currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'));
+
+      tags.forEach ((tag) => updateLastNTags (tag));
+
+      var state = store.get ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'));
+      if (state == '') state = {};
+
+      var cloudPivsToTag = [], cloudPivsToUntag = [], localPivsToTagUntag = {};
+
+      state.forEach ((id, tagged) {
+         // This relies on cloud pivs having uuids and locals not. We can only be 100% sure of the former.
+         var cloudPiv = RegExp ('^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}').hasMatch (id);
+
+         var cloudId = cloudPiv ? id : store.get ('pivMap:' + id);
+
+         if (cloudId == '' || cloudId == true) localPivsToTagUntag [id] = tagged;
+         else {
+            if (tagged == true) cloudPivsToTag.add (cloudId);
+            else                cloudPivsToUntag.add (cloudId);
+         }
+      });
+
+      // TODO: add improvement: separate cloudPivs into true cloud pivs and local pivs with cloud counterpart, so if in the latter you get 404, you retry uploading them all.
+      if (cloudPivsToTag.length > 0) for (var tag in tags) {
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': cloudPivsToTag, 'del': false, 'autoOrganize': true});
+         if (response ['code'] != 200) return showSnackbar ('There was an error tagging your piv - CODE TAG:' + response ['code'].toString (), 'yellow');
+      }
+
+      if (cloudPivsToUntag.length > 0) for (var tag in tags) {
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': cloudPivsToUntag, 'del': true, 'autoOrganize': true});
+         if (response ['code'] != 200) return showSnackbar ('There was an error tagging your piv - CODE TAG:' + response ['code'].toString (), 'yellow');
+      }
+
+      await queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
+
+      var hometags = store.get ('hometags');
+      if (cloudPivsToTag.length > 0 && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
+
+      queryPivs (true, true);
+
+      if (localPivsToTagUntag.keys.length == 0) return;
+
+      var localPivsById = {};
+      PivService.instance.localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+
+      for (var id in localPivsToTagUntag.keys) {
+
+         var untag = localPivsToTagUntag [id] == false;
+
+         var pendingTags = getList ('pendingTags:' + id);
+
+         tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
+
+         if (pendingTags.length > 0) store.set    ('pendingTags:' + id, pendingTags, 'disk');
+         else                        store.remove ('pendingTags:' + id, 'disk');
+
+         if (! untag) PivService.instance.queuePiv (localPivsById [id]);
+         else if (pendingTags.length == 0) {
+            store.remove ('pivMap:' + id);
+            var uploadQueueIndex;
+            PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
+               if (queuedPiv.id == id) uploadQueueIndex = index;
+            });
+            if (uploadQueueIndex != null) {
+               PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
+            }
+         }
+      }
+   }
+
+   // TODO: remove
+   toggleTagsOld (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
       var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
       var cloudId = type == 'uploaded' ? pivId      : store.get ('pivMap:' + pivId);
 
@@ -227,7 +330,7 @@ class TagService {
          var currentPage = store.get ('localPage:' + store.get ('localPage').toString ());
          currentPage ['pivs'].forEach ((piv) {
             if (operation == 'delete') toggleDeletion (piv.id, 'local', select);
-            if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingLocal'), 'local', select);
+            if (operation == 'tag')    toggleTags (piv, 'local', select);
          });
       }
       if (view == 'uploaded') {
@@ -235,11 +338,11 @@ class TagService {
          queryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) {
                if (operation == 'delete') toggleDeletion (piv ['piv'].id, 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv ['piv'], store.get ('currentlyTaggingUploaded'), 'localUploaded', select);
+               if (operation == 'tag')    toggleTags (piv ['piv'], 'uploaded', select);
             }
             else {
                if (operation == 'delete') toggleDeletion (piv ['id'], 'uploaded', select);
-               if (operation == 'tag')    toggleTags (piv, store.get ('currentlyTaggingUploaded'), 'uploaded', select);
+               if (operation == 'tag')    toggleTags (piv, 'uploaded', select);
             }
          });
       }
@@ -341,7 +444,7 @@ class TagService {
          if (month == 12) maxDateCurrentMonth = DateTime.utc (year + 1, 1,         1).millisecondsSinceEpoch;
          else             maxDateCurrentMonth = DateTime.utc (year,     month + 1, 1).millisecondsSinceEpoch;
 
-         store.set ('currentMonth', year.toString () + ':' + month.toString ());
+         store.set ('currentMonth', [year, month]);
 
          localPivsToAdd.forEach ((piv) {
             if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
@@ -480,7 +583,7 @@ class TagService {
 
       computeTimeHeader ();
 
-      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
+      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
          queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 
@@ -492,7 +595,7 @@ class TagService {
       }
       else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
-      if (queryResult ['total'] > 0 && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
+      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
          queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
       }
 

@@ -83,8 +83,7 @@ class UploadedGridItem extends StatelessWidget {
               TagService.instance.toggleDeletion(piv['id'], 'uploaded');
               store.set('showSelectAllButtonUploaded', true);
             } else if (store.get('currentlyTaggingUploaded') != '') {
-              TagService.instance.toggleTags(
-                  piv, store.get('currentlyTaggingUploaded'), 'uploaded');
+              TagService.instance.toggleTags(piv, 'uploaded');
               store.set('hideAddMoreTagsButtonUploaded', true);
               store.set('showSelectAllButtonUploaded', true);
             } else {
