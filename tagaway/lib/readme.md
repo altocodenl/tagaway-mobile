@@ -20,6 +20,8 @@
 - Uppercase tag names the first time?
 - Make query when done with upload
 
+- BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
+
 - Random wheel in home with jump to month by currentMonth
 - Random in carrousel by tags, swipe down
 
