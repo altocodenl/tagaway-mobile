@@ -2,6 +2,24 @@
 
 ## TODO
 
+- Rename a tag X to an existing tag Y
+- When searching for tag, priorize tags that start with the text
+
+- Rethink carrousel
+- Rework zoom in carrousel
+
+- Smooth it out
+   - When loading query in cloud, show circle until the query is done, don't "bump" it
+   - Fast loading in local of first page
+   - Do not show "you're all done" when you're not yet
+
+- Last ten page
+- Celebrate button
+- Show tags in FAB?
+
+- Uppercase tag names the first time?
+- Make query when done with upload
+
 - Random wheel in home with jump to month by currentMonth
 - Random in carrousel by tags, swipe down
 
