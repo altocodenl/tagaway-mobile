@@ -217,8 +217,14 @@ class PivService {
       int offset = 0, pageSize = 1000;
 
       while (true) {
-         var page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
-         if (page.isEmpty) break;
+         var page;
+         try {
+            page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
+            if (page.isEmpty) break;
+         }
+         catch (error) {
+            break;
+         }
 
          for (var piv in page) {
             store.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);

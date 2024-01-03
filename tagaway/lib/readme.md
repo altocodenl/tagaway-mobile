@@ -2,28 +2,27 @@
 
 ## TODO
 
-- Rename a tag X to an existing tag Y
-- When searching for tag, priorize tags that start with the text
-
-- Rethink carrousel
-- Rework zoom in carrousel
-
-- Smooth it out
+- Small improvements
+   - Annotate new functions in tagService
+   - When searching for tag, priorize tags that start with the text
+   - Uppercase tag names the first time you type
+   - Last ten page
    - When loading query in cloud, show circle until the query is done, don't "bump" it
    - Fast loading in local of first page
    - Do not show "you're all done" when you're not yet
+   - Make query when done with upload
+   - BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
 
-- Last ten page
+- Rethink carrousel
+   - Current is the full screen mode: show tags & a FAB
+   - When not fullscreened, show each tag and a random piv next to it
+   - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
+
+- Rework zoom in carrousel
 - Celebrate button
-- Show tags in FAB?
+- Show tags in FAB
 
-- Uppercase tag names the first time?
-- Make query when done with upload
-
-- BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
-
-- Random wheel in home with jump to month by currentMonth
-- Random in carrousel by tags, swipe down
+- Discuss: Random wheel in home with jump to month by currentMonth
 
 - Show "achievements view" with all that you have organized
 - Edit/delete tags view, openable from query selector
@@ -31,6 +30,7 @@
 
 - Count organized today properly by adding date when piv was added to queue
 - tag L:404
+- Rename a tag X to an existing tag Y
 - Confirm on delete single uploaded piv
 
 - Swipe sideways to navigate months in uploaded
@@ -843,13 +843,24 @@ We start a `while` loop that we'll keep on going until we break it.
 We get a `pageSize` number of pivs, starting with the piv at index `offset`.
 
 ```dart
-         var page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
+         var page;
+         try {
+            page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
 ```
 
 If there are no pivs left, we stop loading pivs by breaking the loop.
 
 ```dart
-         if (page.isEmpty) break;
+            if (page.isEmpty) break;
+         }
+```
+
+If there are no albums or the first album is empty, we will have experienced an error. This is why we wrapped the code above in a try block. If we found an error, we'll simply break the loop.
+
+```dart
+         catch (error) {
+            break;
+         }
 ```
 
 We iterate the pivs in `page`: for each of them, we will set `pivDate:ID` to the creation date of the piv, expressed in milliseconds.
