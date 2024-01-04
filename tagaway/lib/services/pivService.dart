@@ -186,17 +186,16 @@ class PivService {
          return;
       }
 
-      int start = 0;
-      int count = 1000;
+      int offset = 0, pageSize = 250;
       while (true) {
-         var assets = await cameraRoll.getAssetListRange (start: start, end: count);
+         var assets = await cameraRoll.getAssetListRange (start: offset, end: pageSize + offset);
          if (assets.isEmpty) break;
 
          for (var piv in assets) {
             store.set ('cameraPiv:' + piv.id, true);
          }
 
-         start += count;
+         offset += pageSize;
       }
    }
 
@@ -206,7 +205,6 @@ class PivService {
 
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();
-      computeLocalPages ();
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 
       final albums = await PhotoManager.getAssetPathList (
@@ -214,15 +212,19 @@ class PivService {
          filterOption: FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false))
       );
 
-      int offset = 0, pageSize = 1000;
+      int offset = 0, pageSize = 250;
 
       while (true) {
          var page;
          try {
             page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
-            if (page.isEmpty) break;
+            if (page.isEmpty) {
+               computeLocalPages ();
+               break;
+            }
          }
          catch (error) {
+            computeLocalPages ();
             break;
          }
 
@@ -237,6 +239,7 @@ class PivService {
 
          localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
          store.set ('cameraPiv:foo', now ());
+         if (offset == 0) computeLocalPages ();
 
          offset += pageSize;
       }
