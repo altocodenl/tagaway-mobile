@@ -262,16 +262,15 @@ const kWhiteButtonText = TextStyle(
 );
 
 const kSelectAllButton = TextStyle(
-  fontFamily: 'Montserrat-Regular',
-  fontSize: 14,
-  fontWeight: FontWeight.bold,
-);
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+    color: Colors.white);
 
 const kStartButton = TextStyle(
-  fontFamily: 'Montserrat-Regular',
-  fontSize: 16,
-  // fontWeight: FontWeight.bold,
-);
+    fontFamily: 'Montserrat-Regular', fontSize: 16, color: Colors.white
+    // fontWeight: FontWeight.bold,
+    );
 
 const kGoToWebButton = TextStyle(
     fontFamily: 'Montserrat-Regular',
@@ -514,5 +513,5 @@ Color tagIconColor(tag) {
 }
 
 String shorten(tag) {
-  return tag.length < 15 ? tag : tag.substring(0, 15) + '...';
+  return tag.length < 13 ? tag : tag.substring(0, 13) + '...';
 }

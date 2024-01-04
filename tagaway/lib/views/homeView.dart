@@ -345,6 +345,8 @@ class _HomeViewState extends State<HomeView> {
                       Align(
                         alignment: const Alignment(0, .9),
                         child: FloatingActionButton.extended(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50)),
                             extendedPadding:
                                 const EdgeInsets.only(left: 20, right: 20),
                             backgroundColor: kAltoBlue,
@@ -368,11 +370,15 @@ class _HomeViewState extends State<HomeView> {
         visible: hometags.isNotEmpty,
         child: FloatingActionButton(
           heroTag: null,
+          shape: const CircleBorder(),
           onPressed: () {
             Navigator.pushReplacementNamed(context, 'editHomeTags');
           },
           backgroundColor: kAltoBlue,
-          child: const Icon(Icons.create_rounded),
+          child: const Icon(
+            Icons.create_rounded,
+            color: Colors.white,
+          ),
         ),
       ),
     );

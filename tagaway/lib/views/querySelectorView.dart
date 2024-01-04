@@ -159,7 +159,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           ),
           actions: [
             Padding(
-              padding: const EdgeInsets.only(top: 18, right: 20),
+              padding: const EdgeInsets.only(top: 0, right: 20),
               child: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -545,6 +545,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
         floatingActionButton: Align(
           alignment: const Alignment(0.11, 1),
           child: FloatingActionButton.extended(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             onPressed: () {
               FocusManager.instance.primaryFocus?.unfocus();
               Navigator.pushReplacementNamed(context, 'uploaded');
