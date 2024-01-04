@@ -3,18 +3,12 @@
 ## TODO
 
 - Small improvements
-   - Fast loading in local of first page
-
-   - Do not show "you're all done" when you're not yet
-   - When loading query in cloud, show circle until the query is done, don't "bump" it
-
    - Annotate new functions in tagService
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
    - Last ten page
    - Make query when done with upload
    - BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
-   - Issue with local query pivs not belonging to the query being shown in green
 
 - Rethink carrousel
    - Current is the full screen mode: show tags & a FAB
@@ -22,10 +16,10 @@
    - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
 
 - Rework zoom in carrousel
-- Celebrate button
+- Discuss: Celebrate button
 - Show tags in FAB
 
-- Discuss: Random wheel in home with jump to month by currentMonth
+- Home: when doing refresh gesture, reload the tags
 
 - Show "achievements view" with all that you have organized
 - Edit/delete tags view, openable from query selector
@@ -747,11 +741,10 @@ If we can't find one, we return.
       }
 ```
 
-We will now load the pivs from the camera in groups of 1000.
+We will now load the pivs from the camera in groups of 250.
 
 ```dart
-      int start = 0;
-      int count = 1000;
+      int offset = 0, pageSize = 250;
 ```
 
 We will do this inside a `while` loop that we will `break` when we're done.
@@ -760,10 +753,10 @@ We will do this inside a `while` loop that we will `break` when we're done.
       while (true) {
 ```
 
-We load the next 1000 pivs.
+We load the next page of pivs.
 
 ```dart
-         var assets = await cameraRoll.getAssetListRange (start: start, end: count);
+         var assets = await cameraRoll.getAssetListRange (start: offset, end: pageSize + offset);
 ```
 
 If we got no pivs, we end the loop.
@@ -783,7 +776,7 @@ For each of the loaded pivs, we set the entry `cameraPiv:ID` to `true`. This is 
 We increment `start` by 50. We then close the loop and the function.
 
 ```dart
-         start += count;
+         offset += pageSize;
       }
    }
 ```
@@ -805,18 +798,15 @@ Why do we check whether `localPivs` is not `null`? We are getting intermittent "
       if (localPivs != null && localPivs.length > 0) return queuePiv (null);
 ```
 
-This function will start by doing four things:
+This function will start by doing three things:
 
 - Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. We will wait for this operation to be done before continuing, to avoid the screen flickering or abrupt changes when this info is loaded.
-- Invoke `queryOrganizedLocalPivs`, passing the page of recently loaded pivs, to find out which of these pivs have a cloud counterpart. We will do this after `queryExistingHashes` because that function sets the `pivMap` entries that we need to use to query the server. Note we will `await` this operation.
-- Invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages. We will only compute local pages once we have all our `pivMap` and `orgMap` entries loaded, to avoid redraws and flickers.
+- Invoke `queryOrganizedLocalPivs` to find out which of the local pivs with a `hashMap` entry have a cloud counterpart. We will do this after `queryExistingHashes` because that function sets the `pivMap` entries that we need to use to query the server. Note we will `await` this operation.
 - Invoke `loadAndroidCameraPivs`, which will add `cameraPiv:ID` entries for those local pivs that are considered to be camera pivs.
-
 
 ```dart
       await queryExistingHashes ();
       await queryOrganizedLocalPivs ();
-      computeLocalPages ();
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 ```
 
@@ -834,7 +824,7 @@ We start by getting all the albums from PhotoManager. We sort the pivs that come
 We initialize two variables: `offset` and `pageSize`, which will be our variables to keep track of how many pivs we have loaded so far.
 
 ```dart
-      int offset = 0, pageSize = 1000;
+      int offset = 0, pageSize = 250;
 ```
 
 We start a `while` loop that we'll keep on going until we break it.
@@ -851,17 +841,21 @@ We get a `pageSize` number of pivs, starting with the piv at index `offset`.
             page = await albums.first.getAssetListRange (start: offset, end: pageSize + offset);
 ```
 
-If there are no pivs left, we stop loading pivs by breaking the loop.
+If there are no pivs left, we stop loading pivs by breaking the loop. Before we do that, we will invoke `computeLocalPages`, to show that the default pages are empty.
 
 ```dart
-            if (page.isEmpty) break;
+            if (page.isEmpty) {
+               computeLocalPages ();
+               break;
+            }
          }
 ```
 
-If there are no albums or the first album is empty, we will have experienced an error. This is why we wrapped the code above in a try block. If we found an error, we'll simply break the loop.
+If there are no albums or the first album is empty, we will have experienced an error. This is why we wrapped the code above in a try block. If we found an error, we'll simply break the loop, after invoking `computeLocalPages`.
 
 ```dart
          catch (error) {
+            computeLocalPages ();
             break;
          }
 ```
@@ -886,7 +880,7 @@ If we are in iOS, we will also try to determine whether this piv is in the camer
          }
 ```
 
-Finally, we add the piv to `lcoalPivs`
+Finally, we add the piv to `localPivs`
 
 ```dart
             localPivs.add (piv);
@@ -910,6 +904,12 @@ Now for a hack: after adding each page of pivs, we want to make `computeLocalPag
 
 ```dart
          store.set ('cameraPiv:foo', now ());
+```
+
+If we're loading the first page of pivs, we invoke `computeLocalPages`, the function that will determine what is shown in the local view, for the first time. The first time that `computeLocalPages` is executed, it will set up a listener so that it will call itself recursively to compute the local pages. We will only compute local pages once we have all our `pivMap` and `orgMap` entries loaded (after the first two functions invoked by `loadLocalPivs` are executed), to avoid redraws and flickers.
+
+```dart
+         if (offset == 0) computeLocalPages ();
 ```
 
 We increase `offset` by `pageSize`; at this point, the loop will start again until there are no more pivs left to load.

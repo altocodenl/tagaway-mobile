@@ -1712,12 +1712,7 @@ class _GridItemMaskState extends State<GridItemMask> {
           if (CurrentlyDeletingPivs == '') CurrentlyDeletingPivs = [];
           mask = CurrentlyDeletingPivs.contains(id) ? 'delete' : 'none';
         }
-        if (CurrentlyTagging != '') {
-          if (type == 'localUploaded')
-            mask = 'tag';
-          else
-            mask = Tagged == true ? 'tag' : 'none';
-        }
+        if (CurrentlyTagging != '') mask = Tagged == true ? 'tag' : 'none';
       });
     });
   }
