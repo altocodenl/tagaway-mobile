@@ -3,15 +3,18 @@
 ## TODO
 
 - Small improvements
+   - Fast loading in local of first page
+
+   - Do not show "you're all done" when you're not yet
+   - When loading query in cloud, show circle until the query is done, don't "bump" it
+
    - Annotate new functions in tagService
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
    - Last ten page
-   - When loading query in cloud, show circle until the query is done, don't "bump" it
-   - Fast loading in local of first page
-   - Do not show "you're all done" when you're not yet
    - Make query when done with upload
    - BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
+   - Issue with local query pivs not belonging to the query being shown in green
 
 - Rethink carrousel
    - Current is the full screen mode: show tags & a FAB
