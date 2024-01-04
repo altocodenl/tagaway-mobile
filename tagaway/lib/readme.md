@@ -2170,10 +2170,9 @@ There's nothing else to do but to return the response code of the tagging operat
 
 We now define `toggleTags`, the function that is in charge of handling the logic for tagging or untagging a piv, whether the piv is local or cloud.
 
-The function takes four arguments:
+The function takes three arguments:
 - A `piv`, which can be either a local piv or a cloud piv.
-- `tags`, which is a list of tags to add (tag) or remove (untag) from the piv.
-- The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs). It can also be `localUploaded`, which is a special variant, where the piv itself is local, but it appears on the uploaded view - for the most part it will behave like a local piv, but there will be exceptions.
+- The `type` of piv, either `uploaded` (for cloud pivs) or `local` (for local pivs). For `localUploaded` pivs (pivs that appear in the uploaded view but are local because are still being uploaded), this argument will be `uploaded` as well.
 - The `selectAll` argument, which is optional, and which is used by the `selectAll` function, changes the behavior of the function: if set to `true`, it will only perform a tagging, and if set to `false` it will perform an untagging. But if either of them is already done, rather than a toggle, this will just be a no-op and nothing else will happen.
 
 ```dart

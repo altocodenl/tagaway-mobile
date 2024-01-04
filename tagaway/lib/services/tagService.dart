@@ -95,7 +95,6 @@ class TagService {
       store.set ('lastNTags', lastNTags, 'disk');
    }
 
-   // TODO: remove
    tagCloudPiv (dynamic id, dynamic tags, bool del) async {
       for (var tag in tags) {
          var response = await ajax ('post', 'tag', {'tag': tag, 'ids': [id], 'del': del, 'autoOrganize': true});
@@ -112,7 +111,6 @@ class TagService {
    }
 
    // TODO: annotate
-   // type can only be local or uploaded
    toggleTags (dynamic piv, String type, [selectAll = null]) async {
 
       var pivId;
