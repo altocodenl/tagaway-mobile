@@ -599,6 +599,8 @@ class _PhoneAchievementsViewState extends State<PhoneAchievementsView> {
               },
               extendedPadding: const EdgeInsets.only(left: 20, right: 20),
               heroTag: null,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50)),
               backgroundColor: kAltoBlue,
               elevation: 20,
               label: const Text('Keep Going!', style: kStartButton),

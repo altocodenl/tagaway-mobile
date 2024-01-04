@@ -1,19 +1,18 @@
 import 'dart:core';
 import 'dart:io' show File;
 
-import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 class SnackBarGlobal {
   SnackBarGlobal._();
@@ -496,6 +495,7 @@ class _DeleteButtonState extends State<DeleteButton> {
     return Align(
       alignment: const Alignment(0, .45),
       child: FloatingActionButton(
+        shape: const CircleBorder(),
         heroTag: null,
         elevation: 10,
         key: const Key('delete'),
@@ -505,7 +505,10 @@ class _DeleteButtonState extends State<DeleteButton> {
           store.set('showSelectAllButton' + widget.view, true);
         },
         backgroundColor: kAltoRed,
-        child: const Icon(kTrashCanIcon),
+        child: const Icon(
+          kTrashCanIcon,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -550,6 +553,7 @@ class _TagButtonState extends State<TagButton> {
       alignment: const Alignment(0, .68),
       child: FloatingActionButton(
         heroTag: null,
+        shape: const CircleBorder(),
         elevation: 10,
         key: const Key('tag'),
         onPressed: () {
@@ -557,7 +561,10 @@ class _TagButtonState extends State<TagButton> {
           store.set('showButtons' + widget.view, false);
         },
         backgroundColor: kAltoOrganized,
-        child: const Icon(kTagIcon),
+        child: const Icon(
+          kTagIcon,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -607,6 +614,7 @@ class _SelectAllButtonState extends State<SelectAllButton> {
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
+        shape: const CircleBorder(),
         onPressed: () {
           store.set('showSelectAllButton' + widget.view, !status);
           TagService.instance
@@ -710,6 +718,8 @@ class _StartButtonState extends State<StartButton> {
       child: Visibility(
         visible: !showButtons,
         child: FloatingActionButton.extended(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           key: const Key('startButton'),
           extendedPadding: const EdgeInsets.only(left: 20, right: 20),
           heroTag: null,
@@ -728,6 +738,7 @@ class _StartButtonState extends State<StartButton> {
             });
           },
           backgroundColor: Colors.white,
+          shape: const CircleBorder(),
           child: const Icon(
             Icons.close,
             size: 30,
@@ -782,6 +793,7 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
     return Align(
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         heroTag: null,
         onPressed: () {
           store.set('swiped' + widget.view, true);
@@ -855,6 +867,8 @@ class _DoneButtonState extends State<DoneButton> {
     return Align(
         alignment: const Alignment(0.8, .9),
         child: FloatingActionButton.extended(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           key: const Key('doneButton'),
           heroTag: null,
           onPressed: () {
@@ -886,7 +900,10 @@ class _DoneButtonState extends State<DoneButton> {
           },
           backgroundColor: currentlyDeleting ? kAltoRed : kAltoOrganized,
           label: const Text('Done', style: kSelectAllButton),
-          icon: const Icon(Icons.done),
+          icon: const Icon(
+            Icons.done,
+            color: Colors.white,
+          ),
         ));
   }
 }
