@@ -358,7 +358,7 @@ class _TopRowState extends State<TopRow> {
                   padding: const EdgeInsets.only(top: 15.0),
                   child: Container(
                       color: Colors.white,
-                      height: 64,
+                      height: 67,
                       child: PageView.builder(
                           itemCount: timeHeader.length,
                           reverse: true,
