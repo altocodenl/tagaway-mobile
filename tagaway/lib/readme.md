@@ -9,7 +9,6 @@
    - Last ten page
    - Make query when done with upload
    - BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
-   - Issue with local query pivs not belonging to the query being shown in green
 
 - Rethink carrousel
    - Current is the full screen mode: show tags & a FAB
@@ -17,7 +16,7 @@
    - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
 
 - Rework zoom in carrousel
-- Celebrate button
+- Discuss: Celebrate button
 - Show tags in FAB
 
 - Home: when doing refresh gesture, reload the tags
