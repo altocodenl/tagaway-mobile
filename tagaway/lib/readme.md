@@ -3,23 +3,24 @@
 ## TODO
 
 - Small improvements
-   - Annotate new functions in tagService
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
-   - Last ten page
    - Make query when done with upload
    - BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
+   - Home: when doing refresh gesture, reload the tags
 
-- Rethink carrousel
+- Rethink tagging (Tom)
+   - Piv by piv!
+
+- Rethink carrousel (Tom)
    - Current is the full screen mode: show tags & a FAB
    - When not fullscreened, show each tag and a random piv next to it
    - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
 
-- Rework zoom in carrousel
-- Discuss: Celebrate button
-- Show tags in FAB
-
-- Home: when doing refresh gesture, reload the tags
+- Rework zoom in carrousel (Tom)
+- Improve celebration
+   - Fireworks?
+   - Add thumbnails to score?
 
 - Show "achievements view" with all that you have organized
 - Edit/delete tags view, openable from query selector
