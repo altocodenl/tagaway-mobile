@@ -6,30 +6,27 @@
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
    - Make query when done with upload
-   - BUG: When logging out and then logging in, the organized pivs in phone are back on the grid. Only after killing the app and opening it again or doing any other interaction (like tagging), the pivs disappear again.
    - Home: when doing refresh gesture, reload the tags
 
 - Rethink tagging (Tom)
    - Piv by piv!
-
 - Rethink carrousel (Tom)
    - Current is the full screen mode: show tags & a FAB
    - When not fullscreened, show each tag and a random piv next to it
    - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
-
 - Rework zoom in carrousel (Tom)
-- Improve celebration
-   - Fireworks?
-   - Add thumbnails to score?
-
-- Show "achievements view" with all that you have organized
-- Edit/delete tags view, openable from query selector
 - Info view for each piv on cloud (Tom)
 
+- Improve score/celebration
+   - Fireworks?
+   - Add thumbnails to score?
+- Show "achievements view" with all that you have organized
+- Edit/delete tags view, openable from query selector
 - Count organized today properly by adding date when piv was added to queue
+- Confirm on delete single uploaded piv
+
 - tag L:404
 - Rename a tag X to an existing tag Y
-- Confirm on delete single uploaded piv
 
 - Swipe sideways to navigate months in uploaded
 - Finish annotated source code: tagService, storeService, tools.
@@ -262,6 +259,18 @@ PivService has also two properties that are flags:
 ```dart
    bool recomputeLocalPages = true;
    bool uploading           = false;
+```
+
+We now define a `reset` method that restores all the instance properties to their initial values. This method will be called by the logic to log out the user.
+
+```dart
+   reset () {
+      localPivs = [];
+      upload = {};
+      uploadQueue = [];
+      recomputeLocalPages = true;
+      uploading = false;
+   }
 ```
 
 We now define `startUpload`. The tagaway server groups multiple uploaded pivs into a single upload group. This function doesn't actually perform a piv upload, but instead create a new upload group with the server - or reuses an existing one, if it's still active.
@@ -742,10 +751,10 @@ If we can't find one, we return.
       }
 ```
 
-We will now load the pivs from the camera in groups of 250.
+We will now load the pivs from the camera in groups of 500.
 
 ```dart
-      int offset = 0, pageSize = 250;
+      int offset = 0, pageSize = 500;
 ```
 
 We will do this inside a `while` loop that we will `break` when we're done.
@@ -825,7 +834,7 @@ We start by getting all the albums from PhotoManager. We sort the pivs that come
 We initialize two variables: `offset` and `pageSize`, which will be our variables to keep track of how many pivs we have loaded so far.
 
 ```dart
-      int offset = 0, pageSize = 250;
+      int offset = 0, pageSize = 500;
 ```
 
 We start a `while` loop that we'll keep on going until we break it.

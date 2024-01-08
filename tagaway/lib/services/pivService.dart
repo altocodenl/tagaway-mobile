@@ -20,6 +20,14 @@ class PivService {
    bool recomputeLocalPages = true;
    bool uploading           = false;
 
+   reset () {
+      localPivs = [];
+      upload = {};
+      uploadQueue = [];
+      recomputeLocalPages = true;
+      uploading = false;
+   }
+
    startUpload () async {
       if (upload ['time'] != null && (upload ['time'] + 9 * 60 * 1000 >= now ())) {
          upload ['time'] = now ();
@@ -186,7 +194,7 @@ class PivService {
          return;
       }
 
-      int offset = 0, pageSize = 250;
+      int offset = 0, pageSize = 500;
       while (true) {
          var assets = await cameraRoll.getAssetListRange (start: offset, end: pageSize + offset);
          if (assets.isEmpty) break;
@@ -212,7 +220,7 @@ class PivService {
          filterOption: FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false))
       );
 
-      int offset = 0, pageSize = 250;
+      int offset = 0, pageSize = 500;
 
       while (true) {
          var page;

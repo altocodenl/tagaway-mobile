@@ -1,5 +1,6 @@
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/tools.dart';
+import 'package:tagaway/services/pivService.dart';
 
 class AuthService {
    AuthService._privateConstructor ();
@@ -49,6 +50,7 @@ class AuthService {
       await store.remove ('pendingDeletion:*', 'disk');
       await store.remove ('organizedAtDaybreak', 'disk');
       store.store = {};
+      PivService.instance.reset ();
       navigatorKey.currentState!.pushReplacementNamed ('login');
       // We wait a full second because if we try to reload the store from disk while redraws are taking place after the logout, things break.
       // The only reason we need to reload is to avoid re-hashing if the user logs back in in the current run of the app.
