@@ -103,14 +103,13 @@ class TagService {
 
       await queryOrganizedIds ([id]);
 
-      var hometags = store.get ('hometags');
-      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
+      var hometags = getList ('hometags');
+      if (! del && hometags.isEmpty) await editHometags (tags [0], true);
 
       queryPivs (true, true);
       return 200;
    }
 
-   // TODO: annotate
    toggleTags (dynamic piv, String type, [selectAll = null]) async {
 
       var pivId;
@@ -123,7 +122,6 @@ class TagService {
 
       var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
 
-      // No need to store what's on the server, because 1) if things changed in the meantime, go with the latest user assertion; 2) it's OK to do no-ops, as long as you accumulate them in 1-2 requests.
       var state = store.get ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'));
       if (state == '') state = {};
 
@@ -136,13 +134,13 @@ class TagService {
    }
 
    // TODO: annotate
-   doneTagging (String type) async {
+   doneTagging (String view) async {
 
-      var tags = store.get ('currentlyTagging' + (type == 'local' ? 'Local' : 'Uploaded'));
+      var tags = store.get ('currentlyTagging' + (view == 'local' ? 'Local' : 'Uploaded'));
 
       tags.forEach ((tag) => updateLastNTags (tag));
 
-      var state = store.get ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'));
+      var state = store.get ('toggleTags' + (view == 'local' ? 'Local' : 'Uploaded'));
       if (state == '') state = {};
 
       var cloudPivsToTag = [], cloudPivsToUntag = [], localPivsToTagUntag = {};
@@ -160,9 +158,8 @@ class TagService {
          }
       });
 
-      // TODO: add improvement: separate cloudPivs into true cloud pivs and local pivs with cloud counterpart, so if in the latter you get 404, you retry uploading them all.
       if (cloudPivsToTag.length > 0) for (var tag in tags) {
-         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': cloudPivsToTag, 'del': false, 'autoOrganize': true});
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': cloudPivsToTag, 'autoOrganize': true});
          if (response ['code'] != 200) return showSnackbar ('There was an error tagging your piv - CODE TAG:' + response ['code'].toString (), 'yellow');
       }
 
@@ -171,12 +168,12 @@ class TagService {
          if (response ['code'] != 200) return showSnackbar ('There was an error tagging your piv - CODE TAG:' + response ['code'].toString (), 'yellow');
       }
 
-      await queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
+      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
 
-      var hometags = store.get ('hometags');
-      if (cloudPivsToTag.length > 0 && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
+      var hometags = getList ('hometags');
+      if (cloudPivsToTag.length > 0) editHometags (tags [0], true);
 
-      queryPivs (true, true);
+      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true, true);
 
       if (localPivsToTagUntag.keys.length == 0) return;
 
@@ -191,80 +188,23 @@ class TagService {
 
          var pendingTags = getList ('pendingTags:' + id);
 
-         tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
+         tags.forEach ((tag) {
+            if (untag)                           pendingTags.remove (tag);
+            else if (pendingTags.contains (tag)) pendingTags.add (tag);
+         });
 
          if (pendingTags.length > 0) store.set    ('pendingTags:' + id, pendingTags, 'disk');
          else                        store.remove ('pendingTags:' + id, 'disk');
 
-         if (! untag) PivService.instance.queuePiv (localPivsById [id]);
-         else if (pendingTags.length == 0) {
+         if (! untag) return PivService.instance.queuePiv (localPivsById [id]);
+
+         if (pendingTags.length == 0) {
             store.remove ('pivMap:' + id);
             var uploadQueueIndex;
             PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
                if (queuedPiv.id == id) uploadQueueIndex = index;
             });
-            if (uploadQueueIndex != null) {
-               PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
-            }
-         }
-      }
-   }
-
-   // TODO: remove
-   toggleTagsOld (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
-      var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
-      var cloudId = type == 'uploaded' ? pivId      : store.get ('pivMap:' + pivId);
-
-      var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
-
-      if (selectAll != null) {
-         var tagged = store.get (tagMapPrefix + pivId) != '';
-         if (tagged == selectAll) return;
-      }
-
-      var untag = store.get (tagMapPrefix + pivId) != '';
-      store.set (tagMapPrefix + pivId, untag ? '' : true);
-
-      if (! untag && type == 'local') {
-         var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
-         currentlyTaggingPivs.add (pivId);
-         store.set ('currentlyTaggingPivs', currentlyTaggingPivs);
-      }
-
-      tags.forEach ((tag) => updateLastNTags (tag));
-
-      if (cloudId != '' && cloudId != true) {
-         var code = await tagCloudPiv (cloudId, tags, untag);
-         var unexpectedCode = type == 'uploaded' ? code != 200 : (code != 200 && code != 404);
-         if (unexpectedCode) {
-            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'uploaded' ? 'C' : 'L') + code.toString (), 'yellow');
-         }
-
-         if (code == 200) return;
-
-         if (code == 404) {
-            store.remove ('pivMap:'  + pivId);
-            store.remove ('rpivMap:' + cloudId);
-         }
-      }
-
-      var pendingTags = getList ('pendingTags:' + pivId);
-
-      tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
-
-      if (pendingTags.length > 0) store.set    ('pendingTags:' + pivId, pendingTags, 'disk');
-      else                        store.remove ('pendingTags:' + pivId, 'disk');
-
-      if (! untag) return PivService.instance.queuePiv (piv);
-
-      if (pendingTags.length == 0) {
-         store.remove ('pivMap:' + pivId);
-         var uploadQueueIndex;
-         PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
-            if (queuedPiv.id == pivId) uploadQueueIndex = index;
-         });
-         if (uploadQueueIndex != null) {
-            PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
+            if (uploadQueueIndex != null) PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
          }
       }
    }

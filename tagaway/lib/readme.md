@@ -2146,11 +2146,11 @@ We pass a single id to `queryOrganizedIds` because if this cloud piv has a local
       await queryOrganizedIds ([id]);
 ```
 
-We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add the first tag in `tags` to the hometags. This allows us to "seed" the hometags with a first tag.
+We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add the first tag in `tags` to the hometags through `editHometags`. This allows us to "seed" the hometags with a first tag.
 
 ```dart
-      var hometags = store.get ('hometags');
-      if (! del && (hometags == '' || hometags.isEmpty)) await editHometags (tags [0], true);
+      var hometags = getList ('hometags');
+      if (! del && hometags.isEmpty) await editHometags (tags [0], true);
 ```
 
 We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed. We will also pass it the `preserveMonth`, so that we don't change the month currently being displayed on the query.
@@ -2176,56 +2176,80 @@ The function takes three arguments:
 - The `selectAll` argument, which is optional, and which is used by the `selectAll` function, changes the behavior of the function: if set to `true`, it will only perform a tagging, and if set to `false` it will perform an untagging. But if either of them is already done, rather than a toggle, this will just be a no-op and nothing else will happen.
 
 ```dart
-   toggleTags (dynamic piv, dynamic tags, String type, [selectAll = null]) async {
+   toggleTags (dynamic piv, String type, [selectAll = null]) async {
 ```
 
-We first define two local variables, a `pivId` that will hold the id of the piv to be tagged; as well as a `cloudId`, which will be equal to `pivId` for a cloud piv, and which will be the cloud id of the cloud counterpart for a local id (if any).
+We first get the id of the piv. This piv can be either a local piv, or a cloud piv. If it's the former, the id should be accessed as `piv.id`. If it's the latter, the id should be accessed as `piv ['id']`. If you are perplexed, so am I.
+
+Checking for `null` doesn't work and will throw exceptions. So, to dispense with this problem without having to pass extra information to the function, we'll use a mere try/catch block.
 
 ```dart
-      var pivId   = type == 'uploaded' ? piv ['id'] : piv.id;
-      var cloudId = type == 'uploaded' ? pivId      : store.get ('pivMap:' + pivId);
+      var pivId;
+      try {
+        pivId = piv.id;
+      }
+      catch (error) {
+         pivId = piv ['id'];
+      }
 ```
 
-We will also define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:` depending on `type`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not. Note this will also be `tagMapUploaded:` for `localUploaded` pivs.
+And now we have the `pivId`.
+
+We will now define a `tagMapPrefix` variable which will be either `tagMapLocal:` or `tagMapUploaded:` depending on `type`. This will be the prefix for `tagMap` keys, which indicate if a piv is tagged with `tags` or not. Note this will also be `tagMapUploaded:` for `localUploaded` pivs.
 
 ```dart
       var tagMapPrefix = 'tagMap' + (type == 'local' ? 'Local' : 'Uploaded') + ':';
 ```
 
-If the `selectAll` argument is passed, we will check whether the piv is tagged. If it is, and `selectAll` is set to `true`, or if the piv is not tagged, and `selectAll` is set to `false`, there's nothing else to do, so we will return. Otherwise, we will continue with the toggle operation.
+We will now initialize a variable `state` that will be the value of the key `toggleTagsLocal` or `toggleTagsUploaded`. If the key is empty, then we will initialize `state` to an empty map. When there's entries in this map, they will look like this: `{PIVID: true|false, ...}`. If the entry is set to `true`, it means that the piv is tagged with the tags currently being applied; if it's `false`, it means that the piv will not be tagged.
+
+Note that this `state` doesn't care about what the initial tagging state of the piv was; later, when we're done tagging, all the pivs marked as tagged will be tagged, and those marked as not tagged will be untagged. The no-ops are harmless and, because they happen in a single request (well, one for tagging and one for untagging), are not costly.
 
 ```dart
-      if (selectAll != null) {
-         var tagged = store.get (tagMapPrefix + pivId) != '';
-         if (tagged == selectAll) return;
-      }
+      var state = store.get ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'));
+      if (state == '') state = {};
 ```
 
-We determine whether we are tagging or untagging the piv by reading `tagMap(Local|Uploaded):ID`. If it's set to an empty string, this will be a tag operation; otherwise, it will be an untag operation.
+If the `selectAll` argument is passed, we want to set the piv's state to whatever the value of `selectAll` is (`true` or `false`).
 
 ```dart
-      var untag = store.get (tagMapPrefix + pivId) != '';
+      if (selectAll != null) state [pivId] = selectAll;
 ```
 
-If this is an untag operation, we will set `tagMap(Local|Uploaded):ID` to `''`, otherwise we will set it to `true`. Besides holding state for us, doing this also allows us to immediately show the piv as tagged or untagged, before the operation is sent to the server.
+If `selectAll` is not passed, we need to toggle the piv to the opposite of its previous state, which is contained in `tagMapLocal:ID` or `tagMapUploaded:ID`. If it formerly was `true`, we'll set it to `false`. If it was `false` or not set, then it will now become `true`.
 
 ```dart
-      store.set (tagMapPrefix + pivId, untag ? '' : true);
+      else                   state [pivId] = store.get (tagMapPrefix + pivId) != true;
 ```
 
-If we are tagging a local piv (and a local piv on the local view, not the uploaded view), we need to add it to `currentlyTaggingPivs`. We first check whether `currentlyTaggingPivs` already exists. If not, we initialize it to an empty list.
+You might well ask: why are we storing redundant information in `toggleTags` and `tagMap`? We need the `tagMap` entries because they have one entry per piv, which is necessary for the components bound to a single piv to redraw themselves when that particular key changes (and indeed, we have not implemented an event system that can traverse arrays/objects stored at a single key and treat them granullarly for redraws). While we could do with only the `tagMap` entries, by also storing the keys of the pivs that were toggled in `toggleTags`, we only have to perform ops (or no-ops) on a few pivs, rather than all available pivs that have a `tagMap` entry. So we opt for some duplication of state.
+
+For that reason, it is indispensable to put in sync the `tagMap` entry with our `state` entry.
 
 ```dart
-      if (! untag && type == 'local') {
-         var currentlyTaggingPivs = getList ('currentlyTaggingPivs');
+      store.set (tagMapPrefix + pivId, state [pivId]);
 ```
 
-We then the piv id to `currentlyTaggingPivs` and update the key in the store.
+We also have to store the `state` into the `toggleTags` key. We do exactly that and close the function.
+
 
 ```dart
-         currentlyTaggingPivs.add (pivId);
-         store.set ('currentlyTaggingPivs', currentlyTaggingPivs);
-      }
+      store.set ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'), state);
+   }
+```
+
+We now define `doneTagging`, the function that will execute tagging and untagging operations when the user is done tagging.
+
+It takes a single argument, `view`, which can be either `local` or `uploaded`, depending from which view this function is called.
+
+```dart
+   doneTagging (String view) async {
+```
+
+We start by getting the tags that are currently being placed. We find this at either `currentlyTaggingLocal` or `currentlyTaggingUploaded`, depending on `view`.
+
+```dart
+      var tags = store.get ('currentlyTagging' + (view == 'local' ? 'Local' : 'Uploaded'));
 ```
 
 We invoke `updateLastNTags`, a function that will update the list of the last few used tags. We invoke the function with each of the `tags` in turn.
@@ -2234,116 +2258,194 @@ We invoke `updateLastNTags`, a function that will update the list of the last fe
       tags.forEach ((tag) => updateLastNTags (tag));
 ```
 
-If `cloudId` is neither an empty string nor `true`, then we are dealing either with a cloud piv or with a local piv that has a cloud counterpart. We deal with this case.
-
-Note: `cloudId` can be `true` for local pivs that are currently in the upload queue and haven't been uploaded yet.
+We now get the `state` of which pivs are tagged and not from `toggleTagsLocal` or `toggleTagsUploaded` (depending on `view`).
 
 ```dart
-      if (cloudId != '' && cloudId != true) {
+      var state = store.get ('toggleTags' + (view == 'local' ? 'Local' : 'Uploaded'));
+      if (state == '') state = {};
 ```
 
-We invoke the `tagCloudPiv` function, passing the `cloudId`, the `tags` and the `untag` flag. This function will be the one making the call to the server. We store the code returned by the call in a variable `code`.
+We create three lists:
+- `cloudPivsToTag`, with all the cloud pivs that should be tagged.
+- `cloudPivsToUnTag`, with all the cloud pivs that should be untagged.
+- `localPivsToTagUntag`, with all the cloud pivs that should be either tagged or untagged.
 
 ```dart
-         var code = await tagCloudPiv (cloudId, tags, untag);
+      var cloudPivsToTag = [], cloudPivsToUntag = [], localPivsToTagUntag = {};
 ```
 
-If we are tagging a local piv, we can expect either a 200 (success) or a 404. The latter will happen if the cloud counterpart of the local piv we are tagging was removed from another tagaway client (for example, a web browser). This also goes for `localUploaded` pivs.
-
-If we are tagging a cloud piv, a 404 is considerably more unlikely, because the piv had to be queried recently in order to be shown now to the user - otherwise, the user could not initiate its tagging. Unless the user is concurrently using two tagaway clients (and deleting uploaded pivs on one of them), this should not happen. For all of this, we only expect a 200 for tagging/untagging cloud pivs.
+We iterate the elements of `state`, each of them a piv.
 
 ```dart
-         var unexpectedCode = type == 'uploaded' ? code != 200 : (code != 200 && code != 404);
+      state.forEach ((id, tagged) {
 ```
 
-If there was an unexpected error, we invoke the `showSnackbar` function with an error message indicating the error code. The error code will be `TAG:L:CODE` (for local pivs) and `TAG:C:CODE` for cloud pivs.
+We need to figure out which ids belong to local pivs and which to cloud pivs. We will go with the heuristic that cloud pivs have UUID v4s, whereas local pivs do not. We are sure only of the former, not the latter.
+
+A better solution would store this information in the state in the first place - this would only be necessary for the case where `view` is `uploaded`, since if `view` is `local`, we can only find local pivs here.
 
 ```dart
-         if (unexpectedCode) {
-            return showSnackbar ('There was an error tagging your piv - CODE TAG:' + (type == 'uploaded' ? 'C' : 'L') + code.toString (), 'yellow');
+         var cloudPiv = RegExp ('^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}').hasMatch (id);
+```
+
+If the piv's id is a uuid, we consider that id to be a `cloudId` (the id of the piv in the server). If not, this must be a local piv, in which case we get it from `pivMap:ID`.
+
+```dart
+         var cloudId = cloudPiv ? id : store.get ('pivMap:' + id);
+```
+
+If the `cloudId` is either an empty string (not set) or `true` (which will be the case if this is a local piv in the upload queue), this is a local piv. Therefore, we will add the piv in `localPivsToTagUntag`.
+
+```dart
+         if (cloudId == '' || cloudId == true) localPivsToTagUntag [id] = tagged;
+```
+
+Otherwise, this is either a cloud piv or a local piv with a cloud counterpart. In that case, we add the cloud piv to either `cloudPivsToTag` or `cloudPivsToUntag`.
+
+```dart
+         else {
+            if (tagged == true) cloudPivsToTag.add (cloudId);
+            else                cloudPivsToUntag.add (cloudId);
          }
 ```
 
-If the tag/untag operation was successful, there's nothing else to do.
+A potential drawback with the above logic is that, for local pivs that have a cloud counterpart, if one or more of them have a cloud counterpart that was deleted, the entire tagging will fail. For this type of deletion to affect the tagging, it has to 1) have happened after the app was started (and the `pivMap` entries initialized); 2) through a different client. If this becomes an issue, the logic above will be refactored to distinguish cloud ids that are tagged vs local pivs with a cloud counterpart - if any of the latter fail, they can be re-uploaded and tagged.
+
+This finishes the iteration over the `state` entries.
 
 ```dart
-         if (code == 200) return;
+      });
 ```
 
-If we are here, it's because we attempted to tag a local piv that had a cloud counterpart in the past, but is now deleted. What we'll do is remove the linkage between this local piv and its deleted cloud counterpart, and fall through to the remaining logic of the function, which will upload this local piv.
-
-We remove the `pivMap` and `rpivMap` entries for this local piv and its deleted cloud counterpart.
+If we have `cloudPivsToTag`, we iterate the `tags`.
 
 ```dart
-            store.remove ('pivMap:'  + pivId);
-            store.remove ('rpivMap:' + cloudId);
-         }
+      if (cloudPivsToTag.length > 0) for (var tag in tags) {
 ```
 
-We fall through to the logic that will upload the piv, by closing the conditional and not returning from the function.
+For each tag, we make a call to `POST /tag`. Note we pass the `autoOrganize` flag set to `true`, since we want the autoorganize behavior, which means that every tagged piv is marked as organized, and if a piv has no tags, then it will be marked as unorganized.
 
 ```dart
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': cloudPivsToTag, 'autoOrganize': true});
+         if (response ['code'] != 200) return showSnackbar ('There was an error tagging your piv - CODE TAG:' + response ['code'].toString (), 'yellow');
       }
 ```
 
-Before uploading the local piv, we will store this tag (or remove this tag) from a list that holds all the tags that should be applied to a local piv *once* it is uploaded.
-
-We get the key `pendingTags:ID`; if it's an empty string, we initialize it to an array.
+If we have `cloudPivsToUntag`, we will do the same as above, but untagging them. Note we also pass the `del` flag to indicate that we're untagging. We also pass the `autoOrganize` flag set to `true`, since we want the autoorganize behavior, which means that every tagged piv is marked as organized, and if a piv has no tags, then it will be marked as unorganized.
 
 ```dart
-      var pendingTags = getList ('pendingTags:' + pivId);
+      if (cloudPivsToUntag.length > 0) for (var tag in tags) {
+         var response = await ajax ('post', 'tag', {'tag': tag, 'ids': cloudPivsToUntag, 'del': true, 'autoOrganize': true});
+         if (response ['code'] != 200) return showSnackbar ('There was an error tagging your piv - CODE TAG:' + response ['code'].toString (), 'yellow');
+      }
 ```
 
-If we are tagging, we add each of the tags to `pendingTags`; if we are untagging, we remove each of the tags from it.
+If we tagged or untagged cloud pivs, we update the `orgMap:ID` entries for all the pivs we just tagged and untagged, since the organization status of the cloud pivs we just (un)tagged may have changed. Note we do not `await` for this call.
 
 ```dart
-      tags.forEach ((tag) => untag ? pendingTags.remove (tag) : pendingTags.add (tag));
+      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
 ```
 
-If `pendingTags` has one or more tags in it, we store it in the store. Note we use the `'disk'` parameter since we want this data to persist even if the app is restarted. If the list has no tags, we directly remove the key from the store.
+We get the list of hometags. If there are no hometags set yet, and we are tagging one or more cloud pivs, we add the first tag in `tags` to the hometags through `editHometags`. This allows us to "seed" the hometags with a first tag. Note we do not `await` for this call.
 
 ```dart
-      if (pendingTags.length > 0) store.set    ('pendingTags:' + pivId, pendingTags, 'disk');
-      else                        store.remove ('pendingTags:' + pivId, 'disk');
+      var hometags = getList ('hometags');
+      if (cloudPivsToTag.length > 0) editHometags (tags [0], true);
+```
+
+If we tagged or untagged cloud pivs, we refresh the query. Note we do not `await` for this call, but rather let it run in the background.
+
+```dart
+      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true, true);
+```
+
+If there's no local pivs to tag or untag, there's nothing left to do, so we `return`.
+
+```dart
+      if (localPivsToTagUntag.keys.length == 0) return;
+```
+
+We will construct a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
+
+```dart
+      var localPivsById = {};
+      PivService.instance.localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+```
+
+We iterate each local piv to tag/untag, which are stored in a map where the keys are ids and the values are `true` for pivs to tag and `false` for pivs to untag:
+
+```dart
+      for (var id in localPivsToTagUntag.keys) {
+```
+
+We determine whether we're untagging the piv or not.
+
+```dart
+         var untag = localPivsToTagUntag [id] == false;
+```
+
+We get the list of pending tags from `pendingTags:ID`.
+
+```dart
+         var pendingTags = getList ('pendingTags:' + id);
+```
+
+For each of the tags, if we're untagging, we will remove them from the list of pending tags for this piv. Otherwise, we will add them. Note that if we are tagging, we need to check if the tag is already in the list, to avoid adding it multiple times into `pendingTags`.
+
+```dart
+         tags.forEach ((tag) {
+            if (untag)                           pendingTags.remove (tag);
+            else if (pendingTags.contains (tag)) pendingTags.add (tag);
+         });
+```
+
+If `pendingTags` is now empty, we will remove the key outright from the store. Otherwise, we will update it.
+
+```dart
+         if (pendingTags.length > 0) store.set    ('pendingTags:' + id, pendingTags, 'disk');
+         else                        store.remove ('pendingTags:' + id, 'disk');
 ```
 
 If we are tagging the piv, all we have left to do is call the `queuePiv` function of the `PivService`.
 
 ```dart
-      if (! untag) return PivService.instance.queuePiv (piv);
+         if (! untag) return PivService.instance.queuePiv (localPivsById [id]);
 ```
 
 Now for an interesting bit of logic. If we are untagging a local piv that hasn't been uploaded yet, and we happen to have removed the last tag in `pendingTags`, there should be no need to actually upload the piv at all! If the piv has been completely untagged before being uploaded, uploading it serves no purpose.
 
 ```dart
-      if (pendingTags.length == 0) {
+         if (pendingTags.length == 0) {
 ```
 
 We first unset `pivMap:ID`, which was temporarily set to `true` when the piv was queued by a previous tagging operation.
 
 ```dart
-         store.remove ('pivMap:' + pivId);
+            store.remove ('pivMap:' + id);
 ```
 
 We will now find index of this piv in the `uploadQueue` of the PivService. Note we use `asMap` to be able to iterate the list and still get both its index and the piv itself at the same time.
 
 ```dart
-         var uploadQueueIndex;
-         PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
+            var uploadQueueIndex;
+            PivService.instance.uploadQueue.asMap ().forEach ((index, queuedPiv) {
 ```
 
 If the id of the queued piv is equal to `pivId`, we've found the piv, so we set `uploadQueueIndex`.
 
 ```dart
-            if (queuedPiv.id == pivId) uploadQueueIndex = index;
-         });
+               if (queuedPiv.id == id) uploadQueueIndex = index;
+            });
 ```
 
 If the piv is in the upload queue, we it from the upload queue. We check whether `uploadQueueIndex` is `null`, because it may be the case that the piv in question is currently being uploaded, in which case it will no longer be in the queue.
 
+This concludes the logic for untagging the last tag of a local piv in the upload queue.
+
 ```dart
-         if (uploadQueueIndex != null) {
-            PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
+            if (uploadQueueIndex != null) PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
          }
 ```
 
