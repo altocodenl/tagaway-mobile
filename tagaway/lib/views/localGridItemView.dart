@@ -8,9 +8,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
-import 'package:tagaway/views/uploadedGridItemView.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/uploadedGridItemView.dart';
 
 // This widget is also used in the uploaded grid to show local elements that match the query and currently are in the uploaded queue
 class LocalGridItem extends StatelessWidget {
@@ -21,8 +21,7 @@ class LocalGridItem extends StatelessWidget {
 
   // page is only used when view is local; pivIndex is only used when view is uploaded
   const LocalGridItem(this.asset, this.page, this.view, this.pivIndex,
-      {Key? key})
-      : super(key: key);
+      {super.key});
 
   // String parseVideoDuration(Duration duration) {
   //   String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -43,14 +42,15 @@ class LocalGridItem extends StatelessWidget {
         }
         return GestureDetector(
             onLongPress: () {
-              if (view == 'local')
+              if (view == 'local') {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return LocalCarrousel(pivFile: asset, page: page);
                 }));
-              else {
+              } else {
                 var pivs = [];
-                if (store.get('queryResult') != '')
+                if (store.get('queryResult') != '') {
                   pivs = store.get('queryResult')['pivs'];
+                }
 
                 Navigator.push(
                   context,
@@ -62,23 +62,24 @@ class LocalGridItem extends StatelessWidget {
             },
             onTap: () {
               var View = view[0].toUpperCase() + view.substring(1);
-              if (store.get('currentlyDeleting' + View) != '') {
+              if (store.get('currentlyDeleting$View') != '') {
                 TagService.instance.toggleDeletion(asset.id, view);
-                store.set('showSelectAllButton' + View, true);
-              } else if (store.get('currentlyTagging' + View) != '') {
+                store.set('showSelectAllButton$View', true);
+              } else if (store.get('currentlyTagging$View') != '') {
                 // Tagging/untagging is the same, whether we are in the local or the uploaded grid
                 TagService.instance.toggleTags(asset, 'local');
-                store.set('hideAddMoreTagsButton' + View, true);
-                store.set('showSelectAllButton' + View, true);
+                store.set('hideAddMoreTagsButton$View', true);
+                store.set('showSelectAllButton$View', true);
               } else {
-                if (view == 'local')
+                if (view == 'local') {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
                     return LocalCarrousel(pivFile: asset, page: page);
                   }));
-                else {
+                } else {
                   var pivs = [];
-                  if (store.get('queryResult') != '')
+                  if (store.get('queryResult') != '') {
                     pivs = store.get('queryResult')['pivs'];
+                  }
 
                   Navigator.push(
                     context,
@@ -123,15 +124,15 @@ class LocalGridItem extends StatelessWidget {
                         // If we don't pass a key, despite the fact that we are passing a STRING ARGUMENT that is different to the widget, Flutter still thinks it is a great idea to reuse the child widget.
                         child: GridItemSelection(asset.id,
                             view == 'local' ? 'local' : 'localUploaded',
-                            key: Key(asset.id + ':' + now().toString())))),
+                            key: Key('${asset.id}:${now()}')))),
                 Visibility(
                     visible: view == 'uploaded',
-                    child: Align(
-                        alignment: const Alignment(-0.9, -.9),
+                    child: const Align(
+                        alignment: Alignment(-0.9, -.9),
                         child: UploadingIcon())),
                 GridItemMask(
                     asset.id, view == 'local' ? 'local' : 'localUploaded',
-                    key: Key(asset.id + '-mask:' + now().toString())),
+                    key: Key('${asset.id}-mask:${now()}')),
               ],
             ));
       },
@@ -143,8 +144,7 @@ class LocalCarrousel extends StatefulWidget {
   final AssetEntity pivFile;
   final dynamic page;
 
-  const LocalCarrousel({Key? key, required this.pivFile, required this.page})
-      : super(key: key);
+  const LocalCarrousel({super.key, required this.pivFile, required this.page});
 
   @override
   State<LocalCarrousel> createState() => _LocalCarrouselState();
@@ -256,6 +256,9 @@ class _LocalCarrouselState extends State<LocalCarrousel>
               children: [
                 Visibility(
                   visible: piv.type == AssetType.image,
+                  replacement: LocalVideoPlayerWidget(
+                    videoFile: piv,
+                  ),
                   child: Stack(
                     children: [
                       ValueListenableBuilder(
@@ -284,14 +287,25 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                               minScale: 1,
                               maxScale: 8,
                               child: Container(
-                                color: kGreyDarkest,
+                                height: 400,
+                                width: 400,
+                                color: Colors.white,
                                 alignment: Alignment.center,
                                 child: FutureBuilder<File?>(
                                   future: file,
                                   builder: (_, snapshot) {
                                     final file = snapshot.data;
                                     if (file == null) return Container();
-                                    return Image.file(file);
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: MemoryImage(
+                                              file.readAsBytesSync()),
+                                        ),
+                                      ),
+                                      // child: Image.file(file)
+                                    );
                                   },
                                 ),
                               ),
@@ -347,9 +361,6 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                         ),
                       ),
                     ],
-                  ),
-                  replacement: LocalVideoPlayerWidget(
-                    videoFile: piv,
                   ),
                 ),
               ],
