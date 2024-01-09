@@ -5,8 +5,12 @@
 - Small improvements
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
-   - Make query when done with upload
    - Home: when doing refresh gesture, reload the tags
+
+- Show "achievements view" with all that you have organized
+- Edit/delete tags view, openable from query selector
+- Count organized today properly by adding date when piv was added to queue
+- Confirm on delete single uploaded piv
 
 - Rethink tagging (Tom)
    - Piv by piv!
@@ -20,15 +24,10 @@
 - Improve score/celebration
    - Fireworks?
    - Add thumbnails to score?
-- Show "achievements view" with all that you have organized
-- Edit/delete tags view, openable from query selector
-- Count organized today properly by adding date when piv was added to queue
-- Confirm on delete single uploaded piv
-
-- tag L:404
-- Rename a tag X to an existing tag Y
-
 - Swipe sideways to navigate months in uploaded
+- Server
+   - tag L:404
+   - Rename a tag X to an existing tag Y
 - Finish annotated source code: tagService, storeService, tools.
 
 - Sharebox
