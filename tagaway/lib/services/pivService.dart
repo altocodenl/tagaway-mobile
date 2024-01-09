@@ -28,6 +28,14 @@ class PivService {
       uploading = false;
    }
 
+   localPivsById () {
+      var localPivsById = {};
+      localPivs.forEach ((v) {
+         localPivsById [v.id] = v;
+      });
+      return localPivsById;
+   }
+
    startUpload () async {
       if (upload ['time'] != null && (upload ['time'] + 9 * 60 * 1000 >= now ())) {
          upload ['time'] = now ();

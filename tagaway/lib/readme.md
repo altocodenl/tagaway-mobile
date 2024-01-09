@@ -2375,13 +2375,10 @@ If there's no local pivs to tag or untag, there's nothing left to do, so we `ret
       if (localPivsToTagUntag.keys.length == 0) return;
 ```
 
-We will construct a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
+We will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
 
 ```dart
-      var localPivsById = {};
-      PivService.instance.localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
-      });
+      var localPivsById = PivService.instance.localPivsById ();
 ```
 
 We iterate each local piv to tag/untag, which are stored in a map where the keys are ids and the values are `true` for pivs to tag and `false` for pivs to untag:
@@ -2840,13 +2837,10 @@ If `currentMonth` is present, we set the dates to start at the current month and
       }
 ```
 
-We will construct a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
+We will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
 
 ```dart
-      var localPivsById = {};
-      PivService.instance.localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
-      });
+      var localPivsById = PivService.instance.localPivsById ();
 ```
 
 We will create a list `localPivsToAdd`, which we will only use if `currentMonth` is not set.
@@ -3037,6 +3031,210 @@ We return `queryResult` and close the function.
 
 ```dart
       return queryResult;
+   }
+```
+
+We now define `getLocalAchievements`, a function that will calculate the "score" view when a user is done tagging a local page. This function takes a single parameter, `pageIndex`, which is the page number for which the score will be calculated.
+
+```dart
+   getLocalAchievements (pageIndex) async {
+```
+
+We first determine in which key we will save the result of this function. It will be in `localAchievements:PAGEINDEX`. We store multiple stores in different keys so that we don't have to recompute it every time that the user swipes from local page to local page.
+
+```dart
+      var storageKey = 'localAchievements:' + page.toString ();
+      var storageKey = 'localAchievements:' + pageIndex.toString ();
+```
+
+We get the current local page at index `pageIndex`.
+
+```dart
+      var page = store.get ('localPage:' + pageIndex.toString ());
+```
+
+If the page hasn't been computed yet (which will happen when the app has just been (re)started), we merely set an empty list as the result and `return`, since there's nothing else to do yet.
+
+```dart
+      if (page == '') return store.set (storageKey, []);
+```
+
+We call `POST /query` to get all the pivs within the time range of the page that are organized (we want to exclude pivs that are not organized, which likely could come from batch uploads through the web client). The time range of the page comes from the `from` and `to` fields, set by the function that computes local pages.
+
+```dart
+      var response = await ajax ('post', 'query', {
+         'tags': ['o::'],
+         'sort': 'newest',
+         'mindate': page ['from'],
+         'maxdate': page ['to'],
+         'from': 1,
+         'to': 1
+      });
+```
+
+If we got an error when making the request, we will print an error in the snackbar (with code `ACHIEVEMENTS:CODE`). In this case, we will simply store an empty list as a result and `return`.
+
+```dart
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
+         return store.set (storageKey, []);
+      }
+```
+
+Things get more interesting when we realize that we also have to show the score once the user has finished tagging/deleting all the pivs in the page, whether they have already been uploaded or not.
+
+For this reason, we will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
+
+```dart
+      var localPivsById = PivService.instance.localPivsById ();
+```
+
+We will count how many local pivs in the upload queue have each of the tags. We will also count the amount of local pivs in the upload queue that are in this page.
+
+```dart
+      var localCount = {}, localQueryTotal = 0;
+```
+
+We iterate all the `pendingTags:ID` keys, of which there will be one per piv in the upload queue.
+
+```dart
+      store.getKeys ('^pendingTags:').forEach ((key) {
+```
+
+We get the piv itself. If it has been deleted, we ignore this key.
+
+```dart
+         var piv = localPivsById [key.replaceAll ('pendingTags:', '')];
+         if (piv == null) return;
+```
+
+If the piv is also not in the time range of the local page, we also ignore this piv.
+
+```dart
+         if (page ['from'] > ms (piv.createDateTime) || page ['to'] < ms (piv.createDateTime)) return;
+```
+
+If we're here, this local piv in the upload queue belongs to this page. We increment our count of local pivs in the upload queue that match this page.
+
+```dart
+         localQueryTotal++;
+```
+
+We get the list of pending tags for this piv.
+
+```dart
+         var pendingTags = getList (key);
+```
+
+We now iterate each of the tags with which this piv will be tagged when uploaded; for each tag, if there's no entry for it in `localCount`, we will initialize it to 0. We will then unconditonally increment it by 1.
+
+```dart
+         pendingTags.forEach ((tag) {
+            if (localCount [tag] == null) localCount [tag] = 0;
+            localCount [tag]++;
+         });
+```
+
+This concludes the iteration over pivs in the upload queue.
+
+```dart
+      });
+```
+
+We create an `output` list to put our results.
+
+```dart
+      var output = [];
+```
+
+We iterate the tags returned by the query to the server.
+
+```dart
+      response ['body'] ['tags'].keys.forEach ((tag) {
+```
+
+If the tag is not a user tag (user tags are tags that do not start with a lowercase letter plus two colons), we ignore it.
+
+```dart
+         if (RegExp ('^[a-z]::').hasMatch (tag)) return;
+```
+
+We get the number of pivs in the query tagged with this tag.
+
+```dart
+         var value = response ['body'] ['tags'] [tag];
+```
+
+We add an entry on `output` of the form `[tag, value]` - this is a single row of the score. This concludes the iteration of the tags in the query.
+
+```dart
+         output.add ([tag, value]);
+      });
+```
+
+We iterate the keys of `localCount`, to go over the tags on the local pivs that are still on the upload queue that correspond to this page.
+
+```dart
+      localCount.keys.forEach ((tag) {
+```
+
+In the existing `output`, we try to find a row where `tag` is present.
+
+```dart
+         var matchingRow = output.indexWhere ((row) => row [0] == tag);
+```
+
+If there's no such row, it means that this tag is not yet contained in any cloud piv that corresponds to this page. Therefore, we add a new entry to `output`.
+
+```dart
+         if (matchingRow == -1) output.add ([tag, localCount [tag]]);
+```
+
+Otherwise, we increment the second element of the row by the amount of local pivs in the upload queue that contain this tag.
+
+This concludes the iteration over the tags on local pivs in the upload queue.
+
+```dart
+         else output [matchingRow] [1] += localCount [tag];
+      });
+```
+
+We sort `output` to put the rows with the highest amount of pivs first.
+
+```dart
+      output.sort ((a, b) {
+         return (b [1] as int).compareTo ((a [1] as int));
+      });
+```
+
+If there are more than three tags, we remove the rest of the entries and just keep the top three.
+
+```dart
+      if (output.length > 3) output = output.sublist (0, 3);
+```
+
+We add a `Total` row with the total amount of pivs that belong to this page (cloud pivs + local pivs in the upload queue).
+
+```dart
+      output.add (['Total', response ['body'] ['total'] + localQueryTotal]);
+```
+
+We get the total number of all organized pivs, which should be in the `organized` key.
+
+```dart
+      var organized = store.get ('organized');
+```
+
+If the value is present, we set a score row for it in `output`. If the value is not set because it is still being loaded, we will not add it.
+
+```dart
+      if (organized != '') output.add (['All time organized', store.get ('organized') ['total']]);
+```
+
+We set `output` in its key and close the function.
+
+```dart
+      store.set (storageKey, output);
    }
 ```
 

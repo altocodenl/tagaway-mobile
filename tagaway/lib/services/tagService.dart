@@ -133,7 +133,6 @@ class TagService {
       store.set ('toggleTags' + (type == 'local' ? 'Local' : 'Uploaded'), state);
    }
 
-   // TODO: annotate
    doneTagging (String view) async {
 
       var tags = store.get ('currentlyTagging' + (view == 'local' ? 'Local' : 'Uploaded'));
@@ -177,10 +176,7 @@ class TagService {
 
       if (localPivsToTagUntag.keys.length == 0) return;
 
-      var localPivsById = {};
-      PivService.instance.localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
-      });
+      var localPivsById = PivService.instance.localPivsById ();
 
       for (var id in localPivsToTagUntag.keys) {
 
@@ -330,10 +326,7 @@ class TagService {
          else                        maxDateCurrentMonth = DateTime.utc (currentMonth [0],     currentMonth [1] + 1, 1).millisecondsSinceEpoch;
       }
 
-      var localPivsById = {};
-      PivService.instance.localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
-      });
+      var localPivsById = PivService.instance.localPivsById ();
 
       var localPivsToAdd = [];
 
@@ -397,16 +390,13 @@ class TagService {
       return queryResult;
    }
 
-   // TODO: annotate
-   // - load it always when page changes: in case it wasn't loaded before, and to give it a time-based refresh
-   // - when a page changes that is the current page and has a non '' score achievement, call it
-   getLocalAchievements (page) async {
-      var storageKey = 'localAchievements:' + page.toString ();
-      page = store.get ('localPage:' + page.toString ());
+   getLocalAchievements (pageIndex) async {
+      var storageKey = 'localAchievements:' + pageIndex.toString ();
+      var page = store.get ('localPage:' + pageIndex.toString ());
 
       if (page == '') return store.set (storageKey, []);
       var response = await ajax ('post', 'query', {
-         'tags': [],
+         'tags': ['o::'],
          'sort': 'newest',
          'mindate': page ['from'],
          'maxdate': page ['to'],
@@ -419,10 +409,7 @@ class TagService {
          return store.set (storageKey, []);
       }
 
-      var localPivsById = {};
-      PivService.instance.localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
-      });
+      var localPivsById = PivService.instance.localPivsById ();
 
       var localCount = {}, localQueryTotal = 0;
       store.getKeys ('^pendingTags:').forEach ((key) {
@@ -448,7 +435,7 @@ class TagService {
       });
 
       localCount.keys.forEach ((tag) {
-         var matchingRow = output.indexWhere((row) => row [0] == tag);
+         var matchingRow = output.indexWhere ((row) => row [0] == tag);
          if (matchingRow == -1) output.add ([tag, localCount [tag]]);
          else output [matchingRow] [1] += localCount [tag];
       });
@@ -456,12 +443,14 @@ class TagService {
       output.sort ((a, b) {
          return (b [1] as int).compareTo ((a [1] as int));
       });
+
       if (output.length > 3) output = output.sublist (0, 3);
       output.add (['Total', response ['body'] ['total'] + localQueryTotal]);
+
       var organized = store.get ('organized');
       if (organized != '') output.add (['All time organized', store.get ('organized') ['total']]);
 
-      return store.set (storageKey, output);
+      store.set (storageKey, output);
    }
 
    queryPivs ([refresh = false, preserveMonth = false]) async {
@@ -681,10 +670,8 @@ class TagService {
   deleteUploadedPivs (dynamic ids) async {
 
    // remove queued local piv
-    var localPivsById = {};
-    PivService.instance.localPivs.forEach ((v) {
-       localPivsById [v.id] = v;
-    });
+    var localPivsById = PivService.instance.localPivsById ();
+
     var filteredIds = ids.toList ();
     ids.forEach ((id) {
        if (localPivsById [id] == null) return;
