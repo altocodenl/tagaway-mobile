@@ -205,166 +205,172 @@ class _HomeViewState extends State<HomeView> {
                   valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
                 ),
               )
-            : (hometags.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 12),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Image.asset(
-                                  'images/tag blue with white - 400x400.png',
-                                  scale: 2,
+            : RefreshIndicator(
+                onRefresh: () async {
+                  return TagService.instance.getTags();
+                },
+                child: (hometags.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 12),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Image.asset(
+                                      'images/tag blue with white - 400x400.png',
+                                      scale: 2,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(
-                              tags.isEmpty
-                                  ? 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!'
-                                  : 'Start adding your shortcuts!',
-                              style: kHomeEmptyText,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: RoundedButton(
-                                title: 'Get started',
-                                colour: kAltoBlue,
-                                onPressed: () {
-                                  if (tags.isEmpty)
-                                    store.set('viewIndex', 1);
-                                  else
-                                    Navigator.pushReplacementNamed(
-                                        context, 'addHomeTags');
-                                },
-                              ))
-                        ],
-                      ),
-                    ),
-                  )
-                : Stack(
-                    children: [
-                      // TOOD: uncomment & dynamize
-                      //HomeAwardsView(
-                      //child: Row(
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        organized['total'].toString(),
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: kAltoOrganized),
-                                      ),
-                                      Text(
-                                        'organized',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: kGreyDarker),
-                                      ),
-                                    ]),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: Text(
+                                  tags.isEmpty
+                                      ? 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!'
+                                      : 'Start adding your shortcuts!',
+                                  style: kHomeEmptyText,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        organized['today'].toString(),
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: kAltoOrganized),
-                                      ),
-                                      Text(
-                                        'today',
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: kGreyDarker),
-                                      ),
-                                    ]),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      //),
-                      Padding(
-                          padding: const EdgeInsets.only(
-                              left: 12, right: 12, top: 80 + 7),
-                          child: GridView.builder(
-                              shrinkWrap: true,
-                              cacheExtent: 50,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 4,
-                                crossAxisSpacing: 8,
-                              ),
-                              itemCount: hometags.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                var tag = hometags[index];
-                                // If homeThumb hasn't loaded yet, do not return anything.
-                                if (homeThumbs[tag] == null) return Container();
-                                return GestureDetector(
-                                    onTap: () {
-                                      store.set('queryTags', [tag]);
-                                      Navigator.pushReplacementNamed(
-                                          context, 'uploaded');
+                              Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: RoundedButton(
+                                    title: 'Get started',
+                                    colour: kAltoBlue,
+                                    onPressed: () {
+                                      if (tags.isEmpty)
+                                        store.set('viewIndex', 1);
+                                      else
+                                        Navigator.pushReplacementNamed(
+                                            context, 'addHomeTags');
                                     },
-                                    child: HomeCard(
-                                        color: tagColor(tag),
-                                        tag: tag,
-                                        thumb: homeThumbs[tag]['id'],
-                                        deg: homeThumbs[tag]['deg'] == null
-                                            ? 0
-                                            : homeThumbs[tag]['deg']));
-                              })),
-                      Align(
-                        alignment: const Alignment(0, .9),
-                        child: FloatingActionButton.extended(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50)),
-                            extendedPadding:
-                                const EdgeInsets.only(left: 20, right: 20),
-                            backgroundColor: kAltoBlue,
-                            elevation: 20,
-                            label: const Icon(
-                              kSearchIcon,
-                              color: Colors.white,
-                              size: 15,
-                            ),
-                            icon: const Text('Search', style: kButtonText),
-                            key: const Key('homeFabQuerySelector'),
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(
-                                  context, 'querySelector');
-                            }),
+                                  ))
+                            ],
+                          ),
+                        ),
                       )
-                    ],
-                  )),
+                    : Stack(
+                        children: [
+                          // TOOD: uncomment & dynamize
+                          //HomeAwardsView(
+                          //child: Row(
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 80,
+                                  child: Center(
+                                    child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            organized['total'].toString(),
+                                            style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: kAltoOrganized),
+                                          ),
+                                          Text(
+                                            'organized',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: kGreyDarker),
+                                          ),
+                                        ]),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  height: 80,
+                                  child: Center(
+                                    child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            organized['today'].toString(),
+                                            style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: kAltoOrganized),
+                                          ),
+                                          Text(
+                                            'today',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: kGreyDarker),
+                                          ),
+                                        ]),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          //),
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, right: 12, top: 80 + 7),
+                              child: GridView.builder(
+                                  shrinkWrap: true,
+                                  cacheExtent: 50,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 4,
+                                    crossAxisSpacing: 8,
+                                  ),
+                                  itemCount: hometags.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var tag = hometags[index];
+                                    // If homeThumb hasn't loaded yet, do not return anything.
+                                    if (homeThumbs[tag] == null)
+                                      return Container();
+                                    return GestureDetector(
+                                        onTap: () {
+                                          store.set('queryTags', [tag]);
+                                          Navigator.pushReplacementNamed(
+                                              context, 'uploaded');
+                                        },
+                                        child: HomeCard(
+                                            color: tagColor(tag),
+                                            tag: tag,
+                                            thumb: homeThumbs[tag]['id'],
+                                            deg: homeThumbs[tag]['deg'] == null
+                                                ? 0
+                                                : homeThumbs[tag]['deg']));
+                                  })),
+                          Align(
+                            alignment: const Alignment(0, .9),
+                            child: FloatingActionButton.extended(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50)),
+                                extendedPadding:
+                                    const EdgeInsets.only(left: 20, right: 20),
+                                backgroundColor: kAltoBlue,
+                                elevation: 20,
+                                label: const Icon(
+                                  kSearchIcon,
+                                  color: Colors.white,
+                                  size: 15,
+                                ),
+                                icon: const Text('Search', style: kButtonText),
+                                key: const Key('homeFabQuerySelector'),
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, 'querySelector');
+                                }),
+                          )
+                        ],
+                      ))),
       ),
       floatingActionButton: Visibility(
         visible: hometags.isNotEmpty,

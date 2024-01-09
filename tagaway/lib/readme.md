@@ -5,7 +5,6 @@
 - Small improvements
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
-   - Home: when doing refresh gesture, reload the tags
 
 - Show "achievements view" with all that you have organized
 - Edit/delete tags view, openable from query selector
