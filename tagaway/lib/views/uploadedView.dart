@@ -49,9 +49,11 @@ class UploadGrid extends StatefulWidget {
 
 class _UploadGridState extends State<UploadGrid> {
   dynamic cancelListener;
+  dynamic cancelListener2;
   dynamic queryResult = {'pivs': [], 'total': 0};
   dynamic monthEdges = {'previousMonth': '', 'nextMonth': ''};
   final ScrollController gridController = ScrollController();
+  bool firstLoad = true;
 
   dynamic visibleItems = [];
 
@@ -63,12 +65,14 @@ class _UploadGridState extends State<UploadGrid> {
 
     if (store.get('queryTags') == '') store.set('queryTags', []);
 
-    cancelListener = store.listen(['queryTags', 'queryResult'], (v1, v2) {
-      // queryPivs will not make an invocation if `queryResult` changes because it will check if the tags have changed.
+    cancelListener = store.listen(['queryTags'], (v1) {
+      if (firstLoad) return firstLoad = false; // Prevent calling queryPivs on the first load of the view. This prevents this call overwriting the call that could have been done from a hometag thumb to come here on a specific month.
       TagService.instance.queryPivs();
-      if (v2 != '')
+    });
+    cancelListener2 = store.listen(['queryResult'], (QueryResult) {
+      if (QueryResult != '')
         setState(() {
-          queryResult = v2;
+          queryResult = QueryResult;
           monthEdges = TagService.instance.getMonthEdges();
         });
     });
@@ -78,6 +82,7 @@ class _UploadGridState extends State<UploadGrid> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
     gridController.dispose();
   }
 

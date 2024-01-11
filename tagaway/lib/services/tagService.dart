@@ -170,7 +170,7 @@ class TagService {
       if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
 
       var hometags = getList ('hometags');
-      if (cloudPivsToTag.length > 0) editHometags (tags [0], true);
+      if (cloudPivsToTag.length > 0 && hometags.isEmpty) editHometags (tags [0], true);
 
       if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true, true);
 
@@ -581,12 +581,14 @@ class TagService {
       var tags = getList ('queryTags');
       tags.sort ();
 
+      queryTags = List.from (tags);
+
       // The streams join here. We get all the pivs for the month. We only care about the pivs.
       var currentMonthTags = ['d::' + currentMonth [0].toString (), 'd::M' + currentMonth [1].toString ()];
 
       // Do it quickly to show changes to the user before the roundtrip
       store.set ('currentMonth', currentMonth);
-      computeTimeHeader (false);
+      computeTimeHeader ();
 
       store.set ('queryInProgress', true);
 
@@ -652,6 +654,9 @@ class TagService {
          'timeHeader':  queryResult ['timeHeader'],
          'pivs':        queryResult ['pivs']
       });
+
+      // Do it again in case this function was called from home and there was no queryResult when we called computeTimeHeader above
+      computeTimeHeader ();
 
       getTags ();
 
@@ -787,9 +792,10 @@ class TagService {
       });
    }
 
-   computeTimeHeader ([updateYearUploaded = true]) {
+   computeTimeHeader () {
       var output      = [];
       var min, max;
+      if (store.get ('queryResult') == '') return;
       var timeHeader = store.get ('queryResult') ['timeHeader'];
       var currentMonth = store.get ('currentMonth');
       // We initialize the current month to an array signifying there's no current month.
@@ -862,7 +868,7 @@ class TagService {
          }
       }
 
-      if (updateYearUploaded) store.set ('yearUploaded', semesters[semesters.length - 1][0][0]);
+      store.set ('yearUploaded', semesters[semesters.length - 1 - (currentPage == '' ? 0 : currentPage) as dynamic] [0] [0]);
    }
 
 }

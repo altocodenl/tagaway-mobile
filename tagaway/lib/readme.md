@@ -2358,7 +2358,7 @@ We get the list of hometags. If there are no hometags set yet, and we are taggin
 
 ```dart
       var hometags = getList ('hometags');
-      if (cloudPivsToTag.length > 0) editHometags (tags [0], true);
+      if (cloudPivsToTag.length > 0 && hometags.isEmpty) editHometags (tags [0], true);
 ```
 
 If we tagged or untagged cloud pivs, we refresh the query. Note we do not `await` for this call, but rather let it run in the background.
