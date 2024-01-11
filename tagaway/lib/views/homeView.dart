@@ -649,16 +649,6 @@ class HomeCard extends StatelessWidget {
                       })),
                 ),
               )),
-          Transform.rotate(
-              angle: deg * math.pi / 180.0,
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(.4),
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                ),
-              )),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -684,6 +674,16 @@ class HomeCard extends StatelessWidget {
               ),
             ),
           ),
+          Transform.rotate(
+              angle: deg * math.pi / 180.0,
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(.25),
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                ),
+              )),
         ],
       ),
     );
