@@ -219,8 +219,9 @@ class PivService {
 
       if (localPivs != null && localPivs.length > 0) return queuePiv (null);
 
-      await queryExistingHashes ();
-      await queryOrganizedLocalPivs ();
+      queryExistingHashes ().then ((_) {
+        queryOrganizedLocalPivs ();
+      });
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 
       final albums = await PhotoManager.getAssetPathList (

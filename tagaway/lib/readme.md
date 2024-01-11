@@ -810,11 +810,17 @@ This function will start by doing three things:
 
 - Invoke `queryExistingHashes`, the function that will take all existing `hashMap` entries (which are stored on disk) and query the server to attempt to match them to cloud piv ids. We will wait for this operation to be done before continuing, to avoid the screen flickering or abrupt changes when this info is loaded.
 - Invoke `queryOrganizedLocalPivs` to find out which of the local pivs with a `hashMap` entry have a cloud counterpart. We will do this after `queryExistingHashes` because that function sets the `pivMap` entries that we need to use to query the server. Note we will `await` this operation.
-- Invoke `loadAndroidCameraPivs`, which will add `cameraPiv:ID` entries for those local pivs that are considered to be camera pivs.
+
+Note that we make the second call wait until the first one, but the rest of the function doesn't await for any of them. In this way, we make the initial load of local pivs faster.
 
 ```dart
-      await queryExistingHashes ();
-      await queryOrganizedLocalPivs ();
+      queryExistingHashes ().then ((_) {
+        queryOrganizedLocalPivs ();
+      });
+```
+We will then invoke `loadAndroidCameraPivs`, which will add `cameraPiv:ID` entries for those local pivs that are considered to be camera pivs.
+
+```dart
       if (! Platform.isIOS) loadAndroidCameraPivs ();
 ```
 
