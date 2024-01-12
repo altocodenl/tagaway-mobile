@@ -77,7 +77,7 @@
 - currentlyDeletingModal(Local|Uploaded) <bool>: if set, we are showing the delete confirmation modal for Local/Uploaded view.
 - currentlyDeletingPivs(Local|Uploaded) <list>: list of ids of pivs that are currently being deleted, either Local or Uploaded.
 - displayMode <obj>: if set, has the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `showOrganized` shows organized pivs in the local view; `cameraOnly` hides non-camera pivs from the local view.
-- deleteTag(Local|Uploaded) <str>: tag currently being deleted in LocalView/UploadedView
+- deleteTag(Local|Uploaded|ManageTags) <str>: tag currently being deleted in LocalView/UploadedView/ManageTagsView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server.
@@ -101,7 +101,7 @@
 - pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`. They are temporarily set to `true` for pivs on the upload queue.
 - previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
-- renameTag(Local|Uploaded) <str>: tag currently being renamed in LocalView/UploadedView
+- renameTag(Local|Uploaded|ManageTags) <str>: tag currently being renamed in LocalView/UploadedView/ManageTagsView
 - queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
 - queryInProgress <bool>: if set to `true`, indicates that a query is currently taking place.
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
