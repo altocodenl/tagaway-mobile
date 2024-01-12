@@ -113,8 +113,8 @@ class _ManageTagsViewState extends State<ManageTagsView> {
                         view: 'manageTags',
                         onTap: () {});
                   }),
-              const RenameTagModal(view: 'manageTags'),
-              const DeleteTagModal(view: 'manageTags'),
+              const RenameTagModal(view: 'ManageTags'),
+              const DeleteTagModal(view: 'ManageTags'),
             ],
           ),
         ));

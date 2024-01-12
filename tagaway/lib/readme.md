@@ -7,7 +7,6 @@
    - Uppercase tag names the first time you type
 
 - Show "achievements view" with all that you have organized
-- Edit/delete tags view, openable from query selector
 - Count organized today properly by adding date when piv was added to queue
 - Confirm on delete single uploaded piv
 

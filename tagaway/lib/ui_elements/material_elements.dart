@@ -237,7 +237,11 @@ class DeleteAndRenameTagModal extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 store.set(
-                    view == 'local' ? 'deleteTagLocal' : 'deleteTagUploaded',
+                    view == 'local'
+                        ? 'deleteTagLocal'
+                        : (view == 'uploaded'
+                            ? 'deleteTagUploaded'
+                            : 'deleteTagManageTags'),
                     tagName);
               },
               child: const Icon(
@@ -251,7 +255,11 @@ class DeleteAndRenameTagModal extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 store.set(
-                    view == 'local' ? 'renameTagLocal' : 'renameTagUploaded',
+                    view == 'local'
+                        ? 'renameTagLocal'
+                        : (view == 'uploaded'
+                            ? 'renameTagUploaded'
+                            : 'renameTagManageTags'),
                     tagName);
               },
               child: const Icon(
