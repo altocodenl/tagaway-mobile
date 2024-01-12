@@ -162,7 +162,8 @@ class _TagListElementState extends State<TagListElement> {
                       ),
                     ),
                     Visibility(
-                      visible: ['local', 'uploaded'].contains(widget.view),
+                      visible: ['local', 'uploaded', 'manageTags']
+                          .contains(widget.view),
                       child: Expanded(
                         child: Align(
                           alignment: const Alignment(1, 0),
