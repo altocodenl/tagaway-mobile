@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../ui_elements/constants.dart';
-import '../ui_elements/material_elements.dart';
+import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 
 class ManageTagsView extends StatefulWidget {
   static const String id = 'manageTagsView';

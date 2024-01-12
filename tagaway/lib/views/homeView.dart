@@ -336,8 +336,10 @@ class _HomeViewState extends State<HomeView> {
                                       return Container();
                                     return GestureDetector(
                                         onTap: () {
-                                          store.set('queryTags', [tag], '', 'mute');
-                                          TagService.instance.queryPivsForMonth (homeThumbs[tag]['currentMonth']);
+                                          store.set(
+                                              'queryTags', [tag], '', 'mute');
+                                          TagService.instance.queryPivsForMonth(
+                                              homeThumbs[tag]['currentMonth']);
                                           Navigator.pushReplacementNamed(
                                               context, 'uploaded');
                                         },
