@@ -215,7 +215,8 @@ class _TopRowState extends State<TopRow> {
         prev = v3;
         page = v4;
         next = v5;
-        displayMode = DisplayMode;
+        // displayMode can become an empty string on logout, causing runtime errors in this view
+        if (DisplayMode != '') displayMode = DisplayMode;
       });
     });
   }

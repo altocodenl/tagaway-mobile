@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -13,7 +14,26 @@ class ManageTagsView extends StatefulWidget {
 }
 
 class _ManageTagsViewState extends State<ManageTagsView> {
-  List allTags = [];
+  dynamic cancelListener;
+  List userTags = [];
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = store.listen([
+      'usertags',
+    ], (UserTags) {
+      setState(() {
+        if (UserTags != '') userTags = UserTags;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +63,7 @@ class _ManageTagsViewState extends State<ManageTagsView> {
               onTap: () {
                 showSearch(
                   context: context,
-                  delegate: CustomSearchDelegate(allTags),
+                  delegate: CustomSearchDelegate(userTags),
                 );
               },
               child: Container(
@@ -78,19 +98,21 @@ class _ManageTagsViewState extends State<ManageTagsView> {
           ),
           body: Stack(
             children: [
-              ListView(
-                children: [
-                  TagListElement(
-                      tagColor: kTagColor1,
-                      tagName: 'Tag Name',
-                      view: 'manageTags',
-                      onTap: () {
-                        // For some reason, any code we put outside of the function below will be invoked on widget draw.
-                        // Returning the desired behavior in a function solves the problem.
-                        return () {};
-                      })
-                ],
-              ),
+              ListView.builder(
+                  itemCount: userTags.length,
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    var tag = userTags[index];
+                    return TagListElement(
+                        // Because tags can be renamed, we need to set a key here to avoid recycling them if they change.
+                        key: Key('manageTags-' + tag),
+                        tagColor: tagColor(tag),
+                        tagName: tag,
+                        view: 'manageTags',
+                        onTap: () {});
+                  }),
               const RenameTagModal(view: 'manageTags'),
               const DeleteTagModal(view: 'manageTags'),
             ],
@@ -100,9 +122,9 @@ class _ManageTagsViewState extends State<ManageTagsView> {
 }
 
 class CustomSearchDelegate extends SearchDelegate {
-  dynamic allTags = [];
+  dynamic userTags = [];
 
-  CustomSearchDelegate(dynamic allTags) : allTags = allTags;
+  CustomSearchDelegate(dynamic userTags) : userTags = userTags;
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -127,7 +149,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in allTags) {
+    for (var tag in userTags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
@@ -146,7 +168,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery = [];
-    for (var tag in allTags) {
+    for (var tag in userTags) {
       if (tag.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(tag);
       }
