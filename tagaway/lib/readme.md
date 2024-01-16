@@ -2,22 +2,13 @@
 
 ## TODO
 
+- Show "achievements view" with all that you have organized
+
 - Small improvements
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
-
-- Show "achievements view" with all that you have organized
-- Count organized today properly by adding date when piv was added to queue
-- Confirm on delete single uploaded piv
-
-- Rethink tagging (Tom)
-   - Piv by piv!
-- Rethink carrousel (Tom)
-   - Current is the full screen mode: show tags & a FAB
-   - When not fullscreened, show each tag and a random piv next to it
-   - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
-- Rework zoom in carrousel (Tom)
-- Info view for each piv on cloud (Tom)
+   - Count organized today properly by adding date when piv was added to queue
+   - Confirm on delete single uploaded piv
 
 - Improve score/celebration
    - Fireworks?
@@ -27,6 +18,15 @@
    - tag L:404
    - Rename a tag X to an existing tag Y
 - Finish annotated source code: tagService, storeService, tools.
+
+- Rethink tagging (Tom)
+   - Piv by piv!
+- Rethink carrousel (Tom)
+   - Current is the full screen mode: show tags & a FAB
+   - When not fullscreened, show each tag and a random piv next to it
+   - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
+- Rework zoom in carrousel (Tom)
+- Info view for each piv on cloud (Tom)
 
 - Sharebox
    - Backend

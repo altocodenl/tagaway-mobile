@@ -65,6 +65,39 @@ class TagService {
       });
    }
 
+   // TODO: annotate
+   getCloudAchievements () async {
+      var response = await ajax ('post', 'query', {
+         'tags': [],
+         'sort': 'newest',
+         'timeHeader': true,
+         'from': 1,
+         'to': 1
+      });
+
+      if (response ['code'] != 200) {
+         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
+         return;
+      }
+
+      var achievements = [];
+
+      // achievements in readme
+      // get local
+      // accumulate years
+      // show years differently
+
+      response ['body'] ['timeHeader'].forEach ((yearMonth, organized) {
+         if (organized) achievements.add ([int.parse (yearMonth.split (':') [0]), int.parse (yearMonth.split (':') [1])]);
+      });
+
+      achievements.sort ((a, b) {
+         return a [0] != b [0] ? a [0].compareTo (b [0]) : a [1].compareTo (b [1]);
+      });
+
+      store.set ('achievements', achievements);
+   }
+
    editHometags (String tag, bool add) async {
       await getTags ();
 

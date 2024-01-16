@@ -257,64 +257,62 @@ class _HomeViewState extends State<HomeView> {
                       )
                     : Stack(
                         children: [
-                          // TOOD: uncomment & dynamize
-                          //HomeAwardsView(
-                          //child: Row(
-                          Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 80,
-                                  child: Center(
-                                    child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            organized['total'].toString(),
-                                            style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: kAltoOrganized),
-                                          ),
-                                          Text(
-                                            'organized',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: kGreyDarker),
-                                          ),
-                                        ]),
+                          HomeAwardsView(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 80,
+                                    child: Center(
+                                      child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              organized['total'].toString(),
+                                              style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: kAltoOrganized),
+                                            ),
+                                            Text(
+                                              'organized',
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: kGreyDarker),
+                                            ),
+                                          ]),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  height: 80,
-                                  child: Center(
-                                    child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            organized['today'].toString(),
-                                            style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: kAltoOrganized),
-                                          ),
-                                          Text(
-                                            'today',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: kGreyDarker),
-                                          ),
-                                        ]),
+                                Expanded(
+                                  child: Container(
+                                    height: 80,
+                                    child: Center(
+                                      child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              organized['today'].toString(),
+                                              style: TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: kAltoOrganized),
+                                            ),
+                                            Text(
+                                              'today',
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: kGreyDarker),
+                                            ),
+                                          ]),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          //),
                           Padding(
                               padding: const EdgeInsets.only(
                                   left: 12, right: 12, top: 80 + 7),
@@ -424,6 +422,27 @@ class HomeAwardsView extends StatefulWidget {
 }
 
 class _HomeAwardsViewState extends State<HomeAwardsView> {
+  dynamic cancelListener;
+
+  dynamic achievements = [];
+
+  @override
+  void initState() {
+    super.initState();
+    TagService.instance.getCloudAchievements();
+    cancelListener = store.listen(['achievements'], (Achievements) {
+      setState(() {
+        if (Achievements != '') achievements = Achievements;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -464,7 +483,7 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
                           GridView.builder(
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
-                              itemCount: 8,
+                              itemCount: achievements.length,
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
@@ -472,7 +491,7 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
                                 crossAxisSpacing: 8,
                               ),
                               itemBuilder: (BuildContext context, index) {
-                                return const HexagonWidget();
+                                return HexagonWidget(achievements[index]);
                               }),
                         ],
                       ),
@@ -498,7 +517,9 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
 }
 
 class HexagonWidget extends StatelessWidget {
-  const HexagonWidget({super.key});
+  final achievement;
+
+  const HexagonWidget(this.achievement);
 
   @override
   Widget build(BuildContext context) {
@@ -511,17 +532,17 @@ class HexagonWidget extends StatelessWidget {
             height: 200,
           ),
         ),
-        const Align(
+        Align(
           alignment: Alignment(0, -.5),
           child: Text(
-            'December',
+            longMonthNames[achievement[1]],
             style: kButtonText,
           ),
         ),
-        const Align(
+        Align(
           alignment: Alignment(0, 0),
           child: Text(
-            '2012',
+            achievement[0].toString(),
             style: TextStyle(
               fontFamily: 'Montserrat-Regular',
               fontSize: 30,
@@ -546,7 +567,6 @@ class HexagonWidget extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-              // color: Colors.white,
               borderRadius: BorderRadius.circular(100),
               border: Border.all(color: Colors.white, width: 1.5)),
         )
