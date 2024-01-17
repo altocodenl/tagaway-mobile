@@ -4,7 +4,6 @@
 
 - Annotate: getOverallAchievements
 
-- In local, start button doesn't appear when in organized page you switch to see all pivs
 - Small improvements
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type

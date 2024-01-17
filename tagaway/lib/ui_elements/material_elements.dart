@@ -689,10 +689,10 @@ class _StartButtonState extends State<StartButton> {
       'currentlyTagging' + widget.view,
       'currentlyDeleting' + widget.view,
       widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage',
-      // Respond to changes on the first page, since that one can take long to load and will affect the appearance of the start button when loading the app. There should be a better way to do this, but I cannot think of it now.
-      widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage:0'
+      // Respond to changes on any local page
+      widget.view == 'Uploaded' ? 'noSuchKey' : 'localPage:*'
     ], (ShowButtons, currentlyTagging, currentlyDeleting, localPage,
-        localPage0) {
+        localPages) {
       if (currentlyTagging != '' &&
           store.get('viewIndex') == (widget.view == 'Local' ? 1 : 0))
         TagService.instance
