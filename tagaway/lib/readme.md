@@ -2,8 +2,9 @@
 
 ## TODO
 
-- Show "achievements view" with all that you have organized
+- Annotate: getOverallAchievements
 
+- In local, start button doesn't appear when in organized page you switch to see all pivs
 - Small improvements
    - When searching for tag, priorize tags that start with the text
    - Uppercase tag names the first time you type
@@ -67,6 +68,7 @@
 
 ```
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
+- achievements: [[<year>, <month>|'all'>], ...]: indicates which months (or entire years) are completely organized both in cloud and on this device.
 - cameraPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
@@ -87,7 +89,7 @@
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
 - localAchievements:<int> [[TAG, INT], ...]: for the local page <int>, a summary of the most prevalent tags, as well as the total for the page and the all-time organized number.
 - localPage <int>: the local page currently being shown.
-- localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER, dateTags: ['d::MN', 'd::YYYY']}` - contains all the pages of local pivs to be shown, one per grid.
+- localPage:INT `{name: STRING: pivs: [<asset>, ...], total: INTEGER, from: INTEGER, to: INTEGER, dateTags: ['d::MM', 'd::YYYY']}` - contains all the pages of local pivs to be shown, one per grid.
 - localPageController <page controller>: controller that drives the local pages.
 - localPagesLength <int>: number of local pages.
 - localPagesListener <listener>: listener that triggers the function to compute the local pages.

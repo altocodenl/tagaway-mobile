@@ -66,29 +66,68 @@ class TagService {
    }
 
    // TODO: annotate
-   getCloudAchievements () async {
-      var response = await ajax ('post', 'query', {
-         'tags': [],
-         'sort': 'newest',
-         'timeHeader': true,
-         'from': 1,
-         'to': 1
+   // overall: local + uploaded
+   getOverallAchievements () async {
+
+      var localPagesLength = store.get ('localPagesLength');
+      if (localPagesLength == '') return;
+
+      var organizedTimeHeader = store.get ('organizedTimeHeader');
+      if (organizedTimeHeader == true) return;
+      if (organizedTimeHeader == '') {
+         store.set ('organizedTimeHeader', true);
+         var response = await ajax ('post', 'query', {
+            'tags': [],
+            'sort': 'newest',
+            'timeHeader': true,
+            'from': 1,
+            'to': 1
+         });
+
+         if (response ['code'] != 200) {
+            if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
+            return;
+         }
+
+         organizedTimeHeader = response ['body'] ['timeHeader'];
+         store.set ('organizedTimeHeader', organizedTimeHeader);
+         Future.delayed (Duration (seconds: 10), () {
+            store.remove ('organizedTimeHeader');
+         });
+      }
+
+      // if a local page is fully organized and it has no cloud counterpart, the month is considered organized
+      // same with a cloud page that is fully organized without a local counterpart, the month is considered organized
+      // if a month has both a local and a cloud page, it is organized if both are
+      // no need to look at the localquery, we get the local organization status from the page itself
+      // if a local page is fully organized and it has no cloud counterpart, the month is considered organized
+      // put local entries in organized
+      // then mask it over with cloud, which may complement with more months
+      var organized = {};
+      Iterable.generate (localPagesLength, (index) => index).forEach ((index) {
+         var page = store.get ('localPage:' + index.toString ());
+         // local entries are [d::MDD, d::DDDD]
+         var year = int.parse (page ['dateTags'] [1].substring (3));
+         var month = int.parse (page ['dateTags'] [0].substring (4));
+         if (organized [year] == null) organized [year] = {};
+         organized [year] [month] = page ['left'] == 0;
       });
 
-      if (response ['code'] != 200) {
-         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your achievements - CODE ACHIEVEMENTS:' + response ['code'].toString (), 'yellow');
-         return;
-      }
+      organizedTimeHeader.forEach ((yearMonth, organizedCloud) {
+         var year = int.parse (yearMonth.split (':') [0]);
+         var month = int.parse (yearMonth.split (':') [1]);
+         if (organized [year] == null) organized [year] = {};
+         // the mask
+         organized [year] [month] = organized [year] [month] == null ? organizedCloud : organized [year] [month] && organizedCloud;
+      });
 
       var achievements = [];
 
-      // achievements in readme
-      // get local
-      // accumulate years
-      // show years differently
-
-      response ['body'] ['timeHeader'].forEach ((yearMonth, organized) {
-         if (organized) achievements.add ([int.parse (yearMonth.split (':') [0]), int.parse (yearMonth.split (':') [1])]);
+      organized.forEach ((year, entries) {
+         if (entries.values.every ((value) => value == true)) achievements.add ([year, 'all']);
+         else                      achievements.addAll (entries.keys.map ((month) {
+            return entries [month] == true ? [year, month] : null;
+         }).where ((entry) => entry != null).toList ());
       });
 
       achievements.sort ((a, b) {

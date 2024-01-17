@@ -423,16 +423,23 @@ class HomeAwardsView extends StatefulWidget {
 
 class _HomeAwardsViewState extends State<HomeAwardsView> {
   dynamic cancelListener;
+  dynamic cancelListener2;
 
   dynamic achievements = [];
 
   @override
   void initState() {
     super.initState();
-    TagService.instance.getCloudAchievements();
+    TagService.instance.getOverallAchievements();
     cancelListener = store.listen(['achievements'], (Achievements) {
       setState(() {
         if (Achievements != '') achievements = Achievements;
+      });
+    });
+    cancelListener2 = store.listen(['localPage:*'], (LocalPage) {
+      setState(() {
+        // Recompute when local pages change
+        TagService.instance.getOverallAchievements();
       });
     });
   }
@@ -441,6 +448,7 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
   }
 
   @override
@@ -498,7 +506,36 @@ class _HomeAwardsViewState extends State<HomeAwardsView> {
                       Align(
                         alignment: const Alignment(0, .8),
                         child: FloatingActionButton.extended(
-                          onPressed: () {},
+                          onPressed: () {
+                            // This function is lightly adapted from the one we use in the score of the local view
+                            // The main difference is that we start from the beginning
+                            var jumpToIndex;
+                            store.getKeys('^localPage:').forEach((pageIndex) {
+                              if (jumpToIndex != null)
+                                return; // We found a match, no need to do anything else.
+
+                              pageIndex = pageIndex.split(':');
+                              pageIndex = int.parse(pageIndex[1]);
+
+                              if (store
+                                      .get('localPage:' + pageIndex.toString())[
+                                          'pivs']
+                                      .length >
+                                  0) jumpToIndex = pageIndex;
+                            });
+
+                            if (jumpToIndex != null)
+                              store
+                                  .get('localPageController')
+                                  .jumpToPage(jumpToIndex);
+                            else
+                              SnackBarGlobal.buildSnackBar(
+                                  context,
+                                  'You are all done organizing! If only we were like you...',
+                                  'green');
+                            Navigator.pop(context); // Collapse modal
+                            store.set('viewIndex', 1); // Go to local view
+                          },
                           extendedPadding:
                               const EdgeInsets.only(left: 20, right: 20),
                           heroTag: null,
@@ -526,7 +563,7 @@ class HexagonWidget extends StatelessWidget {
     return Stack(
       children: [
         CustomPaint(
-          painter: HexagonPainter(),
+          painter: HexagonPainter(achievement[1] == 'all'),
           child: const SizedBox(
             width: 200,
             height: 200,
@@ -535,7 +572,9 @@ class HexagonWidget extends StatelessWidget {
         Align(
           alignment: Alignment(0, -.5),
           child: Text(
-            longMonthNames[achievement[1]],
+            achievement[1] == 'all'
+                ? 'Year'
+                : longMonthNames[achievement[1] - 1],
             style: kButtonText,
           ),
         ),
@@ -576,10 +615,12 @@ class HexagonWidget extends StatelessWidget {
 }
 
 class HexagonPainter extends CustomPainter {
+  final isYear;
+  const HexagonPainter(this.isYear);
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
-      ..color = kAltoBlue
+      ..color = isYear ? kAltoOrganized : kAltoBlue
       ..style = PaintingStyle.fill;
 
     var path = Path();
