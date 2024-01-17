@@ -101,6 +101,9 @@ const kPersonDiggingIcon = FontAwesomeIcons.personDigging;
 const kSelectAllIcon = FontAwesomeIcons.checkDouble;
 const kDeselectIcon = FontAwesomeIcons.xmark;
 const kCheckIcon = FontAwesomeIcons.check;
+const kFullScreenIcon = FontAwesomeIcons.expand;
+const kLocalGridIcon = FontAwesomeIcons.grip;
+const kCloudGridIcon = FontAwesomeIcons.gripVertical;
 
 const tagColors = [
   kTagColor1,

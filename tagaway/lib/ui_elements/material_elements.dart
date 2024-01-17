@@ -523,6 +523,63 @@ class _DeleteButtonState extends State<DeleteButton> {
   }
 }
 
+class DeleteButtonTunnel extends StatefulWidget {
+  const DeleteButtonTunnel({
+    super.key,
+    required this.view,
+  });
+
+  final String view;
+
+  @override
+  State<DeleteButtonTunnel> createState() => _DeleteButtonTunnelState();
+}
+
+class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
+  dynamic cancelListener;
+  bool visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = store.listen(['showButtons' + widget.view], (v1) {
+      setState(() {
+        visible = v1 == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (visible) return Container();
+    return Align(
+      alignment: const Alignment(-.85, .75),
+      child: FloatingActionButton(
+        shape: const CircleBorder(),
+        heroTag: null,
+        elevation: 10,
+        key: const Key('delete'),
+        onPressed: () {
+          store.set('currentlyDeleting' + widget.view, true);
+          store.set('showButtons' + widget.view, false);
+          store.set('showSelectAllButton' + widget.view, true);
+        },
+        backgroundColor: kAltoRed,
+        child: const Icon(
+          kTrashCanIcon,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
 class TagButton extends StatefulWidget {
   const TagButton({
     Key? key,
