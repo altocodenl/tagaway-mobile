@@ -159,10 +159,12 @@ class _LocalCarrouselState extends State<LocalCarrousel>
   ScrollPhysics? pageBuilderScroll;
   dynamic loadedImages = {};
   bool fullScreen = false;
+  bool showTags = true;
 
   @override
   void initState() {
     super.initState();
+
     controller = TransformationController();
     animationController = AnimationController(
       vsync: this,
@@ -359,6 +361,9 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                                               bottomLeft: Radius.circular(15),
                                               bottomRight:
                                                   Radius.circular(15))),
+                                      child: const Column(
+                                        children: [Text('Selected Tags:')],
+                                      ),
                                     ),
                                   )
                                 ],
