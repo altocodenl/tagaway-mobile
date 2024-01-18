@@ -326,9 +326,12 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            setState(() {
-                                              fullScreen = !fullScreen;
-                                            });
+                                             setState (() => fullScreen = !fullScreen);
+                                             // One second for the other animation to execute, 100ms of changui
+                                             if (fullScreen == false) Future.delayed(Duration (milliseconds: 1100), () {
+                                               setState(() => showTags = !fullScreen);
+                                             });
+                                             else setState(() => showTags = !fullScreen);
                                           },
                                           child: const Align(
                                             alignment: Alignment(.85, .85),
@@ -346,7 +349,7 @@ class _LocalCarrouselState extends State<LocalCarrousel>
                                     ),
                                   ),
                                   Visibility(
-                                    visible: fullScreen == false,
+                                    visible: showTags,
                                     child: Container(
                                       width: SizeService.instance
                                           .screenWidth(context),
