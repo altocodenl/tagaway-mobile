@@ -952,14 +952,24 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
     ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
         if (Usertags != '') {
-          var firstTags = store.get('lastNTags');
-          if (firstTags == '') firstTags = [];
-          usertags = List.from(firstTags)
-            ..addAll(Usertags.where((tag) => !firstTags.contains(tag)));
+          usertags = getList('lastNTags') + getList('hometags') + Usertags;
+          usertags = usertags.toSet().toList();
           usertags = usertags
               .where((tag) =>
                   RegExp(TagFilter, caseSensitive: false).hasMatch(tag))
               .toList();
+
+          // If there's a filter, sort at the top the tags that start with the filter
+          // Sorting is stable in Dart
+          if (TagFilter != '')
+            usertags.sort((a, b) {
+              bool startsWithA = a.startsWith(TagFilter);
+              bool startsWithB = b.startsWith(TagFilter);
+              if (startsWithA && !startsWithB) return -1;
+              if (!startsWithA && startsWithB) return 1;
+              return a.compareTo(b)
+                  as int; // The Dart type system needs this, apparently, but the weird thing is that if this is not here, we get a runtime error (not a compile-time error)
+            });
           if (TagFilter != '' && !usertags.contains(TagFilter))
             usertags.insert(0, TagFilter + ' (new tag)');
           if (usertags.length == 0)
@@ -1064,6 +1074,8 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
                               height: 50,
                               child: TextField(
                                 controller: searchTagController,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.symmetric(
                                       vertical: 10.0, horizontal: 20.0),
