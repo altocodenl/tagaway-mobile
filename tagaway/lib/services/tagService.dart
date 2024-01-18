@@ -264,8 +264,7 @@ class TagService {
          if (pendingTags.length > 0) store.set    ('pendingTags:' + id, pendingTags, 'disk');
          else                        store.remove ('pendingTags:' + id, 'disk');
 
-         if (! untag) return PivService.instance.queuePiv (localPivsById [id]);
-
+         if (! untag) PivService.instance.queuePiv (localPivsById [id]);
          if (pendingTags.length == 0) {
             store.remove ('pivMap:' + id);
             var uploadQueueIndex;

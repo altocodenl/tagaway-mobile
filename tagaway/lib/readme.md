@@ -2422,7 +2422,7 @@ If `pendingTags` is now empty, we will remove the key outright from the store. O
 If we are tagging the piv, all we have left to do is call the `queuePiv` function of the `PivService`.
 
 ```dart
-         if (! untag) return PivService.instance.queuePiv (localPivsById [id]);
+         if (! untag) PivService.instance.queuePiv (localPivsById [id]);
 ```
 
 Now for an interesting bit of logic. If we are untagging a local piv that hasn't been uploaded yet, and we happen to have removed the last tag in `pendingTags`, there should be no need to actually upload the piv at all! If the piv has been completely untagged before being uploaded, uploading it serves no purpose.
