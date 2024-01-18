@@ -3,13 +3,9 @@
 ## TODO
 
 - Annotate: getOverallAchievements
-
 - Small improvements
-   - When searching for tag, priorize tags that start with the text
-   - Uppercase tag names the first time you type
    - Count organized today properly by adding date when piv was added to queue
    - Confirm on delete single uploaded piv
-
 - Improve score/celebration
    - Fireworks?
    - Add thumbnails to score?
