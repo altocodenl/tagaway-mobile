@@ -257,8 +257,8 @@ class TagService {
          var pendingTags = getList ('pendingTags:' + id);
 
          tags.forEach ((tag) {
-            if (untag)                           pendingTags.remove (tag);
-            else if (pendingTags.contains (tag)) pendingTags.add (tag);
+            if (untag)                             pendingTags.remove (tag);
+            else if (! pendingTags.contains (tag)) pendingTags.add (tag);
          });
 
          if (pendingTags.length > 0) store.set    ('pendingTags:' + id, pendingTags, 'disk');

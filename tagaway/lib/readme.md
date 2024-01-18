@@ -2407,8 +2407,8 @@ For each of the tags, if we're untagging, we will remove them from the list of p
 
 ```dart
          tags.forEach ((tag) {
-            if (untag)                           pendingTags.remove (tag);
-            else if (pendingTags.contains (tag)) pendingTags.add (tag);
+            if (untag)                             pendingTags.remove (tag);
+            else if (! pendingTags.contains (tag)) pendingTags.add (tag);
          });
 ```
 
