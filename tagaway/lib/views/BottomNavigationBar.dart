@@ -134,7 +134,7 @@ class _UploadingNumberState extends State<UploadingNumber> {
               const Icon(
                 kArrowLeftLong,
                 color: kAltoBlue,
-                size: 15,
+                size: 13,
               ),
             ],
           ),
