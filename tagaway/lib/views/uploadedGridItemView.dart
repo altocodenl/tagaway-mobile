@@ -3,20 +3,16 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:video_player/video_player.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
-import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:video_player/video_player.dart';
 
 class UploadedGridItem extends StatelessWidget {
   dynamic pivIndex;
@@ -206,40 +202,41 @@ class _CarrouselViewState extends State<CarrouselView>
 
         return Scaffold(
           appBar: AppBar(
-            iconTheme: const IconThemeData(color: kGreyLightest, size: 30),
+            iconTheme: const IconThemeData(color: kGreyDarker, size: 30),
             centerTitle: true,
             elevation: 0,
-            backgroundColor: kGreyDarkest,
-            title: Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(pad(date.day), style: kDarkBackgroundBigTitle),
-                  const Text(
-                    '/',
-                    style: kDarkBackgroundBigTitle,
+            backgroundColor: Colors.grey[50],
+            title: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'images/tag blue with white - 400x400.png',
+                        scale: 8,
+                      ),
+                      const Text('tagaway', style: kTagawayMain),
+                    ],
                   ),
-                  Text(
-                    pad(date.month),
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  const Text(
-                    '/',
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                  Text(
-                    date.year.toString(),
-                    style: kDarkBackgroundBigTitle,
-                  ),
-                ],
-              ),
+                ),
+                const FaIcon(
+                  kLocalGridIcon,
+                  color: kGreyDarker,
+                  size: 30,
+                ),
+              ],
             ),
           ),
           body: Stack(children: [
+            const SuggestionGrid(),
             piv['local'] == true
                 ? Visibility(
                     visible: piv['piv'].type == AssetType.image,
+                    replacement: LocalVideoPlayerWidget(
+                      videoFile: piv['piv'],
+                    ),
                     child: Stack(
                       children: [
                         ValueListenableBuilder(
@@ -268,31 +265,56 @@ class _CarrouselViewState extends State<CarrouselView>
                                 clipBehavior: Clip.none,
                                 minScale: 1,
                                 maxScale: 8,
-                                child: Container(
-                                  color: kGreyDarkest,
-                                  alignment: Alignment.center,
-                                  child: FutureBuilder<File?>(
-                                    future: file,
-                                    builder: (_, snapshot) {
-                                      final file = snapshot.data;
-                                      if (file == null) return Container();
-                                      return Image.file(file);
-                                    },
-                                  ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: SizeService.instance
+                                          .screenWidth(context),
+                                      height: SizeService.instance
+                                              .screenHeight(context) *
+                                          .5,
+                                      decoration: const BoxDecoration(
+                                          color: kGreyDarker,
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(15),
+                                              topRight: Radius.circular(15))),
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.center,
+                                            child: FutureBuilder<File?>(
+                                              future: file,
+                                              builder: (_, snapshot) {
+                                                final file = snapshot.data;
+                                                if (file == null)
+                                                  return Container();
+                                                return Image.file(file);
+                                              },
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             }),
-                        Align(
-                            alignment: const Alignment(-0.9, -.9),
+                        const Align(
+                            alignment: Alignment(-0.9, -.9),
                             child: UploadingIcon()),
                       ],
-                    ),
-                    replacement: LocalVideoPlayerWidget(
-                      videoFile: piv['piv'],
                     ),
                   )
                 : Visibility(
                     visible: piv['vid'] == null,
+                    replacement: piv['vid'] == 'pending'
+                        ? const VideoPending()
+                        : (piv['vid'] == 'error'
+                            ? const VideoError()
+                            : CloudVideoPlayerWidget(
+                                pivId: piv['id'],
+                              )),
                     child: CachedNetworkImage(
                         imageUrl: (kTagawayThumbMURL) + (piv['id']),
                         httpHeaders: {'cookie': store.get('cookie')},
@@ -341,122 +363,123 @@ class _CarrouselViewState extends State<CarrouselView>
                                 clipBehavior: Clip.none,
                                 minScale: 1,
                                 maxScale: 8,
-                                child: Stack(children: [
-                                  Positioned(
-                                      left: left,
-                                      top: top,
-                                      child: Transform.rotate(
-                                        angle: (piv['deg'] == null
-                                                ? 0
-                                                : piv['deg']) *
-                                            math.pi /
-                                            180.0,
-                                        child: Container(
-                                          color: kGreyDarkest,
-                                          height: height,
-                                          width: width,
-                                          child: Image(
-                                            alignment: Alignment.center,
-                                            fit: BoxFit.contain,
-                                            image: imageProvider,
-                                          ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Transform.rotate(
+                                      angle: (piv['deg'] == null
+                                              ? 0
+                                              : piv['deg']) *
+                                          math.pi /
+                                          180.0,
+                                      child: Container(
+                                        width: SizeService.instance
+                                            .screenWidth(context),
+                                        height: SizeService.instance
+                                                .screenHeight(context) *
+                                            .5,
+                                        decoration: const BoxDecoration(
+                                            color: kGreyDarker,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(15),
+                                                topRight: Radius.circular(15))),
+                                        child: Image(
+                                          // alignment: Alignment.center,
+                                          fit: BoxFit.contain,
+                                          image: imageProvider,
                                         ),
-                                      ))
-                                ]),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           );
-                        }),
-                    replacement: piv['vid'] == 'pending'
-                        ? const VideoPending()
-                        : (piv['vid'] == 'error'
-                            ? const VideoError()
-                            : CloudVideoPlayerWidget(
-                                pivId: piv['id'],
-                              ))),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                color: kGreyDarkest,
-                child: SafeArea(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () async {
-                            if (piv['local'] == null) {
-                              if (piv['vid'] == null) {
-                                WhiteSnackBar.buildSnackBar(context,
-                                    'Preparing your image for sharing...');
-                                final response = await http.get(
-                                    Uri.parse(
-                                        (kTagawayThumbMURL) + (piv['id'])),
-                                    headers: {'cookie': store.get('cookie')});
-                                final bytes = response.bodyBytes;
-                                final temp = await getTemporaryDirectory();
-                                final path = '${temp.path}/image.jpg';
-                                File(path).writeAsBytesSync(bytes);
-                                await Share.shareXFiles([XFile(path)]);
-                              } else if (piv['vid'] != null) {
-                                WhiteSnackBar.buildSnackBar(context,
-                                    'Preparing your video for sharing...');
-                                final response = await http.get(
-                                    Uri.parse((kTagawayVideoURL) + (piv['id'])),
-                                    headers: {'cookie': store.get('cookie')});
+                        })),
 
-                                final bytes = response.bodyBytes;
-                                final temp = await getTemporaryDirectory();
-                                final path = '${temp.path}/video.mp4';
-                                File(path).writeAsBytesSync(bytes);
-                                await Share.shareXFiles([XFile(path)]);
-                              }
-                            } else {
-                              WhiteSnackBar.buildSnackBar(context,
-                                  'Preparing your image for sharing...');
-                              final response = await piv['piv'].originBytes;
-                              final bytes = response;
-                              final temp = await getTemporaryDirectory();
-                              final path = '${temp.path}/image.jpg';
-                              File(path).writeAsBytesSync(bytes!);
-                              await Share.shareXFiles([XFile(path)]);
-                            }
-                          },
-                          icon: const Icon(
-                            kShareArrownUpIcon,
-                            size: 25,
-                            color: kGreyLightest,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: IconButton(
-                          onPressed: () {
-                            if (piv['local'] == null) {
-                              TagService.instance
-                                  .deleteUploadedPivs([piv['id']]);
-                              Navigator.pop(context);
-                            } else {
-                              PivService.instance.uploadQueue
-                                  .remove(piv['piv']);
-                              store.remove('pendingTags:' + piv['piv'].id);
-                              Navigator.pop(context);
-                            }
-                          },
-                          icon: const Icon(
-                            kTrashCanIcon,
-                            size: 25,
-                            color: kGreyLightest,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Align(
+            //   alignment: Alignment.bottomCenter,
+            //   child: Container(
+            //     width: double.infinity,
+            //     color: kGreyDarkest,
+            //     child: SafeArea(
+            //       child: Row(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         mainAxisSize: MainAxisSize.max,
+            //         children: [
+            //           Expanded(
+            //             child: IconButton(
+            //               onPressed: () async {
+            //                 if (piv['local'] == null) {
+            //                   if (piv['vid'] == null) {
+            //                     WhiteSnackBar.buildSnackBar(context,
+            //                         'Preparing your image for sharing...');
+            //                     final response = await http.get(
+            //                         Uri.parse(
+            //                             (kTagawayThumbMURL) + (piv['id'])),
+            //                         headers: {'cookie': store.get('cookie')});
+            //                     final bytes = response.bodyBytes;
+            //                     final temp = await getTemporaryDirectory();
+            //                     final path = '${temp.path}/image.jpg';
+            //                     File(path).writeAsBytesSync(bytes);
+            //                     await Share.shareXFiles([XFile(path)]);
+            //                   } else if (piv['vid'] != null) {
+            //                     WhiteSnackBar.buildSnackBar(context,
+            //                         'Preparing your video for sharing...');
+            //                     final response = await http.get(
+            //                         Uri.parse((kTagawayVideoURL) + (piv['id'])),
+            //                         headers: {'cookie': store.get('cookie')});
+            //
+            //                     final bytes = response.bodyBytes;
+            //                     final temp = await getTemporaryDirectory();
+            //                     final path = '${temp.path}/video.mp4';
+            //                     File(path).writeAsBytesSync(bytes);
+            //                     await Share.shareXFiles([XFile(path)]);
+            //                   }
+            //                 } else {
+            //                   WhiteSnackBar.buildSnackBar(context,
+            //                       'Preparing your image for sharing...');
+            //                   final response = await piv['piv'].originBytes;
+            //                   final bytes = response;
+            //                   final temp = await getTemporaryDirectory();
+            //                   final path = '${temp.path}/image.jpg';
+            //                   File(path).writeAsBytesSync(bytes!);
+            //                   await Share.shareXFiles([XFile(path)]);
+            //                 }
+            //               },
+            //               icon: const Icon(
+            //                 kShareArrownUpIcon,
+            //                 size: 25,
+            //                 color: kGreyLightest,
+            //               ),
+            //             ),
+            //           ),
+            //           Expanded(
+            //             child: IconButton(
+            //               onPressed: () {
+            //                 if (piv['local'] == null) {
+            //                   TagService.instance
+            //                       .deleteUploadedPivs([piv['id']]);
+            //                   Navigator.pop(context);
+            //                 } else {
+            //                   PivService.instance.uploadQueue
+            //                       .remove(piv['piv']);
+            //                   store.remove('pendingTags:' + piv['piv'].id);
+            //                   Navigator.pop(context);
+            //                 }
+            //               },
+            //               icon: const Icon(
+            //                 kTrashCanIcon,
+            //                 size: 25,
+            //                 color: kGreyLightest,
+            //               ),
+            //             ),
+            //           )
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ]),
         );
       },
@@ -512,18 +535,23 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
         ? Stack(
             children: [
               Container(
+                width: SizeService.instance.screenWidth(context),
+                height: SizeService.instance.screenHeight(context) * .5,
                 alignment: Alignment.topCenter,
                 decoration: const BoxDecoration(
-                  color: kGreyDarkest,
-                ),
+                    color: kGreyDarker,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15))),
                 child: AspectRatio(
                   aspectRatio: _controller.value.aspectRatio,
                   child: VideoPlayer(_controller),
                 ),
               ),
               Align(
-                alignment: const Alignment(0.8, .7),
+                alignment: const Alignment(0.8, 0),
                 child: FloatingActionButton(
+                  shape: const CircleBorder(),
                   key: const Key('playPause'),
                   backgroundColor: kAltoBlue,
                   onPressed: () {
@@ -544,6 +572,7 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
                     _controller.value.isPlaying
                         ? Icons.pause
                         : Icons.play_arrow,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -635,6 +664,49 @@ class VideoError extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class SuggestionGrid extends StatefulWidget {
+  const SuggestionGrid({Key? key}) : super(key: key);
+
+  @override
+  State<SuggestionGrid> createState() => _SuggestionGridState();
+}
+
+class _SuggestionGridState extends State<SuggestionGrid> {
+  final ScrollController suggestionGridController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: GridView.builder(
+          controller: suggestionGridController,
+          reverse: true,
+          shrinkWrap: true,
+          cacheExtent: 3,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            childAspectRatio:
+                SizeService.instance.timeHeaderChildAspectRatio(context),
+            crossAxisCount: 3,
+            mainAxisSpacing: 1,
+            crossAxisSpacing: 1,
+          ),
+          itemCount: 9,
+          itemBuilder: (BuildContext context, index) {
+            return Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Container(
+                  color: Colors.blue,
+                  width: SizeService.instance.screenWidth(context) * .32,
+                  height: SizeService.instance.screenWidth(context) * .32,
+                ),
+                Text('Text is lorem'),
+              ],
+            );
+          }),
     );
   }
 }

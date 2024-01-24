@@ -41,7 +41,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     cancelListener = store
-        .listen(['hometags', 'tags', 'account', 'homeThumbs', 'organized'],
+        .listen(['hometags', 'tags', 'account', 'thumbs', 'organized'],
             (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
