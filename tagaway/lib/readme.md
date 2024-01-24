@@ -2,13 +2,9 @@
 
 ## TODO
 
-- Annotate: getOverallAchievements
 - Small improvements
    - Count organized today properly by adding date when piv was added to queue
    - Confirm on delete single uploaded piv
-- Improve score/celebration
-   - Fireworks?
-   - Add thumbnails to score?
 - Swipe sideways to navigate months in uploaded
 - Server
    - tag L:404
@@ -22,7 +18,6 @@
    - When not fullscreened, show each tag and a random piv next to it
    - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
 - Rework zoom in carrousel (Tom)
-- Info view for each piv on cloud (Tom)
 
 - Sharebox
    - Backend
@@ -54,6 +49,7 @@
 
 -----
 - Draggable selection
+- Info view for each piv on cloud (Tom)
 - Tutorial (Tom)
 - Share Tagaway button and link (Tom)
 - Write a QA script (Tom)
