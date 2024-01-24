@@ -20,7 +20,7 @@ class BottomNavigationView extends StatefulWidget {
 class _BottomNavigationViewState extends State<BottomNavigationView> {
   dynamic cancelListener;
 
-  int viewIndex = 1;
+  int viewIndex = 0;
   final screens = [
     const HomeView(), const LocalView()
     // , const ShareView()
@@ -30,7 +30,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
   void initState() {
     super.initState();
     cancelListener = store.listen(['viewIndex'], (v1) {
-      if (v1 == '') return store.set('viewIndex', 1);
+      if (v1 == '') return store.set('viewIndex', 0);
       setState(() {
         viewIndex = v1;
       });

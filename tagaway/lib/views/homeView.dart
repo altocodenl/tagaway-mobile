@@ -29,7 +29,7 @@ class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
   dynamic hometags = '';
-  dynamic homeThumbs = {};
+  dynamic thumbs = {};
   dynamic tags = '';
   dynamic account = {
     'username': '',
@@ -41,13 +41,14 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     cancelListener = store
-        .listen(['hometags', 'tags', 'account', 'homeThumbs', 'organized'],
+        .listen(['hometags', 'tags', 'account', 'thumbs', 'organized'],
             (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
-        tags = v2;
+        if (v2 != '') tags = v2.toList();
+        if (v2 != '') tags.shuffle();
         if (v3 != '') account = v3;
-        if (v4 != '') homeThumbs = v4;
+        if (v4 != '') thumbs = v4;
         if (Organized != '') organized = Organized;
       });
     });
@@ -199,7 +200,7 @@ class _HomeViewState extends State<HomeView> {
         ],
       )),
       body: SafeArea(
-        child: hometags == ''
+        child: tags == ''
             ? const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
@@ -209,7 +210,7 @@ class _HomeViewState extends State<HomeView> {
                 onRefresh: () async {
                   return TagService.instance.getTags();
                 },
-                child: (hometags.isEmpty
+                child: (tags.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.only(left: 12, right: 12),
                         child: Center(
@@ -325,29 +326,30 @@ class _HomeViewState extends State<HomeView> {
                                     mainAxisSpacing: 4,
                                     crossAxisSpacing: 8,
                                   ),
-                                  itemCount: hometags.length,
+                                  itemCount: tags.length,
                                   itemBuilder:
                                       (BuildContext context, int index) {
-                                    var tag = hometags[index];
-                                    // If homeThumb hasn't loaded yet, do not return anything.
-                                    if (homeThumbs[tag] == null)
-                                      return Container();
+                                    var tag = tags[index];
+                                    // If thumb hasn't loaded yet, do not return anything.
+                                    if (thumbs[tag] == null) return Container();
                                     return GestureDetector(
                                         onTap: () {
                                           store.set(
                                               'queryTags', [tag], '', 'mute');
                                           TagService.instance.queryPivsForMonth(
-                                              homeThumbs[tag]['currentMonth']);
+                                              thumbs[tag]['currentMonth']);
                                           Navigator.pushReplacementNamed(
                                               context, 'uploaded');
+                                          store.set(
+                                              'jumpTo', thumbs[tag]['id']);
                                         },
                                         child: HomeCard(
                                             color: tagColor(tag),
                                             tag: tag,
-                                            thumb: homeThumbs[tag]['id'],
-                                            deg: homeThumbs[tag]['deg'] == null
+                                            thumb: thumbs[tag]['id'],
+                                            deg: thumbs[tag]['deg'] == null
                                                 ? 0
-                                                : homeThumbs[tag]['deg']));
+                                                : thumbs[tag]['deg']));
                                   })),
                           Align(
                             alignment: const Alignment(0, .9),
@@ -743,7 +745,7 @@ class HomeCard extends StatelessWidget {
                 width: double.infinity,
                 height: double.infinity,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(.25),
+                  color: color.withOpacity(.01),
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                 ),
               )),

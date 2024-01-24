@@ -25,7 +25,7 @@ class TagService {
       updateOrganizedCount (response ['body'] ['organized']);
 
       store.set ('hometags', response ['body'] ['hometags']);
-      store.set ('homeThumbs', response ['body'] ['homeThumbs']);
+      store.set ('thumbs', response ['body'] ['homeThumbs']);
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);

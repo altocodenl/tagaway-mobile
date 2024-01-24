@@ -2,6 +2,11 @@
 
 ## TODO
 
+- Tube
+   - Show all tags in home
+   - Store info of impressions and clicks on tags
+   - When clicking, jump to that piv
+
 - Small improvements
    - Count organized today properly by adding date when piv was added to queue
    - Confirm on delete single uploaded piv
@@ -9,6 +14,7 @@
 - Server
    - tag L:404
    - Rename a tag X to an existing tag Y
+   - Rename homeThumbs to thumbs after launching new release
 - Finish annotated source code: tagService, storeService, tools.
 
 - Rethink tagging (Tom)
@@ -74,7 +80,6 @@
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server.
-- homeThumbs {TAG: {id: ...}, ...}: maps each hometag to its last piv, brought from the server.
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
 - lastNTags [<str>, ...] [DISK]: list of the last N tags used to tag or untag, either on local or uploaded - deleted on logout.
@@ -106,6 +111,7 @@
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
 - tagMap(Local|Uploaded):<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the tags currently being applied
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
+- thumbs {TAG: {id: STRING, deg: INTEGER|UNDEFINED, currentMonth: [INTEGER (year), INTEGER (month)]}, ...}: maps each tag to a random piv, brought from the server.
 - uploadQueue [<string>, ...] [DISK]: list of ids of pivs that are going to be uploaded - deleted on logout.
 - timeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
@@ -1891,11 +1897,11 @@ We invoke `updateOrganizedCount` passing to it the current total number of organ
       updateOrganizedCount (response ['body'] ['organized']);
 ```
 
-We update the `hometags` and `homeThumbs` keys with what comes from the response body.
+We update the `hometags` and `thumbs` keys with what comes from the response body. Note we map `homeThumbs` to `thumbs` (the server endpoint will be changed in the future; it hasn't been changed yet to avoid backward compatibility issues until we publish the next build).
 
 ```dart
       store.set ('hometags', response ['body'] ['hometags']);
-      store.set ('homeThumbs', response ['body'] ['homeThumbs']);
+      store.set ('thumbs', response ['body'] ['homeThumbs']);
 ```
 
 We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.
