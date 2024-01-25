@@ -3,27 +3,21 @@
 ## TODO
 
 - Tube
-   - Show all tags in home
    - Store info of impressions and clicks on tags
-   - When clicking, jump to that piv
+   - Show all phone pivs in tube
+   - Improve how thumbs are shown
 
-- Small improvements
-   - Count organized today properly by adding date when piv was added to queue
-   - Confirm on delete single uploaded piv
+- Intermediate view mode, show tags
+- New tagging system
+- Rework zoom in carrousel (Tom)
+
+- Confirm on delete single uploaded piv
 - Swipe sideways to navigate months in uploaded
 - Server
    - tag L:404
    - Rename a tag X to an existing tag Y
    - Rename homeThumbs to thumbs after launching new release
 - Finish annotated source code: tagService, storeService, tools.
-
-- Rethink tagging (Tom)
-   - Piv by piv!
-- Rethink carrousel (Tom)
-   - Current is the full screen mode: show tags & a FAB
-   - When not fullscreened, show each tag and a random piv next to it
-   - Be able to jump to the random piv in the carrousel, and if you exit to the grid, be in the right position
-- Rework zoom in carrousel (Tom)
 
 - Sharebox
    - Backend
