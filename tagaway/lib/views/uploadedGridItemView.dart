@@ -130,6 +130,8 @@ class _CarrouselViewState extends State<CarrouselView>
   ScrollPhysics? pageBuilderScroll;
   dynamic loadedImages = {};
 
+  get http => null;
+
   @override
   void initState() {
     super.initState();
@@ -230,7 +232,6 @@ class _CarrouselViewState extends State<CarrouselView>
             ),
           ),
           body: Stack(children: [
-            const SuggestionGrid(),
             piv['local'] == true
                 ? Visibility(
                     visible: piv['piv'].type == AssetType.image,
@@ -396,7 +397,13 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
-
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                  width: SizeService.instance.screenWidth(context),
+                  height: SizeService.instance.screenWidth(context) * .7,
+                  child: const SuggestionGrid()),
+            ),
             // Align(
             //   alignment: Alignment.bottomCenter,
             //   child: Container(
@@ -683,27 +690,50 @@ class _SuggestionGridState extends State<SuggestionGrid> {
     return SizedBox.expand(
       child: GridView.builder(
           controller: suggestionGridController,
-          reverse: true,
+          // reverse: true,
           shrinkWrap: true,
           cacheExtent: 3,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             childAspectRatio:
                 SizeService.instance.timeHeaderChildAspectRatio(context),
             crossAxisCount: 3,
-            mainAxisSpacing: 1,
+            mainAxisSpacing: 20,
             crossAxisSpacing: 1,
           ),
           itemCount: 9,
           itemBuilder: (BuildContext context, index) {
             return Column(
-              mainAxisSize: MainAxisSize.max,
+              // mainAxisSize: MainAxisSize.max,
               children: [
                 Container(
                   color: Colors.blue,
-                  width: SizeService.instance.screenWidth(context) * .32,
-                  height: SizeService.instance.screenWidth(context) * .32,
+                  width: SizeService.instance.screenWidth(context) * .3,
+                  height: SizeService.instance.screenWidth(context) * .3,
                 ),
-                Text('Text is lorem'),
+                SizedBox(
+                  height: 15,
+                  width: SizeService.instance.screenWidth(context) * .3,
+                  child: const Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 2.0),
+                        child: FaIcon(
+                          kTagIcon,
+                          color: kAltoBlue,
+                          size: 15,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'Text is lorem',
+                        textAlign: TextAlign.center,
+                        style: kGridBottomRowText,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             );
           }),
