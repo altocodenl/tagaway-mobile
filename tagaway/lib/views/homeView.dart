@@ -368,6 +368,7 @@ class _HomeViewState extends State<HomeView> {
                                 icon: const Text('Search', style: kButtonText),
                                 key: const Key('homeFabQuerySelector'),
                                 onPressed: () {
+                                  store.set('queryTags', []);
                                   Navigator.pushReplacementNamed(
                                       context, 'querySelector');
                                 }),

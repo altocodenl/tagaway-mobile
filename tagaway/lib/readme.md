@@ -3,9 +3,11 @@
 ## TODO
 
 - Tube
-   - Store info of impressions and clicks on tags
+   - Don't show pivs that don't belong to query when switching queries
+   - Bug when switching queries with yearUploaded
    - Show all phone pivs in tube
    - Improve how thumbs are shown
+   - Store info of impressions and clicks on tags
 
 - Intermediate view mode, show tags
 - New tagging system

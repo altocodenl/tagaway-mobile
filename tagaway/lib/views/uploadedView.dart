@@ -327,7 +327,6 @@ class _TopRowState extends State<TopRow> {
                           store.remove('currentlyDeletingUploaded');
                           store.remove('currentlyDeletingModalUploaded');
                           store.remove('currentlyDeletingPivsUploaded');
-                          store.set('queryTags', []);
                           Navigator.pushReplacementNamed(
                               context, 'bottomNavigation');
                         },
