@@ -341,7 +341,7 @@ class _HomeViewState extends State<HomeView> {
                                           Navigator.pushReplacementNamed(
                                               context, 'uploaded');
                                           store.set(
-                                              'jumpTo', thumbs[tag]['id']);
+                                              'jumpToPiv', thumbs[tag]['id']);
                                         },
                                         child: HomeCard(
                                             color: tagColor(tag),
