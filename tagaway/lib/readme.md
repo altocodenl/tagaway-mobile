@@ -3,6 +3,7 @@
 ## TODO
 
 - Tube
+   - Remove jumpToPiv and load carrousel directly from home; change carrousel to take piv as string and find it from there; make carrousel reactive to queryResult and if pivs is empty, show circle loader
    - Comment out local achievements including o:: query
    - Don't show pivs that don't belong to query when switching queries
    - Bug when switching queries with yearUploaded
