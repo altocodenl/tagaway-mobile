@@ -61,7 +61,8 @@ class _UploadGridState extends State<UploadGrid> {
     if (store.get('jumpToPiv') == '') return;
     var pivs = store.get('queryResult')['pivs'];
     if (pivs == '') return;
-    var pivIndex = pivs.indexWhere((piv) => piv['id'] == store.get('jumpToPiv'));
+    var pivIndex =
+        pivs.indexWhere((piv) => piv['id'] == store.get('jumpToPiv'));
     if (pivIndex == -1) return;
     store.remove('jumpToPiv');
     Navigator.push(

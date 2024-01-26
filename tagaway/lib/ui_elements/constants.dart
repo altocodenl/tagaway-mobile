@@ -511,3 +511,7 @@ String shorten(tag, context) {
     return tag.length < 15 ? tag : tag.substring(0, 15) + '...';
   }
 }
+
+String shortenSuggestion(tag, context) {
+  return tag.length < 11 ? tag : tag.substring(0, 11) + '...';
+}

@@ -405,8 +405,9 @@ class _CarrouselViewState extends State<CarrouselView>
               child: SizedBox(
                   width: SizeService.instance.screenWidth(context),
                   height: SizeService.instance.screenWidth(context) * .7,
-                  child: const SuggestionGrid()),
+                  child: SuggestionGrid(tags: piv['tags'])),
             ),
+            // TODO: SHARE & DELETE
             // Align(
             //   alignment: Alignment.bottomCenter,
             //   child: Container(
@@ -679,7 +680,9 @@ class VideoError extends StatelessWidget {
 }
 
 class SuggestionGrid extends StatefulWidget {
-  const SuggestionGrid({Key? key}) : super(key: key);
+  const SuggestionGrid({Key? key, required this.tags}) : super(key: key);
+
+  final dynamic tags;
 
   @override
   State<SuggestionGrid> createState() => _SuggestionGridState();
@@ -690,6 +693,8 @@ class _SuggestionGridState extends State<SuggestionGrid> {
 
   @override
   Widget build(BuildContext context) {
+    var tags = widget.tags.toList();
+    tags.shuffle();
     return SizedBox.expand(
       child: GridView.builder(
           controller: suggestionGridController,
@@ -703,42 +708,69 @@ class _SuggestionGridState extends State<SuggestionGrid> {
             mainAxisSpacing: 20,
             crossAxisSpacing: 1,
           ),
-          itemCount: 9,
+          itemCount: tags.length,
           itemBuilder: (BuildContext context, index) {
-            return Column(
-              // mainAxisSize: MainAxisSize.max,
-              children: [
-                Container(
-                  color: Colors.blue,
-                  width: SizeService.instance.screenWidth(context) * .3,
-                  height: SizeService.instance.screenWidth(context) * .3,
-                ),
-                SizedBox(
-                  height: 15,
-                  width: SizeService.instance.screenWidth(context) * .3,
-                  child: const Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 2.0),
-                        child: FaIcon(
-                          kTagIcon,
-                          color: kAltoBlue,
-                          size: 15,
-                        ),
+            var tag = tags[index];
+            var thumb = store.get('thumbs')[tag];
+            return GestureDetector(
+                onTap: () {
+                  store.set('queryTags', [tag], '', 'mute');
+                  TagService.instance.queryPivsForMonth(thumb['currentMonth']);
+                  Navigator.pushReplacementNamed(context, 'uploaded');
+                  store.set('jumpToPiv', thumb['id']);
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: SizeService.instance.screenWidth(context) * .3,
+                      height: SizeService.instance.screenWidth(context) * .3,
+                      child: CachedNetworkImage(
+                          imageUrl: (kTagawayThumbSURL) + thumb['id'],
+                          httpHeaders: {'cookie': store.get('cookie')},
+                          placeholder: (context, url) => const Center(
+                                  child: CircularProgressIndicator(
+                                color: kAltoBlue,
+                              )),
+                          imageBuilder: (context, imageProvider) =>
+                              Transform.rotate(
+                                angle:
+                                    (thumb['deg'] == null ? 0 : thumb['deg']) *
+                                        math.pi /
+                                        180.0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: imageProvider)),
+                                ),
+                              )),
+                    ),
+                    SizedBox(
+                      height: 15,
+                      width: SizeService.instance.screenWidth(context) * .3,
+                      child: Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 2.0),
+                            child: FaIcon(
+                              tagIcon(tag),
+                              color: tagIconColor(tag),
+                              size: 15,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            shortenSuggestion(tagTitle(tag), context),
+                            textAlign: TextAlign.center,
+                            style: kGridBottomRowText,
+                          ),
+                        ],
                       ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        'Text is lorem',
-                        textAlign: TextAlign.center,
-                        style: kGridBottomRowText,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
+                    ),
+                  ],
+                ));
           }),
     );
   }
