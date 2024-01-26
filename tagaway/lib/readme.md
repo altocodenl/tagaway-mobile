@@ -3,6 +3,7 @@
 ## TODO
 
 - Tube
+   - Comment out local achievements including o:: query
    - Don't show pivs that don't belong to query when switching queries
    - Bug when switching queries with yearUploaded
    - Show all phone pivs in tube
