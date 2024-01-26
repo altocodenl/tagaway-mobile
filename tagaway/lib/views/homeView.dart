@@ -735,13 +735,26 @@ class HomeCard extends StatelessWidget {
                 padding: const EdgeInsets.only(
                     left: 8.0, right: 8.0, top: 8, bottom: 8),
                 child: Center(
-                    child: Text(
-                  tag,
-                  textAlign: TextAlign.center,
-                  style: kHomeStackedTagText,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                )),
+                    child: Row(children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 2.0),
+                    child: FaIcon(
+                      tagIcon(tag),
+                      color: tagIconColor(tag),
+                      size: 15,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    shortenSuggestion(tag, context),
+                    textAlign: TextAlign.center,
+                    style: kHomeStackedTagText,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                ])),
               ),
             ),
           ),
