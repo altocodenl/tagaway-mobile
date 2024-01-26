@@ -258,6 +258,45 @@ class _HomeViewState extends State<HomeView> {
                       )
                     : Stack(
                         children: [
+                          // TAG GRID
+                          Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 12, right: 12, top: 80 + 7),
+                              child: GridView.builder(
+                                  shrinkWrap: true,
+                                  cacheExtent: 50,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 4,
+                                    crossAxisSpacing: 8,
+                                  ),
+                                  itemCount: tags.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var tag = tags[index];
+                                    // If thumb hasn't loaded yet, do not return anything.
+                                    if (thumbs[tag] == null) return Container();
+                                    return GestureDetector(
+                                        onTap: () {
+                                          store.set(
+                                              'queryTags', [tag], '', 'mute');
+                                          TagService.instance.queryPivsForMonth(
+                                              thumbs[tag]['currentMonth']);
+                                          Navigator.pushReplacementNamed(
+                                              context, 'uploaded');
+                                          store.set(
+                                              'jumpToPiv', thumbs[tag]['id']);
+                                        },
+                                        child: HomeCard(
+                                            color: tagColor(tag),
+                                            tag: tag,
+                                            thumb: thumbs[tag]['id'],
+                                            deg: thumbs[tag]['deg'] == null
+                                                ? 0
+                                                : thumbs[tag]['deg']));
+                                  })),
+                          /* HOME AWARDS
                           HomeAwardsView(
                             child: Row(
                               children: [
@@ -314,43 +353,7 @@ class _HomeViewState extends State<HomeView> {
                               ],
                             ),
                           ),
-                          Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 12, right: 12, top: 80 + 7),
-                              child: GridView.builder(
-                                  shrinkWrap: true,
-                                  cacheExtent: 50,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 4,
-                                    crossAxisSpacing: 8,
-                                  ),
-                                  itemCount: tags.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    var tag = tags[index];
-                                    // If thumb hasn't loaded yet, do not return anything.
-                                    if (thumbs[tag] == null) return Container();
-                                    return GestureDetector(
-                                        onTap: () {
-                                          store.set(
-                                              'queryTags', [tag], '', 'mute');
-                                          TagService.instance.queryPivsForMonth(
-                                              thumbs[tag]['currentMonth']);
-                                          Navigator.pushReplacementNamed(
-                                              context, 'uploaded');
-                                          store.set(
-                                              'jumpToPiv', thumbs[tag]['id']);
-                                        },
-                                        child: HomeCard(
-                                            color: tagColor(tag),
-                                            tag: tag,
-                                            thumb: thumbs[tag]['id'],
-                                            deg: thumbs[tag]['deg'] == null
-                                                ? 0
-                                                : thumbs[tag]['deg']));
-                                  })),
+                          */
                           Align(
                             alignment: const Alignment(0, .9),
                             child: FloatingActionButton.extended(
@@ -376,6 +379,7 @@ class _HomeViewState extends State<HomeView> {
                         ],
                       ))),
       ),
+      /* EDIT HOMETAGS
       floatingActionButton: Visibility(
         visible: hometags.isNotEmpty,
         child: FloatingActionButton(
@@ -391,6 +395,7 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
       ),
+      */
     );
   }
 
