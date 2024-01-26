@@ -212,19 +212,22 @@ class _CarrouselViewState extends State<CarrouselView>
               mainAxisSize: MainAxisSize.max,
               children: [
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'images/tag blue with white - 400x400.png',
-                        scale: 8,
-                      ),
-                      const Text('tagaway', style: kTagawayMain),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 30.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          'images/tag blue with white - 400x400.png',
+                          scale: 8,
+                        ),
+                        const Text('tagaway', style: kTagawayMain),
+                      ],
+                    ),
                   ),
                 ),
                 const FaIcon(
-                  kLocalGridIcon,
+                  kCloudGridIcon,
                   color: kGreyDarker,
                   size: 30,
                 ),
