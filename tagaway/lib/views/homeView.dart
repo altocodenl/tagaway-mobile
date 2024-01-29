@@ -763,7 +763,7 @@ class HomeCard extends StatelessWidget {
                     width: 5,
                   ),
                   Text(
-                    shortenSuggestion(tag, context),
+                    shortenSuggestion(tagTitle(tag), context),
                     textAlign: TextAlign.center,
                     style: kHomeStackedTagText,
                     maxLines: 2,
