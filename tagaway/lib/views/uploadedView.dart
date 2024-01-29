@@ -57,22 +57,6 @@ class _UploadGridState extends State<UploadGrid> {
 
   dynamic visibleItems = [];
 
-  void jumpToPiv() {
-    if (store.get('jumpToPiv') == '') return;
-    var pivs = store.get('queryResult')['pivs'];
-    if (pivs == '') return;
-    var pivIndex =
-        pivs.indexWhere((piv) => piv['id'] == store.get('jumpToPiv'));
-    if (pivIndex == -1) return;
-    store.remove('jumpToPiv');
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) {
-        return CarrouselView(initialPiv: pivIndex, pivs: pivs);
-      }),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -92,7 +76,6 @@ class _UploadGridState extends State<UploadGrid> {
         setState(() {
           queryResult = QueryResult;
           monthEdges = TagService.instance.getMonthEdges();
-          jumpToPiv();
         });
     });
   }

@@ -713,13 +713,21 @@ class _SuggestionGridState extends State<SuggestionGrid> {
             var tag = tags[index];
             var thumb = store.get('thumbs')[tag];
             return GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  // TODO; here
                   store.set('queryTags', [tag], '', 'mute');
-                  TagService.instance.queryPivsForMonth(thumb['currentMonth']);
-                  store.set('jumpToPiv', thumb['id']);
-                  // Wait until the tree is drawn before navigating away.
+                  await TagService.instance
+                      .queryPivsForMonth(thumb['currentMonth']);
+                  var pivs = store.get('queryResult')['pivs'];
+                  var pivIndex =
+                      pivs.indexWhere((piv) => piv['id'] == thumb['id']);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.pushReplacementNamed(context, 'uploaded');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) {
+                        return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                      }),
+                    );
                   });
                 },
                 child: Column(

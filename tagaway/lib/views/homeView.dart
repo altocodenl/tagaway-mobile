@@ -12,6 +12,7 @@ import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/accountView.dart';
+import 'package:tagaway/views/uploadedGridItemView.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/sizeService.dart';
@@ -278,15 +279,29 @@ class _HomeViewState extends State<HomeView> {
                                     // If thumb hasn't loaded yet, do not return anything.
                                     if (thumbs[tag] == null) return Container();
                                     return GestureDetector(
-                                        onTap: () {
+                                        onTap: () async {
                                           store.set(
                                               'queryTags', [tag], '', 'mute');
-                                          TagService.instance.queryPivsForMonth(
-                                              thumbs[tag]['currentMonth']);
-                                          Navigator.pushReplacementNamed(
-                                              context, 'uploaded');
-                                          store.set(
-                                              'jumpToPiv', thumbs[tag]['id']);
+                                          await TagService.instance
+                                              .queryPivsForMonth(
+                                                  thumbs[tag]['currentMonth']);
+                                          var pivs =
+                                              store.get('queryResult')['pivs'];
+                                          var pivIndex = pivs.indexWhere(
+                                              (piv) =>
+                                                  piv['id'] ==
+                                                  thumbs[tag]['id']);
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (_) {
+                                                return CarrouselView(
+                                                    initialPiv: pivIndex,
+                                                    pivs: pivs);
+                                              }),
+                                            );
+                                          });
                                         },
                                         child: HomeCard(
                                             color: tagColor(tag),
