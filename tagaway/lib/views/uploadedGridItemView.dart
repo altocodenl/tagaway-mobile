@@ -716,8 +716,11 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                 onTap: () {
                   store.set('queryTags', [tag], '', 'mute');
                   TagService.instance.queryPivsForMonth(thumb['currentMonth']);
-                  Navigator.pushReplacementNamed(context, 'uploaded');
                   store.set('jumpToPiv', thumb['id']);
+                  // Wait until the tree is drawn before navigating away.
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.pushReplacementNamed(context, 'uploaded');
+                  });
                 },
                 child: Column(
                   children: [
