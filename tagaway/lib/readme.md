@@ -4,7 +4,7 @@
 
 - Tube
    - Improve how thumbs are shown in home
-   - Remove jumpToPiv and load carrousel directly from home; change carrousel to take piv as string and find it from there; make carrousel reactive to queryResult and if pivs is empty, show circle loader
+   - Add progress indicator when loading pivs when jumping (or preload piv)
    - Remove Phone View & BottomNavigation
    - Show all phone pivs in tube
    - Store info of impressions and clicks on tags
