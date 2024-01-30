@@ -286,6 +286,8 @@ class _HomeViewState extends State<HomeView> {
                                                 initialPiv: 1,
                                                 pivs: [thumbs[tag]]);
                                           }));
+                                          // TODO: uncomment?
+                                          /*
                                           store.set(
                                               'queryTags', [tag], '', 'mute');
                                           await TagService.instance
@@ -308,6 +310,7 @@ class _HomeViewState extends State<HomeView> {
                                               }),
                                             );
                                           });
+                                              */
                                         },
                                         child: HomeCard(
                                             color: tagColor(tag),

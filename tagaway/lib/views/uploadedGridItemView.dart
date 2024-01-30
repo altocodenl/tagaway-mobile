@@ -720,6 +720,8 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                       MaterialPageRoute(builder: (_) {
                     return CarrouselView(initialPiv: 1, pivs: [thumb]);
                   }));
+                  // TODO: uncomment?
+                  /*
                   store.set('queryTags', [tag], '', 'mute');
                   await TagService.instance
                       .queryPivsForMonth(thumb['currentMonth']);
@@ -733,6 +735,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                       return CarrouselView(initialPiv: pivIndex, pivs: pivs);
                     }),
                   );
+                  */
                 },
                 child: Column(
                   children: [
