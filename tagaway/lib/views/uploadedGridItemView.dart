@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:video_player/video_player.dart';
+
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:video_player/video_player.dart';
+import 'package:tagaway/main.dart';
 
 class UploadedGridItem extends StatelessWidget {
   dynamic pivIndex;
@@ -714,20 +716,23 @@ class _SuggestionGridState extends State<SuggestionGrid> {
             var thumb = store.get('thumbs')[tag];
             return GestureDetector(
                 onTap: () async {
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (_) {
+                    return CarrouselView(initialPiv: 1, pivs: [thumb]);
+                  }));
                   store.set('queryTags', [tag], '', 'mute');
                   await TagService.instance
                       .queryPivsForMonth(thumb['currentMonth']);
                   var pivs = store.get('queryResult')['pivs'];
                   var pivIndex =
                       pivs.indexWhere((piv) => piv['id'] == thumb['id']);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) {
-                        return CarrouselView(initialPiv: pivIndex, pivs: pivs);
-                      }),
-                    );
-                  });
+                  Navigator.pushReplacement(
+                    navigatorKey.currentState!
+                        .context, // We use this as context because if this widget is redrawn, we'll get an error when trying to get its context.
+                    MaterialPageRoute(builder: (_) {
+                      return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                    }),
+                  );
                 },
                 child: Column(
                   children: [

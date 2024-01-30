@@ -280,6 +280,12 @@ class _HomeViewState extends State<HomeView> {
                                     if (thumbs[tag] == null) return Container();
                                     return GestureDetector(
                                         onTap: () async {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(builder: (_) {
+                                            return CarrouselView(
+                                                initialPiv: 1,
+                                                pivs: [thumbs[tag]]);
+                                          }));
                                           store.set(
                                               'queryTags', [tag], '', 'mute');
                                           await TagService.instance
@@ -293,7 +299,7 @@ class _HomeViewState extends State<HomeView> {
                                                   thumbs[tag]['id']);
                                           WidgetsBinding.instance
                                               .addPostFrameCallback((_) {
-                                            Navigator.push(
+                                            Navigator.pushReplacement(
                                               context,
                                               MaterialPageRoute(builder: (_) {
                                                 return CarrouselView(

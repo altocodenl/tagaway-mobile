@@ -1013,7 +1013,8 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
           usertags = usertags.toSet().toList();
           usertags = usertags
               .where((tag) =>
-                  RegExp(RegExp.escape(TagFilter), caseSensitive: false).hasMatch(tag))
+                  RegExp(RegExp.escape(TagFilter), caseSensitive: false)
+                      .hasMatch(tag))
               .toList();
 
           // If there's a filter, sort at the top the tags that start with the filter
