@@ -714,7 +714,6 @@ class _SuggestionGridState extends State<SuggestionGrid> {
             var thumb = store.get('thumbs')[tag];
             return GestureDetector(
                 onTap: () async {
-                  // TODO; here
                   store.set('queryTags', [tag], '', 'mute');
                   await TagService.instance
                       .queryPivsForMonth(thumb['currentMonth']);
@@ -722,7 +721,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                   var pivIndex =
                       pivs.indexWhere((piv) => piv['id'] == thumb['id']);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) {
                         return CarrouselView(initialPiv: pivIndex, pivs: pivs);
