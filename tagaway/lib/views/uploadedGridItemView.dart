@@ -7,14 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
-
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/main.dart';
+import 'package:video_player/video_player.dart';
 
 class UploadedGridItem extends StatelessWidget {
   dynamic pivIndex;
@@ -137,6 +135,7 @@ class _CarrouselViewState extends State<CarrouselView>
   @override
   void initState() {
     super.initState();
+
     controller = TransformationController();
     animationController = AnimationController(
       vsync: this,
@@ -185,6 +184,7 @@ class _CarrouselViewState extends State<CarrouselView>
 
   @override
   Widget build(BuildContext context) {
+    print('Loading the Carrousel View + ${DateTime.timestamp()}');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -193,7 +193,7 @@ class _CarrouselViewState extends State<CarrouselView>
     ]);
     return PageView.builder(
       reverse: true,
-      physics: pageBuilderScroll,
+      // physics: pageBuilderScroll,
       controller: PageController(
         initialPage: widget.initialPiv,
       ),
@@ -720,7 +720,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                       MaterialPageRoute(builder: (_) {
                     return CarrouselView(initialPiv: 1, pivs: [thumb]);
                   }));
-                  TagService.instance.getTags ();
+                  TagService.instance.getTags();
                   // TODO: uncomment?
                   /*
                   store.set('queryTags', [tag], '', 'mute');
