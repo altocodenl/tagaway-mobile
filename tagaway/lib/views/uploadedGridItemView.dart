@@ -720,6 +720,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                       MaterialPageRoute(builder: (_) {
                     return CarrouselView(initialPiv: 1, pivs: [thumb]);
                   }));
+                  TagService.instance.getTags ();
                   // TODO: uncomment?
                   /*
                   store.set('queryTags', [tag], '', 'mute');

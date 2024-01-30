@@ -286,6 +286,7 @@ class _HomeViewState extends State<HomeView> {
                                                 initialPiv: 1,
                                                 pivs: [thumbs[tag]]);
                                           }));
+                                          TagService.instance.getTags ();
                                           // TODO: uncomment?
                                           /*
                                           store.set(
