@@ -1013,7 +1013,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
           usertags = usertags.toSet().toList();
           usertags = usertags
               .where((tag) =>
-                  RegExp(TagFilter, caseSensitive: false).hasMatch(tag))
+                  RegExp(RegExp.escape(TagFilter), caseSensitive: false).hasMatch(tag))
               .toList();
 
           // If there's a filter, sort at the top the tags that start with the filter
@@ -1040,7 +1040,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
             usertags = usertags
                 .where((tag) => !CurrentlyTagging.contains(tag))
                 .toList();
-          if (RegExp('^org').hasMatch(TagFilter)) {
+          if (RegExp('^org').hasMatch(RegExp.escape(TagFilter))) {
             usertags.add('o::');
           }
         }
