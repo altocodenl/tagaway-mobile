@@ -334,7 +334,7 @@ const kPhoneViewAchievementsNumber = TextStyle(
 
 const kHomeStackedTagText = TextStyle(
   fontFamily: 'Montserrat-Regular',
-  fontSize: 20,
+  fontSize: 16,
   color: kGreyDarkest,
 );
 

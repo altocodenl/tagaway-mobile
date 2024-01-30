@@ -269,7 +269,7 @@ class _HomeViewState extends State<HomeView> {
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
-                                    mainAxisSpacing: 40,
+                                    mainAxisSpacing: 50,
                                     crossAxisSpacing: 8,
                                   ),
                                   itemCount: tags.length,
@@ -691,18 +691,17 @@ class HomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-      ),
-      child: Stack(
-        children: [
-          Transform.rotate(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          child: Transform.rotate(
               angle: deg * math.pi / 180.0,
               child: Container(
-                // width: double.infinity,
-                // height: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                   border: Border.all(color: Colors.transparent),
@@ -713,56 +712,34 @@ class HomeCard extends StatelessWidget {
                       })),
                 ),
               )),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: 75,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(.8),
-                borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    left: 8.0, right: 8.0, top: 8, bottom: 8),
-                child: Center(
-                    child: Row(children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 2.0),
-                    child: FaIcon(
-                      tagIcon(tag),
-                      color: tagIconColor(tag),
-                      size: 15,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    shortenSuggestion(tagTitle(tag), context),
-                    textAlign: TextAlign.center,
-                    style: kHomeStackedTagText,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                ])),
-              ),
-            ),
-          ),
-          Transform.rotate(
-              angle: deg * math.pi / 180.0,
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(.01),
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+        ),
+        Positioned(
+          bottom: -30,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+              Padding(
+                padding: EdgeInsets.only(top: 2.0),
+                child: FaIcon(
+                  tagIcon(tag),
+                  color: tagIconColor(tag),
+                  size: 16,
                 ),
-              )),
-        ],
-      ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                shortenSuggestion(tagTitle(tag), context),
+                textAlign: TextAlign.center,
+                style: kHomeStackedTagText,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )
+            ]),
+          ),
+        ),
+      ],
     );
   }
 }
