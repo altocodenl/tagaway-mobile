@@ -269,7 +269,7 @@ class _HomeViewState extends State<HomeView> {
                                   gridDelegate:
                                       const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
-                                    mainAxisSpacing: 4,
+                                    mainAxisSpacing: 40,
                                     crossAxisSpacing: 8,
                                   ),
                                   itemCount: tags.length,
@@ -693,7 +693,7 @@ class HomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       child: Stack(
@@ -701,34 +701,12 @@ class HomeCard extends StatelessWidget {
           Transform.rotate(
               angle: deg * math.pi / 180.0,
               child: Container(
-                width: double.infinity,
-                height: double.infinity,
+                // width: double.infinity,
+                // height: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
                   border: Border.all(color: Colors.transparent),
                   image: DecorationImage(
-                      // colorFilter: ColorFilter.matrix(<double>[
-                      //   0.7,
-                      //   0.1,
-                      //   0.1,
-                      //   0,
-                      //   0,
-                      //   0.1,
-                      //   0.7,
-                      //   0.1,
-                      //   0,
-                      //   0,
-                      //   0.1,
-                      //   0.1,
-                      //   0.7,
-                      //   0,
-                      //   0,
-                      //   0,
-                      //   0,
-                      //   0,
-                      //   1,
-                      //   0,
-                      // ]),
                       fit: BoxFit.cover,
                       image: NetworkImage(kTagawayThumbSURL + thumb, headers: {
                         'cookie': store.get('cookie'),
