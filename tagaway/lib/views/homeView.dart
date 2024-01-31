@@ -288,7 +288,7 @@ class _HomeViewState extends State<HomeView> {
                                               MaterialPageRoute(builder: (_) {
                                             return CarrouselView(
                                                 initialPiv: 1,
-                                                pivs: [thumbs[tag]]);
+                                                pivs: [thumbs[tag]], currentTag: tag);
                                           }));
                                           TagService.instance.getTags();
                                           // TODO: uncomment?

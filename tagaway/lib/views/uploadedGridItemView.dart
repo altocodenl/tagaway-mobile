@@ -70,7 +70,7 @@ class UploadedGridItem extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) {
-                return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                return CarrouselView(initialPiv: pivIndex, pivs: pivs, currentTag: piv['tags'][0]);
               }),
             );
           },
@@ -86,7 +86,7 @@ class UploadedGridItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) {
-                  return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                  return CarrouselView(initialPiv: pivIndex, pivs: pivs, currentTag: piv['tags'][0]);
                 }),
               );
             }
@@ -111,11 +111,12 @@ class UploadedGridItem extends StatelessWidget {
 }
 
 class CarrouselView extends StatefulWidget {
-  const CarrouselView({Key? key, required this.initialPiv, required this.pivs})
+  const CarrouselView({Key? key, required this.initialPiv, required this.pivs, required this.currentTag})
       : super(key: key);
 
   final dynamic initialPiv;
   final dynamic pivs;
+  final dynamic currentTag;
 
   @override
   State<CarrouselView> createState() => _CarrouselViewState();
@@ -757,7 +758,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                 onTap: () async {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (_) {
-                    return CarrouselView(initialPiv: 1, pivs: [thumb]);
+                    return CarrouselView(initialPiv: 1, pivs: [thumb], currentTag: tag);
                   }));
                   TagService.instance.getTags();
                   // TODO: uncomment?
