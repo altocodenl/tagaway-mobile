@@ -437,12 +437,41 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
+
             Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox(
                   width: SizeService.instance.screenWidth(context),
                   height: SizeService.instance.screenWidth(context) * .7,
-                  child: SuggestionGrid(tags: piv['tags'])),
+                  child: Stack(clipBehavior: Clip.none, children: [
+                    Positioned(
+                      top: -30,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 2.0),
+                              child: FaIcon(
+                                kTagIcon,
+                                size: 15,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              ('Lorem ipsum'),
+                              textAlign: TextAlign.center,
+                              style: kGridBottomRowText,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SuggestionGrid(tags: piv['tags'])
+                  ])),
             ),
             // TODO: SHARE & DELETE
             // Align(

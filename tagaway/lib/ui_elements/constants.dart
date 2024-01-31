@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/sizeService.dart';
 
 const ENV = 'dev';
-// const ENV = 'prod';
+// const ENV = 'prod'
 
 const version = '2.3.0';
 
