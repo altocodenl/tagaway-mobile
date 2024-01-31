@@ -70,7 +70,10 @@ class UploadedGridItem extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) {
-                return CarrouselView(initialPiv: pivIndex, pivs: pivs, currentTag: piv['tags'][0]);
+                return CarrouselView(
+                    initialPiv: pivIndex,
+                    pivs: pivs,
+                    currentTag: piv['tags'][0]);
               }),
             );
           },
@@ -86,7 +89,10 @@ class UploadedGridItem extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) {
-                  return CarrouselView(initialPiv: pivIndex, pivs: pivs, currentTag: piv['tags'][0]);
+                  return CarrouselView(
+                      initialPiv: pivIndex,
+                      pivs: pivs,
+                      currentTag: piv['tags'][0]);
                 }),
               );
             }
@@ -111,7 +117,11 @@ class UploadedGridItem extends StatelessWidget {
 }
 
 class CarrouselView extends StatefulWidget {
-  const CarrouselView({Key? key, required this.initialPiv, required this.pivs, required this.currentTag})
+  const CarrouselView(
+      {Key? key,
+      required this.initialPiv,
+      required this.pivs,
+      required this.currentTag})
       : super(key: key);
 
   final dynamic initialPiv;
@@ -451,26 +461,37 @@ class _CarrouselViewState extends State<CarrouselView>
                       top: -30,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 2.0),
-                              child: FaIcon(
-                                kTagIcon,
-                                size: 15,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              ('Lorem ipsum'),
-                              textAlign: TextAlign.center,
-                              style: kGridBottomRowText,
-                            ),
-                          ],
-                        ),
+                        child: GestureDetector(
+                            onTap: () async {
+                              debug(['dale']);
+                              store.set(
+                                  'queryTags', [widget.currentTag], '', 'mute');
+                              await TagService.instance.queryPivsForMonth(widget
+                                  .pivs[widget.initialPiv]['currentMonth']);
+                              Navigator.pushReplacementNamed(
+                                  context, 'uploaded');
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(top: 2.0),
+                                  child: FaIcon(
+                                    tagIcon(widget.currentTag),
+                                    color: tagIconColor(widget.currentTag),
+                                    size: 15,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  tagTitle(widget.currentTag),
+                                  textAlign: TextAlign.center,
+                                  style: kGridBottomRowText,
+                                ),
+                              ],
+                            )),
                       ),
                     ),
                     SuggestionGrid(
@@ -788,7 +809,8 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                 onTap: () async {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (_) {
-                    return CarrouselView(initialPiv: 1, pivs: [thumb], currentTag: tag);
+                    return CarrouselView(
+                        initialPiv: 1, pivs: [thumb], currentTag: tag);
                   }));
                   TagService.instance.getTags();
                   // TODO: uncomment?

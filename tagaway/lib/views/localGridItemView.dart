@@ -55,7 +55,8 @@ class LocalGridItem extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) {
-                    return CarrouselView(initialPiv: pivIndex, pivs: pivs, currentTag: '');
+                    return CarrouselView(
+                        initialPiv: pivIndex, pivs: pivs, currentTag: '');
                   }),
                 );
               }
@@ -84,7 +85,8 @@ class LocalGridItem extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) {
-                      return CarrouselView(initialPiv: pivIndex, pivs: pivs, currentTag: '');
+                      return CarrouselView(
+                          initialPiv: pivIndex, pivs: pivs, currentTag: '');
                     }),
                   );
                 }
