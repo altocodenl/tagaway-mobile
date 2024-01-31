@@ -46,7 +46,11 @@ class _HomeViewState extends State<HomeView> {
             (v1, v2, v3, v4, Organized) {
       setState(() {
         hometags = v1;
-        if (v2 != '') tags = v2.toList();
+        if (v2 != '')
+          tags = v2
+              .toList()
+              .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag))
+              .toList();
         if (v2 != '') tags.shuffle();
         if (v3 != '') account = v3;
         if (v4 != '') thumbs = v4;
@@ -286,7 +290,7 @@ class _HomeViewState extends State<HomeView> {
                                                 initialPiv: 1,
                                                 pivs: [thumbs[tag]]);
                                           }));
-                                          TagService.instance.getTags ();
+                                          TagService.instance.getTags();
                                           // TODO: uncomment?
                                           /*
                                           store.set(
