@@ -3,8 +3,7 @@
 ## TODO
 
 - Tube
-   - Improve how thumbs are shown in home
-   - Add progress indicator when loading pivs when jumping (or preload piv)
+   - Reimplement carrousel to slide sideways?
    - Remove Phone View & BottomNavigation
    - Show all phone pivs in tube
    - Store info of impressions and clicks on tags

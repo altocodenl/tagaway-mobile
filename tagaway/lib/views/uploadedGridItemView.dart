@@ -169,7 +169,9 @@ class _CarrouselViewState extends State<CarrouselView>
     return true;
   }
 
+  // This is only for LOCAL pivs, not cloud pivs.
   Future<File?> loadImage(piv) async {
+    // piv will be `null` in the case of cloud pivs
     if (piv == null) {
       // If the condition is met, return a future that never completes.
       final Completer<File?> completer = Completer<File?>();
@@ -470,7 +472,10 @@ class _CarrouselViewState extends State<CarrouselView>
                         ),
                       ),
                     ),
-                    SuggestionGrid(tags: piv['tags'])
+                    SuggestionGrid(
+                        tags: piv['tags']
+                            .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag))
+                            .toList())
                   ])),
             ),
             // TODO: SHARE & DELETE
