@@ -160,10 +160,10 @@ const kBigTitle = TextStyle(
   color: kGreyDarker,
 );
 
-const kDarkBackgroundBigTitle = TextStyle(
+const kLightBackgroundDate = TextStyle(
   fontFamily: 'Montserrat-Regular',
-  fontSize: 25,
-  color: kGreyLightest,
+  fontSize: 20,
+  color: kGreyDarkest,
 );
 
 const kBigTitleOffline = TextStyle(

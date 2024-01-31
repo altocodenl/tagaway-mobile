@@ -135,7 +135,6 @@ class _CarrouselViewState extends State<CarrouselView>
   @override
   void initState() {
     super.initState();
-
     controller = TransformationController();
     animationController = AnimationController(
       vsync: this,
@@ -211,19 +210,30 @@ class _CarrouselViewState extends State<CarrouselView>
             elevation: 0,
             backgroundColor: Colors.grey[50],
             title: Row(
-              mainAxisSize: MainAxisSize.max,
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 30.0),
+                    padding: const EdgeInsets.only(right: 25.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          'images/tag blue with white - 400x400.png',
-                          scale: 8,
+                        Text(pad(date.day), style: kLightBackgroundDate),
+                        const Text(
+                          '/',
+                          style: kLightBackgroundDate,
                         ),
-                        const Text('tagaway', style: kTagawayMain),
+                        Text(
+                          pad(date.month),
+                          style: kLightBackgroundDate,
+                        ),
+                        const Text(
+                          '/',
+                          style: kLightBackgroundDate,
+                        ),
+                        Text(
+                          date.year.toString(),
+                          style: kLightBackgroundDate,
+                        ),
                       ],
                     ),
                   ),
@@ -235,6 +245,31 @@ class _CarrouselViewState extends State<CarrouselView>
                 ),
               ],
             ),
+            // Row(
+            //   mainAxisSize: MainAxisSize.max,
+            //   children: [
+            //     Expanded(
+            //       child: Padding(
+            //         padding: const EdgeInsets.only(left: 30.0),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.start,
+            //           children: [
+            //             Image.asset(
+            //               'images/tag blue with white - 400x400.png',
+            //               scale: 8,
+            //             ),
+            //             const Text('tagaway', style: kTagawayMain),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //     const FaIcon(
+            //       kCloudGridIcon,
+            //       color: kGreyDarker,
+            //       size: 30,
+            //     ),
+            //   ],
+            // ),
           ),
           body: Stack(children: [
             piv['local'] == true
