@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -438,8 +439,21 @@ class _CarrouselViewState extends State<CarrouselView>
                         onTap: () async {
                           store.set(
                               'queryTags', [widget.currentTag], '', 'mute');
-                          await TagService.instance.queryPivsForMonth(
-                              widget.pivs[widget.initialPiv]['currentMonth']);
+                          var piv = widget.pivs[widget.initialPiv];
+                          var currentMonth = piv['currentMonth'];
+                          // If we don't have the current month in the piv, we didn't come here from a thumb.
+                          // Then get the current month of the piv from its tag dates.
+                          if (currentMonth == null) {
+                            currentMonth = [0, 0];
+                            piv['tags'].forEach((tag) {
+                              if (RegExp('^d::\d').hasMatch(tag))
+                                currentMonth[0] = int.parse(tag.substring(3));
+                              if (RegExp('^d::M').hasMatch(tag))
+                                currentMonth[1] = int.parse(tag.substring(4));
+                            });
+                          }
+                          await TagService.instance
+                              .queryPivsForMonth(currentMonth);
                           Navigator.pushReplacementNamed(context, 'uploaded');
                         },
                         child: SizedBox(
