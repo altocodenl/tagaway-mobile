@@ -475,7 +475,7 @@ class _CarrouselViewState extends State<CarrouselView>
                     ),
                     SuggestionGrid(
                         tags: piv['tags']
-                            .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag))
+                            .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag) && tag != widget.currentTag)
                             .toList())
                   ])),
             ),
