@@ -436,7 +436,6 @@ class _CarrouselViewState extends State<CarrouselView>
                       padding: const EdgeInsets.only(left: 20.0),
                       child: GestureDetector(
                         onTap: () async {
-                          debug(['dale']);
                           store.set(
                               'queryTags', [widget.currentTag], '', 'mute');
                           await TagService.instance.queryPivsForMonth(
@@ -475,7 +474,9 @@ class _CarrouselViewState extends State<CarrouselView>
                     ),
                     SuggestionGrid(
                         tags: piv['tags']
-                            .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag) && tag != widget.currentTag)
+                            .where((tag) =>
+                                !RegExp('^(t|u|o)::').hasMatch(tag) &&
+                                tag != widget.currentTag)
                             .toList())
                   ])),
             ),
@@ -791,7 +792,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) {
                       return CarrouselView(
-                          initialPiv: 1, pivs: [thumb], currentTag: tag);
+                          initialPiv: 0, pivs: [thumb], currentTag: tag);
                     }));
                     TagService.instance.getTags();
                     // TODO: uncomment?

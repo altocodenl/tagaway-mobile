@@ -287,7 +287,7 @@ class _HomeViewState extends State<HomeView> {
                                           Navigator.push(context,
                                               MaterialPageRoute(builder: (_) {
                                             return CarrouselView(
-                                                initialPiv: 1,
+                                                initialPiv: 0,
                                                 pivs: [thumbs[tag]],
                                                 currentTag: tag);
                                           }));
