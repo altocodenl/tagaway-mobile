@@ -258,31 +258,6 @@ class _CarrouselViewState extends State<CarrouselView>
                 ),
               ],
             ),
-            // Row(
-            //   mainAxisSize: MainAxisSize.max,
-            //   children: [
-            //     Expanded(
-            //       child: Padding(
-            //         padding: const EdgeInsets.only(left: 30.0),
-            //         child: Row(
-            //           mainAxisAlignment: MainAxisAlignment.start,
-            //           children: [
-            //             Image.asset(
-            //               'images/tag blue with white - 400x400.png',
-            //               scale: 8,
-            //             ),
-            //             const Text('tagaway', style: kTagawayMain),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //     const FaIcon(
-            //       kCloudGridIcon,
-            //       color: kGreyDarker,
-            //       size: 30,
-            //     ),
-            //   ],
-            // ),
           ),
           body: Stack(children: [
             piv['local'] == true
@@ -455,43 +430,47 @@ class _CarrouselViewState extends State<CarrouselView>
               alignment: Alignment.bottomCenter,
               child: SizedBox(
                   width: SizeService.instance.screenWidth(context),
-                  height: SizeService.instance.screenWidth(context) * .7,
-                  child: Stack(clipBehavior: Clip.none, children: [
-                    Positioned(
-                      top: -30,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: GestureDetector(
-                            onTap: () async {
-                              debug(['dale']);
-                              store.set(
-                                  'queryTags', [widget.currentTag], '', 'mute');
-                              await TagService.instance.queryPivsForMonth(widget
-                                  .pivs[widget.initialPiv]['currentMonth']);
-                              Navigator.pushReplacementNamed(
-                                  context, 'uploaded');
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(top: 2.0),
-                                  child: FaIcon(
-                                    tagIcon(widget.currentTag),
-                                    color: tagIconColor(widget.currentTag),
-                                    size: 15,
-                                  ),
+                  height: SizeService.instance.screenWidth(context) * .75,
+                  child: Stack(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          debug(['dale']);
+                          store.set(
+                              'queryTags', [widget.currentTag], '', 'mute');
+                          await TagService.instance.queryPivsForMonth(
+                              widget.pivs[widget.initialPiv]['currentMonth']);
+                          Navigator.pushReplacementNamed(context, 'uploaded');
+                        },
+                        child: SizedBox(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 2.0),
+                                child: FaIcon(
+                                  tagIcon(widget.currentTag),
+                                  color: tagIconColor(widget.currentTag),
+                                  size: 20,
                                 ),
-                                SizedBox(
-                                  width: 5,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                tagTitle(widget.currentTag),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat-Regular',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: kGreyDarker,
                                 ),
-                                Text(
-                                  tagTitle(widget.currentTag),
-                                  textAlign: TextAlign.center,
-                                  style: kGridBottomRowText,
-                                ),
-                              ],
-                            )),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     SuggestionGrid(
@@ -788,101 +767,105 @@ class _SuggestionGridState extends State<SuggestionGrid> {
   Widget build(BuildContext context) {
     var tags = widget.tags.toList();
     tags.shuffle();
-    return SizedBox.expand(
-      child: GridView.builder(
-          controller: suggestionGridController,
-          // reverse: true,
-          shrinkWrap: true,
-          cacheExtent: 3,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            childAspectRatio:
-                SizeService.instance.timeHeaderChildAspectRatio(context),
-            crossAxisCount: 3,
-            mainAxisSpacing: 20,
-            crossAxisSpacing: 1,
-          ),
-          itemCount: tags.length,
-          itemBuilder: (BuildContext context, index) {
-            var tag = tags[index];
-            var thumb = store.get('thumbs')[tag];
-            return GestureDetector(
-                onTap: () async {
-                  Navigator.pushReplacement(context,
+    return Padding(
+      padding: const EdgeInsets.only(top: 50.0),
+      child: SizedBox.expand(
+        child: GridView.builder(
+            controller: suggestionGridController,
+            // reverse: true,
+            shrinkWrap: true,
+            cacheExtent: 3,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              childAspectRatio:
+                  SizeService.instance.timeHeaderChildAspectRatio(context),
+              crossAxisCount: 3,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 1,
+            ),
+            itemCount: tags.length,
+            itemBuilder: (BuildContext context, index) {
+              var tag = tags[index];
+              var thumb = store.get('thumbs')[tag];
+              return GestureDetector(
+                  onTap: () async {
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (_) {
+                      return CarrouselView(
+                          initialPiv: 1, pivs: [thumb], currentTag: tag);
+                    }));
+                    TagService.instance.getTags();
+                    // TODO: uncomment?
+                    /*
+                    store.set('queryTags', [tag], '', 'mute');
+                    await TagService.instance
+                        .queryPivsForMonth(thumb['currentMonth']);
+                    var pivs = store.get('queryResult')['pivs'];
+                    var pivIndex =
+                        pivs.indexWhere((piv) => piv['id'] == thumb['id']);
+                    Navigator.pushReplacement(
+                      navigatorKey.currentState!
+                          .context, // We use this as context because if this widget is redrawn, we'll get an error when trying to get its context.
                       MaterialPageRoute(builder: (_) {
-                    return CarrouselView(
-                        initialPiv: 1, pivs: [thumb], currentTag: tag);
-                  }));
-                  TagService.instance.getTags();
-                  // TODO: uncomment?
-                  /*
-                  store.set('queryTags', [tag], '', 'mute');
-                  await TagService.instance
-                      .queryPivsForMonth(thumb['currentMonth']);
-                  var pivs = store.get('queryResult')['pivs'];
-                  var pivIndex =
-                      pivs.indexWhere((piv) => piv['id'] == thumb['id']);
-                  Navigator.pushReplacement(
-                    navigatorKey.currentState!
-                        .context, // We use this as context because if this widget is redrawn, we'll get an error when trying to get its context.
-                    MaterialPageRoute(builder: (_) {
-                      return CarrouselView(initialPiv: pivIndex, pivs: pivs);
-                    }),
-                  );
-                  */
-                },
-                child: Column(
-                  children: [
-                    Container(
-                      width: SizeService.instance.screenWidth(context) * .3,
-                      height: SizeService.instance.screenWidth(context) * .3,
-                      child: CachedNetworkImage(
-                          imageUrl: (kTagawayThumbSURL) + thumb['id'],
-                          httpHeaders: {'cookie': store.get('cookie')},
-                          placeholder: (context, url) => const Center(
-                                  child: CircularProgressIndicator(
-                                color: kAltoBlue,
-                              )),
-                          imageBuilder: (context, imageProvider) =>
-                              Transform.rotate(
-                                angle:
-                                    (thumb['deg'] == null ? 0 : thumb['deg']) *
-                                        math.pi /
-                                        180.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: imageProvider)),
-                                ),
-                              )),
-                    ),
-                    SizedBox(
-                      height: 15,
-                      width: SizeService.instance.screenWidth(context) * .3,
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: 2.0),
-                            child: FaIcon(
-                              tagIcon(tag),
-                              color: tagIconColor(tag),
-                              size: 15,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            shortenSuggestion(tagTitle(tag), context),
-                            textAlign: TextAlign.center,
-                            style: kGridBottomRowText,
-                          ),
-                        ],
+                        return CarrouselView(initialPiv: pivIndex, pivs: pivs);
+                      }),
+                    );
+                    */
+                  },
+                  child: Column(
+                    children: [
+                      Container(
+                        width: SizeService.instance.screenWidth(context) * .3,
+                        height: SizeService.instance.screenWidth(context) * .3,
+                        child: CachedNetworkImage(
+                            imageUrl: (kTagawayThumbSURL) + thumb['id'],
+                            httpHeaders: {'cookie': store.get('cookie')},
+                            placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(
+                                  color: kAltoBlue,
+                                )),
+                            imageBuilder: (context, imageProvider) =>
+                                Transform.rotate(
+                                  angle: (thumb['deg'] == null
+                                          ? 0
+                                          : thumb['deg']) *
+                                      math.pi /
+                                      180.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: imageProvider)),
+                                  ),
+                                )),
                       ),
-                    ),
-                  ],
-                ));
-          }),
+                      SizedBox(
+                        height: 15,
+                        width: SizeService.instance.screenWidth(context) * .3,
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: 2.0),
+                              child: FaIcon(
+                                tagIcon(tag),
+                                color: tagIconColor(tag),
+                                size: 15,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              shortenSuggestion(tagTitle(tag), context),
+                              textAlign: TextAlign.center,
+                              style: kGridBottomRowText,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ));
+            }),
+      ),
     );
   }
 }
