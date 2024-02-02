@@ -292,31 +292,6 @@ class _HomeViewState extends State<HomeView> {
                                                 currentTag: tag);
                                           }));
                                           TagService.instance.getTags();
-                                          // TODO: uncomment?
-                                          /*
-                                          store.set(
-                                              'queryTags', [tag], '', 'mute');
-                                          await TagService.instance
-                                              .queryPivsForMonth(
-                                                  thumbs[tag]['currentMonth']);
-                                          var pivs =
-                                              store.get('queryResult')['pivs'];
-                                          var pivIndex = pivs.indexWhere(
-                                              (piv) =>
-                                                  piv['id'] ==
-                                                  thumbs[tag]['id']);
-                                          WidgetsBinding.instance
-                                              .addPostFrameCallback((_) {
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(builder: (_) {
-                                                return CarrouselView(
-                                                    initialPiv: pivIndex,
-                                                    pivs: pivs);
-                                              }),
-                                            );
-                                          });
-                                              */
                                         },
                                         child: HomeCard(
                                             color: tagColor(tag),

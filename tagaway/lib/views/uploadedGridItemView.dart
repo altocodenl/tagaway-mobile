@@ -809,22 +809,6 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           initialPiv: 0, pivs: [thumb], currentTag: tag);
                     }));
                     TagService.instance.getTags();
-                    // TODO: uncomment?
-                    /*
-                    store.set('queryTags', [tag], '', 'mute');
-                    await TagService.instance
-                        .queryPivsForMonth(thumb['currentMonth']);
-                    var pivs = store.get('queryResult')['pivs'];
-                    var pivIndex =
-                        pivs.indexWhere((piv) => piv['id'] == thumb['id']);
-                    Navigator.pushReplacement(
-                      navigatorKey.currentState!
-                          .context, // We use this as context because if this widget is redrawn, we'll get an error when trying to get its context.
-                      MaterialPageRoute(builder: (_) {
-                        return CarrouselView(initialPiv: pivIndex, pivs: pivs);
-                      }),
-                    );
-                    */
                   },
                   child: Column(
                     children: [
