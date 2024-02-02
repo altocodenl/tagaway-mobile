@@ -479,7 +479,8 @@ class _CarrouselViewState extends State<CarrouselView>
                             .where((tag) =>
                                 !RegExp('^(t|u|o)::').hasMatch(tag) &&
                                 tag != widget.currentTag)
-                            .toList())
+                            .toList()
+                          ..shuffle())
                   ])),
             ),
             // TODO: SHARE & DELETE
