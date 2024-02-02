@@ -280,6 +280,31 @@ class _TopRowState extends State<TopRow> {
         yearUploaded = YearUploaded.toString();
       });
     });
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      if (store.get('timeHeader') == '' || store.get('currentMonth') == '')
+        return;
+      var timeHeader = store.get('timeHeader');
+      var currentMonth = store.get('currentMonth');
+      // Copied from TagService.instance.computeTimeHeader
+      var newCurrentPage;
+      timeHeader.asMap().forEach((k, semester) {
+        semester.forEach((month) {
+          if (month[0] == currentMonth[0] && month[1] == currentMonth[1]) {
+            // Pages are inverted, that's why we use this index and not `k` itself.
+            newCurrentPage = timeHeader.length - k - 1;
+          }
+        });
+      });
+      var pageController = store.get('timeHeaderController');
+      if (pageController != '' &&
+          pageController.hasClients &&
+          newCurrentPage != null) {
+        pageController.animateToPage(newCurrentPage,
+            duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
+      }
+    });
   }
 
   @override
