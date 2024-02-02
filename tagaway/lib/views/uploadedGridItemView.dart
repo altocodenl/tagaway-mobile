@@ -73,7 +73,7 @@ class UploadedGridItem extends StatelessWidget {
                 return CarrouselView(
                     initialPiv: pivIndex,
                     pivs: pivs,
-                    currentTag: piv['tags'][0]);
+                    currentTag: (piv['tags']..shuffle())[0]);
               }),
             );
           },
@@ -92,7 +92,7 @@ class UploadedGridItem extends StatelessWidget {
                   return CarrouselView(
                       initialPiv: pivIndex,
                       pivs: pivs,
-                      currentTag: piv['tags'][0]);
+                      currentTag: (piv['tags']..shuffle())[0]);
                 }),
               );
             }
@@ -425,8 +425,6 @@ class _CarrouselViewState extends State<CarrouselView>
                       padding: const EdgeInsets.only(left: 20.0),
                       child: GestureDetector(
                         onTap: () async {
-                          store.set(
-                              'queryTags', [widget.currentTag], '', 'mute');
                           var piv = widget.pivs[widget.initialPiv];
                           var currentMonth = piv['currentMonth'];
                           // If we don't have the current month in the piv, we didn't come here from a thumb.
@@ -434,12 +432,14 @@ class _CarrouselViewState extends State<CarrouselView>
                           if (currentMonth == null) {
                             currentMonth = [0, 0];
                             piv['tags'].forEach((tag) {
-                              if (RegExp('^d::\d').hasMatch(tag))
+                              if (RegExp('^d::\\d+').hasMatch(tag))
                                 currentMonth[0] = int.parse(tag.substring(3));
                               if (RegExp('^d::M').hasMatch(tag))
                                 currentMonth[1] = int.parse(tag.substring(4));
                             });
                           }
+                          store.set(
+                              'queryTags', [widget.currentTag], '', 'mute');
                           await TagService.instance
                               .queryPivsForMonth(currentMonth);
                           Navigator.pushReplacementNamed(context, 'uploaded');
