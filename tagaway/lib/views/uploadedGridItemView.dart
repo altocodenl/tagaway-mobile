@@ -460,7 +460,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                 width: 5,
                               ),
                               Text(
-                                tagTitle(widget.currentTag),
+                                shortenN(tagTitle(widget.currentTag), 20),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontFamily: 'Montserrat-Regular',

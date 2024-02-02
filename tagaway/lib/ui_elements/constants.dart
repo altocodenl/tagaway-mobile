@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const ENV = 'dev';
-// const ENV = 'prod'
+// const ENV = 'prod';
 
 const version = '2.3.0';
 
@@ -512,4 +512,8 @@ String shorten(tag, context) {
 
 String shortenSuggestion(tag, context) {
   return tag.length < 11 ? tag : tag.substring(0, 11) + '...';
+}
+
+String shortenN(tag, chars) {
+  return tag.length < chars ? tag : tag.substring(0, chars) + '...';
 }

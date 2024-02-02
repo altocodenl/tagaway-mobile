@@ -4,11 +4,9 @@
 
 - Tube
    - Reimplement carrousel to slide sideways?
-   - Remove Phone View & BottomNavigation
    - Show all phone pivs in tube
    - Store info of impressions and clicks on tags
 
-- Intermediate view mode: improve styling
 - New tagging system
 - Rework zoom in carrousel (Tom)
 
