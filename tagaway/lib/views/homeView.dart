@@ -177,16 +177,16 @@ class _HomeViewState extends State<HomeView> {
                 Navigator.pushReplacementNamed(context, 'deleteAccount');
               },
               textOnElement: 'Delete My Account'),
-          UserMenuElementKBlue(
-            onTap: () async {
-              var availableBytes = await getAvailableStorage();
-              var potentialCleanup =
-                  await PivService.instance.deletePivsByRange('all');
-              TagawaySpaceCleanerModal1(scaffoldKey.currentContext!,
-                  availableBytes, potentialCleanup);
-            },
-            textOnElement: 'Clear Up Space',
-          ),
+          // UserMenuElementKBlue(
+          //   onTap: () async {
+          //     var availableBytes = await getAvailableStorage();
+          //     var potentialCleanup =
+          //         await PivService.instance.deletePivsByRange('all');
+          //     TagawaySpaceCleanerModal1(scaffoldKey.currentContext!,
+          //         availableBytes, potentialCleanup);
+          //   },
+          //   textOnElement: 'Clear Up Space',
+          // ),
           UserMenuElementDarkGrey(
               onTap: () {
                 // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
