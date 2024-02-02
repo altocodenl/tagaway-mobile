@@ -2,8 +2,8 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/permissionService.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 
@@ -45,7 +45,8 @@ class _DistributorState extends State<Distributor> {
       // Load all local pivs
       PivService.instance.loadLocalPivs();
       store.set('displayMode', {'showOrganized': false, 'cameraOnly': false});
-      return Navigator.pushReplacementNamed(context, 'bottomNavigation');
+      // return Navigator.pushReplacementNamed(context, 'bottomNavigation');
+      return Navigator.pushReplacementNamed(context, 'home');
     }
 
     var userWasAskedPermission = store.get('userWasAskedPermission');

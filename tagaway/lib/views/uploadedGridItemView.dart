@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -223,41 +222,30 @@ class _CarrouselViewState extends State<CarrouselView>
             centerTitle: true,
             elevation: 0,
             backgroundColor: Colors.grey[50],
-            title: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 25.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(pad(date.day), style: kLightBackgroundDate),
-                        const Text(
-                          '/',
-                          style: kLightBackgroundDate,
-                        ),
-                        Text(
-                          pad(date.month),
-                          style: kLightBackgroundDate,
-                        ),
-                        const Text(
-                          '/',
-                          style: kLightBackgroundDate,
-                        ),
-                        Text(
-                          date.year.toString(),
-                          style: kLightBackgroundDate,
-                        ),
-                      ],
-                    ),
+            title: Padding(
+              padding: const EdgeInsets.only(right: 25.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(pad(date.day), style: kLightBackgroundDate),
+                  const Text(
+                    '/',
+                    style: kLightBackgroundDate,
                   ),
-                ),
-                const FaIcon(
-                  kCloudGridIcon,
-                  color: kGreyDarker,
-                  size: 30,
-                ),
-              ],
+                  Text(
+                    pad(date.month),
+                    style: kLightBackgroundDate,
+                  ),
+                  const Text(
+                    '/',
+                    style: kLightBackgroundDate,
+                  ),
+                  Text(
+                    date.year.toString(),
+                    style: kLightBackgroundDate,
+                  ),
+                ],
+              ),
             ),
           ),
           body: Stack(children: [

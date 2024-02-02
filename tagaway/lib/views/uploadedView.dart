@@ -311,8 +311,9 @@ class _TopRowState extends State<TopRow> {
                           store.remove('currentlyDeletingUploaded');
                           store.remove('currentlyDeletingModalUploaded');
                           store.remove('currentlyDeletingPivsUploaded');
-                          Navigator.pushReplacementNamed(
-                              context, 'bottomNavigation');
+                          // Navigator.pushReplacementNamed(
+                          //     context, 'bottomNavigation');
+                          Navigator.pushReplacementNamed(context, 'home');
                         },
                         child: const Icon(
                           kHomeIcon,

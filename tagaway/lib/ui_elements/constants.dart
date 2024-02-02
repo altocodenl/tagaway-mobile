@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../services/sizeService.dart';
-
 const ENV = 'dev';
 // const ENV = 'prod'
 
@@ -505,11 +503,11 @@ Color tagIconColor(tag) {
 }
 
 String shorten(tag, context) {
-  if (SizeService.instance.screenWidth(context) < 380) {
-    return tag.length < 13 ? tag : tag.substring(0, 13) + '...';
-  } else {
-    return tag.length < 15 ? tag : tag.substring(0, 15) + '...';
-  }
+  // if (SizeService.instance.screenWidth(context) < 380) {
+  //   return tag.length < 13 ? tag : tag.substring(0, 13) + '...';
+  // } else {
+  return tag.length < 13 ? tag : tag.substring(0, 13) + '...';
+  // }
 }
 
 String shortenSuggestion(tag, context) {

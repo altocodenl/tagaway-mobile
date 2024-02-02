@@ -117,7 +117,7 @@ class _HomeViewState extends State<HomeView> {
       key: scaffoldKey,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: kAltoBlue),
         leading: Image.asset(
           'images/tag blue with white - 400x400.png',
@@ -266,7 +266,7 @@ class _HomeViewState extends State<HomeView> {
                           // TAG GRID
                           Padding(
                               padding: const EdgeInsets.only(
-                                  left: 12, right: 12, top: 80 + 7),
+                                  left: 12, right: 12, top: 0),
                               child: GridView.builder(
                                   shrinkWrap: true,
                                   cacheExtent: 50,
