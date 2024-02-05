@@ -939,7 +939,8 @@ class TagService {
          }
       }
 
-      store.set ('yearUploaded', semesters[semesters.length - 1 - (currentPage == '' ? 0 : currentPage) as dynamic] [0] [0]);
+      var yearIndex = semesters.length - 1 - (currentPage == '' ? 0 : currentPage);
+      if (yearIndex >= 0) store.set ('yearUploaded', semesters [yearIndex as dynamic] [0] [0]);
    }
 
 }
