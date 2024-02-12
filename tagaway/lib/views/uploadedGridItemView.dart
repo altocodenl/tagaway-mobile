@@ -142,6 +142,11 @@ class _CarrouselViewState extends State<CarrouselView>
   dynamic loadedImages = {};
   final TextEditingController searchTagController = TextEditingController();
 
+  // This function checks if the keyboard is visible
+  bool isKeyboardVisible(BuildContext context) {
+    return MediaQuery.of(context).viewInsets.bottom > 0;
+  }
+
   get http => null;
 
   @override
@@ -197,6 +202,8 @@ class _CarrouselViewState extends State<CarrouselView>
 
   @override
   Widget build(BuildContext context) {
+    // Check if the keyboard is visible
+    bool keyboardIsVisible = isKeyboardVisible(context);
     print('Loading the Carrousel View + ${DateTime.timestamp()}');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -415,6 +422,13 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
+            Visibility(
+              visible: keyboardIsVisible,
+              child: Container(
+                color: Colors.white.withOpacity(0.8),
+              ),
+              replacement: Container(),
+            ),
 
             Align(
               alignment: Alignment.bottomCenter,
