@@ -292,7 +292,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                           .screenWidth(context),
                                       height: SizeService.instance
                                               .screenHeight(context) *
-                                          .5,
+                                          .45,
                                       decoration: const BoxDecoration(
                                           color: kGreyDarker,
                                           borderRadius: BorderRadius.only(
@@ -396,7 +396,7 @@ class _CarrouselViewState extends State<CarrouselView>
                                             .screenWidth(context),
                                         height: SizeService.instance
                                                 .screenHeight(context) *
-                                            .5,
+                                            .45,
                                         decoration: const BoxDecoration(
                                             color: kGreyDarker,
                                             borderRadius: BorderRadius.only(
@@ -422,93 +422,93 @@ class _CarrouselViewState extends State<CarrouselView>
                   width: SizeService.instance.screenWidth(context),
                   height: SizeService.instance.screenWidth(context) * .75,
                   child: Stack(children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: GestureDetector(
-                        onTap: () async {
-                          var piv = widget.pivs[widget.initialPiv];
-                          var currentMonth = piv['currentMonth'];
-                          // If we don't have the current month in the piv, we didn't come here from a thumb.
-                          // Then get the current month of the piv from its tag dates.
-                          if (currentMonth == null) {
-                            currentMonth = [0, 0];
-                            piv['tags'].forEach((tag) {
-                              if (RegExp('^d::\\d+').hasMatch(tag))
-                                currentMonth[0] = int.parse(tag.substring(3));
-                              if (RegExp('^d::M').hasMatch(tag))
-                                currentMonth[1] = int.parse(tag.substring(4));
-                            });
-                          }
-                          store.set(
-                              'queryTags', [widget.currentTag], '', 'mute');
-                          await TagService.instance
-                              .queryPivsForMonth(currentMonth);
-                          Navigator.pushReplacementNamed(context, 'uploaded');
-                        },
-                        child: SizedBox(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: 2.0),
-                                child: FaIcon(
-                                  tagIcon(widget.currentTag),
-                                  color: tagIconColor(widget.currentTag),
-                                  size: 20,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                shortenN(tagTitle(widget.currentTag), 20),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat-Regular',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: kGreyDarker,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // SizedBox(
-                    //   height: 50,
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(left: 8.0, right: 8),
-                    //     child: TextField(
-                    //       controller: searchTagController,
-                    //       textCapitalization: TextCapitalization.sentences,
-                    //       decoration: InputDecoration(
-                    //         contentPadding: const EdgeInsets.symmetric(
-                    //             vertical: 10.0, horizontal: 20.0),
-                    //         fillColor: kGreyLightest,
-                    //         hintText: 'Create or search a tag',
-                    //         hintMaxLines: 1,
-                    //         hintStyle: kPlainTextBold,
-                    //         border: OutlineInputBorder(
-                    //             borderRadius: BorderRadius.circular(10),
-                    //             borderSide:
-                    //                 const BorderSide(color: kGreyDarker)),
-                    //         prefixIcon: const Padding(
-                    //           padding:
-                    //               EdgeInsets.only(right: 12, left: 12, top: 15),
-                    //           child: FaIcon(
-                    //             kSearchIcon,
-                    //             size: 16,
-                    //             color: kGreyDarker,
+                    // Padding(
+                    //   padding: const EdgeInsets.only(left: 20.0),
+                    //   child: GestureDetector(
+                    //     onTap: () async {
+                    //       var piv = widget.pivs[widget.initialPiv];
+                    //       var currentMonth = piv['currentMonth'];
+                    //       // If we don't have the current month in the piv, we didn't come here from a thumb.
+                    //       // Then get the current month of the piv from its tag dates.
+                    //       if (currentMonth == null) {
+                    //         currentMonth = [0, 0];
+                    //         piv['tags'].forEach((tag) {
+                    //           if (RegExp('^d::\\d+').hasMatch(tag))
+                    //             currentMonth[0] = int.parse(tag.substring(3));
+                    //           if (RegExp('^d::M').hasMatch(tag))
+                    //             currentMonth[1] = int.parse(tag.substring(4));
+                    //         });
+                    //       }
+                    //       store.set(
+                    //           'queryTags', [widget.currentTag], '', 'mute');
+                    //       await TagService.instance
+                    //           .queryPivsForMonth(currentMonth);
+                    //       Navigator.pushReplacementNamed(context, 'uploaded');
+                    //     },
+                    //     child: SizedBox(
+                    //       child: Row(
+                    //         mainAxisAlignment: MainAxisAlignment.center,
+                    //         children: [
+                    //           Padding(
+                    //             padding: EdgeInsets.only(top: 2.0),
+                    //             child: FaIcon(
+                    //               tagIcon(widget.currentTag),
+                    //               color: tagIconColor(widget.currentTag),
+                    //               size: 20,
+                    //             ),
                     //           ),
-                    //         ),
+                    //           SizedBox(
+                    //             width: 5,
+                    //           ),
+                    //           Text(
+                    //             shortenN(tagTitle(widget.currentTag), 20),
+                    //             textAlign: TextAlign.center,
+                    //             style: TextStyle(
+                    //               fontFamily: 'Montserrat-Regular',
+                    //               fontWeight: FontWeight.bold,
+                    //               fontSize: 18,
+                    //               color: kGreyDarker,
+                    //             ),
+                    //           ),
+                    //         ],
                     //       ),
-                    //       // onChanged: (String query) {
-                    //       //   store.set('tagFilter' + widget.view, query);
-                    //       // },
                     //     ),
                     //   ),
                     // ),
+                    SizedBox(
+                      height: 35,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: TextField(
+                          controller: searchTagController,
+                          textCapitalization: TextCapitalization.sentences,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 20.0),
+                            fillColor: kGreyLightest,
+                            hintText: 'Create or search a tag',
+                            hintMaxLines: 1,
+                            hintStyle: kPlainTextBold,
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide:
+                                    const BorderSide(color: kGreyDarker)),
+                            prefixIcon: const Padding(
+                              padding:
+                                  EdgeInsets.only(right: 12, left: 12, top: 10),
+                              child: FaIcon(
+                                kSearchIcon,
+                                size: 16,
+                                color: kGreyDarker,
+                              ),
+                            ),
+                          ),
+                          // onChanged: (String query) {
+                          //   store.set('tagFilter' + widget.view, query);
+                          // },
+                        ),
+                      ),
+                    ),
                     SuggestionGrid(
                         tags: piv['tags']
                             .where((tag) =>
