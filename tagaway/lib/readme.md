@@ -12,10 +12,7 @@
 
 - Confirm on delete single uploaded piv
 - Swipe sideways to navigate months in uploaded
-- Server
-   - tag L:404
-   - Rename a tag X to an existing tag Y
-   - Rename homeThumbs to thumbs after launching new release
+- Server: rename homeThumbs to thumbs after launching new release
 - Finish annotated source code: tagService, storeService, tools.
 
 - Sharebox
