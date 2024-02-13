@@ -943,4 +943,39 @@ class TagService {
       if (yearIndex >= 0) store.set ('yearUploaded', semesters [yearIndex as dynamic] [0] [0]);
    }
 
+   getTagList (ignoreTags, tagFilter) {
+      if (tagFilter == null) tagFilter == '';
+      if (ignoreTags == null) ignoreTags = [];
+
+      // Place lastNTags and hometags first.
+      var usertags = getList ('lastNTags') + getList ('hometags') + getList ('usertags');
+      // Eliminate duplicates.
+      usertags = usertags.toSet ().toList ();
+      // Eliminate ignored tags
+      usertags = usertags.where ((tag) => ! ignoreTags.contains (tag)).toList ();
+      // Eliminate by filter
+      usertags = usertags.where ((tag) => RegExp (RegExp.escape (tagFilter), caseSensitive: false).hasMatch (tag)).toList ();
+
+      // If there's a filter, sort at the top the tags that start with the filter
+      // Sorting is stable in Dart
+      if (tagFilter != '') usertags.sort ((a, b) {
+         bool startsWithA = a.startsWith (tagFilter);
+         bool startsWithB = b.startsWith (tagFilter);
+         if (startsWithA   && ! startsWithB) return -1;
+         if (! startsWithA && startsWithB) return 1;
+         // The Dart type system needs the `as int`, apparently, but the weird thing is that if this is not here, we get a runtime error (not a compile-time error)
+         return a.compareTo (b) as int;
+      });
+
+      // Insert new tag
+      if (tagFilter != '' && ! usertags.contains (tagFilter)) usertags.insert (0, tagFilter + ' (new tag)');
+
+      if (usertags.length == 0) usertags.addAll (['Family (example)', 'Holidays (example)', 'Friends (example)']);
+
+      if (RegExp ('^org', caseSensitive: false).hasMatch (RegExp.escape (tagFilter))) usertags.add ('o::');
+
+      return usertags;
+   }
+
 }
+

@@ -1008,43 +1008,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
       'swiped' + widget.view,
     ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
-        if (Usertags != '') {
-          usertags = getList('lastNTags') + getList('hometags') + Usertags;
-          usertags = usertags.toSet().toList();
-          usertags = usertags
-              .where((tag) =>
-                  RegExp(RegExp.escape(TagFilter), caseSensitive: false)
-                      .hasMatch(tag))
-              .toList();
-
-          // If there's a filter, sort at the top the tags that start with the filter
-          // Sorting is stable in Dart
-          if (TagFilter != '')
-            usertags.sort((a, b) {
-              bool startsWithA = a.startsWith(TagFilter);
-              bool startsWithB = b.startsWith(TagFilter);
-              if (startsWithA && !startsWithB) return -1;
-              if (!startsWithA && startsWithB) return 1;
-              return a.compareTo(b)
-                  as int; // The Dart type system needs this, apparently, but the weird thing is that if this is not here, we get a runtime error (not a compile-time error)
-            });
-          if (TagFilter != '' && !usertags.contains(TagFilter))
-            usertags.insert(0, TagFilter + ' (new tag)');
-          if (usertags.length == 0)
-            usertags.addAll([
-              'Family (example)',
-              'Holidays (example)',
-              'Friends (example)'
-            ]);
-          // Remove tags from usertags that already are in currentlyTagging
-          if (CurrentlyTagging != '')
-            usertags = usertags
-                .where((tag) => !CurrentlyTagging.contains(tag))
-                .toList();
-          if (RegExp('^org').hasMatch(RegExp.escape(TagFilter))) {
-            usertags.add('o::');
-          }
-        }
+        usertags = TagService.instance.getTagList (CurrentlyTagging == '' ? [] : CurrentlyTagging, TagFilter);
 
         swiped = Swiped == true;
         if (swiped == false) {

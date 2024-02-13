@@ -141,6 +141,8 @@ class _CarrouselViewState extends State<CarrouselView>
   ScrollPhysics? pageBuilderScroll;
   dynamic loadedImages = {};
   final TextEditingController searchTagController = TextEditingController();
+  dynamic addMoreTags;
+  dynamic cancelListener;
 
   // This function checks if the keyboard is visible
   bool isKeyboardVisible(BuildContext context) {
@@ -151,6 +153,7 @@ class _CarrouselViewState extends State<CarrouselView>
 
   @override
   void initState() {
+
     super.initState();
     controller = TransformationController();
     animationController = AnimationController(
@@ -163,6 +166,9 @@ class _CarrouselViewState extends State<CarrouselView>
           removeOverlay();
         }
       });
+    cancelListener = store.listen(['addMoreTags'], (AddMoreTags) {
+       setState (() => addMoreTags = AddMoreTags == true);
+    });
   }
 
   void removeOverlay() {
@@ -175,6 +181,7 @@ class _CarrouselViewState extends State<CarrouselView>
     controller.dispose();
     animationController.dispose();
     super.dispose();
+    cancelListener();
   }
 
   bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
@@ -437,7 +444,7 @@ class _CarrouselViewState extends State<CarrouselView>
                   height: SizeService.instance.screenWidth(context) * .75,
                   child: Stack(children: [
                     Visibility(
-                        visible: true,
+                        visible: addMoreTags != true,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20.0),
                           child: GestureDetector(
@@ -529,12 +536,16 @@ class _CarrouselViewState extends State<CarrouselView>
                           ),
                         )),
                     SuggestionGrid(
-                        tags: piv['tags']
+                        addMoreTags: store.get ('addMoreTags') == true,
+                        tags: (() {
+                           var tags;
+                           if (store.get ('addMoreTags') == true) tags = TagService.instance.getTagList (piv['tags'], '');
+                           else tags = piv['tags']
                             .where((tag) =>
                                 !RegExp('^(t|u|o)::').hasMatch(tag) &&
-                                tag != widget.currentTag)
-                            .toList()
-                          ..shuffle())
+                                tag != widget.currentTag).toList()..shuffle();
+                           return tags;
+                           }) ())
                   ])),
             ),
             // TODO: SHARE & DELETE
@@ -810,9 +821,10 @@ class VideoError extends StatelessWidget {
 }
 
 class SuggestionGrid extends StatefulWidget {
-  const SuggestionGrid({Key? key, required this.tags}) : super(key: key);
+  const SuggestionGrid({Key? key, required this.tags, required this.addMoreTags}) : super(key: key);
 
   final dynamic tags;
+  final bool addMoreTags;
 
   @override
   State<SuggestionGrid> createState() => _SuggestionGridState();
@@ -820,12 +832,10 @@ class SuggestionGrid extends StatefulWidget {
 
 class _SuggestionGridState extends State<SuggestionGrid> {
   final ScrollController suggestionGridController = ScrollController();
-  bool taggingSelected = false;
 
   @override
   Widget build(BuildContext context) {
     var tags = widget.tags.toList();
-    tags.shuffle();
     return Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: SizedBox.expand(
@@ -845,9 +855,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               if (index == 0) {
                 return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        taggingSelected = !taggingSelected;
-                      });
+                      store.set ('addMoreTags', ! widget.addMoreTags);
                     },
                     child: Column(
                       children: [
@@ -855,9 +863,9 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           width: SizeService.instance.screenWidth(context) * .3,
                           height:
                               SizeService.instance.screenWidth(context) * .3,
-                          color: taggingSelected ? kAltoOrganized : kAltoBlue,
+                          color: widget.addMoreTags == true ? kAltoOrganized : kAltoBlue,
                           child: Visibility(
-                            visible: taggingSelected == false,
+                            visible: widget.addMoreTags == false,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -892,7 +900,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           height: 15,
                           width: SizeService.instance.screenWidth(context) * .3,
                           child: Text(
-                            taggingSelected ? 'Done Tagging' : 'Add Tag',
+                            widget.addMoreTags == true ? 'Done Tagging' : 'Add Tag',
                             textAlign: TextAlign.center,
                             style: kGridBottomRowText,
                           ),
