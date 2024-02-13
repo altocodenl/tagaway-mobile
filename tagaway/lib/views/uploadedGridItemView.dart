@@ -153,7 +153,6 @@ class _CarrouselViewState extends State<CarrouselView>
 
   @override
   void initState() {
-
     super.initState();
     controller = TransformationController();
     animationController = AnimationController(
@@ -167,7 +166,7 @@ class _CarrouselViewState extends State<CarrouselView>
         }
       });
     cancelListener = store.listen(['addMoreTags'], (AddMoreTags) {
-       setState (() => addMoreTags = AddMoreTags == true);
+      setState(() => addMoreTags = AddMoreTags == true);
     });
   }
 
@@ -429,6 +428,35 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
+
+            // const DeleteButtonTunnel(
+            //   view: 'uploaded',
+            // ),
+            // const ShareButtonTunnel(
+            //   view: 'uploaded',
+            // ),
+            GestureDetector(
+              onTap: () {},
+              child: const Align(
+                alignment: Alignment(.85, -.05),
+                child: FaIcon(
+                  kFullScreenIcon,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {},
+              child: const Align(
+                alignment: Alignment(-.85, -.05),
+                child: FaIcon(
+                  kEllipsisVerticalIcon,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
             Visibility(
               visible: keyboardIsVisible,
               child: Container(
@@ -446,61 +474,60 @@ class _CarrouselViewState extends State<CarrouselView>
                     Visibility(
                         visible: addMoreTags != true,
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: GestureDetector(
-                            onTap: () async {
-                              var piv = widget.pivs[widget.initialPiv];
-                              var currentMonth = piv['currentMonth'];
-                              // If we don't have the current month in the piv, we didn't come here from a thumb.
-                              // Then get the current month of the piv from its tag dates.
-                              if (currentMonth == null) {
-                                currentMonth = [0, 0];
-                                piv['tags'].forEach((tag) {
-                                  if (RegExp('^d::\\d+').hasMatch(tag))
-                                    currentMonth[0] =
-                                        int.parse(tag.substring(3));
-                                  if (RegExp('^d::M').hasMatch(tag))
-                                    currentMonth[1] =
-                                        int.parse(tag.substring(4));
-                                });
-                              }
-                              store.set(
-                                  'queryTags', [widget.currentTag], '', 'mute');
-                              await TagService.instance
-                                  .queryPivsForMonth(currentMonth);
-                              Navigator.pushReplacementNamed(
-                                  context, 'uploaded');
-                            },
-                            child: SizedBox(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 2.0),
-                                    child: FaIcon(
-                                      tagIcon(widget.currentTag),
-                                      color: tagIconColor(widget.currentTag),
-                                      size: 20,
+                            padding: const EdgeInsets.only(left: 20.0),
+                            child: GestureDetector(
+                              onTap: () async {
+                                var piv = widget.pivs[widget.initialPiv];
+                                var currentMonth = piv['currentMonth'];
+                                // If we don't have the current month in the piv, we didn't come here from a thumb.
+                                // Then get the current month of the piv from its tag dates.
+                                if (currentMonth == null) {
+                                  currentMonth = [0, 0];
+                                  piv['tags'].forEach((tag) {
+                                    if (RegExp('^d::\\d+').hasMatch(tag))
+                                      currentMonth[0] =
+                                          int.parse(tag.substring(3));
+                                    if (RegExp('^d::M').hasMatch(tag))
+                                      currentMonth[1] =
+                                          int.parse(tag.substring(4));
+                                  });
+                                }
+                                store.set('queryTags', [widget.currentTag], '',
+                                    'mute');
+                                await TagService.instance
+                                    .queryPivsForMonth(currentMonth);
+                                Navigator.pushReplacementNamed(
+                                    context, 'uploaded');
+                              },
+                              child: SizedBox(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 2.0),
+                                      child: FaIcon(
+                                        tagIcon(widget.currentTag),
+                                        color: tagIconColor(widget.currentTag),
+                                        size: 20,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    shortenN(tagTitle(widget.currentTag), 20),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat-Regular',
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: kGreyDarker,
+                                    SizedBox(
+                                      width: 5,
                                     ),
-                                  ),
-                                ],
+                                    Text(
+                                      shortenN(tagTitle(widget.currentTag), 20),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat-Regular',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: kGreyDarker,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            )),
                         replacement: SizedBox(
                           height: 35,
                           child: Padding(
@@ -536,16 +563,21 @@ class _CarrouselViewState extends State<CarrouselView>
                           ),
                         )),
                     SuggestionGrid(
-                        addMoreTags: store.get ('addMoreTags') == true,
+                        addMoreTags: store.get('addMoreTags') == true,
                         tags: (() {
-                           var tags;
-                           if (store.get ('addMoreTags') == true) tags = TagService.instance.getTagList (piv['tags'], '');
-                           else tags = piv['tags']
-                            .where((tag) =>
-                                !RegExp('^(t|u|o)::').hasMatch(tag) &&
-                                tag != widget.currentTag).toList()..shuffle();
-                           return tags;
-                           }) ())
+                          var tags;
+                          if (store.get('addMoreTags') == true)
+                            tags =
+                                TagService.instance.getTagList(piv['tags'], '');
+                          else
+                            tags = piv['tags']
+                                .where((tag) =>
+                                    !RegExp('^(t|u|o)::').hasMatch(tag) &&
+                                    tag != widget.currentTag)
+                                .toList()
+                              ..shuffle();
+                          return tags;
+                        })())
                   ])),
             ),
             // TODO: SHARE & DELETE
@@ -821,7 +853,9 @@ class VideoError extends StatelessWidget {
 }
 
 class SuggestionGrid extends StatefulWidget {
-  const SuggestionGrid({Key? key, required this.tags, required this.addMoreTags}) : super(key: key);
+  const SuggestionGrid(
+      {Key? key, required this.tags, required this.addMoreTags})
+      : super(key: key);
 
   final dynamic tags;
   final bool addMoreTags;
@@ -855,7 +889,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               if (index == 0) {
                 return GestureDetector(
                     onTap: () {
-                      store.set ('addMoreTags', ! widget.addMoreTags);
+                      store.set('addMoreTags', !widget.addMoreTags);
                     },
                     child: Column(
                       children: [
@@ -863,7 +897,9 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           width: SizeService.instance.screenWidth(context) * .3,
                           height:
                               SizeService.instance.screenWidth(context) * .3,
-                          color: widget.addMoreTags == true ? kAltoOrganized : kAltoBlue,
+                          color: widget.addMoreTags == true
+                              ? kAltoOrganized
+                              : kAltoBlue,
                           child: Visibility(
                             visible: widget.addMoreTags == false,
                             child: Row(
@@ -900,7 +936,9 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           height: 15,
                           width: SizeService.instance.screenWidth(context) * .3,
                           child: Text(
-                            widget.addMoreTags == true ? 'Done Tagging' : 'Add Tag',
+                            widget.addMoreTags == true
+                                ? 'Done Tagging'
+                                : 'Add Tag',
                             textAlign: TextAlign.center,
                             style: kGridBottomRowText,
                           ),
