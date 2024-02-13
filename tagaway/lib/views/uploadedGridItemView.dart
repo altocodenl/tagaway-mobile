@@ -165,7 +165,8 @@ class _CarrouselViewState extends State<CarrouselView>
           removeOverlay();
         }
       });
-    cancelListener = store.listen(['addMoreTags'], (AddMoreTags) {
+    cancelListener = store.listen(['addMoreTags', 'tagFilterCarrousel'],
+        (AddMoreTags, TagFilterCarrousel) {
       setState(() => addMoreTags = AddMoreTags == true);
     });
   }
@@ -181,6 +182,7 @@ class _CarrouselViewState extends State<CarrouselView>
     animationController.dispose();
     super.dispose();
     cancelListener();
+    searchTagController.dispose();
   }
 
   bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
@@ -556,19 +558,20 @@ class _CarrouselViewState extends State<CarrouselView>
                                   ),
                                 ),
                               ),
-                              // onChanged: (String query) {
-                              //   store.set('tagFilter' + widget.view, query);
-                              // },
+                              onChanged: (String query) {
+                                store.set('tagFilterCarrousel', query);
+                              },
                             ),
                           ),
                         )),
                     SuggestionGrid(
-                        addMoreTags: store.get('addMoreTags') == true,
+                        searchTagController: searchTagController,
+                        addMoreTags: addMoreTags == true,
                         tags: (() {
                           var tags;
-                          if (store.get('addMoreTags') == true)
-                            tags =
-                                TagService.instance.getTagList(piv['tags'], '');
+                          if (addMoreTags == true)
+                            tags = TagService.instance.getTagList(
+                                piv['tags'], store.get('tagFilterCarrousel'));
                           else
                             tags = piv['tags']
                                 .where((tag) =>
@@ -854,11 +857,15 @@ class VideoError extends StatelessWidget {
 
 class SuggestionGrid extends StatefulWidget {
   const SuggestionGrid(
-      {Key? key, required this.tags, required this.addMoreTags})
+      {Key? key,
+      required this.tags,
+      required this.addMoreTags,
+      required this.searchTagController})
       : super(key: key);
 
   final dynamic tags;
   final bool addMoreTags;
+  final dynamic searchTagController;
 
   @override
   State<SuggestionGrid> createState() => _SuggestionGridState();
@@ -890,6 +897,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                 return GestureDetector(
                     onTap: () {
                       store.set('addMoreTags', !widget.addMoreTags);
+                      widget.searchTagController.clear();
                     },
                     child: Column(
                       children: [
@@ -963,27 +971,29 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                       Container(
                         width: SizeService.instance.screenWidth(context) * .3,
                         height: SizeService.instance.screenWidth(context) * .3,
-                        child: CachedNetworkImage(
-                            imageUrl: (kTagawayThumbSURL) + thumb['id'],
-                            httpHeaders: {'cookie': store.get('cookie')},
-                            placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator(
-                                  color: kAltoBlue,
-                                )),
-                            imageBuilder: (context, imageProvider) =>
-                                Transform.rotate(
-                                  angle: (thumb['deg'] == null
-                                          ? 0
-                                          : thumb['deg']) *
-                                      math.pi /
-                                      180.0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: imageProvider)),
-                                  ),
-                                )),
+                        child: thumb != null
+                            ? CachedNetworkImage(
+                                imageUrl: (kTagawayThumbSURL) + thumb['id'],
+                                httpHeaders: {'cookie': store.get('cookie')},
+                                placeholder: (context, url) => const Center(
+                                        child: CircularProgressIndicator(
+                                      color: kAltoBlue,
+                                    )),
+                                imageBuilder: (context, imageProvider) =>
+                                    Transform.rotate(
+                                      angle: (thumb['deg'] == null
+                                              ? 0
+                                              : thumb['deg']) *
+                                          math.pi /
+                                          180.0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: imageProvider)),
+                                      ),
+                                    ))
+                            : Container(),
                       ),
                       SizedBox(
                         height: 15,

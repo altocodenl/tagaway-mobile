@@ -2,6 +2,9 @@
 
 ## TODO
 
+addMoreTags
+tagFilterCarrousel
+
 - Tube
    - Reimplement carrousel to slide sideways?
    - Show all phone pivs in tube
