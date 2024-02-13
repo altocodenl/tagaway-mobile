@@ -19,6 +19,7 @@ const kAltoOrganized = Color(0xFF00992b);
 const kAltoRed = Color(0xFFD33E43);
 const kAltoYellow = Color(0xFFffff00);
 const kAltoRemove = Color(0xFFFC201F);
+const kAltoShare = Color(0xFFec5bff);
 const kGreyLightest = Color(0xFFfbfbfb);
 const kGreyLighter = Color(0xFFf2f2f2);
 const kGreyLight = Color(0xFFdedede);
@@ -102,6 +103,7 @@ const kCheckIcon = FontAwesomeIcons.check;
 const kFullScreenIcon = FontAwesomeIcons.expand;
 const kLocalGridIcon = FontAwesomeIcons.grip;
 const kCloudGridIcon = FontAwesomeIcons.gripVertical;
+const kShareIcon = FontAwesomeIcons.shareFromSquare;
 
 const tagColors = [
   kTagColor1,

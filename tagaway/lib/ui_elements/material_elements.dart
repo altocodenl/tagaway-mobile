@@ -559,7 +559,7 @@ class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
   Widget build(BuildContext context) {
     if (visible) return Container();
     return Align(
-      alignment: const Alignment(-.85, .75),
+      alignment: const Alignment(-.85, -0.2),
       child: FloatingActionButton(
         shape: const CircleBorder(),
         heroTag: null,
@@ -573,6 +573,58 @@ class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
         backgroundColor: kAltoRed,
         child: const Icon(
           kTrashCanIcon,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class ShareButtonTunnel extends StatefulWidget {
+  const ShareButtonTunnel({
+    super.key,
+    required this.view,
+  });
+  final String view;
+
+  @override
+  State<ShareButtonTunnel> createState() => _ShareButtonTunnelState();
+}
+
+class _ShareButtonTunnelState extends State<ShareButtonTunnel> {
+  dynamic cancelListener;
+  bool visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cancelListener = store.listen(['showButtons' + widget.view], (v1) {
+      setState(() {
+        visible = v1 == true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (visible) return Container();
+    return Align(
+      alignment: const Alignment(-.85, -0.5),
+      child: FloatingActionButton(
+        shape: const CircleBorder(),
+        heroTag: null,
+        elevation: 10,
+        key: const Key('share'),
+        onPressed: () {},
+        backgroundColor: kAltoShare,
+        child: const Icon(
+          kShareIcon,
           color: Colors.white,
         ),
       ),
