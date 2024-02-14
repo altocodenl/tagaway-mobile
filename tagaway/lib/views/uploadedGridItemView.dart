@@ -1020,6 +1020,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               }
               var tag = tags[index - 1];
               var thumb = store.get('thumbs')[tag];
+              var isTagged = pivTags.contains(tag);
 
               return GestureDetector(
                   onTap: () async {
