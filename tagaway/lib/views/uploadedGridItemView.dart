@@ -167,7 +167,9 @@ class _CarrouselViewState extends State<CarrouselView>
       });
     cancelListener = store.listen(['addMoreTags', 'tagFilterCarrousel'],
         (AddMoreTags, TagFilterCarrousel) {
-      setState(() => addMoreTags = AddMoreTags == true);
+      setState(() {
+        addMoreTags = AddMoreTags == true;
+      });
     });
   }
 
@@ -212,7 +214,6 @@ class _CarrouselViewState extends State<CarrouselView>
   Widget build(BuildContext context) {
     // Check if the keyboard is visible
     bool keyboardIsVisible = isKeyboardVisible(context);
-    print('Loading the Carrousel View + ${DateTime.timestamp()}');
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -478,6 +479,7 @@ class _CarrouselViewState extends State<CarrouselView>
                         child: Padding(
                             padding: const EdgeInsets.only(left: 20.0),
                             child: GestureDetector(
+                              // This onTap handles the jumping to the grid by clicking on the tag
                               onTap: () async {
                                 var piv = widget.pivs[widget.initialPiv];
                                 var currentMonth = piv['currentMonth'];
@@ -566,21 +568,7 @@ class _CarrouselViewState extends State<CarrouselView>
                         )),
                     SuggestionGrid(
                         searchTagController: searchTagController,
-                        addMoreTags: addMoreTags == true,
-                        tags: (() {
-                          var tags;
-                          if (addMoreTags == true)
-                            tags = TagService.instance.getTagList(
-                                piv['tags'], store.get('tagFilterCarrousel'));
-                          else
-                            tags = piv['tags']
-                                .where((tag) =>
-                                    !RegExp('^(t|u|o)::').hasMatch(tag) &&
-                                    tag != widget.currentTag)
-                                .toList()
-                              ..shuffle();
-                          return tags;
-                        })())
+                        pivTags: piv['tags']),
                   ])),
             ),
             // TODO: SHARE & DELETE
@@ -857,14 +845,10 @@ class VideoError extends StatelessWidget {
 
 class SuggestionGrid extends StatefulWidget {
   const SuggestionGrid(
-      {Key? key,
-      required this.tags,
-      required this.addMoreTags,
-      required this.searchTagController})
+      {Key? key, required this.pivTags, required this.searchTagController})
       : super(key: key);
 
-  final dynamic tags;
-  final bool addMoreTags;
+  final dynamic pivTags;
   final dynamic searchTagController;
 
   @override
@@ -874,9 +858,50 @@ class SuggestionGrid extends StatefulWidget {
 class _SuggestionGridState extends State<SuggestionGrid> {
   final ScrollController suggestionGridController = ScrollController();
 
+  // We need to hold the tags for the piv here because:
+  // 1) We need to change them from the suggestion grid
+  // 2) The piv information can come from either a thumb or an actual piv (depending on how the user came to the view), so we'd have to have conditional logic to update it in multiple places, as well as depend on it from the state
+  // 3) As soon as we go to the next piv, this state can be dropped and refreshed by data that comes from the server
+  dynamic pivTags = [];
+  bool addMoreTags = false;
+  dynamic cancelListener;
+
+  @override
+  void initState() {
+    // On widget creation, we take the pivTags we got as argument from the outer view to initialize our pivTagsCarrousel
+    store.set('pivTagsCarrousel', widget.pivTags);
+    super.initState();
+    cancelListener = store
+        .listen(['addMoreTags', 'pivTagsCarrousel', 'tagFilterCarrousel'],
+            (AddMoreTags, PivTagsCarrousel, TagFilterCarrousel) {
+      setState(() {
+        addMoreTags = AddMoreTags == true;
+        pivTags = getList(
+            'pivTagsCarrousel'); // getList also copies the list, so we can modify pivTags and then set it in the store in a way that will trigger a change event on pivTagsCarrousel
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var tags = widget.tags.toList();
+    var tags;
+    if (addMoreTags == true) {
+      tags = pivTags +
+          TagService.instance
+              .getTagList(pivTags, store.get('tagFilterCarrousel'));
+    } else {
+      tags = pivTags
+          .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag))
+          .toList()
+        ..shuffle();
+    }
+
     return Padding(
       padding: const EdgeInsets.only(top: 50.0),
       child: SizedBox.expand(
@@ -896,7 +921,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               if (index == 0) {
                 return GestureDetector(
                     onTap: () {
-                      store.set('addMoreTags', !widget.addMoreTags);
+                      store.set('addMoreTags', !addMoreTags);
                       widget.searchTagController.clear();
                     },
                     child: Column(
@@ -905,11 +930,10 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           width: SizeService.instance.screenWidth(context) * .3,
                           height:
                               SizeService.instance.screenWidth(context) * .3,
-                          color: widget.addMoreTags == true
-                              ? kAltoOrganized
-                              : kAltoBlue,
+                          color:
+                              addMoreTags == true ? kAltoOrganized : kAltoBlue,
                           child: Visibility(
-                            visible: widget.addMoreTags == false,
+                            visible: addMoreTags == false,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -944,9 +968,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           height: 15,
                           width: SizeService.instance.screenWidth(context) * .3,
                           child: Text(
-                            widget.addMoreTags == true
-                                ? 'Done Tagging'
-                                : 'Add Tag',
+                            addMoreTags == true ? 'Done Tagging' : 'Add Tag',
                             textAlign: TextAlign.center,
                             style: kGridBottomRowText,
                           ),
@@ -959,6 +981,13 @@ class _SuggestionGridState extends State<SuggestionGrid> {
 
               return GestureDetector(
                   onTap: () async {
+                    if (addMoreTags) {
+                      TagService.instance
+                          .tagCloudPiv(thumb['id'], [tag], false);
+                      widget.searchTagController.clear();
+                      return;
+                    }
+                    ;
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) {
                       return CarrouselView(

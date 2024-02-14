@@ -3,19 +3,22 @@
 ## TODO
 
 addMoreTags
+pivTagsCarrousel
 tagFilterCarrousel
 
-- Tube
-   - Reimplement carrousel to slide sideways?
-   - Show all phone pivs in tube
-   - Store info of impressions and clicks on tags
+- New view
+   - Tag
+   - Untag
+   - Full screen
+   - Delete (including confirm)
+   - Share
+   - Mark as organized
 
-- New tagging system
+- Reimplement carrousel to slide sideways?
+- Show all phone pivs in tube
+- Store info of impressions and clicks on tags
 - Rework zoom in carrousel (Tom)
-
-- Confirm on delete single uploaded piv
 - Swipe sideways to navigate months in uploaded
-- Server: rename homeThumbs to thumbs after launching new release
 - Finish annotated source code: tagService, storeService, tools.
 
 - Sharebox
