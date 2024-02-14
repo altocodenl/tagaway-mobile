@@ -143,6 +143,8 @@ class _CarrouselViewState extends State<CarrouselView>
   final TextEditingController searchTagController = TextEditingController();
   dynamic addMoreTags;
   dynamic cancelListener;
+  bool fullScreen = false;
+  bool showTags = true;
 
   // This function checks if the keyboard is visible
   bool isKeyboardVisible(BuildContext context) {
@@ -302,12 +304,18 @@ class _CarrouselViewState extends State<CarrouselView>
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Container(
+                                    AnimatedContainer(
                                       width: SizeService.instance
                                           .screenWidth(context),
-                                      height: SizeService.instance
-                                              .screenHeight(context) *
-                                          .45,
+                                      height: fullScreen
+                                          ? SizeService.instance
+                                                  .screenHeight(context) *
+                                              .85
+                                          : SizeService.instance
+                                                  .screenHeight(context) *
+                                              .45,
+                                      duration: const Duration(seconds: 1),
+                                      curve: Curves.fastOutSlowIn,
                                       decoration: const BoxDecoration(
                                           color: kGreyDarker,
                                           borderRadius: BorderRadius.only(
@@ -406,12 +414,18 @@ class _CarrouselViewState extends State<CarrouselView>
                                               : piv['deg']) *
                                           math.pi /
                                           180.0,
-                                      child: Container(
+                                      child: AnimatedContainer(
                                         width: SizeService.instance
                                             .screenWidth(context),
-                                        height: SizeService.instance
-                                                .screenHeight(context) *
-                                            .45,
+                                        height: fullScreen
+                                            ? SizeService.instance
+                                                    .screenHeight(context) *
+                                                .85
+                                            : SizeService.instance
+                                                    .screenHeight(context) *
+                                                .45,
+                                        duration: const Duration(seconds: 1),
+                                        curve: Curves.fastOutSlowIn,
                                         decoration: const BoxDecoration(
                                             color: kGreyDarker,
                                             borderRadius: BorderRadius.only(
@@ -430,7 +444,6 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
-
             // const DeleteButtonTunnel(
             //   view: 'uploaded',
             // ),
@@ -438,150 +451,179 @@ class _CarrouselViewState extends State<CarrouselView>
             //   view: 'uploaded',
             // ),
             GestureDetector(
-              onTap: () {},
-              child: const Align(
-                alignment: Alignment(.85, -.05),
-                child: FaIcon(
-                  kFullScreenIcon,
-                  color: Colors.white,
-                  size: 30,
+              onTap: () {
+                setState(() => fullScreen = !fullScreen);
+                // One second for the other animation to execute, 100ms of changui
+                if (fullScreen == false)
+                  Future.delayed(Duration(milliseconds: 1100), () {
+                    setState(() => showTags = !fullScreen);
+                  });
+                else
+                  setState(() => showTags = !fullScreen);
+              },
+              child: Visibility(
+                visible: showTags,
+                replacement: const Align(
+                  alignment: Alignment(.85, .8),
+                  child: FaIcon(
+                    kFullScreenIcon,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: const Align(
-                alignment: Alignment(-.85, -.05),
-                child: FaIcon(
-                  kEllipsisVerticalIcon,
-                  color: Colors.white,
-                  size: 30,
+                child: const Align(
+                  alignment: Alignment(.85, -.05),
+                  child: FaIcon(
+                    kFullScreenIcon,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                 ),
               ),
             ),
             Visibility(
+              visible: showTags,
+              child: GestureDetector(
+                onTap: () {},
+                child: const Align(
+                  alignment: Alignment(-.85, -.05),
+                  child: FaIcon(
+                    kEllipsisVerticalIcon,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
+            Visibility(
+              visible: showTags,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                    width: SizeService.instance.screenWidth(context),
+                    height: SizeService.instance.screenWidth(context) * .75,
+                    child: Stack(children: [
+                      Visibility(
+                          visible: addMoreTags != true,
+                          child: Padding(
+                              padding: const EdgeInsets.only(left: 20.0),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  var piv = widget.pivs[widget.initialPiv];
+                                  var currentMonth = piv['currentMonth'];
+                                  // If we don't have the current month in the piv, we didn't come here from a thumb.
+                                  // Then get the current month of the piv from its tag dates.
+                                  if (currentMonth == null) {
+                                    currentMonth = [0, 0];
+                                    piv['tags'].forEach((tag) {
+                                      if (RegExp('^d::\\d+').hasMatch(tag))
+                                        currentMonth[0] =
+                                            int.parse(tag.substring(3));
+                                      if (RegExp('^d::M').hasMatch(tag))
+                                        currentMonth[1] =
+                                            int.parse(tag.substring(4));
+                                    });
+                                  }
+                                  store.set('queryTags', [widget.currentTag],
+                                      '', 'mute');
+                                  await TagService.instance
+                                      .queryPivsForMonth(currentMonth);
+                                  Navigator.pushReplacementNamed(
+                                      context, 'uploaded');
+                                },
+                                child: SizedBox(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 2.0),
+                                        child: FaIcon(
+                                          tagIcon(widget.currentTag),
+                                          color:
+                                              tagIconColor(widget.currentTag),
+                                          size: 20,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                        shortenN(
+                                            tagTitle(widget.currentTag), 20),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat-Regular',
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: kGreyDarker,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )),
+                          replacement: SizedBox(
+                            height: 35,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8),
+                              child: TextField(
+                                controller: searchTagController,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 20.0),
+                                  fillColor: kGreyLightest,
+                                  hintText: 'Create or search a tag',
+                                  hintMaxLines: 1,
+                                  hintStyle: kPlainTextBold,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide:
+                                          const BorderSide(color: kGreyDarker)),
+                                  prefixIcon: const Padding(
+                                    padding: EdgeInsets.only(
+                                        right: 12, left: 12, top: 10),
+                                    child: FaIcon(
+                                      kSearchIcon,
+                                      size: 16,
+                                      color: kGreyDarker,
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (String query) {
+                                  store.set('tagFilterCarrousel', query);
+                                },
+                              ),
+                            ),
+                          )),
+                      SuggestionGrid(
+                          searchTagController: searchTagController,
+                          addMoreTags: addMoreTags == true,
+                          tags: (() {
+                            var tags;
+                            if (addMoreTags == true)
+                              tags = TagService.instance.getTagList(
+                                  piv['tags'], store.get('tagFilterCarrousel'));
+                            else
+                              tags = piv['tags']
+                                  .where((tag) =>
+                                      !RegExp('^(t|u|o)::').hasMatch(tag) &&
+                                      tag != widget.currentTag)
+                                  .toList()
+                                ..shuffle();
+                            return tags;
+                          })())
+                    ])),
+              ),
+            ),
+            Visibility(
               visible: keyboardIsVisible,
+              replacement: Container(),
               child: Container(
                 color: Colors.white.withOpacity(0.8),
               ),
-              replacement: Container(),
-            ),
-
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                  width: SizeService.instance.screenWidth(context),
-                  height: SizeService.instance.screenWidth(context) * .75,
-                  child: Stack(children: [
-                    Visibility(
-                        visible: addMoreTags != true,
-                        child: Padding(
-                            padding: const EdgeInsets.only(left: 20.0),
-                            child: GestureDetector(
-                              onTap: () async {
-                                var piv = widget.pivs[widget.initialPiv];
-                                var currentMonth = piv['currentMonth'];
-                                // If we don't have the current month in the piv, we didn't come here from a thumb.
-                                // Then get the current month of the piv from its tag dates.
-                                if (currentMonth == null) {
-                                  currentMonth = [0, 0];
-                                  piv['tags'].forEach((tag) {
-                                    if (RegExp('^d::\\d+').hasMatch(tag))
-                                      currentMonth[0] =
-                                          int.parse(tag.substring(3));
-                                    if (RegExp('^d::M').hasMatch(tag))
-                                      currentMonth[1] =
-                                          int.parse(tag.substring(4));
-                                  });
-                                }
-                                store.set('queryTags', [widget.currentTag], '',
-                                    'mute');
-                                await TagService.instance
-                                    .queryPivsForMonth(currentMonth);
-                                Navigator.pushReplacementNamed(
-                                    context, 'uploaded');
-                              },
-                              child: SizedBox(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(top: 2.0),
-                                      child: FaIcon(
-                                        tagIcon(widget.currentTag),
-                                        color: tagIconColor(widget.currentTag),
-                                        size: 20,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Text(
-                                      shortenN(tagTitle(widget.currentTag), 20),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat-Regular',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: kGreyDarker,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )),
-                        replacement: SizedBox(
-                          height: 35,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: TextField(
-                              controller: searchTagController,
-                              textCapitalization: TextCapitalization.sentences,
-                              decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 20.0),
-                                fillColor: kGreyLightest,
-                                hintText: 'Create or search a tag',
-                                hintMaxLines: 1,
-                                hintStyle: kPlainTextBold,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide:
-                                        const BorderSide(color: kGreyDarker)),
-                                prefixIcon: const Padding(
-                                  padding: EdgeInsets.only(
-                                      right: 12, left: 12, top: 10),
-                                  child: FaIcon(
-                                    kSearchIcon,
-                                    size: 16,
-                                    color: kGreyDarker,
-                                  ),
-                                ),
-                              ),
-                              onChanged: (String query) {
-                                store.set('tagFilterCarrousel', query);
-                              },
-                            ),
-                          ),
-                        )),
-                    SuggestionGrid(
-                        searchTagController: searchTagController,
-                        addMoreTags: addMoreTags == true,
-                        tags: (() {
-                          var tags;
-                          if (addMoreTags == true)
-                            tags = TagService.instance.getTagList(
-                                piv['tags'], store.get('tagFilterCarrousel'));
-                          else
-                            tags = piv['tags']
-                                .where((tag) =>
-                                    !RegExp('^(t|u|o)::').hasMatch(tag) &&
-                                    tag != widget.currentTag)
-                                .toList()
-                              ..shuffle();
-                          return tags;
-                        })())
-                  ])),
             ),
             // TODO: SHARE & DELETE
             // Align(
