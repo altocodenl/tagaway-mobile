@@ -943,12 +943,13 @@ class TagService {
       if (yearIndex >= 0) store.set ('yearUploaded', semesters [yearIndex as dynamic] [0] [0]);
    }
 
-   getTagList (ignoreTags, tagFilter) {
+   getTagList (currentTags, tagFilter, ignoreCurrentTags) {
       if (tagFilter == null) tagFilter == '';
-      if (ignoreTags == null) ignoreTags = [];
+      var ignoreTags = [];
+      if (ignoreCurrentTags && currentTags != null) ignoreTags = currentTags;
 
-      // Place lastNTags and hometags first.
-      var usertags = getList ('lastNTags') + getList ('hometags') + getList ('usertags');
+      // Place currentTags, lastNTags and hometags first.
+      var usertags = currentTags + getList ('lastNTags') + getList ('hometags') + getList ('usertags');
       // Eliminate duplicates.
       usertags = usertags.toSet ().toList ();
       // Eliminate ignored tags

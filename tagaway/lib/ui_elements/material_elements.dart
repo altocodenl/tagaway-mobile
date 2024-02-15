@@ -1060,7 +1060,7 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
       'swiped' + widget.view,
     ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
-        usertags = TagService.instance.getTagList (CurrentlyTagging == '' ? [] : CurrentlyTagging, TagFilter);
+        usertags = TagService.instance.getTagList (CurrentlyTagging == '' ? [] : CurrentlyTagging, TagFilter, true);
 
         swiped = Swiped == true;
         if (swiped == false) {

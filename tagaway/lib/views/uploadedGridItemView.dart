@@ -934,9 +934,10 @@ class _SuggestionGridState extends State<SuggestionGrid> {
   Widget build(BuildContext context) {
     var tags;
     if (addMoreTags == true) {
-      tags = pivTags +
-          TagService.instance
-              .getTagList(pivTags, store.get('tagFilterCarrousel'));
+      tags = TagService.instance.getTagList(
+          pivTags.where((tag) => !RegExp('^[a-z]::').hasMatch(tag)).toList(),
+          store.get('tagFilterCarrousel'),
+          false);
     } else {
       tags = pivTags
           .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag))
@@ -1025,9 +1026,13 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               return GestureDetector(
                   onTap: () async {
                     if (addMoreTags) {
-                      TagService.instance
-                          .tagCloudPiv(thumb['id'], [tag], false);
+                      TagService.instance.tagCloudPiv(thumb['id'], [tag],
+                          isTagged); // if the piv is tagged, we will untag it by passing `true` as the third argument
+                      pivTags.contains(tag)
+                          ? pivTags.remove(tag)
+                          : pivTags.add(tag);
                       widget.searchTagController.clear();
+                      store.set('pivTagsCarrousel', pivTags);
                       return;
                     }
                     ;
