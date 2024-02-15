@@ -1030,9 +1030,17 @@ class _SuggestionGridState extends State<SuggestionGrid> {
 
               return GestureDetector(
                   onTap: () async {
-                    tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
-                    tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
                     if (addMoreTags) {
+                      if (RegExp(' \\(new tag\\)\$').hasMatch(tag)) {
+                        // If we're creating a tag on this piv, put it provisionally as thumb
+                        var thumbs = store.get('thumbs');
+                        thumbs[tag.replaceFirst(RegExp(r' \(new tag\)$'), '')] =
+                            {'id': widget.pivId};
+                        store.set('thumbs', thumbs);
+                      }
+
+                      tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
+                      tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
                       TagService.instance.tagCloudPiv(widget.pivId, [tag],
                           isTagged); // if the piv is tagged, we will untag it by passing `true` as the third argument
                       pivTags.contains(tag)
@@ -1041,7 +1049,6 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                       store.set('pivTagsCarrousel', pivTags);
                       return;
                     }
-                    ;
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (_) {
                       return CarrouselView(
