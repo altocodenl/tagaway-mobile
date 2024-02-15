@@ -6,16 +6,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:video_player/video_player.dart';
-
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:video_player/video_player.dart';
 
 class UploadedGridItem extends StatelessWidget {
   dynamic pivIndex;
@@ -148,6 +147,7 @@ class _CarrouselViewState extends State<CarrouselView>
   dynamic cancelListener;
   bool fullScreen = false;
   bool showTags = true;
+  bool showDeleteAndShare = false;
 
   // This function checks if the keyboard is visible
   bool isKeyboardVisible(BuildContext context) {
@@ -448,54 +448,66 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
-            DeleteButtonTunnel(
-                view: 'uploaded',
-                onPressed: () async {
-                  debug(['pressing delete button', piv]);
-                }),
-            ShareButtonTunnel(
-              view: 'uploaded',
-              onPressed: () async {
-                debug(['pressing share button', piv]);
-                // Share cloud piv
-                if (piv['local'] == null) {
-                  if (piv['vid'] == null) {
-                    WhiteSnackBar.buildSnackBar(
-                        context, 'Preparing your image for sharing...');
-                    final response = await http.get(
-                        Uri.parse((kTagawayThumbMURL) + (piv['id'])),
-                        headers: {'cookie': store.get('cookie')});
-                    final bytes = response.bodyBytes;
-                    final temp = await getTemporaryDirectory();
-                    final path = '${temp.path}/image.jpg';
-                    File(path).writeAsBytesSync(bytes);
-                    await Share.shareXFiles([XFile(path)]);
-                  } else {
-                    WhiteSnackBar.buildSnackBar(
-                        context, 'Preparing your video for sharing...');
-                    final response = await http.get(
-                        Uri.parse((kTagawayVideoURL) + (piv['id'])),
-                        headers: {'cookie': store.get('cookie')});
+            Visibility(
+              visible: showTags,
+              child: Visibility(
+                visible: showDeleteAndShare,
+                child: DeleteButtonTunnel(
+                    view: 'uploaded',
+                    onPressed: () async {
+                      debug(['pressing delete button', piv]);
+                    }),
+              ),
+            ),
+            Visibility(
+              visible: showTags,
+              child: Visibility(
+                visible: showDeleteAndShare,
+                child: ShareButtonTunnel(
+                  view: 'uploaded',
+                  onPressed: () async {
+                    debug(['pressing share button', piv]);
+                    // Share cloud piv
+                    if (piv['local'] == null) {
+                      if (piv['vid'] == null) {
+                        WhiteSnackBar.buildSnackBar(
+                            context, 'Preparing your image for sharing...');
+                        final response = await http.get(
+                            Uri.parse((kTagawayThumbMURL) + (piv['id'])),
+                            headers: {'cookie': store.get('cookie')});
+                        final bytes = response.bodyBytes;
+                        final temp = await getTemporaryDirectory();
+                        final path = '${temp.path}/image.jpg';
+                        File(path).writeAsBytesSync(bytes);
+                        await Share.shareXFiles([XFile(path)]);
+                      } else {
+                        WhiteSnackBar.buildSnackBar(
+                            context, 'Preparing your video for sharing...');
+                        final response = await http.get(
+                            Uri.parse((kTagawayVideoURL) + (piv['id'])),
+                            headers: {'cookie': store.get('cookie')});
 
-                    final bytes = response.bodyBytes;
-                    final temp = await getTemporaryDirectory();
-                    final path = '${temp.path}/video.mp4';
-                    File(path).writeAsBytesSync(bytes);
-                    await Share.shareXFiles([XFile(path)]);
-                  }
-                }
-                // Share local piv
-                else {
-                  WhiteSnackBar.buildSnackBar(
-                      context, 'Preparing your image for sharing...');
-                  final response = await piv['piv'].originBytes;
-                  final bytes = response;
-                  final temp = await getTemporaryDirectory();
-                  final path = '${temp.path}/image.jpg';
-                  File(path).writeAsBytesSync(bytes!);
-                  await Share.shareXFiles([XFile(path)]);
-                }
-              },
+                        final bytes = response.bodyBytes;
+                        final temp = await getTemporaryDirectory();
+                        final path = '${temp.path}/video.mp4';
+                        File(path).writeAsBytesSync(bytes);
+                        await Share.shareXFiles([XFile(path)]);
+                      }
+                    }
+                    // Share local piv
+                    else {
+                      WhiteSnackBar.buildSnackBar(
+                          context, 'Preparing your image for sharing...');
+                      final response = await piv['piv'].originBytes;
+                      final bytes = response;
+                      final temp = await getTemporaryDirectory();
+                      final path = '${temp.path}/image.jpg';
+                      File(path).writeAsBytesSync(bytes!);
+                      await Share.shareXFiles([XFile(path)]);
+                    }
+                  },
+                ),
+              ),
             ),
             GestureDetector(
               onTap: () {
@@ -531,7 +543,11 @@ class _CarrouselViewState extends State<CarrouselView>
             Visibility(
               visible: showTags,
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  setState(() {
+                    showDeleteAndShare = !showDeleteAndShare;
+                  });
+                },
                 child: const Align(
                   alignment: Alignment(-.85, -.05),
                   child: FaIcon(

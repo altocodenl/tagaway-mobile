@@ -561,17 +561,19 @@ class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
   Widget build(BuildContext context) {
     if (visible) return Container();
     return Align(
-      alignment: const Alignment(-.85, -0.2),
+      alignment: const Alignment(-.85, -0.3),
       child: FloatingActionButton(
         shape: const CircleBorder(),
         heroTag: null,
         elevation: 10,
         key: const Key('delete'),
-        onPressed: widget.onPressed != null ? widget.onPressed : () {
-          store.set('currentlyDeleting' + widget.view, true);
-          store.set('showButtons' + widget.view, false);
-          store.set('showSelectAllButton' + widget.view, true);
-        },
+        onPressed: widget.onPressed != null
+            ? widget.onPressed
+            : () {
+                store.set('currentlyDeleting' + widget.view, true);
+                store.set('showButtons' + widget.view, false);
+                store.set('showSelectAllButton' + widget.view, true);
+              },
         backgroundColor: kAltoRed,
         child: const Icon(
           kTrashCanIcon,
@@ -583,11 +585,7 @@ class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
 }
 
 class ShareButtonTunnel extends StatefulWidget {
-  const ShareButtonTunnel({
-    super.key,
-    required this.view,
-    this.onPressed
-  });
+  const ShareButtonTunnel({super.key, required this.view, this.onPressed});
   final String view;
   final dynamic onPressed;
 
@@ -619,7 +617,7 @@ class _ShareButtonTunnelState extends State<ShareButtonTunnel> {
   Widget build(BuildContext context) {
     if (visible) return Container();
     return Align(
-      alignment: const Alignment(-.85, -0.5),
+      alignment: const Alignment(-.85, -0.65),
       child: FloatingActionButton(
         shape: const CircleBorder(),
         heroTag: null,
@@ -1064,7 +1062,8 @@ class _TagPivsScrollableListState extends State<TagPivsScrollableList> {
       'swiped' + widget.view,
     ], (Usertags, CurrentlyTagging, TagFilter, Swiped) {
       setState(() {
-        usertags = TagService.instance.getTagList (CurrentlyTagging == '' ? [] : CurrentlyTagging, TagFilter, true);
+        usertags = TagService.instance.getTagList(
+            CurrentlyTagging == '' ? [] : CurrentlyTagging, TagFilter, true);
 
         swiped = Swiped == true;
         if (swiped == false) {
