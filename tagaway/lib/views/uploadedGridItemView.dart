@@ -7,12 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:video_player/video_player.dart';
+
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:video_player/video_player.dart';
 
 class UploadedGridItem extends StatelessWidget {
   dynamic pivIndex;
@@ -445,12 +448,57 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
-            // const DeleteButtonTunnel(
-            //   view: 'uploaded',
-            // ),
-            // const ShareButtonTunnel(
-            //   view: 'uploaded',
-            // ),
+            GestureDetector(
+              onTap: () async {
+                debug(['pressing share button', piv]);
+                // Share cloud piv
+                if (piv['local'] == null) {
+                  if (piv['vid'] == null) {
+                    WhiteSnackBar.buildSnackBar(
+                        context, 'Preparing your image for sharing...');
+                    final response = await http.get(
+                        Uri.parse((kTagawayThumbMURL) + (piv['id'])),
+                        headers: {'cookie': store.get('cookie')});
+                    final bytes = response.bodyBytes;
+                    final temp = await getTemporaryDirectory();
+                    final path = '${temp.path}/image.jpg';
+                    File(path).writeAsBytesSync(bytes);
+                    await Share.shareXFiles([XFile(path)]);
+                  } else {
+                    WhiteSnackBar.buildSnackBar(
+                        context, 'Preparing your video for sharing...');
+                    final response = await http.get(
+                        Uri.parse((kTagawayVideoURL) + (piv['id'])),
+                        headers: {'cookie': store.get('cookie')});
+
+                    final bytes = response.bodyBytes;
+                    final temp = await getTemporaryDirectory();
+                    final path = '${temp.path}/video.mp4';
+                    File(path).writeAsBytesSync(bytes);
+                    await Share.shareXFiles([XFile(path)]);
+                  }
+                }
+                // Share local piv
+                else {
+                  WhiteSnackBar.buildSnackBar(
+                      context, 'Preparing your image for sharing...');
+                  final response = await piv['piv'].originBytes;
+                  final bytes = response;
+                  final temp = await getTemporaryDirectory();
+                  final path = '${temp.path}/image.jpg';
+                  File(path).writeAsBytesSync(bytes!);
+                  await Share.shareXFiles([XFile(path)]);
+                }
+              },
+              child: DeleteButtonTunnel(
+                view: 'uploaded',
+              ),
+            ),
+            GestureDetector(
+                onTap: () {},
+                child: ShareButtonTunnel(
+                  view: 'uploaded',
+                )),
             GestureDetector(
               onTap: () {
                 setState(() => fullScreen = !fullScreen);
@@ -608,9 +656,7 @@ class _CarrouselViewState extends State<CarrouselView>
                             ),
                           )),
                       SuggestionGrid(
-                          searchTagController: searchTagController,
-                          pivId: piv['id'],
-                          pivTags: piv['tags'])
+                          searchTagController: searchTagController, piv: piv)
                     ])),
               ),
             ),
@@ -699,6 +745,7 @@ class _CarrouselViewState extends State<CarrouselView>
             //     ),
             //   ),
             // ),
+            DeleteModal(view: 'Uploaded'),
           ]),
         );
       },
@@ -889,14 +936,10 @@ class VideoError extends StatelessWidget {
 
 class SuggestionGrid extends StatefulWidget {
   const SuggestionGrid(
-      {Key? key,
-      required this.pivTags,
-      required this.pivId,
-      required this.searchTagController})
+      {Key? key, required this.piv, required this.searchTagController})
       : super(key: key);
 
-  final dynamic pivTags;
-  final dynamic pivId;
+  final dynamic piv;
   final dynamic searchTagController;
 
   @override
@@ -917,7 +960,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
   @override
   void initState() {
     // On widget creation, we take the pivTags we got as argument from the outer view to initialize our pivTagsCarrousel
-    store.set('pivTagsCarrousel', widget.pivTags);
+    store.set('pivTagsCarrousel', widget.piv['tags']);
     super.initState();
     cancelListener = store
         .listen(['addMoreTags', 'pivTagsCarrousel', 'tagFilterCarrousel'],
@@ -1038,13 +1081,13 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                         // If we're creating a tag on this piv, put it provisionally as thumb
                         var thumbs = store.get('thumbs');
                         thumbs[tag.replaceFirst(RegExp(r' \(new tag\)$'), '')] =
-                            {'id': widget.pivId};
+                            {'id': widget.piv['id']};
                         store.set('thumbs', thumbs);
                       }
 
                       tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
                       tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
-                      TagService.instance.tagCloudPiv(widget.pivId, [tag],
+                      TagService.instance.tagCloudPiv(widget.piv['id'], [tag],
                           isTagged); // if the piv is tagged, we will untag it by passing `true` as the third argument
                       pivTags.contains(tag)
                           ? pivTags.remove(tag)
