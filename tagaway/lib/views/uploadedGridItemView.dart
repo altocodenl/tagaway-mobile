@@ -932,6 +932,8 @@ class _SuggestionGridState extends State<SuggestionGrid> {
 
   @override
   void dispose() {
+    store.remove('addMoreTags');
+    store.remove('tagFilterCarrousel');
     super.dispose();
     cancelListener();
   }
