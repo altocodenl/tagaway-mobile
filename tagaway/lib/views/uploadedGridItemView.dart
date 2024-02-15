@@ -505,6 +505,13 @@ class _CarrouselViewState extends State<CarrouselView>
                     height: SizeService.instance.screenWidth(context) * .75,
                     child: Stack(children: [
                       Visibility(
+                        visible: keyboardIsVisible,
+                        replacement: Container(),
+                        child: Container(
+                          color: Colors.white.withOpacity(0.8),
+                        ),
+                      ),
+                      Visibility(
                           visible: addMoreTags != true,
                           child: Padding(
                               padding: const EdgeInsets.only(left: 20.0),
@@ -607,13 +614,7 @@ class _CarrouselViewState extends State<CarrouselView>
                     ])),
               ),
             ),
-            Visibility(
-              visible: keyboardIsVisible,
-              replacement: Container(),
-              child: Container(
-                color: Colors.white.withOpacity(0.8),
-              ),
-            ),
+
             // TODO: SHARE & DELETE
             // Align(
             //   alignment: Alignment.bottomCenter,
@@ -1089,7 +1090,9 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                                                     image: imageProvider)),
                                           ),
                                         ))
-                                : Container(),
+                                : Container(
+                                    color: Colors.blue,
+                                  ),
                           ),
                           Positioned.fill(
                               child: IgnorePointer(
