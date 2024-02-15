@@ -1045,32 +1045,62 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                   },
                   child: Column(
                     children: [
-                      Container(
-                        width: SizeService.instance.screenWidth(context) * .3,
-                        height: SizeService.instance.screenWidth(context) * .3,
-                        child: thumb != null
-                            ? CachedNetworkImage(
-                                imageUrl: (kTagawayThumbSURL) + thumb['id'],
-                                httpHeaders: {'cookie': store.get('cookie')},
-                                placeholder: (context, url) => const Center(
-                                        child: CircularProgressIndicator(
-                                      color: kAltoBlue,
-                                    )),
-                                imageBuilder: (context, imageProvider) =>
-                                    Transform.rotate(
-                                      angle: (thumb['deg'] == null
-                                              ? 0
-                                              : thumb['deg']) *
-                                          math.pi /
-                                          180.0,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image: imageProvider)),
-                                      ),
-                                    ))
-                            : Container(),
+                      Stack(
+                        children: [
+                          Container(
+                            width:
+                                SizeService.instance.screenWidth(context) * .3,
+                            height:
+                                SizeService.instance.screenWidth(context) * .3,
+                            child: thumb != null
+                                ? CachedNetworkImage(
+                                    imageUrl: (kTagawayThumbSURL) + thumb['id'],
+                                    httpHeaders: {
+                                      'cookie': store.get('cookie')
+                                    },
+                                    placeholder: (context, url) => const Center(
+                                            child: CircularProgressIndicator(
+                                          color: kAltoBlue,
+                                        )),
+                                    imageBuilder: (context, imageProvider) =>
+                                        Transform.rotate(
+                                          angle: (thumb['deg'] == null
+                                                  ? 0
+                                                  : thumb['deg']) *
+                                              math.pi /
+                                              180.0,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                    fit: BoxFit.cover,
+                                                    image: imageProvider)),
+                                          ),
+                                        ))
+                                : Container(),
+                          ),
+                          Positioned.fill(
+                              child: IgnorePointer(
+                            child: Container(
+                              color: isTagged
+                                  ? kAltoOrganized.withOpacity(.6)
+                                  : Colors.transparent,
+                            ),
+                          )),
+                          isTagged
+                              ? Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.only(right: 20.0, top: 8),
+                                    child: Icon(
+                                      kCircleCheckIcon,
+                                      color: Colors.white,
+                                      size: 10,
+                                    ),
+                                  ),
+                                )
+                              : Container(),
+                        ],
                       ),
                       SizedBox(
                         height: 15,
