@@ -602,6 +602,7 @@ class _CarrouselViewState extends State<CarrouselView>
                           )),
                       SuggestionGrid(
                           searchTagController: searchTagController,
+                          pivId: piv['id'],
                           pivTags: piv['tags'])
                     ])),
               ),
@@ -887,10 +888,14 @@ class VideoError extends StatelessWidget {
 
 class SuggestionGrid extends StatefulWidget {
   const SuggestionGrid(
-      {Key? key, required this.pivTags, required this.searchTagController})
+      {Key? key,
+      required this.pivTags,
+      required this.pivId,
+      required this.searchTagController})
       : super(key: key);
 
   final dynamic pivTags;
+  final dynamic pivId;
   final dynamic searchTagController;
 
   @override
@@ -1021,17 +1026,18 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               }
               var tag = tags[index - 1];
               var thumb = store.get('thumbs')[tag];
-              var isTagged = pivTags.contains(tag);
+              var isTagged = addMoreTags && pivTags.contains(tag);
 
               return GestureDetector(
                   onTap: () async {
+                    tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
+                    tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
                     if (addMoreTags) {
-                      TagService.instance.tagCloudPiv(thumb['id'], [tag],
+                      TagService.instance.tagCloudPiv(widget.pivId, [tag],
                           isTagged); // if the piv is tagged, we will untag it by passing `true` as the third argument
                       pivTags.contains(tag)
                           ? pivTags.remove(tag)
                           : pivTags.add(tag);
-                      widget.searchTagController.clear();
                       store.set('pivTagsCarrousel', pivTags);
                       return;
                     }
