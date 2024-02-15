@@ -448,8 +448,14 @@ class _CarrouselViewState extends State<CarrouselView>
                             },
                           );
                         })),
-            GestureDetector(
-              onTap: () async {
+            DeleteButtonTunnel(
+                view: 'uploaded',
+                onPressed: () async {
+                  debug(['pressing delete button', piv]);
+                }),
+            ShareButtonTunnel(
+              view: 'uploaded',
+              onPressed: () async {
                 debug(['pressing share button', piv]);
                 // Share cloud piv
                 if (piv['local'] == null) {
@@ -490,15 +496,7 @@ class _CarrouselViewState extends State<CarrouselView>
                   await Share.shareXFiles([XFile(path)]);
                 }
               },
-              child: DeleteButtonTunnel(
-                view: 'uploaded',
-              ),
             ),
-            GestureDetector(
-                onTap: () {},
-                child: ShareButtonTunnel(
-                  view: 'uploaded',
-                )),
             GestureDetector(
               onTap: () {
                 setState(() => fullScreen = !fullScreen);

@@ -527,9 +527,11 @@ class DeleteButtonTunnel extends StatefulWidget {
   const DeleteButtonTunnel({
     super.key,
     required this.view,
+    this.onPressed,
   });
 
   final String view;
+  final dynamic onPressed;
 
   @override
   State<DeleteButtonTunnel> createState() => _DeleteButtonTunnelState();
@@ -565,7 +567,7 @@ class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
         heroTag: null,
         elevation: 10,
         key: const Key('delete'),
-        onPressed: () {
+        onPressed: widget.onPressed != null ? widget.onPressed : () {
           store.set('currentlyDeleting' + widget.view, true);
           store.set('showButtons' + widget.view, false);
           store.set('showSelectAllButton' + widget.view, true);
@@ -584,8 +586,10 @@ class ShareButtonTunnel extends StatefulWidget {
   const ShareButtonTunnel({
     super.key,
     required this.view,
+    this.onPressed
   });
   final String view;
+  final dynamic onPressed;
 
   @override
   State<ShareButtonTunnel> createState() => _ShareButtonTunnelState();
@@ -621,7 +625,7 @@ class _ShareButtonTunnelState extends State<ShareButtonTunnel> {
         heroTag: null,
         elevation: 10,
         key: const Key('share'),
-        onPressed: () {},
+        onPressed: widget.onPressed != null ? widget.onPressed : () {},
         backgroundColor: kAltoShare,
         child: const Icon(
           kShareIcon,
