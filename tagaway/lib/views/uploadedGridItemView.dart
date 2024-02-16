@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -153,8 +154,6 @@ class _CarrouselViewState extends State<CarrouselView>
   bool isKeyboardVisible(BuildContext context) {
     return MediaQuery.of(context).viewInsets.bottom > 0;
   }
-
-  get http => null;
 
   @override
   void initState() {
@@ -1107,6 +1106,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           ? pivTags.remove(tag)
                           : pivTags.add(tag);
                       store.set('pivTagsCarrousel', pivTags);
+                      widget.searchTagController.clear();
                       return;
                     }
                     Navigator.pushReplacement(context,
