@@ -454,7 +454,8 @@ class _CarrouselViewState extends State<CarrouselView>
                 child: DeleteButtonTunnel(
                     view: 'uploaded',
                     onPressed: () async {
-                      debug(['pressing delete button', piv]);
+                      store.set('currentlyDeletingPivsUploaded', [piv['id']]);
+                      store.set('currentlyDeletingModalUploaded', true);
                     }),
               ),
             ),
@@ -465,7 +466,6 @@ class _CarrouselViewState extends State<CarrouselView>
                 child: ShareButtonTunnel(
                   view: 'uploaded',
                   onPressed: () async {
-                    debug(['pressing share button', piv]);
                     // Share cloud piv
                     if (piv['local'] == null) {
                       if (piv['vid'] == null) {
@@ -1106,6 +1106,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                           ? pivTags.remove(tag)
                           : pivTags.add(tag);
                       store.set('pivTagsCarrousel', pivTags);
+                      store.remove('tagFilterCarrousel');
                       widget.searchTagController.clear();
                       return;
                     }
