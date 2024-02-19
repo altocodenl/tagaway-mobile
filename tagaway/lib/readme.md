@@ -2,23 +2,14 @@
 
 ## TODO
 
-addMoreTags
-pivTagsCarrousel
-tagFilterCarrousel
 
-- New view
-   - Tag
-   - Untag
-   - Full screen
-   - Delete (including confirm)
-   - Share
-   - Mark as organized
-
-- Reimplement carrousel to slide sideways?
 - Show all phone pivs in tube
-- Store info of impressions and clicks on tags
 - Rework zoom in carrousel (Tom)
-- Swipe sideways to navigate months in uploaded
+
+-----
+- Reimplement carrousel to slide sideways?
+- Swipe sideways to navigate months in uploaded?
+- Store info of impressions and clicks on tags
 - Finish annotated source code: tagService, storeService, tools.
 
 - Sharebox
@@ -62,6 +53,7 @@ tagFilterCarrousel
 ```
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - achievements: [[<year>, <month>|'all'>], ...]: indicates which months (or entire years) are completely organized both in cloud and on this device.
+- addMoreTags <bool>: if `true`, the user is currently tagging within the carrousel.
 - cameraPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
@@ -93,6 +85,7 @@ tagFilterCarrousel
 - pendingTags:<assetId> [<str>, ...] [DISK]: list of tags that should be applied to a local piv that hasn't been uploaded yet - deleted on logout.
 - pivDate:<assetId> <int>: date of each local piv
 - pivMap:<assetId> <str>: maps the id of a local piv to the id of its uploaded counterpart - the converse of `rpivMap`. They are temporarily set to `true` for pivs on the upload queue.
+- pivTagsCarrousel: [<str>, ...]: list of tags of the piv currently shown in CarrouselView
 - previousError <object> [DISK]: stores the last error experienced by the application, if any
 - recurringUser <bool> [DISK]: whether the user is new to the app or has already used it - to redirect to either signup or login
 - renameTag(Local|Uploaded|ManageTags) <str>: tag currently being renamed in LocalView/UploadedView/ManageTagsView
@@ -105,6 +98,7 @@ tagFilterCarrousel
 - showButtons(Local|Uploaded) (boolean): if true, shows buttons to perform actions in LocalView/UploadedView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
+- tagFilterCarrousel <str>: value of filter of tagging modal in CarrouselView
 - tagMap(Local|Uploaded):<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the tags currently being applied
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
 - thumbs {TAG: {id: STRING, deg: INTEGER|UNDEFINED, currentMonth: [INTEGER (year), INTEGER (month)]}, ...}: maps each tag to a random piv, brought from the server.
