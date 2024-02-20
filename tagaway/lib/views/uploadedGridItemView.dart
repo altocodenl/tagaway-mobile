@@ -1167,14 +1167,19 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                                     ),
                             ),
                           ),
-                          Positioned.fill(
-                              child: IgnorePointer(
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
                             child: Container(
+                              width: SizeService.instance.screenWidth(context) *
+                                  .3,
+                              height:
+                                  SizeService.instance.screenWidth(context) *
+                                      .3,
                               color: isTagged
                                   ? kAltoOrganized.withOpacity(.6)
                                   : Colors.transparent,
                             ),
-                          )),
+                          ),
                           isTagged
                               ? Align(
                                   alignment: Alignment.bottomRight,
