@@ -1,7 +1,10 @@
 import 'dart:core';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -12,6 +15,35 @@ class TagService {
 
    dynamic queryTags = [];
 
+   // TODO: annotate
+   getLocalTagsThumbs () async {
+
+      // TODO: improve delay for loading local pivs
+      await Future.delayed (Duration (seconds: 1));
+
+      var tags = [];
+      var thumbs = {};
+      var localPivs = PivService.instance.localPivs.toList ()..shuffle ();
+      localPivs.forEach ((piv) {
+         var date = piv.createDateTime.toUtc ();
+         var year = 'd::' + date.year.toString (), month = 'd::M' + date.month.toString ();
+         var pivTags = [year, month];
+         // This is what type systems make you do.
+         getList ('pendingTags:' + piv.id).forEach ((tag) => pivTags.add (tag));
+         tags += pivTags;
+         if (thumbs [year] == null) thumbs [year] = {
+            'id': piv.id,
+            'date': ms (date),
+            'vid': piv.type == AssetType.video,
+            'currentMonth': [date.year, date.month],
+            'tags': pivTags,
+            'piv': piv,
+            'local': true,
+         };
+      });
+      return {'tags': tags.toSet ().toList (), 'thumbs': thumbs};
+   }
+
    getTags () async {
       var response = await ajax ('get', 'tags');
 
@@ -20,11 +52,19 @@ class TagService {
          return;
       }
 
-      store.set ('tags', response ['body'] ['tags']);
+      var localTagsThumbs = await getLocalTagsThumbs ();
+
+      store.set ('tags', response ['body'] ['tags'] + localTagsThumbs ['tags']);
 
       updateOrganizedCount (response ['body'] ['organized']);
 
       store.set ('hometags', response ['body'] ['hometags']);
+
+      localTagsThumbs ['thumbs'].forEach ((tag, thumb) {
+         var thumbs = response ['body'] ['homeThumbs'];
+         debug (['che', tag, thumb]);
+         if (thumbs [tag] == null || Random ().nextInt (100) < 50) thumbs [tag] = thumb;
+      });
       store.set ('thumbs', response ['body'] ['homeThumbs']);
 
       var usertags = response ['body'] ['tags'].where ((tag) {

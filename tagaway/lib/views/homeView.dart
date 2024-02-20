@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
@@ -296,6 +297,10 @@ class _HomeViewState extends State<HomeView> {
                                             color: tagColor(tag),
                                             tag: tag,
                                             thumb: thumbs[tag]['id'],
+                                            localPiv:
+                                                thumbs[tag]['local'] == true
+                                                    ? thumbs[tag]['piv']
+                                                    : null,
                                             deg: thumbs[tag]['deg'] == null
                                                 ? 0
                                                 : thumbs[tag]['deg']));
@@ -670,13 +675,15 @@ class HomeCard extends StatelessWidget {
       required this.color,
       required this.tag,
       required this.thumb,
-      required this.deg})
+      required this.deg,
+      this.localPiv})
       : super(key: key);
 
   final Color color;
   final String tag;
   final String thumb;
   final int deg;
+  final dynamic localPiv;
 
   @override
   Widget build(BuildContext context) {
@@ -696,9 +703,13 @@ class HomeCard extends StatelessWidget {
                   border: Border.all(color: Colors.transparent),
                   image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: NetworkImage(kTagawayThumbSURL + thumb, headers: {
-                        'cookie': store.get('cookie'),
-                      })),
+                      // TODO: add support for local
+                      image: localPiv != null
+                          ? localPiv.thumbnailDataWithSize(
+                              const ThumbnailSize.square(400))
+                          : NetworkImage(kTagawayThumbSURL + thumb, headers: {
+                              'cookie': store.get('cookie'),
+                            })),
                 ),
               )),
         ),

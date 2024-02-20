@@ -2,9 +2,11 @@
 
 ## TODO
 
-
 - Show all phone pivs in tube
+- Fix typing of new tag
+- Jump to another piv when deleting
 - Rework zoom in carrousel (Tom)
+
 
 -----
 - Reimplement carrousel to slide sideways?
@@ -101,7 +103,7 @@
 - tagFilterCarrousel <str>: value of filter of tagging modal in CarrouselView
 - tagMap(Local|Uploaded):<assetId|pivId> (bool): if set, it means that this piv (whether local or uploaded) is tagged with the tags currently being applied
 - tags [<string>, ...]: list of tags relevant to the current query, brought from the server
-- thumbs {TAG: {id: STRING, deg: INTEGER|UNDEFINED, currentMonth: [INTEGER (year), INTEGER (month)]}, ...}: maps each tag to a random piv, brought from the server.
+- thumbs {TAG: {id: STRING, deg: INTEGER|UNDEFINED, date: INT, tags: [STRING, ...], vid: TRUE|UNDEFINED< currentMonth: [INTEGER (year), INTEGER (month)]}, ...}: maps each tag to a random piv, brought from the server.
 - uploadQueue [<string>, ...] [DISK]: list of ids of pivs that are going to be uploaded - deleted on logout.
 - timeHeader [<semester 1>, <semester 2>, ...]: information for UploadedView time header
    where <semester> is [<month 1>, <month 2>, ..., <month 6>]
@@ -1820,9 +1822,12 @@ We start by importing native packages, then libraries, and finally other parts o
 
 ```dart
 import 'dart:core';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tools.dart';
