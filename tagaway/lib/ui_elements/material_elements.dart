@@ -1279,7 +1279,7 @@ class _DeleteModalState extends State<DeleteModal> {
     if (!visible) return Container();
     return Center(
       child: Container(
-        height: 270,
+        height: SizeService.instance.screenWidth(context) * .75,
         width: 340,
         decoration: BoxDecoration(
             color: Colors.grey[50],
