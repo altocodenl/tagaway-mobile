@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:share_plus/share_plus.dart';
@@ -1023,7 +1023,8 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               mainAxisSpacing: 20,
               crossAxisSpacing: 1,
             ),
-            itemCount: tags.length + 1,
+            // itemCount: tags.length + 1,
+            itemCount: tags.length,
             itemBuilder: (BuildContext context, index) {
               if (index == 0) {
                 return GestureDetector(
@@ -1033,41 +1034,46 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                     },
                     child: Column(
                       children: [
-                        Container(
-                          width: SizeService.instance.screenWidth(context) * .3,
-                          height:
-                              SizeService.instance.screenWidth(context) * .3,
-                          color:
-                              addMoreTags == true ? kAltoOrganized : kAltoBlue,
-                          child: Visibility(
-                            visible: addMoreTags == false,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FaIcon(
-                                  kPlusIcon,
-                                  color: Colors.white,
-                                  size: 35,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                FaIcon(
-                                  kTagIcon,
-                                  color: Colors.white,
-                                  size: 35,
-                                ),
-                              ],
-                            ),
-                            replacement: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FaIcon(
-                                  kCheckIcon,
-                                  color: Colors.white,
-                                  size: 35,
-                                ),
-                              ],
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Container(
+                            width:
+                                SizeService.instance.screenWidth(context) * .3,
+                            height:
+                                SizeService.instance.screenWidth(context) * .3,
+                            color: addMoreTags == true
+                                ? kAltoOrganized
+                                : kAltoBlue,
+                            child: Visibility(
+                              visible: addMoreTags == false,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FaIcon(
+                                    kPlusIcon,
+                                    color: Colors.white,
+                                    size: 35,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  FaIcon(
+                                    kTagIcon,
+                                    color: Colors.white,
+                                    size: 35,
+                                  ),
+                                ],
+                              ),
+                              replacement: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  FaIcon(
+                                    kCheckIcon,
+                                    color: Colors.white,
+                                    size: 35,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -1084,6 +1090,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                     ));
               }
               var tag = tags[index - 1];
+
               var thumb = store.get('thumbs')[tag];
               var isTagged = addMoreTags && pivTags.contains(tag);
 
@@ -1121,38 +1128,44 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                     children: [
                       Stack(
                         children: [
-                          Container(
-                            width:
-                                SizeService.instance.screenWidth(context) * .3,
-                            height:
-                                SizeService.instance.screenWidth(context) * .3,
-                            child: thumb != null
-                                ? CachedNetworkImage(
-                                    imageUrl: (kTagawayThumbSURL) + thumb['id'],
-                                    httpHeaders: {
-                                      'cookie': store.get('cookie')
-                                    },
-                                    placeholder: (context, url) => const Center(
-                                            child: CircularProgressIndicator(
-                                          color: kAltoBlue,
-                                        )),
-                                    imageBuilder: (context, imageProvider) =>
-                                        Transform.rotate(
-                                          angle: (thumb['deg'] == null
-                                                  ? 0
-                                                  : thumb['deg']) *
-                                              math.pi /
-                                              180.0,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    fit: BoxFit.cover,
-                                                    image: imageProvider)),
-                                          ),
-                                        ))
-                                : Container(
-                                    color: Colors.blue,
-                                  ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Container(
+                              width: SizeService.instance.screenWidth(context) *
+                                  .3,
+                              height:
+                                  SizeService.instance.screenWidth(context) *
+                                      .3,
+                              child: thumb != null
+                                  ? CachedNetworkImage(
+                                      imageUrl:
+                                          (kTagawayThumbSURL) + thumb['id'],
+                                      httpHeaders: {
+                                        'cookie': store.get('cookie')
+                                      },
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                              child: CircularProgressIndicator(
+                                            color: kAltoBlue,
+                                          )),
+                                      imageBuilder: (context, imageProvider) =>
+                                          Transform.rotate(
+                                            angle: (thumb['deg'] == null
+                                                    ? 0
+                                                    : thumb['deg']) *
+                                                math.pi /
+                                                180.0,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                      fit: BoxFit.cover,
+                                                      image: imageProvider)),
+                                            ),
+                                          ))
+                                  : Container(
+                                      color: Colors.blue,
+                                    ),
+                            ),
                           ),
                           Positioned.fill(
                               child: IgnorePointer(
