@@ -828,7 +828,7 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
                 ),
               ),
               Align(
-                alignment: const Alignment(0.8, 0),
+                alignment: const Alignment(0, 0),
                 child: FloatingActionButton(
                   shape: const CircleBorder(),
                   key: const Key('playPause'),
