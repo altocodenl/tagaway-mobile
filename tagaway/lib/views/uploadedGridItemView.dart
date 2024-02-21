@@ -169,10 +169,21 @@ class _CarrouselViewState extends State<CarrouselView>
           removeOverlay();
         }
       });
-    cancelListener = store.listen(['addMoreTags', 'tagFilterCarrousel'],
-        (AddMoreTags, TagFilterCarrousel) {
+    if (store.get('showTagsCarrousel') == '')
+      store.set('showTagsCarrousel', true);
+    cancelListener = store.listen([
+      'addMoreTags',
+      'tagFilterCarrousel',
+      'showTagsCarrousel',
+      'showDeleteAndShareCarrousel',
+      'fullScreenCarrousel'
+    ], (AddMoreTags, TagFilterCarrousel, ShowTagsCarrousel,
+        ShowDeleteAndShareCarrousel, FullScreenCarrousel) {
       setState(() {
         addMoreTags = AddMoreTags == true;
+        showTags = ShowTagsCarrousel == true;
+        showDeleteAndShare = ShowDeleteAndShareCarrousel == true;
+        fullScreen = FullScreenCarrousel == true;
       });
     });
   }
@@ -510,14 +521,14 @@ class _CarrouselViewState extends State<CarrouselView>
             ),
             GestureDetector(
               onTap: () {
-                setState(() => fullScreen = !fullScreen);
+                store.set('fullScreenCarrousel', !fullScreen);
                 // One second for the other animation to execute, 100ms of changui
-                if (fullScreen == false)
+                if (fullScreen == true)
                   Future.delayed(Duration(milliseconds: 1100), () {
-                    setState(() => showTags = !fullScreen);
+                    store.set('showTagsCarrousel', true);
                   });
                 else
-                  setState(() => showTags = !fullScreen);
+                  store.set('showTagsCarrousel', false);
               },
               child: Visibility(
                 visible: showTags,
@@ -543,9 +554,7 @@ class _CarrouselViewState extends State<CarrouselView>
               visible: showTags,
               child: GestureDetector(
                 onTap: () {
-                  setState(() {
-                    showDeleteAndShare = !showDeleteAndShare;
-                  });
+                  store.set('showDeleteAndShareCarrousel', !showDeleteAndShare);
                 },
                 child: const Align(
                   alignment: Alignment(-.85, -.05),
@@ -828,7 +837,7 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
                 ),
               ),
               Align(
-                alignment: const Alignment(0.8, 0),
+                alignment: const Alignment(0, 0),
                 child: FloatingActionButton(
                   shape: const CircleBorder(),
                   key: const Key('playPause'),
