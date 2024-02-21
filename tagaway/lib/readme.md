@@ -2,11 +2,11 @@
 
 ## TODO
 
-- Show all phone pivs in tube
+- Incrementally add tags & thumbs as local pivs load
 - Fix typing of new tag
 - Jump to another piv when deleting
+- Fix local piv thumbnail in suggestion grid
 - Rework zoom in carrousel (Tom)
-
 
 -----
 - Reimplement carrousel to slide sideways?

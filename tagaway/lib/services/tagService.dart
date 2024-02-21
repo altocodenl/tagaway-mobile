@@ -31,7 +31,7 @@ class TagService {
          // This is what type systems make you do.
          getList ('pendingTags:' + piv.id).forEach ((tag) => pivTags.add (tag));
          tags += pivTags;
-         if (thumbs [year] == null) thumbs [year] = {
+         var thumb = {
             'id': piv.id,
             'date': ms (date),
             'vid': piv.type == AssetType.video,
@@ -40,6 +40,8 @@ class TagService {
             'piv': piv,
             'local': true,
          };
+         if (thumbs [year] == null) thumbs [year] = thumb;
+         if (thumbs [month] == null) thumbs [month] = thumb;
       });
       return {'tags': tags.toSet ().toList (), 'thumbs': thumbs};
    }
@@ -54,7 +56,7 @@ class TagService {
 
       var localTagsThumbs = await getLocalTagsThumbs ();
 
-      store.set ('tags', response ['body'] ['tags'] + localTagsThumbs ['tags']);
+      store.set ('tags', (response ['body'] ['tags'] + localTagsThumbs ['tags']).toSet ().toList ()..shuffle ());
 
       updateOrganizedCount (response ['body'] ['organized']);
 
@@ -62,7 +64,6 @@ class TagService {
 
       localTagsThumbs ['thumbs'].forEach ((tag, thumb) {
          var thumbs = response ['body'] ['homeThumbs'];
-         debug (['che', tag, thumb]);
          if (thumbs [tag] == null || Random ().nextInt (100) < 50) thumbs [tag] = thumb;
       });
       store.set ('thumbs', response ['body'] ['homeThumbs']);

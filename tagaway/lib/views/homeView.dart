@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -691,28 +692,47 @@ class HomeCard extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-          child: Transform.rotate(
-              angle: deg * math.pi / 180.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  border: Border.all(color: Colors.transparent),
-                  image: DecorationImage(
-                      fit: BoxFit.cover,
-                      // TODO: add support for local
-                      image: localPiv != null
-                          ? localPiv.thumbnailDataWithSize(
-                              const ThumbnailSize.square(400))
-                          : NetworkImage(kTagawayThumbSURL + thumb, headers: {
-                              'cookie': store.get('cookie'),
-                            })),
-                ),
-              )),
-        ),
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            child: Transform.rotate(
+                angle: deg * math.pi / 180.0,
+                child: Visibility(
+                    visible: localPiv == null,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(20)),
+                            border: Border.all(color: Colors.transparent),
+                            image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(kTagawayThumbSURL + thumb,
+                                    headers: {
+                                      'cookie': store.get('cookie'),
+                                    })))),
+                    replacement: FutureBuilder<Uint8List?>(
+                        future: localPiv == null
+                            ? null
+                            : localPiv.thumbnailDataWithSize(
+                                const ThumbnailSize.square(400)),
+                        builder: (_, snapshot) {
+                          final bytes = snapshot.data;
+                          if (bytes == null) {
+                            return const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(kAltoBlue),
+                            );
+                          }
+                          return Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: MemoryImage(bytes),
+                              ),
+                            ),
+                          );
+                        })))),
         Positioned(
           bottom: -30,
           child: Padding(
