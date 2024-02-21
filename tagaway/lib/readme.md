@@ -65,6 +65,7 @@
 - currentlyDeletingPivs(Local|Uploaded) <list>: list of ids of pivs that are currently being deleted, either Local or Uploaded.
 - displayMode <obj>: if set, has the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `showOrganized` shows organized pivs in the local view; `cameraOnly` hides non-camera pivs from the local view.
 - deleteTag(Local|Uploaded|ManageTags) <str>: tag currently being deleted in LocalView/UploadedView/ManageTagsView
+- fullScreenCarrousel (bool): if set, the piv is shown in full screen in CarrouselView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
 - hometags [<str>, ...]: list of hometags, brought from the server.
@@ -96,6 +97,8 @@
 - rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
 - showSelectAllButton(Local|Uploaded): if `undefined`, the button will not show; if `true`, it will show the "select all" button; if set to `false`, it will show the "unselect all" button.
 - showButtons(Local|Uploaded) (boolean): if true, shows buttons to perform actions in LocalView/UploadedView
+- showDeleteAndShareCarrousel (bool): if set, the delete & share buttons are shown in CarrouselView
+- showTagsCarrousel (bool): if set, tags are shown in CarrouselView
 - swiped(Local|Uploaded) (boolean): controls the swipable tag list on LocalView/UploadedView
 - tagFilter(Local|Uploaded) <str>: value of filter of tagging modal in LocalView/UploadedView
 - tagFilterCarrousel <str>: value of filter of tagging modal in CarrouselView
