@@ -18,19 +18,22 @@ class TagService {
    // TODO: annotate
    getLocalTagsThumbs () async {
 
-      // TODO: improve delay for loading local pivs
-      await Future.delayed (Duration (seconds: 1));
+      var tags = getList ('tags');
+      var thumbs = store.get ('thumbs');
 
-      var tags = [];
-      var thumbs = {};
-      var localPivs = PivService.instance.localPivs.toList ()..shuffle ();
+      // If no cloud thumbs were loaded, do nothing, since we need those to be loaded before loading the local ones.
+      if (thumbs == '') return;
+
+      var localPivs = PivService.instance.localPivs;
       localPivs.forEach ((piv) {
          var date = piv.createDateTime.toUtc ();
          var year = 'd::' + date.year.toString (), month = 'd::M' + date.month.toString ();
          var pivTags = [year, month];
          // This is what type systems make you do.
          getList ('pendingTags:' + piv.id).forEach ((tag) => pivTags.add (tag));
-         tags += pivTags;
+         pivTags.forEach ((tag) {
+            if (! tags.contains (tag)) tags.add (tag);
+         });
          var thumb = {
             'id': piv.id,
             'date': ms (date),
@@ -43,7 +46,9 @@ class TagService {
          if (thumbs [year] == null) thumbs [year] = thumb;
          if (thumbs [month] == null) thumbs [month] = thumb;
       });
-      return {'tags': tags.toSet ().toList (), 'thumbs': thumbs};
+
+      store.set ('tags', tags);
+      store.set ('thumbs', thumbs);
    }
 
    getTags () async {
@@ -54,19 +59,14 @@ class TagService {
          return;
       }
 
-      var localTagsThumbs = await getLocalTagsThumbs ();
-
-      store.set ('tags', (response ['body'] ['tags'] + localTagsThumbs ['tags']).toSet ().toList ()..shuffle ());
+      store.set ('tags', response ['body'] ['tags'].toList ()..shuffle ());
 
       updateOrganizedCount (response ['body'] ['organized']);
 
       store.set ('hometags', response ['body'] ['hometags']);
-
-      localTagsThumbs ['thumbs'].forEach ((tag, thumb) {
-         var thumbs = response ['body'] ['homeThumbs'];
-         if (thumbs [tag] == null || Random ().nextInt (100) < 50) thumbs [tag] = thumb;
-      });
       store.set ('thumbs', response ['body'] ['homeThumbs']);
+
+      getLocalTagsThumbs ();
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);

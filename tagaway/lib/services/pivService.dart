@@ -245,6 +245,8 @@ class PivService {
             break;
          }
 
+         TagService.instance.getLocalTagsThumbs ();
+
          for (var piv in page) {
             store.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
             if (Platform.isIOS) {

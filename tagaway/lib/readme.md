@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Incrementally add tags & thumbs as local pivs load
 - Fix typing of new tag
 - Jump to another piv when deleting
 - Fix local piv thumbnail in suggestion grid
@@ -865,6 +864,12 @@ If there are no albums or the first album is empty, we will have experienced an 
             computeLocalPages ();
             break;
          }
+```
+
+Once we have loaded a local page of pivs, we will invoke `getLocalTagsThumbs`, which will add further tags & thumbs coming from local pivs to the lists of tags and thumbs.
+
+```dart
+         TagService.instance.getLocalTagsThumbs ();
 ```
 
 We iterate the pivs in `page`: for each of them, we will set `pivDate:ID` to the creation date of the piv, expressed in milliseconds.
@@ -1883,10 +1888,10 @@ If there was an error, there's nothing else to do, so we return.
       }
 ```
 
-If we're here, the request was successful. We set `tags` in the store.
+If we're here, the request was successful. We set `tags` in the store after shuffling its order randomly.
 
 ```dart
-      store.set ('tags', response ['body'] ['tags']);
+      store.set ('tags', response ['body'] ['tags'].toList ()..shuffle ());
 ```
 
 We invoke `updateOrganizedCount` passing to it the current total number of organized pivs. This function will update this number, as well as a count of all the pivs organized today.
@@ -1900,6 +1905,12 @@ We update the `hometags` and `thumbs` keys with what comes from the response bod
 ```dart
       store.set ('hometags', response ['body'] ['hometags']);
       store.set ('thumbs', response ['body'] ['homeThumbs']);
+```
+
+Once we have loaded the cloud tags & thumbs, we will invoke `getLocalTagsThumbs`, which will add further tags & thumbs coming from local pivs to the lists of tags and thumbs.
+
+```dart
+      getLocalTagsThumbs ();
 ```
 
 We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.

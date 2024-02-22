@@ -53,7 +53,6 @@ class _HomeViewState extends State<HomeView> {
               .toList()
               .where((tag) => !RegExp('^(t|u|o)::').hasMatch(tag))
               .toList();
-        if (v2 != '') tags.shuffle();
         if (v3 != '') account = v3;
         if (v4 != '') thumbs = v4;
         if (Organized != '') organized = Organized;
