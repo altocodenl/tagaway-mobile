@@ -2,6 +2,8 @@
 
 ## TODO
 
+- Don't assume that local pivs in uploadedView are organized
+- Reload query when loading more local pivs
 - Rework zoom in carrousel (Tom)
 
 -----
@@ -2857,24 +2859,16 @@ We will create a list `localPivsToAdd`, which we will only use if `currentMonth`
       var localPivsToAdd = [];
 ```
 
-We will iterate all the `pendingTags` keys. Each of them belongs to a local piv in the queue.
+We will iterate all the local pivs.
 
 ```dart
-      store.getKeys ('^pendingTags:').forEach ((k) {
+      PivService.instance.localPivs.forEach ((piv) {
 ```
 
-We will get the local piv and the list of pending tags. If there's no matching local piv for this key, we will ignore the key.
+We will get the pending tags for this piv.
 
 ```dart
-         var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
-         if (piv == null) return;
-         var pendingTags = store.get (k);
-```
-
-If the `pendingTags` has just been removed, we ignore this piv.
-
-```dart
-         if (pendingTags == '') return;
+         var pendingTags = getList ('pendingTags:' + piv.id);
 ```
 
 If the date range doesn't match the date of the piv, we exclude it and merely `return`.

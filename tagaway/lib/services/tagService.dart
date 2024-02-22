@@ -442,12 +442,8 @@ class TagService {
 
       var localPivsToAdd = [];
 
-      store.getKeys ('^pendingTags:').forEach ((k) {
-         var piv = localPivsById [k.replaceAll ('pendingTags:', '')];
-         if (piv == null) return;
-         var pendingTags = store.get (k);
-
-         if (pendingTags == '') return;
+      PivService.instance.localPivs.forEach ((piv) {
+         var pendingTags = getList ('pendingTags:' + piv.id);
 
          if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
          if (monthTag != null && yearTag == null && piv.createDateTime.toUtc ().month != monthTag) return;
