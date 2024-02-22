@@ -1174,7 +1174,29 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                                                                   imageProvider)),
                                                     ),
                                                   ))
-                                      : Container(color: Colors.green))
+                                      : FutureBuilder<Uint8List?>(
+                                          future: thumb['piv']
+                                              .thumbnailDataWithSize(
+                                                  const ThumbnailSize.square(
+                                                      400)),
+                                          builder: (_, snapshot) {
+                                            final bytes = snapshot.data;
+                                            if (bytes == null) {
+                                              return const CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(kAltoBlue),
+                                              );
+                                            }
+                                            return Container(
+                                              decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: MemoryImage(bytes),
+                                                ),
+                                              ),
+                                            );
+                                          }))
                                   : Container(
                                       color: Colors.blue,
                                     ),

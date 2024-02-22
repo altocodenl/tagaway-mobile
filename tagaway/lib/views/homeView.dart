@@ -697,9 +697,8 @@ class HomeCard extends StatelessWidget {
             ),
             child: Transform.rotate(
                 angle: deg * math.pi / 180.0,
-                child: Visibility(
-                    visible: localPiv == null,
-                    child: Container(
+                child: localPiv == null
+                    ? Container(
                         decoration: BoxDecoration(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(20)),
@@ -709,12 +708,10 @@ class HomeCard extends StatelessWidget {
                                 image: NetworkImage(kTagawayThumbSURL + thumb,
                                     headers: {
                                       'cookie': store.get('cookie'),
-                                    })))),
-                    replacement: FutureBuilder<Uint8List?>(
-                        future: localPiv == null
-                            ? null
-                            : localPiv.thumbnailDataWithSize(
-                                const ThumbnailSize.square(400)),
+                                    }))))
+                    : FutureBuilder<Uint8List?>(
+                        future: localPiv.thumbnailDataWithSize(
+                            const ThumbnailSize.square(400)),
                         builder: (_, snapshot) {
                           final bytes = snapshot.data;
                           if (bytes == null) {
@@ -731,7 +728,7 @@ class HomeCard extends StatelessWidget {
                               ),
                             ),
                           );
-                        })))),
+                        }))),
         Positioned(
           bottom: -30,
           child: Padding(
