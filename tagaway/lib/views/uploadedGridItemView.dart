@@ -1032,8 +1032,7 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               mainAxisSpacing: 20,
               crossAxisSpacing: 1,
             ),
-            // itemCount: tags.length + 1,
-            itemCount: tags.length,
+            itemCount: tags.length + 1,
             itemBuilder: (BuildContext context, index) {
               if (index == 0) {
                 return GestureDetector(
