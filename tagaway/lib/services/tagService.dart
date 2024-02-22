@@ -28,7 +28,7 @@ class TagService {
       localPivs.forEach ((piv) {
          var date = piv.createDateTime.toUtc ();
          var year = 'd::' + date.year.toString (), month = 'd::M' + date.month.toString ();
-         var pivTags = [year, month];
+         var pivTags = <dynamic>[year, month];
          // This is what type systems make you do.
          getList ('pendingTags:' + piv.id).forEach ((tag) => pivTags.add (tag));
          pivTags.forEach ((tag) {
