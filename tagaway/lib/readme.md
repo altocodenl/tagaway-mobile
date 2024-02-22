@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Jump to another piv when deleting
 - Fix local piv thumbnail in suggestion grid
 - Rework zoom in carrousel (Tom)
 

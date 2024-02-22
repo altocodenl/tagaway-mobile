@@ -790,13 +790,16 @@ class TagService {
     var localPivsById = PivService.instance.localPivsById ();
 
     var filteredIds = ids.toList ();
+    var localPivs = [];
     ids.forEach ((id) {
        if (localPivsById [id] == null) return;
        filteredIds.remove (id);
-       // TODO: when it is no longer the case that local pivs are in the uploaded view because they are uploading, this needs to change.
+       localPivs.add (id);
        PivService.instance.uploadQueue.remove (localPivsById [id]);
        store.remove ('pendingTags:' + id);
     });
+
+    if (localPivs.length > 0) PivService.instance.deleteLocalPivs (localPivs);
 
     if (filteredIds.length == 0) return;
 
