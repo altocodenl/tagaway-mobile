@@ -1145,31 +1145,36 @@ class _SuggestionGridState extends State<SuggestionGrid> {
                                   SizeService.instance.screenWidth(context) *
                                       .3,
                               child: thumb != null
-                                  ? CachedNetworkImage(
-                                      imageUrl:
-                                          (kTagawayThumbSURL) + thumb['id'],
-                                      httpHeaders: {
-                                        'cookie': store.get('cookie')
-                                      },
-                                      placeholder: (context, url) =>
-                                          const Center(
-                                              child: CircularProgressIndicator(
-                                            color: kAltoBlue,
-                                          )),
-                                      imageBuilder: (context, imageProvider) =>
-                                          Transform.rotate(
-                                            angle: (thumb['deg'] == null
-                                                    ? 0
-                                                    : thumb['deg']) *
-                                                math.pi /
-                                                180.0,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  image: DecorationImage(
-                                                      fit: BoxFit.cover,
-                                                      image: imageProvider)),
-                                            ),
-                                          ))
+                                  ? (thumb['local'] == null
+                                      ? CachedNetworkImage(
+                                          imageUrl:
+                                              (kTagawayThumbSURL) + thumb['id'],
+                                          httpHeaders: {
+                                            'cookie': store.get('cookie')
+                                          },
+                                          placeholder: (context, url) =>
+                                              const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                color: kAltoBlue,
+                                              )),
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  Transform.rotate(
+                                                    angle: (thumb['deg'] == null
+                                                            ? 0
+                                                            : thumb['deg']) *
+                                                        math.pi /
+                                                        180.0,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          image: DecorationImage(
+                                                              fit: BoxFit.cover,
+                                                              image:
+                                                                  imageProvider)),
+                                                    ),
+                                                  ))
+                                      : Container(color: Colors.green))
                                   : Container(
                                       color: Colors.blue,
                                     ),

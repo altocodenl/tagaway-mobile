@@ -1348,7 +1348,8 @@ class _DeleteModalState extends State<DeleteModal> {
                     store.remove('currentlyDeleting' + widget.view);
                     store.remove('currentlyDeletingPivs' + widget.view);
                     store.remove('currentlyDeletingModal' + widget.view);
-                    if (widget.view == 'Uploaded') Navigator.pushReplacementNamed(context, 'home');
+                    if (widget.view == 'Uploaded')
+                      Navigator.pushReplacementNamed(context, 'home');
                   },
                   child: const Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 10.0),
