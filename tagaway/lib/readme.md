@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Shuffle for local pivs
 - Reload query when loading more local pivs
 - Fix local videos (Tom)
 - Add fullscreen for videos (Tom)

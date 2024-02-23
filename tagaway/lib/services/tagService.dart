@@ -24,7 +24,7 @@ class TagService {
       // If no cloud thumbs were loaded, do nothing, since we need those to be loaded before loading the local ones.
       if (thumbs == '') return;
 
-      var localPivs = PivService.instance.localPivs;
+      var localPivs = PivService.instance.localPivs.toList ()..shuffle ();
       localPivs.forEach ((piv) {
          var date = piv.createDateTime.toUtc ();
          var year = 'd::' + date.year.toString (), month = 'd::M' + date.month.toString ();
