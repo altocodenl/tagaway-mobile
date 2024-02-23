@@ -1,11 +1,8 @@
 import 'dart:core';
-import 'dart:io' show File;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
@@ -1686,70 +1683,78 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: initialized
-          // If the video is initialized, display it
-          ? Scaffold(
-              backgroundColor: kGreyDarkest,
-              body: Stack(children: [
-                Center(
-                  child: AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    // Use the VideoPlayer widget to display the video.
-                    child: VideoPlayer(_controller),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    color: kGreyDarkest,
-                    child: SafeArea(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: IconButton(
-                              onPressed: () async {
-                                WhiteSnackBar.buildSnackBar(context,
-                                    'Preparing your video for sharing...');
-                                final response =
-                                    await widget.videoFile.originBytes;
-                                final bytes = response;
-                                final temp = await getTemporaryDirectory();
-                                final path = '${temp.path}/video.mp4';
-                                File(path).writeAsBytesSync(bytes!);
-                                await Share.shareXFiles([XFile(path)]);
-                              },
-                              icon: const Icon(
-                                kShareArrownUpIcon,
-                                size: 25,
-                                color: kGreyLightest,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: IconButton(
-                              onPressed: () {
-                                PivService.instance
-                                    .deleteLocalPivs([widget.videoFile.id]);
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(
-                                kTrashCanIcon,
-                                size: 25,
-                                color: kGreyLightest,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
-              floatingActionButton: FloatingActionButton(
+    return initialized
+        // If the video is initialized, display it
+        ? Stack(children: [
+            Container(
+              width: SizeService.instance.screenWidth(context),
+              height: SizeService.instance.screenHeight(context) * .5,
+              alignment: Alignment.topCenter,
+              decoration: const BoxDecoration(
+                  color: kGreyDarker,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      topRight: Radius.circular(15))),
+              child: AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                // Use the VideoPlayer widget to display the video.
+                child: VideoPlayer(_controller),
+              ),
+            ),
+            // Align(
+            //   alignment: Alignment.bottomCenter,
+            //   child: Container(
+            //     width: double.infinity,
+            //     color: kGreyDarkest,
+            //     child: SafeArea(
+            //       child: Row(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         mainAxisSize: MainAxisSize.max,
+            //         children: [
+            //           Expanded(
+            //             child: IconButton(
+            //               onPressed: () async {
+            //                 WhiteSnackBar.buildSnackBar(context,
+            //                     'Preparing your video for sharing...');
+            //                 final response =
+            //                     await widget.videoFile.originBytes;
+            //                 final bytes = response;
+            //                 final temp = await getTemporaryDirectory();
+            //                 final path = '${temp.path}/video.mp4';
+            //                 File(path).writeAsBytesSync(bytes!);
+            //                 await Share.shareXFiles([XFile(path)]);
+            //               },
+            //               icon: const Icon(
+            //                 kShareArrownUpIcon,
+            //                 size: 25,
+            //                 color: kGreyLightest,
+            //               ),
+            //             ),
+            //           ),
+            //           Expanded(
+            //             child: IconButton(
+            //               onPressed: () {
+            //                 PivService.instance
+            //                     .deleteLocalPivs([widget.videoFile.id]);
+            //                 Navigator.pop(context);
+            //               },
+            //               icon: const Icon(
+            //                 kTrashCanIcon,
+            //                 size: 25,
+            //                 color: kGreyLightest,
+            //               ),
+            //             ),
+            //           )
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+
+            Align(
+              alignment: const Alignment(0, 0),
+              child: FloatingActionButton(
+                shape: const CircleBorder(),
                 backgroundColor: kAltoBlue,
                 onPressed: () {
                   // Wrap the play or pause in a call to `setState`. This ensures the
@@ -1767,15 +1772,16 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
                 // Display the correct icon depending on the state of the player.
                 child: Icon(
                   _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white,
                 ),
               ),
-            )
-          // If the video is not yet initialized, display a spinner
-          : const Center(
-              child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
-            )),
-    );
+            ),
+          ])
+        // If the video is not yet initialized, display a spinner
+        : const Center(
+            child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+          ));
   }
 }
 
