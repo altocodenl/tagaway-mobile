@@ -441,8 +441,16 @@ class TagService {
 
       var localPivsToAdd = [];
 
+      var localPivsAlreadyPresent = {};
+      queryResult ['pivs'].forEach ((piv) {
+         if (piv ['local'] == true) localPivsAlreadyPresent [piv ['piv'].id] = true;
+      });
+
       PivService.instance.localPivs.forEach ((piv) {
          if (store.get ('pivMap:' + piv.id) != '') return;
+
+         if (localPivsAlreadyPresent [piv.id] == true) return;
+
          var pendingTags = getList ('pendingTags:' + piv.id);
 
          if (tags.contains ('o::') && pendingTags.length == 0) return;

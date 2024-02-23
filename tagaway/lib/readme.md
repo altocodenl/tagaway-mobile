@@ -2,7 +2,7 @@
 
 ## TODO
 
-- Reload query when loading more local pivs
+- Fix months in localQuery (currentMonth is getting in the way)
 - Fix local videos (Tom)
 - Add fullscreen for videos (Tom)
 
@@ -207,6 +207,7 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 ```
@@ -870,6 +871,25 @@ Once we have loaded a local page of pivs, we will invoke `getLocalTagsThumbs`, w
 
 ```dart
          TagService.instance.getLocalTagsThumbs ();
+```
+
+We do the same thing with `localQuery`, but only if `queryResult` is set (otherwise, there's no place in which to add the local pivs).
+
+```dart
+         if (store.get ('queryResult') != '') {
+```
+
+We invoke `localQuery`, passing the current values of `queryTags`, `currentMonth` and `queryResult`. We store it directly in `queryResult`.
+
+```dart
+            store.set ('queryResult', TagService.instance.localQuery (getList ('queryTags'), store.get ('currentMonth'), store.get ('queryResult')));
+```
+
+Because we just updated `queryResult` in place, this will not trigger a change event. Therefore, we will do a hack and, rather than copying the entire `queryResult` to trigger the change event, we'll just trigger it manually using the `updateStream` method of the store service. This concludes the logic for `queryResult` after loading a page of pivs.
+
+```dart
+            StoreService.instance.updateStream.add ('queryResult');
+         }
 ```
 
 We iterate the pivs in `page`: for each of them, we will set `pivDate:ID` to the creation date of the piv, expressed in milliseconds.
@@ -2852,6 +2872,17 @@ We will create a list `localPivsToAdd`, which we will only use if `currentMonth`
 
 ```dart
       var localPivsToAdd = [];
+```
+
+Now, for a subtle bit of logic. `localQuery` might be invoked several times while the app is loading page after page of local pivs. In these cases, it is essential to 1) add the newly loaded local pivs to the query, if applicable; 2) do not repeat them if they are already added.
+
+For this reason, we will create a map the ids of the local pivs already present in `queryResult.pivs`. To know that they are local, we check the `local` property; these entries will be added by previous invocations to `localQuery` that were saved on the same `queryResult`.
+
+```dart
+      var localPivsAlreadyPresent = {};
+      queryResult ['pivs'].forEach ((piv) {
+         if (piv ['local'] == true) localPivsAlreadyPresent [piv ['piv'].id] = true;
+      });
 ```
 
 We will iterate all the local pivs for which we don't have a cloud counterpart. To do this, we simply get all local pivs, and then ignore those that have a `pivMap:ID` entry.

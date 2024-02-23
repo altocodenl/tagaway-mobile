@@ -6,6 +6,7 @@ import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/services/storeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 
@@ -246,6 +247,10 @@ class PivService {
          }
 
          TagService.instance.getLocalTagsThumbs ();
+         if (store.get ('queryResult') != '') {
+            store.set ('queryResult', TagService.instance.localQuery (getList ('queryTags'), store.get ('currentMonth'), store.get ('queryResult')));
+            StoreService.instance.updateStream.add ('queryResult');
+         }
 
          for (var piv in page) {
             store.set ('pivDate:' + piv.id, piv.createDateTime.millisecondsSinceEpoch);
