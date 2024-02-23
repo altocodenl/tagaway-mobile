@@ -375,9 +375,9 @@ class _GridItemSelectionState extends State<GridItemSelection> {
           mode = currentlyDeletingPivs.contains(id) ? 'red' : 'gray';
           // Normal mode
         } else {
-          // local pivs in the uploaded view (`localUploaded`) are always considered as organized, since they are in the upload queue and therefore are tagged, and therefore, organized..
+          // local pivs in the uploaded view (`localUploaded`) are considered as organized if they have pending tags
           var organized = type == 'localUploaded'
-              ? true
+              ? getList('pendingTags:' + id).length > 0
               : (type == 'uploaded'
                   ? v1 != ''
                   // If the piv is local and is currently being uploaded (`v1 == true`) we consider it as organized.
