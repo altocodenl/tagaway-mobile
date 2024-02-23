@@ -395,7 +395,6 @@ class TagService {
    }
 
    localQuery (tags, currentMonth, queryResult) {
-      if (tags.contains ('u::') || tags.contains ('t::')) return queryResult;
 
       var containsGeoTag = false;
       tags.forEach ((tag) {
@@ -412,8 +411,8 @@ class TagService {
 
       var monthTag, yearTag;
       tags.forEach ((tag) {
-         if (RegExp('^d::[0-9]').hasMatch(tag)) yearTag = tag;
-         if (RegExp('^d::M').hasMatch(tag))     monthTag = tag;
+         if (RegExp ('^d::[0-9]').hasMatch (tag)) yearTag = tag;
+         if (RegExp ('^d::M').hasMatch (tag))     monthTag = tag;
       });
 
       if (yearTag  != null) yearTag  = int.parse (yearTag.substring (3));
@@ -443,7 +442,11 @@ class TagService {
       var localPivsToAdd = [];
 
       PivService.instance.localPivs.forEach ((piv) {
+         if (store.get ('pivMap:' + piv.id) != '') return;
          var pendingTags = getList ('pendingTags:' + piv.id);
+
+         if (tags.contains ('o::') && pendingTags.length == 0) return;
+         if ((tags.contains ('u::') || tags.contains ('t::')) && pendingTags.length > 0) return;
 
          if (minDate > ms (piv.createDateTime) || maxDate < ms (piv.createDateTime)) return;
          if (monthTag != null && yearTag == null && piv.createDateTime.toUtc ().month != monthTag) return;
@@ -462,7 +465,8 @@ class TagService {
 
          var yearMonth = piv.createDateTime.toUtc ().year.toString () + ':' + piv.createDateTime.toUtc ().month.toString ();
          if (queryResult ['timeHeader'] != null) {
-            if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
+            if (pendingTags.length == 0) queryResult ['timeHeader'] [yearMonth] = false;
+            else if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
          }
 
          if (currentMonth != '') {
@@ -473,7 +477,7 @@ class TagService {
       });
 
       if (currentMonth == '' && localPivsToAdd.length > 0) {
-         var lastDate = DateTime(0, 0, 0);
+         var lastDate = DateTime (0, 0, 0);
          localPivsToAdd.forEach ((piv) {
             if (ms (piv.createDateTime) > ms (lastDate)) lastDate = piv.createDateTime;
          });
