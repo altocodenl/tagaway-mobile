@@ -2,11 +2,12 @@
 
 ## TODO
 
-- Don't assume that local pivs in uploadedView are organized
 - Reload query when loading more local pivs
-- Rework zoom in carrousel (Tom)
+- Fix local videos (Tom)
+- Add fullscreen for videos (Tom)
 
 -----
+- Rework zoom in carrousel (Tom)
 - Reimplement carrousel to slide sideways?
 - Swipe sideways to navigate months in uploaded?
 - Store info of impressions and clicks on tags
@@ -2734,7 +2735,9 @@ This concludes the function.
    }
 ```
 
-We now define `localQuery`, a function that will return a list of local pivs that are currently in the upload queue and match an existing query. The purpose of this is to show all queued pivs in the relevant queries as if they were already uploaded.
+We now define `localQuery`, a function that will return a list of local pivs that have no cloud counterpart and which match the existing query.
+
+The purpose of `localQuery` is to enrich `queryResult` by potentially adding local pivs, tags, increasing the total number of pivs and modifying the time header in the query.
 
 The function takes three parameters:
 
@@ -2746,15 +2749,7 @@ The function takes three parameters:
    localQuery (tags, currentMonth, queryResult) {
 ```
 
-The purpose of `localQuery` is to enrich `queryResult` by potentially adding local pivs, tags, increasing the total number of pivs and modifying the time header in the query.
-
-If the current query includes untagged pivs, or pivs marked as to be organized, no local pivs can be included in the query. This is because all local pivs that are queued have, by definition, at least one tag, and will automatically be marked as organized. In this case, we can just return `queryResult` as is.
-
-```dart
-      if (tags.contains ('u::') || tags.contains ('t::')) return queryResult;
-```
-
-The same will happen if there is a geotag in the tags. Since we don't have the ability to get the geodata from a local piv, we cannot know whether it will actually match a geotag or not; in this case, we'd rather return less results than return incorrect results. For that reason, if there's a geotag in the tags, we will also return `queryResult` as is.
+If the current query includes a geotag, no local pivs can be included in the query, since we don't have the ability to get the geodata from a local piv, we cannot know whether it will actually match a geotag or not.
 
 ```dart
       var containsGeoTag = false;
@@ -2791,8 +2786,8 @@ We iterate the local tags and if we find a month tag or a year tag, we set it in
 
 ```dart
       tags.forEach ((tag) {
-         if (RegExp('^d::[0-9]').hasMatch(tag)) yearTag = tag;
-         if (RegExp('^d::M').hasMatch(tag))     monthTag = tag;
+         if (RegExp ('^d::[0-9]').hasMatch (tag)) yearTag = tag;
+         if (RegExp ('^d::M').hasMatch (tag))     monthTag = tag;
       });
 ```
 
@@ -2859,16 +2854,29 @@ We will create a list `localPivsToAdd`, which we will only use if `currentMonth`
       var localPivsToAdd = [];
 ```
 
-We will iterate all the local pivs.
+We will iterate all the local pivs for which we don't have a cloud counterpart. To do this, we simply get all local pivs, and then ignore those that have a `pivMap:ID` entry.
 
 ```dart
       PivService.instance.localPivs.forEach ((piv) {
+         if (store.get ('pivMap:' + piv.id) != '') return;
 ```
 
 We will get the pending tags for this piv.
 
 ```dart
          var pendingTags = getList ('pendingTags:' + piv.id);
+```
+
+If we are querying for organized pivs, and the piv has no `pendingTags`, we ignore the piv.
+
+```dart
+         if (tags.contains ('o::') && pendingTags.length == 0) return;
+```
+
+Likewise, if we are querying unorganized or untagged pivs, if this local piv has `pendingTags`, it is organized, therefore, it should be excluded from the query.
+
+```dart
+         if ((tags.contains ('u::') || tags.contains ('t::')) && pendingTags.length > 0) return;
 ```
 
 If the date range doesn't match the date of the piv, we exclude it and merely `return`.
@@ -2929,15 +2937,18 @@ If there are local pivs that match the query, we might have to modify the `timeH
          var yearMonth = piv.createDateTime.toUtc ().year.toString () + ':' + piv.createDateTime.toUtc ().month.toString ();
 ```
 
-If there's a time header, and there's no entry for the `yearMonth`, we set one to `true`.
+If there's a time header, and there's no entry for the `yearMonth`, we set one.
 
 There might not be a time header for some queries (for example, those done for a particular month), so we have to put that check before we do this.
 
-We set the missing time header entries to `true`, since if a month is absent, it means that it will only have one or more local pivs that match the query; and those pivs, by virtue of being in the upload queue, are tagged and thus considered as organized. Hence, we set it to `true`, so that the `computeTimeHeader` function will consider them as organized.
+If the local piv is not organized (because it has no `pendingTags`, therefore it hasn't been tagged), then we set the entry to `false`, even if the entry existed before (something unorganized in a month X will mark the entire month as organized, whereas the converse is not true).
+
+If local piv is organized and the entry doesn't exist, we set it to `true` (to indicate that the month is organized). This might be overriden later by another local piv in the same month that is not organized.
 
 ```dart
          if (queryResult ['timeHeader'] != null) {
-            if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
+            if (pendingTags.length == 0) queryResult ['timeHeader'] [yearMonth] = false;
+            else if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
          }
 ```
 
@@ -2979,7 +2990,7 @@ We will do this only if there are pivs in `localPivsToAdd`.
 We iterate all the local pivs that match the query and find the most recent one. We start with a date in the distant past, to make sure that the first piv will replace `lastDate`.
 
 ```dart
-         var lastDate = DateTime(0, 0, 0);
+         var lastDate = DateTime (0, 0, 0);
          localPivsToAdd.forEach ((piv) {
             if (ms (piv.createDateTime) > ms (lastDate)) lastDate = piv.createDateTime;
          });
