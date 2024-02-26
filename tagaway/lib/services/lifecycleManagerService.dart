@@ -37,11 +37,10 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
       });
       checkPermission ().then ((value) {
         if (resumed == true && value == 'granted') {
-          Navigator.pushReplacementNamed (context, 'home');
+          Navigator.pushReplacementNamed (context, 'distributor');
         } else if (resumed == true && value == 'denied' ||
             value == 'permanent') {
           return;
-          // Navigator.pushReplacementNamed (context, 'distributor');
           // arguments: PermissionLevelFlag (permissionLevel: value));
         }
       });

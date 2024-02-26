@@ -215,97 +215,49 @@ class _HomeViewState extends State<HomeView> {
                 onRefresh: () async {
                   return TagService.instance.getTags();
                 },
-                child: (tags.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 12, right: 12),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Image.asset(
-                                      'images/tag blue with white - 400x400.png',
-                                      scale: 2,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Text(
-                                  tags.isEmpty
-                                      ? 'Your tags’ shortcuts will be here. Start tagging and get your first shortcut!'
-                                      : 'Start adding your shortcuts!',
-                                  style: kHomeEmptyText,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: RoundedButton(
-                                    title: 'Get started',
-                                    colour: kAltoBlue,
-                                    onPressed: () {
-                                      if (tags.isEmpty)
-                                        store.set('viewIndex', 1);
-                                      else
-                                        Navigator.pushReplacementNamed(
-                                            context, 'addHomeTags');
-                                    },
-                                  ))
-                            ],
-                          ),
-                        ),
-                      )
-                    : Stack(
-                        children: [
-                          // TAG GRID
-                          Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 12, right: 12, top: 0),
-                              child: GridView.builder(
-                                  shrinkWrap: true,
-                                  cacheExtent: 50,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 50,
-                                    crossAxisSpacing: 8,
-                                  ),
-                                  itemCount: tags.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    var tag = tags[index];
-                                    // If thumb hasn't loaded yet, do not return anything.
-                                    if (thumbs[tag] == null) return Container();
-                                    return GestureDetector(
-                                        onTap: () async {
-                                          Navigator.push(context,
-                                              MaterialPageRoute(builder: (_) {
-                                            return CarrouselView(
-                                                initialPiv: 0,
-                                                pivs: [thumbs[tag]],
-                                                currentTag: tag);
-                                          }));
-                                          TagService.instance.getTags();
-                                        },
-                                        child: HomeCard(
-                                            color: tagColor(tag),
-                                            tag: tag,
-                                            thumb: thumbs[tag]['id'],
-                                            localPiv:
-                                                thumbs[tag]['local'] == true
-                                                    ? thumbs[tag]['piv']
-                                                    : null,
-                                            deg: thumbs[tag]['deg'] == null
-                                                ? 0
-                                                : thumbs[tag]['deg']));
-                                  })),
-                          /* HOME AWARDS
+                child: Stack(
+                  children: [
+                    // TAG GRID
+                    Padding(
+                        padding:
+                            const EdgeInsets.only(left: 12, right: 12, top: 0),
+                        child: GridView.builder(
+                            shrinkWrap: true,
+                            cacheExtent: 50,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 50,
+                              crossAxisSpacing: 8,
+                            ),
+                            itemCount: tags.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              var tag = tags[index];
+                              // If thumb hasn't loaded yet, do not return anything.
+                              if (thumbs[tag] == null) return Container();
+                              return GestureDetector(
+                                  onTap: () async {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (_) {
+                                      return CarrouselView(
+                                          initialPiv: 0,
+                                          pivs: [thumbs[tag]],
+                                          currentTag: tag);
+                                    }));
+                                    TagService.instance.getTags();
+                                  },
+                                  child: HomeCard(
+                                      color: tagColor(tag),
+                                      tag: tag,
+                                      thumb: thumbs[tag]['id'],
+                                      localPiv: thumbs[tag]['local'] == true
+                                          ? thumbs[tag]['piv']
+                                          : null,
+                                      deg: thumbs[tag]['deg'] == null
+                                          ? 0
+                                          : thumbs[tag]['deg']));
+                            })),
+                    /* HOME AWARDS
                           HomeAwardsView(
                             child: Row(
                               children: [
@@ -363,30 +315,30 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ),
                           */
-                          Align(
-                            alignment: const Alignment(0, .9),
-                            child: FloatingActionButton.extended(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(50)),
-                                extendedPadding:
-                                    const EdgeInsets.only(left: 20, right: 20),
-                                backgroundColor: kAltoBlue,
-                                elevation: 20,
-                                label: const Icon(
-                                  kSearchIcon,
-                                  color: Colors.white,
-                                  size: 15,
-                                ),
-                                icon: const Text('Search', style: kButtonText),
-                                key: const Key('homeFabQuerySelector'),
-                                onPressed: () {
-                                  store.set('queryTags', []);
-                                  Navigator.pushReplacementNamed(
-                                      context, 'querySelector');
-                                }),
-                          )
-                        ],
-                      ))),
+                    Align(
+                      alignment: const Alignment(0, .9),
+                      child: FloatingActionButton.extended(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          extendedPadding:
+                              const EdgeInsets.only(left: 20, right: 20),
+                          backgroundColor: kAltoBlue,
+                          elevation: 20,
+                          label: const Icon(
+                            kSearchIcon,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                          icon: const Text('Search', style: kButtonText),
+                          key: const Key('homeFabQuerySelector'),
+                          onPressed: () {
+                            store.set('queryTags', []);
+                            Navigator.pushReplacementNamed(
+                                context, 'querySelector');
+                          }),
+                    )
+                  ],
+                )),
       ),
       /* EDIT HOMETAGS
       floatingActionButton: Visibility(
