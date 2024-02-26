@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Fix months in localQuery (currentMonth is getting in the way)
 - Fix local videos (Tom)
 - Add fullscreen for videos (Tom)
 
@@ -2898,6 +2897,12 @@ We will get the pending tags for this piv.
          var pendingTags = getList ('pendingTags:' + piv.id);
 ```
 
+We will also create a `dateTags` list.
+
+```dart
+         var dateTags = ['d::' + piv.createDateTime.toUtc ().year.toString (), 'd::M' + piv.createDateTime.toUtc ().month.toString ()];
+```
+
 If we are querying for organized pivs, and the piv has no `pendingTags`, we ignore the piv.
 
 ```dart
@@ -2953,10 +2958,10 @@ We increase the total of `queryResult` by 1.
          queryResult ['total'] += 1;
 ```
 
-For each of the tags in `pendingTags`, we increment each of its entries in `queryResult ['tags']`. If an entry does not exist, we initialize it to 0.
+For each of the tags in `pendingTags` and `dateTags`, we increment each of its entries in `queryResult ['tags']`. If an entry does not exist, we initialize it to 0.
 
 ```dart
-         pendingTags.forEach ((tag) {
+         (pendingTags + dateTags).forEach ((tag) {
             if (queryResult ['tags'] [tag] == null) queryResult ['tags'] [tag] = 0;
             queryResult ['tags'] [tag] += 1;
          });
