@@ -24,8 +24,7 @@ class TagService {
       // If no cloud thumbs were loaded, do nothing, since we need those to be loaded before loading the local ones.
       if (thumbs == '') return;
 
-      var localPivs = PivService.instance.localPivs.toList ()..shuffle ();
-      localPivs.forEach ((piv) {
+      inner (piv, yearOrMonth) {
          var date = piv.createDateTime.toUtc ();
          var year = 'd::' + date.year.toString (), month = 'd::M' + date.month.toString ();
          var pivTags = <dynamic>[year, month];
@@ -43,9 +42,15 @@ class TagService {
             'piv': piv,
             'local': true,
          };
-         if (thumbs [year] == null) thumbs [year] = thumb;
-         if (thumbs [month] == null) thumbs [month] = thumb;
-      });
+         if (yearOrMonth == 'year' && thumbs [year] == null) thumbs [year] = thumb;
+         if (yearOrMonth == 'month' && thumbs [month] == null) thumbs [month] = thumb;
+      };
+
+      // We do two iterations over all the pivs in different order, to minimize the odds of having repeated thumbs for a given year & month
+      var localPivs = PivService.instance.localPivs.toList ()..shuffle ();
+      localPivs.forEach ((piv) => inner (piv, 'year'));
+      localPivs = PivService.instance.localPivs.toList ()..shuffle ();
+      localPivs.forEach ((piv) => inner (piv, 'month'));
 
       store.set ('tags', tags);
       store.set ('thumbs', thumbs);
