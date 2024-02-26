@@ -522,6 +522,7 @@ class _CarrouselViewState extends State<CarrouselView>
             GestureDetector(
               onTap: () {
                 store.set('fullScreenCarrousel', !fullScreen);
+                print('we are in carrousel and fullScreen is $fullScreen');
                 // One second for the other animation to execute, 100ms of changui
                 if (fullScreen == true)
                   Future.delayed(Duration(milliseconds: 1100), () {
@@ -787,16 +788,28 @@ class CloudVideoPlayerWidget extends StatefulWidget {
 class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
   late VideoPlayerController _controller;
   bool initialized = false;
+  bool fullScreen = false;
+  dynamic cancelListener;
 
   @override
   void initState() {
     _initVideo();
+    setState(() {
+      fullScreen = store.get('fullScreenCarrousel') == true;
+    });
+    cancelListener =
+        store.listen(['fullScreenCarrousel'], (FullScreenCarrousel) {
+      setState(() {
+        fullScreen = FullScreenCarrousel == true;
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    cancelListener();
     super.dispose();
   }
 
@@ -822,9 +835,12 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
     return _controller.value.isInitialized
         ? Stack(
             children: [
-              Container(
+              AnimatedContainer(
                 width: SizeService.instance.screenWidth(context),
-                height: SizeService.instance.screenHeight(context) * .5,
+                height: fullScreen
+                    ? SizeService.instance.screenHeight(context) * .85
+                    : SizeService.instance.screenHeight(context) * .45,
+                duration: const Duration(milliseconds: 500),
                 alignment: Alignment.topCenter,
                 decoration: const BoxDecoration(
                     color: kGreyDarker,
@@ -837,7 +853,7 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
                 ),
               ),
               Align(
-                alignment: const Alignment(0, 0),
+                alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
                 child: FloatingActionButton(
                   shape: const CircleBorder(),
                   key: const Key('playPause'),
@@ -886,16 +902,28 @@ class LocalVideoPlayerWidget extends StatefulWidget {
 class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
   late VideoPlayerController _controller;
   bool initialized = false;
+  bool fullScreen = false;
+  dynamic cancelListener;
 
   @override
   void initState() {
     _initVideo();
+    setState(() {
+      fullScreen = store.get('fullScreenCarrousel') == true;
+    });
+    cancelListener =
+        store.listen(['fullScreenCarrousel'], (FullScreenCarrousel) {
+      setState(() {
+        fullScreen = FullScreenCarrousel == true;
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    cancelListener();
     super.dispose();
   }
 
@@ -917,9 +945,12 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
     return initialized
         // If the video is initialized, display it
         ? Stack(children: [
-            Container(
+            AnimatedContainer(
               width: SizeService.instance.screenWidth(context),
-              height: SizeService.instance.screenHeight(context) * .5,
+              height: fullScreen
+                  ? SizeService.instance.screenHeight(context) * .85
+                  : SizeService.instance.screenHeight(context) * .45,
+              duration: const Duration(milliseconds: 500),
               alignment: Alignment.topCenter,
               decoration: const BoxDecoration(
                   color: kGreyDarker,
@@ -983,7 +1014,7 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
             // ),
 
             Align(
-              alignment: const Alignment(0, 0),
+              alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
               child: FloatingActionButton(
                 shape: const CircleBorder(),
                 backgroundColor: kAltoBlue,
