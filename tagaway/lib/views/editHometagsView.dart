@@ -54,7 +54,7 @@ class _EditHometagsViewState extends State<EditHometagsView> {
             padding: const EdgeInsets.only(top: 18, left: 12),
             child: GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, 'bottomNavigation');
+                  Navigator.pushReplacementNamed(context, 'home');
                 },
                 child: const Text('Done', style: kDoneEditText)),
           ),

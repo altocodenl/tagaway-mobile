@@ -37,7 +37,7 @@ class _LifeCycleManagerState extends State<LifeCycleManager>
       });
       checkPermission ().then ((value) {
         if (resumed == true && value == 'granted') {
-          Navigator.pushReplacementNamed (context, 'bottomNavigation');
+          Navigator.pushReplacementNamed (context, 'home');
         } else if (resumed == true && value == 'denied' ||
             value == 'permanent') {
           return;
