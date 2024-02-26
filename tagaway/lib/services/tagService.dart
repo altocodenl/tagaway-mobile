@@ -457,6 +457,7 @@ class TagService {
          if (localPivsAlreadyPresent [piv.id] == true) return;
 
          var pendingTags = getList ('pendingTags:' + piv.id);
+         var dateTags = ['d::' + piv.createDateTime.toUtc ().year.toString (), 'd::M' + piv.createDateTime.toUtc ().month.toString ()];
 
          if (tags.contains ('o::') && pendingTags.length == 0) return;
          if ((tags.contains ('u::') || tags.contains ('t::')) && pendingTags.length > 0) return;
@@ -471,7 +472,7 @@ class TagService {
          if (matchesQuery == false) return;
 
          queryResult ['total'] += 1;
-         pendingTags.forEach ((tag) {
+         (pendingTags + dateTags).forEach ((tag) {
             if (queryResult ['tags'] [tag] == null) queryResult ['tags'] [tag] = 0;
             queryResult ['tags'] [tag] += 1;
          });
