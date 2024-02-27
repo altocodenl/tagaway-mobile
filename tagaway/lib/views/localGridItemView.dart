@@ -131,7 +131,7 @@ class LocalGridItem extends StatelessWidget {
                     visible: view == 'uploaded',
                     child: const Align(
                         alignment: Alignment(-0.9, -.9),
-                        child: UploadingIcon())),
+                        child: localPivIcon())),
                 GridItemMask(
                     asset.id, view == 'local' ? 'local' : 'localUploaded',
                     key: Key('${asset.id}-mask:${now()}')),

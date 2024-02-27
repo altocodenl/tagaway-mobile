@@ -404,18 +404,18 @@ class _GridItemSelectionState extends State<GridItemSelection> {
   }
 }
 
-class UploadingIcon extends StatefulWidget {
-  const UploadingIcon({Key? key}) : super(key: key);
+class localPivIcon extends StatefulWidget {
+  const localPivIcon({Key? key}) : super(key: key);
 
   @override
-  State<UploadingIcon> createState() => _UploadingIconState();
+  State<localPivIcon> createState() => _localPivIconState();
 }
 
-class _UploadingIconState extends State<UploadingIcon> {
+class _localPivIconState extends State<localPivIcon> {
   @override
   Widget build(BuildContext context) {
     return Icon(
-      kCloudArrowUp,
+      kMobilePhoneIcon,
       size: 15,
       color: Colors.white,
     );
