@@ -16,7 +16,9 @@ class TagService {
    dynamic queryTags = [];
 
    // TODO: annotate
-   getLocalTagsThumbs () async {
+   // canReplaceExisting is to, on load of a new list of thumbs, to sometimes overwrite cloud pivs
+   // This will not happen on calls to this function that happen when new local piv pages are loaded on startup, to avoid seeing thumbs changing
+   getLocalTagsThumbs ([canReplaceExisting = false]) async {
 
       var tags = getList ('tags');
       var thumbs = store.get ('thumbs');
@@ -42,8 +44,8 @@ class TagService {
             'piv': piv,
             'local': true,
          };
-         if (yearOrMonth == 'year' && thumbs [year] == null) thumbs [year] = thumb;
-         if (yearOrMonth == 'month' && thumbs [month] == null) thumbs [month] = thumb;
+         if (yearOrMonth == 'year' && (thumbs [year] == null || canReplaceExisting)) thumbs [year] = thumb;
+         if (yearOrMonth == 'month' && (thumbs [month] == null || canReplaceExisting)) thumbs [month] = thumb;
       };
 
       // We do two iterations over all the pivs in different order, to minimize the odds of having repeated thumbs for a given year & month
@@ -69,9 +71,9 @@ class TagService {
       updateOrganizedCount (response ['body'] ['organized']);
 
       store.set ('hometags', response ['body'] ['hometags']);
-      store.set ('thumbs', response ['body'] ['homeThumbs']);
+      store.set ('thumbs', response ['body'] ['homeThumbs'], '', 'mute');
 
-      getLocalTagsThumbs ();
+      getLocalTagsThumbs (true);
 
       var usertags = response ['body'] ['tags'].where ((tag) {
          return ! RegExp ('^[a-z]::').hasMatch (tag);

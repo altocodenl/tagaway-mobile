@@ -2,9 +2,9 @@
 
 ## TODO
 
-- Delete has to announce local
+- Delete has to say local
 - Send to a random place after deleting
-- Don't always priorize cloud thumbs
+- Coming back from the grid, nothing works
 
 -----
 - Rework zoom in carrousel (Tom)
@@ -1922,15 +1922,17 @@ We invoke `updateOrganizedCount` passing to it the current total number of organ
 
 We update the `hometags` and `thumbs` keys with what comes from the response body. Note we map `homeThumbs` to `thumbs` (the server endpoint will be changed in the future; it hasn't been changed yet to avoid backward compatibility issues until we publish the next build).
 
+Note that we pass a `mute` flag when we're setting the thumbs. This is so that the view won't be redrawn twice when, just below, we load the info of local pivs to add to or modify the list of thumbs.
+
 ```dart
       store.set ('hometags', response ['body'] ['hometags']);
-      store.set ('thumbs', response ['body'] ['homeThumbs']);
+      store.set ('thumbs', response ['body'] ['homeThumbs'], '', 'mute');
 ```
 
-Once we have loaded the cloud tags & thumbs, we will invoke `getLocalTagsThumbs`, which will add further tags & thumbs coming from local pivs to the lists of tags and thumbs.
+Once we have loaded the cloud tags & thumbs, we will invoke `getLocalTagsThumbs`, which will add further tags & thumbs coming from local pivs to the lists of tags and thumbs. We will pass a `true` argument to indicate that tags for which we have cloud entries for thumbs can be overwritten by a local entry. This will avoid us just seeing cloud thumbnails taking precedence always above local ones, which can make us get bored if we only have very few cloud pivs for a tag.
 
 ```dart
-      getLocalTagsThumbs ();
+      getLocalTagsThumbs (true);
 ```
 
 We will take all the tags and filter out those that start with a lowercase letter plus two colons (tags starting with those characters are special tags used by tagaway internally). Essentially, `usertags` will contain all the "normal" tags that a user can use.
