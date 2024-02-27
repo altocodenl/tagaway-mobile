@@ -358,7 +358,7 @@ class _CarrouselViewState extends State<CarrouselView>
                             }),
                         const Align(
                             alignment: Alignment(-0.9, -.9),
-                            child: UploadingIcon()),
+                            child: localPivIcon()),
                       ],
                     ),
                   )
