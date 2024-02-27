@@ -54,6 +54,8 @@ class TagService {
       localPivs = PivService.instance.localPivs.toList ()..shuffle ();
       localPivs.forEach ((piv) => inner (piv, 'month'));
 
+      if (canReplaceExisting) tags.shuffle ();
+
       store.set ('tags', tags);
       store.set ('thumbs', thumbs);
    }
