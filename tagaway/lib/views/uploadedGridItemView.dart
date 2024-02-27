@@ -1275,21 +1275,24 @@ class _SuggestionGridState extends State<SuggestionGrid> {
               var thumb = store.get('thumbs')[tag];
               var isTagged = addMoreTags && pivTags.contains(tag);
 
+              // If we're creating a tag on this piv, put it provisionally as thumb
+              if (thumb == null) thumb = widget.piv;
+
               return GestureDetector(
                   onTap: () async {
                     if (addMoreTags) {
-                      if (RegExp(' \\(new tag\\)\$').hasMatch(tag)) {
-                        // If we're creating a tag on this piv, put it provisionally as thumb
-                        var thumbs = store.get('thumbs');
-                        thumbs[tag.replaceFirst(RegExp(r' \(new tag\)$'), '')] =
-                            {'id': widget.piv['id']};
-                        store.set('thumbs', thumbs);
-                      }
-
                       tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
                       tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
-                      TagService.instance.tagCloudPiv(widget.piv['id'], [tag],
-                          isTagged); // if the piv is tagged, we will untag it by passing `true` as the third argument
+                      if (widget.piv['local'] == true) {
+                        store.set('currentlyTaggingLocal', [tag]);
+                        TagService.instance
+                            .toggleTags(widget.piv['piv'], 'local');
+                        TagService.instance.doneTagging('local');
+                        store.remove('currentlyTaggingLocal');
+                      } else {
+                        TagService.instance.tagCloudPiv(widget.piv['id'], [tag],
+                            isTagged); // if the piv is tagged, we will untag it by passing `true` as the third argument
+                      }
                       pivTags.contains(tag)
                           ? pivTags.remove(tag)
                           : pivTags.add(tag);

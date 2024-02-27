@@ -2,8 +2,9 @@
 
 ## TODO
 
-- Fix local videos (Tom)
-- Add fullscreen for videos (Tom)
+- Delete has to announce local
+- Send to a random place after deleting
+- Don't always priorize cloud thumbs
 
 -----
 - Rework zoom in carrousel (Tom)
@@ -2216,7 +2217,7 @@ The function takes three arguments:
 - The `selectAll` argument, which is optional, and which is used by the `selectAll` function, changes the behavior of the function: if set to `true`, it will only perform a tagging, and if set to `false` it will perform an untagging. But if either of them is already done, rather than a toggle, this will just be a no-op and nothing else will happen.
 
 ```dart
-   toggleTags (dynamic piv, String type, [selectAll = null]) async {
+   toggleTags (dynamic piv, String type, [selectAll = null]) {
 ```
 
 We first get the id of the piv. This piv can be either a local piv, or a cloud piv. If it's the former, the id should be accessed as `piv.id`. If it's the latter, the id should be accessed as `piv ['id']`. If you are perplexed, so am I.

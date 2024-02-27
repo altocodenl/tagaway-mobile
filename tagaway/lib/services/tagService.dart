@@ -228,7 +228,7 @@ class TagService {
       return 200;
    }
 
-   toggleTags (dynamic piv, String type, [selectAll = null]) async {
+   toggleTags (dynamic piv, String type, [selectAll = null]) {
 
       var pivId;
       try {
