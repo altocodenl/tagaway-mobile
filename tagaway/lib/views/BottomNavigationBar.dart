@@ -5,8 +5,8 @@ import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tools.dart';
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
+import 'package:tagaway/views/oldHomeView.dart';
 
 class BottomNavigationView extends StatefulWidget {
   static const String id = 'bottomNavigation';
@@ -22,7 +22,7 @@ class _BottomNavigationViewState extends State<BottomNavigationView> {
 
   int viewIndex = 0;
   final screens = [
-    const HomeView(), const LocalView()
+    const OldHomeView(), const LocalView()
     // , const ShareView()
   ];
 

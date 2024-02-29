@@ -10,11 +10,11 @@ import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/distributorView.dart';
 import 'package:tagaway/views/editHometagsView.dart';
-import 'package:tagaway/views/homeView.dart';
 import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/loginView.dart';
 import 'package:tagaway/views/manageTagsView.dart';
 import 'package:tagaway/views/offlineView.dart';
+import 'package:tagaway/views/oldHomeView.dart';
 import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
@@ -90,7 +90,7 @@ class Tagaway extends StatelessWidget {
         'deleteAccount': (context) => const DeleteAccount(),
         'distributor': (context) => const Distributor(),
         'editHomeTags': (context) => const EditHometagsView(),
-        'home': (context) => const HomeView(),
+        'home': (context) => const OldHomeView(),
         'local': (context) => const LocalView(),
         'login': (context) => const LoginView(),
         'offline': (context) => const OfflineView(),
