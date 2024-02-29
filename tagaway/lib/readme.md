@@ -2,9 +2,11 @@
 
 ## TODO
 
+-----
+
 - Delete has to say local
 - Send to a random place after deleting
-- Coming back from the grid, nothing works
+- Coming back from the grid from a local piv, nothing works
 
 -----
 - Rework zoom in carrousel (Tom)

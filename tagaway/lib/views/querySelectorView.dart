@@ -129,7 +129,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               ),
               onPressed: () {
                 store.set('queryTags', []);
-                Navigator.pushReplacementNamed(context, 'home');
+                Navigator.pushReplacementNamed(context, 'oldHome');
               }),
           title: TextField(
             controller: searchQueryController,

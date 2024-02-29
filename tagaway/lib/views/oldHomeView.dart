@@ -20,7 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/sizeService.dart';
 
 class OldHomeView extends StatefulWidget {
-  static const String id = 'home';
+  static const String id = 'oldHome';
 
   const OldHomeView({Key? key}) : super(key: key);
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../ui_elements/constants.dart';
 
 class HomeView extends StatefulWidget {
-  static const String id = 'scroll';
+  static const String id = 'home';
   const HomeView({Key? key}) : super(key: key);
 
   @override
