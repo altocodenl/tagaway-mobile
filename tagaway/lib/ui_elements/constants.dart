@@ -20,6 +20,7 @@ const kAltoRed = Color(0xFFD33E43);
 const kAltoYellow = Color(0xFFffff00);
 const kAltoRemove = Color(0xFFFC201F);
 const kAltoShare = Color(0xFFec5bff);
+const kAltoBlack = Color(0xFF0c0c0c);
 const kGreyLightest = Color(0xFFfbfbfb);
 const kGreyLighter = Color(0xFFf2f2f2);
 const kGreyLight = Color(0xFFdedede);

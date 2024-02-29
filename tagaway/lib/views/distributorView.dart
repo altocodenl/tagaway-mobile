@@ -45,7 +45,6 @@ class _DistributorState extends State<Distributor> {
       // Load all local pivs
       PivService.instance.loadLocalPivs();
       store.set('displayMode', {'showOrganized': false, 'cameraOnly': false});
-      // return Navigator.pushReplacementNamed(context, 'bottomNavigation');
       return Navigator.pushReplacementNamed(context, 'home');
     }
 

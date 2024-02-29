@@ -14,16 +14,38 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kAltoBlack,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: kAltoBlue),
-        leading: Image.asset(
-          'images/tag blue with white - 400x400.png',
-          scale: 8,
+        backgroundColor: kAltoBlack,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'images/tag blue with white - 400x400.png',
+              scale: 8,
+            ),
+            const Text('tagaway', style: kTagawayMain),
+          ],
         ),
-        title: const Expanded(
-            flex: 2, child: Text('tagaway', style: kTagawayMain)),
+      ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverList.builder(
+                itemCount: 10,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 40),
+                    child: Container(
+                      height: 100,
+                      alignment: Alignment.center,
+                      color: Colors.lightBlue,
+                    ),
+                  );
+                })
+          ],
+        ),
       ),
     );
   }
