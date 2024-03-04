@@ -67,6 +67,7 @@ class _HomeViewState extends State<HomeView> {
             SliverList.builder(
                 itemCount: queryResult['pivs'].length,
                 itemBuilder: (BuildContext context, int index) {
+                  debug (['drawing piv', index]);
                   return Padding(
                       padding: const EdgeInsets.only(bottom: 40),
                       child: (() {
@@ -270,15 +271,13 @@ class _LocalVideoState extends State<LocalVideo> {
 
   _initVideo() async {
     final video = await widget.vid.file;
-    // TODO: remove return
-    return;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
       ..setLooping(true)
       // initialize the controller and notify UI when done
       ..initialize().then((_) => setState(() {
             initialized = true;
-            _controller.play();
+            _controller.pause();
           }));
   }
 
