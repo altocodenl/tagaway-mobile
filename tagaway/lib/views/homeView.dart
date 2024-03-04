@@ -44,6 +44,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    debug (['piv count', queryResult['pivs'].length]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -269,15 +270,16 @@ class _LocalVideoState extends State<LocalVideo> {
 
   _initVideo() async {
     final video = await widget.vid.file;
+    // TODO: remove return
+    return;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
       ..setLooping(true)
       // initialize the controller and notify UI when done
       ..initialize().then((_) => setState(() {
             initialized = true;
-            //_controller.play();
+            _controller.play();
           }));
-    // _controller.play();
   }
 
   @override
