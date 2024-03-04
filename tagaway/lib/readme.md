@@ -4,6 +4,7 @@
 
 -----
 
+- Remove references to `currentMonth`
 - Delete has to say local
 - Send to a random place after deleting
 - Coming back from the grid from a local piv, nothing works
@@ -2773,6 +2774,12 @@ The function takes three parameters:
    localQuery (tags, currentMonth, queryResult) {
 ```
 
+We are in the process of remaking tagaway and it might turn out to be that `currentMonth` is no longer necessary, since we're no longer going to show a grid view where you can switch between months for a given query. But instead of removing the pipes, we'll figure out if we want to keep the building in the first place. So we temporarily, and until further notice, set `currentMonth` to an empty string within this function, to ignore it wholesale.
+
+```dart
+      currentMonth = '';
+```
+
 If the current query includes a geotag, no local pivs can be included in the query, since we don't have the ability to get the geodata from a local piv, we cannot know whether it will actually match a geotag or not.
 
 ```dart
@@ -2993,7 +3000,7 @@ If local piv is organized and the entry doesn't exist, we set it to `true` (to i
          }
 ```
 
-If there is a `currentMonth` already set, before we include a piv into `queryResult ['pivs']`, we need to check the time range determined by `currentMonth`. If the piv doesn't fulfill it, we excxlude it.
+If there is a `currentMonth` already set, before we include a piv into `queryResult ['pivs']`, we need to check the time range determined by `currentMonth`. If the piv doesn't fulfill it, we exclude it.
 
 Otherwise, we include it into the list of pivs. We do this in a map that containas three properties:
 
@@ -3020,64 +3027,12 @@ This concludes the iteration of all local pivs currently being uploaded.
       });
 ```
 
-If `currentMonth` was already set, we are almost done. However, if `currentMonth` was not set, we need to set it by finding the latest month from any piv that matches the query, and then adding those local pivs that fall into that current month. We can only do this now, after we filtered out all the local pivs that do not match the query.
-
-We will do this only if there are pivs in `localPivsToAdd`.
+We shuffle `localPivsToAdd`, to keep it interesting. Note this will not shuffle the pivs already in `queryResult.pivs`, only the new ones we're about to add.
 
 ```dart
-      if (currentMonth == '' && localPivsToAdd.length > 0) {
-```
-
-We iterate all the local pivs that match the query and find the most recent one. We start with a date in the distant past, to make sure that the first piv will replace `lastDate`.
-
-```dart
-         var lastDate = DateTime (0, 0, 0);
-         localPivsToAdd.forEach ((piv) {
-            if (ms (piv.createDateTime) > ms (lastDate)) lastDate = piv.createDateTime;
-         });
-```
-
-We get the UTC year and month of `lastDate`.
-
-```dart
-         var year = lastDate.toUtc ().year;
-         var month = lastDate.toUtc ().month;
-```
-
-We set `minDateCurrentMonth` and `maxDateCurrentMonth` as we did in the case where we had a `currentMonth`. Effectively, what we're doing is setting the month of the last piv as the `currentMonth` of the query.
-
-```dart
-         minDateCurrentMonth = DateTime.utc (year, month, 1).millisecondsSinceEpoch;
-         if (month == 12) maxDateCurrentMonth = DateTime.utc (year + 1, 1,         1).millisecondsSinceEpoch;
-         else             maxDateCurrentMonth = DateTime.utc (year,     month + 1, 1).millisecondsSinceEpoch;
-```
-
-We set the current month, since it is not set yet since there are no server pivs that match the query.
-
-```dart
-         store.set ('currentMonth', [year, month]);
-```
-
-We iterate the `localPivsToAdd` again and add those to the list that match to the current month.
-
-```dart
-         localPivsToAdd.forEach ((piv) {
-            if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
-            queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
-         });
-```
-
-This concludes the case where there are only local pivs that match the query.
-
-```dart
-      }
-```
-
-We are almost done. We simply sort the pivs inside `queryResult`, with the newest pivs first. Note that the `date` property is the same for both local and uploaded pivs, so we don't have to add special logic to sort them together.
-
-```dart
-      queryResult ['pivs'].sort ((a, b) {
-         return (b ['date'] as int).compareTo ((a ['date'] as int));
+      localPivsToAdd.shuffle ();
+      localPivsToAdd.forEach ((piv) {
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
       });
 ```
 

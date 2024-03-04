@@ -405,6 +405,9 @@ class TagService {
 
    localQuery (tags, currentMonth, queryResult) {
 
+      // TODO: remove references to currentMonth if it turns out to be a relic
+      currentMonth = '';
+
       var containsGeoTag = false;
       tags.forEach ((tag) {
          if (RegExp('^g::[A-Z]{2}').hasMatch(tag)) containsGeoTag = true;
@@ -494,27 +497,9 @@ class TagService {
          else localPivsToAdd.add (piv);
       });
 
-      if (currentMonth == '' && localPivsToAdd.length > 0) {
-         var lastDate = DateTime (0, 0, 0);
-         localPivsToAdd.forEach ((piv) {
-            if (ms (piv.createDateTime) > ms (lastDate)) lastDate = piv.createDateTime;
-         });
-         var year = lastDate.toUtc ().year;
-         var month = lastDate.toUtc ().month;
-         minDateCurrentMonth = DateTime.utc (year, month, 1).millisecondsSinceEpoch;
-         if (month == 12) maxDateCurrentMonth = DateTime.utc (year + 1, 1,         1).millisecondsSinceEpoch;
-         else             maxDateCurrentMonth = DateTime.utc (year,     month + 1, 1).millisecondsSinceEpoch;
-
-         store.set ('currentMonth', [year, month]);
-
-         localPivsToAdd.forEach ((piv) {
-            if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
-            queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
-         });
-      }
-
-      queryResult ['pivs'].sort ((a, b) {
-         return (b ['date'] as int).compareTo ((a ['date'] as int));
+      localPivsToAdd.shuffle ();
+      localPivsToAdd.forEach ((piv) {
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
       });
 
       return queryResult;

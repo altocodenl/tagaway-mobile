@@ -1,5 +1,6 @@
 import 'dart:io' show File;
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 
@@ -26,9 +27,12 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     TagService.instance.queryPivs();
     cancelListener = store.listen(['queryResult'], (QueryResult) {
-      setState(() {
-        if (QueryResult != '') queryResult = QueryResult;
-      });
+      // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
+      if (mounted) {
+        setState(() {
+          if (QueryResult != '') queryResult = QueryResult;
+        });
+      }
     });
   }
 
@@ -72,6 +76,96 @@ class _HomeViewState extends State<HomeView> {
                         if (piv['local'] == true &&
                             piv['piv'].type != AssetType.image)
                           return LocalVideo(vid: piv['piv']);
+                        /*
+                        if (piv['vid'] == null) CachedNetworkImage(
+                        imageUrl: (kTagawayThumbMURL) + (piv['id']),
+                        httpHeaders: {'cookie': store.get('cookie')},
+                        filterQuality: FilterQuality.high,
+                        placeholder: (context, url) => const Center(
+                                child: CircularProgressIndicator(
+                              color: kAltoBlue,
+                            )),
+                        imageBuilder: (context, imageProvider) {
+                          final screenWidth = MediaQuery.of(context).size.width;
+                          final screenHeight =
+                              MediaQuery.of(context).size.height - 100;
+                          final askance = piv['deg'] == 90 || piv['deg'] == -90;
+                          final height = askance ? screenWidth : screenHeight;
+                          final width = askance ? screenHeight : screenWidth;
+
+                          var left =
+                              (askance ? -(width - height) / 2 : 0).toDouble();
+                          // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
+                          var top = (askance ? -(height - width + 50) / 2 : 0)
+                              .toDouble();
+
+                          return ValueListenableBuilder(
+                            valueListenable: controller,
+                            builder: (context, Matrix4 matrix, child) {
+                              if (matrixAlmostEqual(
+                                  matrix, Matrix4.identity())) {
+                                if (pageBuilderScroll
+                                    is! BouncingScrollPhysics) {
+                                  Future.delayed(Duration.zero, () {
+                                    setState(() => pageBuilderScroll =
+                                        const BouncingScrollPhysics());
+                                  });
+                                }
+                              } else {
+                                if (pageBuilderScroll
+                                    is! NeverScrollableScrollPhysics) {
+                                  Future.delayed(Duration.zero, () {
+                                    setState(() => pageBuilderScroll =
+                                        const NeverScrollableScrollPhysics());
+                                  });
+                                }
+                              }
+                              return InteractiveViewer(
+                                transformationController: controller,
+                                clipBehavior: Clip.none,
+                                minScale: 1,
+                                maxScale: 8,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Transform.rotate(
+                                      angle: (piv['deg'] == null
+                                              ? 0
+                                              : piv['deg']) *
+                                          math.pi /
+                                          180.0,
+                                      child: AnimatedContainer(
+                                        width: SizeService.instance
+                                            .screenWidth(context),
+                                        height: fullScreen
+                                            ? SizeService.instance
+                                                    .screenHeight(context) *
+                                                .85
+                                            : SizeService.instance
+                                                    .screenHeight(context) *
+                                                .45,
+                                        duration: const Duration(seconds: 1),
+                                        curve: Curves.fastOutSlowIn,
+                                        decoration: const BoxDecoration(
+                                            color: kGreyDarker,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(15),
+                                                topRight: Radius.circular(15))),
+                                        child: Image(
+                                          // alignment: Alignment.center,
+                                          fit: BoxFit.contain,
+                                          image: imageProvider,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        });
+                        */
+
                         return Container(
                           height: 100,
                           alignment: Alignment.center,
@@ -164,7 +258,11 @@ class _LocalVideoState extends State<LocalVideo> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    try {
+      _controller.dispose();
+    } catch (_) {
+      // We ignore the error.
+    }
     cancelListener();
     super.dispose();
   }
@@ -177,7 +275,7 @@ class _LocalVideoState extends State<LocalVideo> {
       // initialize the controller and notify UI when done
       ..initialize().then((_) => setState(() {
             initialized = true;
-            _controller.play();
+            //_controller.play();
           }));
     // _controller.play();
   }
