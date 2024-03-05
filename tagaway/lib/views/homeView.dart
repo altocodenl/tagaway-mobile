@@ -24,7 +24,10 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    TagService.instance.queryPivs();
+    // Wait for some local pivs to be loaded.
+    Future.delayed(Duration(seconds: 3), () {
+      TagService.instance.queryPivs();
+    });
     cancelListener = store.listen(['queryResult'], (QueryResult) {
       // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
       if (mounted) {
@@ -61,31 +64,36 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverList.builder(
-                itemCount: queryResult['pivs'].length,
-                itemBuilder: (BuildContext context, int index) {
-                  debug(['drawing piv', index]);
-                  return Padding(
-                      padding: const EdgeInsets.only(bottom: 40),
-                      child: (() {
-                        var piv = queryResult['pivs'][index];
-                        var date =
-                            DateTime.fromMillisecondsSinceEpoch(piv['date']);
-                        if (piv['local'] == true &&
-                            piv['piv'].type == AssetType.image)
-                          return LocalPhoto(
-                            piv: piv['piv'],
-                            date: date,
-                          );
-                        if (piv['local'] == true &&
-                            piv['piv'].type != AssetType.image)
-                          return LocalVideo(
-                            vid: piv['piv'],
-                            date: date,
-                          );
-                        /*
+        child: queryResult['pivs'].length == 0
+            ? const Center(
+                child: CircularProgressIndicator(
+                color: kAltoBlue,
+              ))
+            : CustomScrollView(
+                slivers: [
+                  SliverList.builder(
+                      itemCount: queryResult['pivs'].length,
+                      itemBuilder: (BuildContext context, int index) {
+                        debug(['drawing piv', index]);
+                        return Padding(
+                            padding: const EdgeInsets.only(bottom: 40),
+                            child: (() {
+                              var piv = queryResult['pivs'][index];
+                              var date = DateTime.fromMillisecondsSinceEpoch(
+                                  piv['date']);
+                              if (piv['local'] == true &&
+                                  piv['piv'].type == AssetType.image)
+                                return LocalPhoto(
+                                  piv: piv['piv'],
+                                  date: date,
+                                );
+                              if (piv['local'] == true &&
+                                  piv['piv'].type != AssetType.image)
+                                return LocalVideo(
+                                  vid: piv['piv'],
+                                  date: date,
+                                );
+                              /*
                         if (piv['vid'] == null) CachedNetworkImage(
                         imageUrl: (kTagawayThumbMURL) + (piv['id']),
                         httpHeaders: {'cookie': store.get('cookie')},
@@ -174,10 +182,10 @@ class _HomeViewState extends State<HomeView> {
                           );
                         });
                         */
-                      })());
-                })
-          ],
-        ),
+                            })());
+                      })
+                ],
+              ),
       ),
     );
   }
