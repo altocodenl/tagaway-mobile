@@ -89,7 +89,7 @@ class _UploadGridState extends State<UploadGrid> {
   }
 
   Future<void> _refreshGrid() async {
-    await TagService.instance.queryPivs(true, true);
+    await TagService.instance.queryPivs(true);
   }
 
   @override

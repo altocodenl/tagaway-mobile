@@ -248,7 +248,7 @@ class PivService {
 
          TagService.instance.getLocalTagsThumbs ();
          if (store.get ('queryResult') != '') {
-            store.set ('queryResult', TagService.instance.localQuery (getList ('queryTags'), store.get ('currentMonth'), store.get ('queryResult')));
+            store.set ('queryResult', TagService.instance.localQuery (getList ('queryTags'), store.get ('queryResult')));
             StoreService.instance.updateStream.add ('queryResult');
          }
 
