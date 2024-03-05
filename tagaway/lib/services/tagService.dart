@@ -579,9 +579,9 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
-      queryResult ['pivs'].shuffle ();
 
       queryResult = localQuery (tags, queryResult);
+      queryResult ['pivs'].shuffle ();
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
          store.remove ('currentlyTaggingUploaded');
