@@ -229,6 +229,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
     return Column(
       children: [
         Container(
+          height: SizeService.instance.screenHeight(context) * .4,
           alignment: Alignment.center,
           child: FutureBuilder<File?>(
             future: file,
@@ -313,7 +314,7 @@ class _LocalVideoState extends State<LocalVideo> {
 
   _initVideo() async {
     // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
-    if (! mounted) return;
+    if (!mounted) return;
     final video = await widget.vid.file;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
