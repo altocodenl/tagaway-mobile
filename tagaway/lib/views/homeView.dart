@@ -1,13 +1,12 @@
 import 'dart:io' show File;
-import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 
+import 'package:flutter/material.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'home';
@@ -44,7 +43,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    debug (['piv count', queryResult['pivs'].length]);
+    debug(['piv count', queryResult['pivs'].length]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -67,17 +66,25 @@ class _HomeViewState extends State<HomeView> {
             SliverList.builder(
                 itemCount: queryResult['pivs'].length,
                 itemBuilder: (BuildContext context, int index) {
-                  debug (['drawing piv', index]);
+                  debug(['drawing piv', index]);
                   return Padding(
                       padding: const EdgeInsets.only(bottom: 40),
                       child: (() {
                         var piv = queryResult['pivs'][index];
+                        var date =
+                            DateTime.fromMillisecondsSinceEpoch(piv['date']);
                         if (piv['local'] == true &&
                             piv['piv'].type == AssetType.image)
-                          return LocalPhoto(piv: piv['piv']);
+                          return LocalPhoto(
+                            piv: piv['piv'],
+                            date: date,
+                          );
                         if (piv['local'] == true &&
                             piv['piv'].type != AssetType.image)
-                          return LocalVideo(vid: piv['piv']);
+                          return LocalVideo(
+                            vid: piv['piv'],
+                            date: date,
+                          );
                         /*
                         if (piv['vid'] == null) CachedNetworkImage(
                         imageUrl: (kTagawayThumbMURL) + (piv['id']),
@@ -167,12 +174,6 @@ class _HomeViewState extends State<HomeView> {
                           );
                         });
                         */
-
-                        return Container(
-                          height: 100,
-                          alignment: Alignment.center,
-                          color: Colors.lightBlue,
-                        );
                       })());
                 })
           ],
@@ -184,7 +185,9 @@ class _HomeViewState extends State<HomeView> {
 
 class LocalPhoto extends StatefulWidget {
   final dynamic piv;
-  const LocalPhoto({Key? key, required this.piv}) : super(key: key);
+  final DateTime date;
+  const LocalPhoto({Key? key, required this.piv, required this.date})
+      : super(key: key);
 
   @override
   State<LocalPhoto> createState() => _LocalPhotoState();
@@ -215,23 +218,54 @@ class _LocalPhotoState extends State<LocalPhoto> {
   @override
   Widget build(BuildContext context) {
     Future<File?> file = loadImage(widget.piv);
-    return Container(
-      alignment: Alignment.center,
-      child: FutureBuilder<File?>(
-        future: file,
-        builder: (_, snapshot) {
-          final file = snapshot.data;
-          if (file == null) return Container();
-          return Image.file(file);
-        },
-      ),
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          child: FutureBuilder<File?>(
+            future: file,
+            builder: (_, snapshot) {
+              final file = snapshot.data;
+              if (file == null) return Container();
+              return Image.file(file);
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 12.0, top: 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                shortMonthNames[widget.date.month - 1].toString(),
+                style: kLightBackgroundDate,
+              ),
+              const Text(
+                ' ',
+                style: kLightBackgroundDate,
+              ),
+              Text(pad(widget.date.day), style: kLightBackgroundDate),
+              const Text(
+                ', ',
+                style: kLightBackgroundDate,
+              ),
+              Text(
+                widget.date.year.toString(),
+                style: kLightBackgroundDate,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
 class LocalVideo extends StatefulWidget {
-  const LocalVideo({Key? key, required this.vid}) : super(key: key);
+  const LocalVideo({Key? key, required this.vid, required this.date})
+      : super(key: key);
   final AssetEntity vid;
+  final DateTime date;
 
   @override
   _LocalVideoState createState() => _LocalVideoState();
@@ -286,26 +320,46 @@ class _LocalVideoState extends State<LocalVideo> {
     return initialized
         // If the video is initialized, display it
         ? Stack(children: [
-            AnimatedContainer(
-              width: SizeService.instance.screenWidth(context),
-              height: fullScreen
-                  ? SizeService.instance.screenHeight(context) * .85
-                  : SizeService.instance.screenHeight(context) * .45,
-              duration: const Duration(milliseconds: 500),
-              alignment: Alignment.topCenter,
-              decoration: const BoxDecoration(
-                  color: kGreyDarker,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(15),
-                      topRight: Radius.circular(15))),
-              child: AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                // Use the VideoPlayer widget to display the video.
-                child: VideoPlayer(_controller),
-              ),
+            Column(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    // Use the VideoPlayer widget to display the video.
+                    child: VideoPlayer(_controller),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0, top: 5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        shortMonthNames[widget.date.month - 1].toString(),
+                        style: kLightBackgroundDate,
+                      ),
+                      const Text(
+                        ' ',
+                        style: kLightBackgroundDate,
+                      ),
+                      Text(pad(widget.date.day), style: kLightBackgroundDate),
+                      const Text(
+                        ', ',
+                        style: kLightBackgroundDate,
+                      ),
+                      Text(
+                        widget.date.year.toString(),
+                        style: kLightBackgroundDate,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Align(
-              alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
+            Positioned(
+              bottom: 40,
+              left: SizeService.instance.screenWidth(context) * .43,
               child: FloatingActionButton(
                 shape: const CircleBorder(),
                 backgroundColor: kAltoBlue,
