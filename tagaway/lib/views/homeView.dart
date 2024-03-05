@@ -312,6 +312,8 @@ class _LocalVideoState extends State<LocalVideo> {
   }
 
   _initVideo() async {
+    // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
+    if (! mounted) return;
     final video = await widget.vid.file;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
