@@ -56,8 +56,8 @@ class _HomeViewState extends State<HomeView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'images/tag blue with white - 400x400.png',
-              scale: 8,
+              'images/tag check - 0c0c0cff - 400x400.png',
+              scale: 10,
             ),
             const Text('tagaway', style: kTagawayMain),
           ],
