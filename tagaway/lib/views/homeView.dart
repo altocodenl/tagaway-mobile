@@ -44,7 +44,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    debug (['piv count', queryResult['pivs'].length]);
+    debug(['piv count', queryResult['pivs'].length]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -67,7 +67,7 @@ class _HomeViewState extends State<HomeView> {
             SliverList.builder(
                 itemCount: queryResult['pivs'].length,
                 itemBuilder: (BuildContext context, int index) {
-                  debug (['drawing piv', index]);
+                  debug(['drawing piv', index]);
                   return Padding(
                       padding: const EdgeInsets.only(bottom: 40),
                       child: (() {

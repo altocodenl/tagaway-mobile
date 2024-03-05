@@ -16,7 +16,7 @@ class TagService {
    dynamic queryTags = [];
 
    // TODO: annotate
-   // canReplaceExisting is to, on load of a new list of thumbs, to sometimes overwrite cloud pivs
+   // canReplaceExisting is to, on load of a new list of thumbs, overwrite thumbs that already have a cloud piv
    // This will not happen on calls to this function that happen when new local piv pages are loaded on startup, to avoid seeing thumbs changing
    getLocalTagsThumbs ([canReplaceExisting = false]) async {
 
@@ -228,7 +228,7 @@ class TagService {
       var hometags = getList ('hometags');
       if (! del && hometags.isEmpty) await editHometags (tags [0], true);
 
-      queryPivs (true, true);
+      queryPivs (true);
       return 200;
    }
 
@@ -294,7 +294,7 @@ class TagService {
       var hometags = getList ('hometags');
       if (cloudPivsToTag.length > 0 && hometags.isEmpty) editHometags (tags [0], true);
 
-      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true, true);
+      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true);
 
       if (localPivsToTagUntag.keys.length == 0) return;
 
@@ -403,10 +403,7 @@ class TagService {
       }
    }
 
-   localQuery (tags, currentMonth, queryResult) {
-
-      // TODO: remove references to currentMonth if it turns out to be a relic
-      currentMonth = '';
+   localQuery (tags, queryResult) {
 
       var containsGeoTag = false;
       tags.forEach ((tag) {
@@ -438,15 +435,6 @@ class TagService {
          minDate = DateTime.utc (yearTag, 1, 1).millisecondsSinceEpoch;
          if (monthTag == 12) maxDate = DateTime.utc (yearTag + 1, 1,            1).millisecondsSinceEpoch;
          else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
-      }
-
-      var minDateCurrentMonth;
-      var maxDateCurrentMonth;
-
-      if (currentMonth != '') {
-         minDateCurrentMonth = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
-         if (currentMonth [1] == 12) maxDateCurrentMonth = DateTime.utc (currentMonth [0] + 1, 1,                    1).millisecondsSinceEpoch;
-         else                        maxDateCurrentMonth = DateTime.utc (currentMonth [0],     currentMonth [1] + 1, 1).millisecondsSinceEpoch;
       }
 
       var localPivsById = PivService.instance.localPivsById ();
@@ -484,17 +472,7 @@ class TagService {
             queryResult ['tags'] [tag] += 1;
          });
 
-         var yearMonth = piv.createDateTime.toUtc ().year.toString () + ':' + piv.createDateTime.toUtc ().month.toString ();
-         if (queryResult ['timeHeader'] != null) {
-            if (pendingTags.length == 0) queryResult ['timeHeader'] [yearMonth] = false;
-            else if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
-         }
-
-         if (currentMonth != '') {
-            if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
-            queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
-         }
-         else localPivsToAdd.add (piv);
+         localPivsToAdd.add (piv);
       });
 
       localPivsToAdd.shuffle ();
@@ -568,28 +546,26 @@ class TagService {
       store.set (storageKey, output);
    }
 
-   queryPivs ([refresh = false, preserveMonth = false]) async {
+   queryPivs ([refresh = false]) async {
 
       var tags = getList ('queryTags');
       tags.sort ();
 
       if ((store.get ('queryResult') != '' || store.get ('queryInProgress') == true) && refresh == false && listEquals (tags, queryTags)) return;
 
-      var currentMonth = store.get ('currentMonth');
-      if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
-
       queryTags = List.from (tags);
 
-      var firstLoadSize = 300;
+      var firstLoadSize = 1000;
 
       Future.delayed (Duration (milliseconds: 1), () {
         store.set ('queryInProgress', true);
       });
 
+      var sort = (new Random ().nextInt (100) < 50) ? 'newest' : 'oldest';
+
       var response = await ajax ('post', 'query', {
          'tags': tags,
-         'sort': 'newest',
-         'timeHeader': true,
+         'sort': sort,
          'from': 1,
          'to': firstLoadSize
       });
@@ -603,30 +579,14 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
-      if (queryResult ['lastMonth'] == null) store.remove ('currentMonth');
-      else {
-         var lastMonth = queryResult ['lastMonth'] [0].split (':');
-         store.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
-      }
-      queryResult = localQuery (tags, store.get ('currentMonth'), queryResult);
+      queryResult ['pivs'].shuffle ();
+
+      queryResult = localQuery (tags, queryResult);
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
          store.remove ('currentlyTaggingUploaded');
          store.remove ('showSelectAllButtonUploaded');
          return store.set ('queryTags', []);
-      }
-
-      store.set ('queryResult', {
-         'timeHeader':  queryResult ['timeHeader'],
-         'total':       0,
-         'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
-         'pivs':        []
-      }, '', 'mute');
-
-      computeTimeHeader ();
-
-      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
-         queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 
       if (tags.contains ('o::')) {
@@ -637,14 +597,9 @@ class TagService {
       }
       else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
-      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
-         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
-      }
-
       store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
-         'timeHeader':  queryResult ['timeHeader'],
          'pivs':        queryResult ['pivs']
       });
 
@@ -652,13 +607,13 @@ class TagService {
 
       getTags ();
 
-      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
+      if (queryResult ['total'] == 0) return 200;
 
       response = await ajax ('post', 'query', {
          'tags': tags,
-         'sort': 'newest',
-         'from': 1,
-         'to': queryResult ['lastMonth'] [1],
+         'sort': sort,
+         'from': firstLoadSize + 1,
+         'to':   100000
       });
 
       if (response ['code'] != 200) {
@@ -669,13 +624,12 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var secondQueryResult = response ['body'];
-      secondQueryResult = localQuery (tags, store.get ('currentMonth'), secondQueryResult);
+      secondQueryResult ['pivs'].shuffle ();
 
       store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
-         'timeHeader':  queryResult ['timeHeader'],
-         'pivs':        secondQueryResult ['pivs']
+         'pivs':        queryResult ['pivs'] + secondQueryResult ['pivs']
       }, '', 'mute');
 
       if (tags.contains ('o::')) {
@@ -690,7 +644,6 @@ class TagService {
    }
 
    // TODO: annotate the code below
-
    queryPivsForMonth (dynamic currentMonth) async {
 
       var tags = getList ('queryTags');
@@ -726,7 +679,7 @@ class TagService {
       // We copy these to pass them below to avoid a double adding of local pivs
       var pivsWithoutLocal = List.from (response ['body'] ['pivs']);
       // This is done here because we want to avoid an early ronin return
-      queryResultForPivs = localQuery (tags, currentMonth, queryResultForPivs);
+      queryResultForPivs = localQuery (tags, queryResultForPivs);
 
       if (queryResultForPivs ['total'] == 0 && tags.length > 0) {
          store.remove ('currentlyTaggingUploaded');
@@ -761,7 +714,7 @@ class TagService {
 
       var queryResult = response ['body'];
       queryResult ['pivs'] = pivsWithoutLocal;
-      queryResult = localQuery (tags, currentMonth, queryResult);
+      queryResult = localQuery (tags, queryResult);
 
       store.set ('queryResult', {
          'total':       queryResult ['total'],
@@ -821,7 +774,7 @@ class TagService {
        }
     });
     store.remove ('currentlyDeletingPivsUploaded');
-    await queryPivs (true, true);
+    await queryPivs (true);
   }
 
    renameTag (String from, String to) async {
@@ -838,7 +791,7 @@ class TagService {
          queryTags.add (to);
       }
       store.set ('queryTags', queryTags);
-      await queryPivs (true, true);
+      await queryPivs (true);
    }
 
    deleteTag (String tag) async {
@@ -852,7 +805,7 @@ class TagService {
       // Is this conditional necessary?
       if (queryTags.contains (tag)) queryTags.remove (tag);
       store.set ('queryTags', queryTags);
-      await queryPivs (true, true);
+      await queryPivs (true);
    }
 
    toggleDeletion (String id, String view, [selectAll = null]) {

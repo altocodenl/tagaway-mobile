@@ -4,7 +4,6 @@
 
 -----
 
-- Remove references to `currentMonth`
 - Delete has to say local
 - Send to a random place after deleting
 - Coming back from the grid from a local piv, nothing works
@@ -882,10 +881,10 @@ We do the same thing with `localQuery`, but only if `queryResult` is set (otherw
          if (store.get ('queryResult') != '') {
 ```
 
-We invoke `localQuery`, passing the current values of `queryTags`, `currentMonth` and `queryResult`. We store it directly in `queryResult`.
+We invoke `localQuery`, passing the current values of `queryTags` and `queryResult`. We store it directly in `queryResult`.
 
 ```dart
-            store.set ('queryResult', TagService.instance.localQuery (getList ('queryTags'), store.get ('currentMonth'), store.get ('queryResult')));
+            store.set ('queryResult', TagService.instance.localQuery (getList ('queryTags'), store.get ('queryResult')));
 ```
 
 Because we just updated `queryResult` in place, this will not trigger a change event. Therefore, we will do a hack and, rather than copying the entire `queryResult` to trigger the change event, we'll just trigger it manually using the `updateStream` method of the store service. This concludes the logic for `queryResult` after loading a page of pivs.
@@ -2199,12 +2198,12 @@ We get the list of hometags. If there are no hometags set yet, and we are taggin
       if (! del && hometags.isEmpty) await editHometags (tags [0], true);
 ```
 
-We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed. We will also pass it the `preserveMonth`, so that we don't change the month currently being displayed on the query.
+We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed.
 
 Note we do not await for the operation, since we want the query to happen in the background.
 
 ```dart
-      queryPivs (true, true);
+      queryPivs (true);
 ```
 
 There's nothing else to do but to return the response code of the tagging operations (which was a 200) and close the function.
@@ -2402,7 +2401,7 @@ We get the list of hometags. If there are no hometags set yet, and we are taggin
 If we tagged or untagged cloud pivs, we refresh the query. Note we do not `await` for this call, but rather let it run in the background.
 
 ```dart
-      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true, true);
+      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true);
 ```
 
 If there's no local pivs to tag or untag, there's nothing left to do, so we `return`.
@@ -2764,20 +2763,13 @@ We now define `localQuery`, a function that will return a list of local pivs tha
 
 The purpose of `localQuery` is to enrich `queryResult` by potentially adding local pivs, tags, increasing the total number of pivs and modifying the time header in the query.
 
-The function takes three parameters:
+The function takes two parameters:
 
 - `tags`: the list of tags in the current query.
-- `currentMonth`: the current month of the current query, if any.
 - `queryResult`: the result of an invocation to `queryPivs`, which will be precisely defined below. This data is returned by the server after a query.
 
 ```dart
    localQuery (tags, currentMonth, queryResult) {
-```
-
-We are in the process of remaking tagaway and it might turn out to be that `currentMonth` is no longer necessary, since we're no longer going to show a grid view where you can switch between months for a given query. But instead of removing the pipes, we'll figure out if we want to keep the building in the first place. So we temporarily, and until further notice, set `currentMonth` to an empty string within this function, to ignore it wholesale.
-
-```dart
-      currentMonth = '';
 ```
 
 If the current query includes a geotag, no local pivs can be included in the query, since we don't have the ability to get the geodata from a local piv, we cannot know whether it will actually match a geotag or not.
@@ -2851,25 +2843,6 @@ In the case where `yearTag` is present and `monthTag` is also present, we'll set
          minDate = DateTime.utc (yearTag, 1, 1).millisecondsSinceEpoch;
          if (monthTag == 12) maxDate = DateTime.utc (yearTag + 1, 1,            1).millisecondsSinceEpoch;
          else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
-      }
-```
-
-We now do the same but for `currentMonth`. `currentMonth` will only determine which pivs are included into `pivs`, but not whether a tag from a piv is included or whether it counts towards the total; for this reason, they have to be calculated and considered separately.
-
-We don't initialize these variables yet, since we will only do so if `currentMonth` is present.
-
-```dart
-      var minDateCurrentMonth;
-      var maxDateCurrentMonth;
-```
-
-If `currentMonth` is present, we set the dates to start at the current month and end at the end of the current month. As we did earlier, if `currentMonth` is December, we use January of the first year as the maximum date.
-
-```dart
-      if (currentMonth != '') {
-         minDateCurrentMonth = DateTime.utc (currentMonth [0], currentMonth [1], 1).millisecondsSinceEpoch;
-         if (currentMonth [1] == 12) maxDateCurrentMonth = DateTime.utc (currentMonth [0] + 1, 1,                    1).millisecondsSinceEpoch;
-         else                        maxDateCurrentMonth = DateTime.utc (currentMonth [0],     currentMonth [1] + 1, 1).millisecondsSinceEpoch;
       }
 ```
 
@@ -2979,51 +2952,10 @@ For each of the tags in `pendingTags` and `dateTags`, we increment each of its e
          });
 ```
 
-If there are local pivs that match the query, we might have to modify the `timeHeader` property of `queryResult`, so that these pivs can be displayed if the user goes to that month. We start by getting the combination of year and month of this piv, into a string of the form `YYYY:M` or `YYYY:MM`.
+We add the piv to `localPivsToAdd`. This concludes the iteration of all local pivs currently being uploaded.
 
 ```dart
-         var yearMonth = piv.createDateTime.toUtc ().year.toString () + ':' + piv.createDateTime.toUtc ().month.toString ();
-```
-
-If there's a time header, and there's no entry for the `yearMonth`, we set one.
-
-There might not be a time header for some queries (for example, those done for a particular month), so we have to put that check before we do this.
-
-If the local piv is not organized (because it has no `pendingTags`, therefore it hasn't been tagged), then we set the entry to `false`, even if the entry existed before (something unorganized in a month X will mark the entire month as organized, whereas the converse is not true).
-
-If local piv is organized and the entry doesn't exist, we set it to `true` (to indicate that the month is organized). This might be overriden later by another local piv in the same month that is not organized.
-
-```dart
-         if (queryResult ['timeHeader'] != null) {
-            if (pendingTags.length == 0) queryResult ['timeHeader'] [yearMonth] = false;
-            else if (queryResult ['timeHeader'] [yearMonth] == null) queryResult ['timeHeader'] [yearMonth] = true;
-         }
-```
-
-If there is a `currentMonth` already set, before we include a piv into `queryResult ['pivs']`, we need to check the time range determined by `currentMonth`. If the piv doesn't fulfill it, we exclude it.
-
-Otherwise, we include it into the list of pivs. We do this in a map that containas three properties:
-
-- `date`, the date of the piv in ms. This is added to make the entry more like the entries returned by the server.
-- `local`, a flag that states that the piv is local.
-- `piv`, the local piv itself.
-
-```dart
-         if (currentMonth != '') {
-            if (minDateCurrentMonth > ms (piv.createDateTime) || maxDateCurrentMonth < ms (piv.createDateTime)) return;
-            queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
-         }
-```
-
-If `currentMonth` is not set, we cannot know whether the piv will be included or not. For that reason, we provisionally add it to `localPivsToAdd`.
-
-```dart
-         else localPivsToAdd.add (piv);
-```
-
-This concludes the iteration of all local pivs currently being uploaded.
-
-```dart
+         localPivsToAdd.add (piv);
       });
 ```
 
@@ -3031,6 +2963,15 @@ We shuffle `localPivsToAdd`, to keep it interesting. Note this will not shuffle 
 
 ```dart
       localPivsToAdd.shuffle ();
+```
+
+We include each of the `localPivsToAdd` into the list of pivs. We do this in a map that containas three properties:
+
+- `date`, the date of the piv in ms. This is added to make the entry more like the entries returned by the server.
+- `local`, a flag that states that the piv is local.
+- `piv`, the local piv itself.
+
+```dart
       localPivsToAdd.forEach ((piv) {
          queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
       });
@@ -3249,9 +3190,8 @@ We set `output` in its key and close the function.
 
 We now define `queryPivs`, the function that will query pivs and their associated tags from the server.
 
-This function takes two arguments:
+This function takes a single argument:
 - `refresh`: an optional flag, by default set to `false`, which indicates whether we should query the server with the same query we did on the last query.
-- `preserveMonth`: an optional flag, by default set to `false`, which indicates whether we should preserve the `currentMonth` of the query.
 
 This function will essentially get two pieces of information:
 - The metainformation of the pivs that belong to the query.
@@ -3260,7 +3200,7 @@ This function will essentially get two pieces of information:
 We don't want to bring back all the information at once because 1) that takes significant processing time on the server; 2) it can potentially require a lot of bandwidth for the client; 3) both #1 and #2 will slow down the drawing of the grid. For this reason, this function is written with performance particularly in mind.
 
 ```dart
-   queryPivs ([refresh = false, preserveMonth = false]) async {
+   queryPivs ([refresh = false]) async {
 ```
 
 We get `queryTags` from the store. If it is not initialized yet, we set the local variable to an empty list.
@@ -3289,13 +3229,6 @@ In practice, this only happens when switching between the query selector view an
       if ((store.get ('queryResult') != '' || store.get ('queryInProgress') == true) && refresh == false && listEquals (tags, queryTags)) return;
 ```
 
-If `preserveMonth` is `true`, and `currentMonth` is also set, rather than continuing, we will just invoke `queryPivsForMonth` (a function defined below) passing the current month, and immediately return. This will refresh the query while preserving the current month.
-
-```dart
-      var currentMonth = store.get ('currentMonth');
-      if (preserveMonth == true && currentMonth != '') return queryPivsForMonth (currentMonth);
-```
-
 We update `queryTags` to a copy of `tags`. We want to copy it because if we modify `tags`, those changes will also affect `queryTags`, and then we won't be able to know whether changes in `tags` took place when we compare it against `queryTags`.
 
 This, by the way, is how `queryPivs` knows whether the query has changed. The `queryTags` entry in the store is always the latest one; the last list of `queryTags` to have been queried is at the `queryTags` property of the class.
@@ -3304,10 +3237,10 @@ This, by the way, is how `queryPivs` knows whether the query has changed. The `q
       queryTags = List.from (tags);
 ```
 
-In our first query, we will load up to 300 pivs. This is because we want the query to be lighter in both execution time and network transfer time, so we can show pivs to the user as quickly as possible.
+In our first query, we will load up to 1000 pivs. This is because we want the query to be lighter in both execution time and network transfer time, so we can show pivs to the user as quickly as possible.
 
 ```dart
-      var firstLoadSize = 300;
+      var firstLoadSize = 1000;
 ```
 
 Before we send the query, we set the `queryInProgress` store key to `true`. This is used by the QuerySelector view to give feedback to the user on how long a query takes to complete.
@@ -3320,19 +3253,19 @@ Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this,
       });
 ```
 
-We invoke `POST /query` in the server. We're going to pass the `tags` we received and get the latest pivs first. We also want to get the time header information, and we want to get the pivs starting from the first (which, in terms of dates, will be the last).
+We randomly determine whether we'll first show oldest or newest pivs.
+
+```dart
+      var sort = (new Random ().nextInt (100) < 50) ? 'newest' : 'oldest';
+```
+
+We invoke `POST /query` in the server. We're going to pass the `tags` we received and get either the oldest or the newest pivs first, depending on `sort`.
 
 ```dart
       var response = await ajax ('post', 'query', {
          'tags': tags,
-         'sort': 'newest',
-         'timeHeader': true,
+         'sort': sort,
          'from': 1,
-```
-
-We will already get 300 pivs, since some of these latest pivs will belong to the last month.
-
-```dart
          'to': firstLoadSize
       });
 ```
@@ -3368,25 +3301,16 @@ We return the result of the body in a local variable `queryResult`.
       var queryResult = response ['body'];
 ```
 
-If the server also didn't bring a last month, this must be a ronin query (a query without pivs). In this case, we remove `currentMonth`. Note: this should only happen if either the user has no pivs uploaded, or if the query result was changed because of untaggings/deletions in another device. It could also happen if the user selects a tag that is only possessed by pivs in the upload queue and haven't been uploaded yet.
+We shuffle in place the pivs we just got from the server.
 
 ```dart
-      if (queryResult ['lastMonth'] == null) store.remove ('currentMonth');
-```
-
-Otherwise, we extract the year and the month of the last month of the query, which will be present in the `lastMonth` key of the object returned by the server. We then set them in the `currentMonth` key of the store.
-
-```dart
-      else {
-         var lastMonth = queryResult ['lastMonth'] [0].split (':');
-         store.set ('currentMonth', [int.parse (lastMonth [0]), int.parse (lastMonth [1])]);
-      }
+      queryResult ['pivs'].shuffle ();
 ```
 
 We modify `queryResult` by invoking `localQuery`. This function will update the query result adding local pivs, tags and potentially modifying the total and time header. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
 
 ```dart
-      queryResult = localQuery (tags, currentMonth, queryResult);
+      queryResult = localQuery (tags, queryResult);
 ```
 
 If we currently have tags in our query, and we got no pivs back, it may be the case that through an untagging operation, or a deletion, we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will set `currentlyTaggingUploaded` to an empty string, to get the user out of "tagging mode" in the uploaded view. We will also set `showSelectAllButtonUploaded` to an empty string, to hide the select all button.
@@ -3402,31 +3326,6 @@ Note that if we have local pivs that match the query, they will already be in `q
          store.remove ('currentlyTaggingUploaded');
          store.remove ('showSelectAllButtonUploaded');
          return store.set ('queryTags', []);
-      }
-```
-
-We will now put everything in place so that the time header can be computed. We start by setting the `timeHeader` inside `queryResult`. We do this just to put the data in there, but we don't want a redraw to be triggered yet, so we pass the `'mute'` flag. We must also add placeholders for the other fields (`total`, `tags` and `pivs`), since if the query is slow and another change redraws the view, an error will be thrown by the view if these fields are missing from `queryResult`.
-
-```dart
-      store.set ('queryResult', {
-         'timeHeader':  queryResult ['timeHeader'],
-         'total':       0,
-         'tags':        {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0},
-         'pivs':        []
-      }, '', 'mute');
-```
-
-Now that `queryResult.timeHeader` and `currentMonth` are placed, we can compute the time header by executing `computeTimeHeader`. The function is synchronous, so we do not need to await for it.
-
-```dart
-      computeTimeHeader ();
-```
-
-If we got the last 300 pivs, we might have gotten too many pivs! To know this, we look at the number of pivs belonging to the last month in `lastMonth`. If we have less than 300 pivs for the last month, we remove the extra pivs from `queryResult ['pivs']`. Note we do not do this if we get no pivs from the query. Note also we check whether `queryResult.lastMonth` exists, because if there are no cloud pivs in the query, you could have a scenario where the total is more than 0 but there's no `lastMonth` field.
-
-```dart
-      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['lastMonth'] [1] < queryResult ['pivs'].length) {
-         queryResult ['pivs'].removeRange (queryResult ['lastMonth'] [1], queryResult ['pivs'].length);
       }
 ```
 
@@ -3451,20 +3350,12 @@ Also note that we exclude local pivs from the query.
       else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 ```
 
-If we have more pivs in the month than the pivs we brought, we will generate placeholder entries in `queryResult ['pivs']` for those that we don't have yet. This will allow us later to add the missing pivs without triggering a redraw. We know how many pivs we're missing because that info comes back in `queryResult ['lastMonth'] [1]`.
-
-```dart
-      if (queryResult ['total'] > 0 && queryResult ['lastMonth'] != null && queryResult ['pivs'].length < queryResult ['lastMonth'] [1]) {
-         queryResult ['pivs'] = [...queryResult ['pivs'], ...List.generate (queryResult ['lastMonth'] [1] - queryResult ['pivs'].length, (v) => {'placeholder': true})];
-      }
-```
-We update `queryResult` in its entirety, with a normal (non-mute) update. This will trigger a redraw of the grid and already show pivs.
+We update `queryResult` in its entirety, with a normal (non-mute) update. This will trigger a redraw of the views depending on `queryResult` and already show pivs.
 
 ```dart
       store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
-         'timeHeader':  queryResult ['timeHeader'],
          'pivs':        queryResult ['pivs']
       });
 ```
@@ -3481,22 +3372,14 @@ While we are at it, it's a good idea to refresh the list of tags. This is useful
       getTags ();
 ```
 
-If the last piv in `queryResult ['pivs']` is not a placeholder entry, or if there are no pivs in the query, then we loaded all the pivs we needed. We return 200 after removing the `queryInProgress` key.
-
-Note: to know if we are missing pivs or not, we cannot compare the length of `queryResult ['pivs']` against `queryResult ['timeHeader'] [1]` because we already changed the length of the former!
-
-```dart
-      if (queryResult ['total'] == 0 || queryResult ['pivs'].last ['placeholder'] == null) return 200;
-```
-
-If we're here, we need to get all the pivs for the month. We do so by requesting all the pivs from 1 to the total number of pivs in the month.
+If we're here, we need to get all the remaining pivs for the query. We do so by requesting all the pivs from `firstLoadSize + 1` to a large number.
 
 ```dart
       response = await ajax ('post', 'query', {
          'tags': tags,
-         'sort': 'newest',
-         'from': 1,
-         'to': queryResult ['lastMonth'] [1],
+         'sort': sort,
+         'from': firstLoadSize + 1,
+         'to':   100000
       });
 ```
 
@@ -3524,16 +3407,11 @@ As before, if the tags in the query changed in the meantime, we don't do anythin
       if (! listEquals (queryTags, tags)) return 409;
 ```
 
-We store the result of the second query in a `secondQueryResult` variable.
+We store the result of the second query in a `secondQueryResult` variable. We also shuffle its pivs.
 
 ```dart
       var secondQueryResult = response ['body'];
-```
-
-We modify `queryResult` by invoking `localQuery`.
-
-```dart
-      secondQueryResult = localQuery (tags, store.get ('currentMonth'), secondQueryResult);
+      secondQueryResult ['pivs'].shuffle ();
 ```
 
 We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest as it was before. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
@@ -3542,8 +3420,7 @@ We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest a
       store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
-         'timeHeader':  queryResult ['timeHeader'],
-         'pivs':        secondQueryResult ['pivs']
+         'pivs':        queryResult ['pivs'] + secondQueryResult ['pivs']
       }, '', 'mute');
 ```
 
