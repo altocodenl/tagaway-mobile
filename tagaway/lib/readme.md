@@ -2769,7 +2769,7 @@ The function takes two parameters:
 - `queryResult`: the result of an invocation to `queryPivs`, which will be precisely defined below. This data is returned by the server after a query.
 
 ```dart
-   localQuery (tags, currentMonth, queryResult) {
+   localQuery (tags, queryResult) {
 ```
 
 If the current query includes a geotag, no local pivs can be included in the query, since we don't have the ability to get the geodata from a local piv, we cannot know whether it will actually match a geotag or not.
@@ -3301,16 +3301,16 @@ We return the result of the body in a local variable `queryResult`.
       var queryResult = response ['body'];
 ```
 
-We shuffle in place the pivs we just got from the server.
-
-```dart
-      queryResult ['pivs'].shuffle ();
-```
-
 We modify `queryResult` by invoking `localQuery`. This function will update the query result adding local pivs, tags and potentially modifying the total and time header. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
 
 ```dart
       queryResult = localQuery (tags, queryResult);
+```
+
+We shuffle in place the pivs we just got from the server, plus the local pivs that match the query.
+
+```dart
+      queryResult ['pivs'].shuffle ();
 ```
 
 If we currently have tags in our query, and we got no pivs back, it may be the case that through an untagging operation, or a deletion, we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will set `currentlyTaggingUploaded` to an empty string, to get the user out of "tagging mode" in the uploaded view. We will also set `showSelectAllButtonUploaded` to an empty string, to hide the select all button.
