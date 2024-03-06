@@ -565,6 +565,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           ],
         )),
         floatingActionButton: Align(
+          key: const Key('querySelectorSeeNPivs'),
           alignment: const Alignment(0.11, 1),
           child: FloatingActionButton.extended(
             shape:
