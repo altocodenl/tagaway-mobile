@@ -100,6 +100,10 @@ class _HomeViewState extends State<HomeView> {
                                   piv: piv,
                                   date: date,
                                 );
+                              if (piv['local'] == null && piv['vid'] != null)
+                                return CloudVideo(
+                                  piv: piv,
+                                );
                               /*
                         if (piv['vid'] == null)
                         */
@@ -440,5 +444,118 @@ class _CloudPhotoState extends State<CloudPhoto> {
             },
           );
         });
+  }
+}
+
+class CloudVideo extends StatefulWidget {
+  const CloudVideo({Key? key, required this.piv}) : super(key: key);
+  final dynamic piv;
+
+  @override
+  State<CloudVideo> createState() => _CloudVideoState();
+}
+
+class _CloudVideoState extends State<CloudVideo> {
+  late VideoPlayerController _controller;
+  bool initialized = false;
+  bool fullScreen = false;
+  dynamic cancelListener;
+
+  @override
+  void initState() {
+    _initVideo();
+    setState(() {
+      fullScreen = store.get('fullScreenCarrousel') == true;
+    });
+    cancelListener =
+        store.listen(['fullScreenCarrousel'], (FullScreenCarrousel) {
+      setState(() {
+        fullScreen = FullScreenCarrousel == true;
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    cancelListener();
+    super.dispose();
+  }
+
+  _initVideo() async {
+    _controller = VideoPlayerController.network(
+      (kTagawayVideoURL) + (widget.piv['id']),
+      httpHeaders: {
+        'cookie': store.get('cookie'),
+        'Range': 'bytes=0-',
+      },
+    );
+    // Play the video again when it ends
+    _controller.setLooping(true);
+    // initialize the controller and notify UI when done
+    _controller.initialize().then((_) => setState(() {
+          initialized = true;
+          _controller.pause();
+        }));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _controller.value.isInitialized
+        ? Stack(
+            children: [
+              AnimatedContainer(
+                width: SizeService.instance.screenWidth(context),
+                height: fullScreen
+                    ? SizeService.instance.screenHeight(context) * .85
+                    : SizeService.instance.screenHeight(context) * .45,
+                duration: const Duration(milliseconds: 500),
+                alignment: Alignment.topCenter,
+                decoration: const BoxDecoration(
+                    color: kGreyDarker,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15))),
+                child: AspectRatio(
+                  aspectRatio: _controller.value.aspectRatio,
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+              Align(
+                alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
+                child: FloatingActionButton(
+                  shape: const CircleBorder(),
+                  key: const Key('playPause'),
+                  backgroundColor: kAltoBlue,
+                  onPressed: () {
+                    // Wrap the play or pause in a call to `setState`. This ensures the
+                    // correct icon is shown.
+                    setState(() {
+                      // If the video is playing, pause it.
+                      if (_controller.value.isPlaying) {
+                        _controller.pause();
+                      } else {
+                        // If the video is paused, play it.
+                        _controller.play();
+                      }
+                    });
+                  },
+                  // Display the correct icon depending on the state of the player.
+                  child: Icon(
+                    _controller.value.isPlaying
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          )
+        : const Center(
+            child: CircularProgressIndicator(
+            backgroundColor: kGreyDarkest,
+            color: kAltoBlue,
+          ));
   }
 }
