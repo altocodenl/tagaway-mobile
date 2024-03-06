@@ -432,7 +432,7 @@ class TagService {
          maxDate = DateTime.utc (yearTag + 1, 1, 1).millisecondsSinceEpoch;
       }
       if (yearTag != null && monthTag != null) {
-         minDate = DateTime.utc (yearTag, 1, 1).millisecondsSinceEpoch;
+         minDate = DateTime.utc (yearTag, monthTag, 1).millisecondsSinceEpoch;
          if (monthTag == 12) maxDate = DateTime.utc (yearTag + 1, 1,            1).millisecondsSinceEpoch;
          else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
       }

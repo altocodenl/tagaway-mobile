@@ -2840,7 +2840,7 @@ In the case where `yearTag` is present and `monthTag` is also present, we'll set
 
 ```dart
       if (yearTag != null && monthTag != null) {
-         minDate = DateTime.utc (yearTag, 1, 1).millisecondsSinceEpoch;
+         minDate = DateTime.utc (yearTag, monthTag, 1).millisecondsSinceEpoch;
          if (monthTag == 12) maxDate = DateTime.utc (yearTag + 1, 1,            1).millisecondsSinceEpoch;
          else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
       }
