@@ -117,7 +117,7 @@ class _HomeViewState extends State<HomeView> {
 }
 
 class LocalPhoto extends StatefulWidget {
-  final dynamic piv;
+  final AssetEntity piv;
   final DateTime date;
   const LocalPhoto({Key? key, required this.piv, required this.date})
       : super(key: key);
