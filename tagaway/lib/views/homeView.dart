@@ -4,10 +4,17 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:open_mail_app/open_mail_app.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:tagaway/views/accountView.dart';
+import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
+import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:video_player/video_player.dart';
 
 class HomeView extends StatefulWidget {
@@ -21,19 +28,77 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
 
+  dynamic account = {
+    'username': '',
+    'usage': {'byfs': 0}
+  };
   dynamic queryResult = {'pivs': [], 'total': 0};
+
+  _launchUrl() async {
+    if (!await launchUrl(Uri.parse(kTagawayURL),
+        mode: LaunchMode.externalApplication)) {
+      throw "cannot launch url";
+    }
+  }
+
+  mailto() async {
+    EmailContent email = EmailContent(
+      to: [
+        'info@altocode.nl',
+      ],
+      subject: 'Tagaway Feedback!',
+      body: 'What needs to be improved in Tagaway is:',
+    );
+
+    OpenMailAppResult result = await OpenMailApp.composeNewEmailInMailApp(
+        nativePickerTitle: 'Select email app to compose', emailContent: email);
+    if (!result.didOpen && !result.canOpen) {
+      showNoMailAppsDialog(context);
+    } else if (!result.didOpen && result.canOpen) {
+      showDialog(
+        context: context,
+        builder: (_) => MailAppPickerDialog(
+          mailApps: result.options,
+          emailContent: email,
+        ),
+      );
+    }
+  }
+
+  void showNoMailAppsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Open Mail App"),
+          content: const Text("No mail apps installed"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    AuthService.instance.getAccount();
     // Wait for some local pivs to be loaded.
     Future.delayed(Duration(seconds: 1), () {
       TagService.instance.queryPivs();
     });
-    cancelListener = store.listen(['queryResult'], (QueryResult) {
+    cancelListener =
+        store.listen(['account', 'queryResult'], (Account, QueryResult) {
       // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
       if (mounted) {
         setState(() {
+          if (Account != '') account = Account;
           if (QueryResult != '') queryResult = QueryResult;
         });
       }
@@ -65,6 +130,71 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       ),
+      endDrawer: Drawer(
+          child: ListView(
+        // padding: const EdgeInsets.all(8),
+        children: <Widget>[
+          SizedBox(
+            height: 64,
+            child: DrawerHeader(
+              child: Text(account['username'], style: kSubPageAppBarTitle),
+            ),
+          ),
+          UserMenuElementTransparent(
+              textOnElement: 'Your usage: ' +
+                  (account['usage']['byfs'] / (1000 * 1000 * 1000))
+                      .round()
+                      .toString() +
+                  'GB of your free 5GB'),
+          UserMenuElementLightGrey(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return const AccountView();
+              }));
+            },
+            textOnElement: 'Account',
+          ),
+          UserMenuElementLightGrey(
+              onTap: () {
+                _launchUrl();
+              },
+              textOnElement: 'Go to tagaway web'),
+          UserMenuElementLightGrey(
+              onTap: () {
+                mailto();
+              },
+              textOnElement: 'Send Us Feedback'),
+          UserMenuElementLightGrey(
+              onTap: () {
+                Navigator.pushReplacementNamed(context, 'deleteAccount');
+              },
+              textOnElement: 'Delete My Account'),
+          // UserMenuElementKBlue(
+          //   onTap: () async {
+          //     var availableBytes = await getAvailableStorage();
+          //     var potentialCleanup =
+          //         await PivService.instance.deletePivsByRange('all');
+          //     TagawaySpaceCleanerModal1(scaffoldKey.currentContext!,
+          //         availableBytes, potentialCleanup);
+          //   },
+          //   textOnElement: 'Clear Up Space',
+          // ),
+          UserMenuElementDarkGrey(
+              onTap: () {
+                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                return () {
+                  AuthService.instance.logout().then((value) {
+                    if (value == 200)
+                      return Navigator.pushReplacementNamed(
+                          context, 'distributor');
+                    SnackBarGlobal.buildSnackBar(context,
+                        'Something is wrong on our side. Sorry.', 'red');
+                  });
+                };
+              },
+              textOnElement: 'Log out'),
+        ],
+      )),
       body: SafeArea(
           child: queryResult['pivs'].length == 0
               ? const Center(
@@ -586,5 +716,150 @@ class _CloudVideoState extends State<CloudVideo> {
             backgroundColor: kGreyDarkest,
             color: kAltoBlue,
           ));
+  }
+}
+
+class UserMenuElementTransparent extends StatelessWidget {
+  const UserMenuElementTransparent({
+    Key? key,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: Container(
+        height: 50,
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        child: Center(
+            child: Text(
+          textOnElement,
+          style: kPlainTextBold,
+        )),
+      ),
+    );
+  }
+}
+
+class UserMenuElementLightGrey extends StatelessWidget {
+  const UserMenuElementLightGrey({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kGreyLight,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Center(
+              child: Text(
+            textOnElement,
+            style: kPlainText,
+          )),
+        ),
+      ),
+    );
+  }
+}
+
+class UserMenuElementKBlue extends StatelessWidget {
+  const UserMenuElementKBlue({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final VoidCallback onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kAltoBlue,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: FaIcon(
+                  kBroomIcon,
+                  color: Colors.white,
+                ),
+              ),
+              Center(
+                  child: Text(
+                textOnElement,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class UserMenuElementDarkGrey extends StatelessWidget {
+  const UserMenuElementDarkGrey({
+    Key? key,
+    required this.onTap,
+    required this.textOnElement,
+  }) : super(key: key);
+
+  final Function onTap;
+  final String textOnElement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 20, top: 5),
+      child: GestureDetector(
+        onTap: onTap(),
+        child: Container(
+          height: 50,
+          decoration: const BoxDecoration(
+            color: kGreyDarker,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Center(
+              child: Text(textOnElement,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 16,
+                    color: Colors.white,
+                  ))),
+        ),
+      ),
+    );
   }
 }
