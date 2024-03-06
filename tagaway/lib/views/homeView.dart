@@ -1,5 +1,7 @@
 import 'dart:io' show File;
+import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/sizeService.dart';
@@ -25,7 +27,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     // Wait for some local pivs to be loaded.
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 1), () {
       TagService.instance.queryPivs();
     });
     cancelListener = store.listen(['queryResult'], (QueryResult) {
@@ -93,94 +95,13 @@ class _HomeViewState extends State<HomeView> {
                                   vid: piv['piv'],
                                   date: date,
                                 );
+                              if (piv['local'] == null && piv['vid'] == null)
+                                return CloudPhoto(
+                                  piv: piv,
+                                  date: date,
+                                );
                               /*
-                        if (piv['vid'] == null) CachedNetworkImage(
-                        imageUrl: (kTagawayThumbMURL) + (piv['id']),
-                        httpHeaders: {'cookie': store.get('cookie')},
-                        filterQuality: FilterQuality.high,
-                        placeholder: (context, url) => const Center(
-                                child: CircularProgressIndicator(
-                              color: kAltoBlue,
-                            )),
-                        imageBuilder: (context, imageProvider) {
-                          final screenWidth = MediaQuery.of(context).size.width;
-                          final screenHeight =
-                              MediaQuery.of(context).size.height - 100;
-                          final askance = piv['deg'] == 90 || piv['deg'] == -90;
-                          final height = askance ? screenWidth : screenHeight;
-                          final width = askance ? screenHeight : screenWidth;
-
-                          var left =
-                              (askance ? -(width - height) / 2 : 0).toDouble();
-                          // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
-                          var top = (askance ? -(height - width + 50) / 2 : 0)
-                              .toDouble();
-
-                          return ValueListenableBuilder(
-                            valueListenable: controller,
-                            builder: (context, Matrix4 matrix, child) {
-                              if (matrixAlmostEqual(
-                                  matrix, Matrix4.identity())) {
-                                if (pageBuilderScroll
-                                    is! BouncingScrollPhysics) {
-                                  Future.delayed(Duration.zero, () {
-                                    setState(() => pageBuilderScroll =
-                                        const BouncingScrollPhysics());
-                                  });
-                                }
-                              } else {
-                                if (pageBuilderScroll
-                                    is! NeverScrollableScrollPhysics) {
-                                  Future.delayed(Duration.zero, () {
-                                    setState(() => pageBuilderScroll =
-                                        const NeverScrollableScrollPhysics());
-                                  });
-                                }
-                              }
-                              return InteractiveViewer(
-                                transformationController: controller,
-                                clipBehavior: Clip.none,
-                                minScale: 1,
-                                maxScale: 8,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Transform.rotate(
-                                      angle: (piv['deg'] == null
-                                              ? 0
-                                              : piv['deg']) *
-                                          math.pi /
-                                          180.0,
-                                      child: AnimatedContainer(
-                                        width: SizeService.instance
-                                            .screenWidth(context),
-                                        height: fullScreen
-                                            ? SizeService.instance
-                                                    .screenHeight(context) *
-                                                .85
-                                            : SizeService.instance
-                                                    .screenHeight(context) *
-                                                .45,
-                                        duration: const Duration(seconds: 1),
-                                        curve: Curves.fastOutSlowIn,
-                                        decoration: const BoxDecoration(
-                                            color: kGreyDarker,
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(15),
-                                                topRight: Radius.circular(15))),
-                                        child: Image(
-                                          // alignment: Alignment.center,
-                                          fit: BoxFit.contain,
-                                          image: imageProvider,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        });
+                        if (piv['vid'] == null)
                         */
                             })());
                       })
@@ -400,5 +321,124 @@ class _LocalVideoState extends State<LocalVideo> {
             child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
           ));
+  }
+}
+
+class CloudPhoto extends StatefulWidget {
+  final dynamic piv;
+  final DateTime date;
+  const CloudPhoto({Key? key, required this.piv, required this.date})
+      : super(key: key);
+
+  @override
+  State<CloudPhoto> createState() => _CloudPhotoState();
+}
+
+class _CloudPhotoState extends State<CloudPhoto> {
+  dynamic cancelListener;
+  late TransformationController controller;
+  ScrollPhysics? pageBuilderScroll;
+
+  bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
+    for (var i = 0; i < 16; i++) {
+      if ((a.storage[i] - b.storage[i]).abs() > epsilon) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  void initState() {
+    controller = TransformationController();
+    super.initState();
+    cancelListener = store.listen(['foo'], (Foo) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    cancelListener();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+        imageUrl: (kTagawayThumbMURL) + (widget.piv['id']),
+        httpHeaders: {'cookie': store.get('cookie')},
+        filterQuality: FilterQuality.high,
+        placeholder: (context, url) => const Center(
+                child: CircularProgressIndicator(
+              color: kAltoBlue,
+            )),
+        imageBuilder: (context, imageProvider) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final screenHeight = MediaQuery.of(context).size.height - 100;
+          final askance = widget.piv['deg'] == 90 || widget.piv['deg'] == -90;
+          final height = askance ? screenWidth : screenHeight;
+          final width = askance ? screenHeight : screenWidth;
+
+          var left = (askance ? -(width - height) / 2 : 0).toDouble();
+          // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
+          var top = (askance ? -(height - width + 50) / 2 : 0).toDouble();
+
+          return ValueListenableBuilder(
+            valueListenable: controller,
+            builder: (context, Matrix4 matrix, child) {
+              if (matrixAlmostEqual(matrix, Matrix4.identity())) {
+                if (pageBuilderScroll is! BouncingScrollPhysics) {
+                  Future.delayed(Duration.zero, () {
+                    if (mounted)
+                      setState(() =>
+                          pageBuilderScroll = const BouncingScrollPhysics());
+                  });
+                }
+              } else {
+                if (pageBuilderScroll is! NeverScrollableScrollPhysics) {
+                  Future.delayed(Duration.zero, () {
+                    setState(() => pageBuilderScroll =
+                        const NeverScrollableScrollPhysics());
+                  });
+                }
+              }
+              return InteractiveViewer(
+                transformationController: controller,
+                clipBehavior: Clip.none,
+                minScale: 1,
+                maxScale: 8,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Transform.rotate(
+                      angle:
+                          (widget.piv['deg'] == null ? 0 : widget.piv['deg']) *
+                              math.pi /
+                              180.0,
+                      child: AnimatedContainer(
+                        width: SizeService.instance.screenWidth(context),
+                        height:
+                            SizeService.instance.screenHeight(context) * .45,
+                        duration: const Duration(seconds: 1),
+                        curve: Curves.fastOutSlowIn,
+                        decoration: const BoxDecoration(
+                            color: kGreyDarker,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(15),
+                                topRight: Radius.circular(15))),
+                        child: Image(
+                          // alignment: Alignment.center,
+                          fit: BoxFit.contain,
+                          image: imageProvider,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        });
   }
 }
