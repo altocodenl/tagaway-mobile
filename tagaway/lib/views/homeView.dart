@@ -219,24 +219,28 @@ class _HomeViewState extends State<HomeView> {
                                     var date =
                                         DateTime.fromMillisecondsSinceEpoch(
                                             piv['date']);
+                                    // LOCAL PHOTO
                                     if (piv['local'] == true &&
                                         piv['piv'].type == AssetType.image)
                                       return LocalPhoto(
                                         piv: piv['piv'],
                                         date: date,
                                       );
+                                    // LOCAL VIDEO
                                     if (piv['local'] == true &&
                                         piv['piv'].type != AssetType.image)
                                       return LocalVideo(
                                         vid: piv['piv'],
                                         date: date,
                                       );
+                                    // CLOUD PHOTO
                                     if (piv['local'] == null &&
                                         piv['vid'] == null)
                                       return CloudPhoto(
                                         piv: piv,
                                         date: date,
                                       );
+                                    // CLOUD VIDEO
                                     if (piv['local'] == null &&
                                         piv['vid'] != null)
                                       return CloudVideo(
