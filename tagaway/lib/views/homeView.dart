@@ -284,7 +284,6 @@ class LocalPhoto extends StatefulWidget {
 
 class _LocalPhotoState extends State<LocalPhoto> {
   dynamic cancelListener;
-  late final AssetEntity pivEntity;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -312,7 +311,9 @@ class _LocalPhotoState extends State<LocalPhoto> {
     return Column(
       children: [
         Container(
-          height: SizeService.instance.screenHeight(context) * .5,
+          height: widget.piv.height > widget.piv.width
+              ? SizeService.instance.screenHeight(context) * .7
+              : SizeService.instance.screenHeight(context) * .35,
           alignment: Alignment.center,
           child: FutureBuilder<File?>(
             future: file,
@@ -324,7 +325,9 @@ class _LocalPhotoState extends State<LocalPhoto> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 12.0),
+          padding: widget.piv.height > widget.piv.width
+              ? EdgeInsets.only(left: 12.0, top: 10)
+              : EdgeInsets.only(left: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -418,7 +421,9 @@ class _LocalVideoState extends State<LocalVideo> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  height: SizeService.instance.screenHeight(context) * .8,
+                  height: widget.vid.height > widget.vid.width
+                      ? SizeService.instance.screenHeight(context) * .8
+                      : SizeService.instance.screenHeight(context) * .35,
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     // Use the VideoPlayer widget to display the video.
@@ -426,7 +431,9 @@ class _LocalVideoState extends State<LocalVideo> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
+                  padding: widget.vid.height > widget.vid.width
+                      ? EdgeInsets.only(left: 12.0, top: 10)
+                      : EdgeInsets.only(left: 12.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
