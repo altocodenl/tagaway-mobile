@@ -66,52 +66,78 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
       body: SafeArea(
-        child: queryResult['pivs'].length == 0
-            ? const Center(
-                child: CircularProgressIndicator(
-                color: kAltoBlue,
-              ))
-            : CustomScrollView(
-                slivers: [
-                  SliverList.builder(
-                      itemCount: queryResult['pivs'].length,
-                      itemBuilder: (BuildContext context, int index) {
-                        debug(['drawing piv', index]);
-                        return Padding(
-                            padding: const EdgeInsets.only(bottom: 40),
-                            child: (() {
-                              var piv = queryResult['pivs'][index];
-                              var date = DateTime.fromMillisecondsSinceEpoch(
-                                  piv['date']);
-                              if (piv['local'] == true &&
-                                  piv['piv'].type == AssetType.image)
-                                return LocalPhoto(
-                                  piv: piv['piv'],
-                                  date: date,
-                                );
-                              if (piv['local'] == true &&
-                                  piv['piv'].type != AssetType.image)
-                                return LocalVideo(
-                                  vid: piv['piv'],
-                                  date: date,
-                                );
-                              if (piv['local'] == null && piv['vid'] == null)
-                                return CloudPhoto(
-                                  piv: piv,
-                                  date: date,
-                                );
-                              if (piv['local'] == null && piv['vid'] != null)
-                                return CloudVideo(
-                                  piv: piv,
-                                );
-                              /*
-                        if (piv['vid'] == null)
-                        */
-                            })());
-                      })
-                ],
-              ),
-      ),
+          child: queryResult['pivs'].length == 0
+              ? const Center(
+                  child: CircularProgressIndicator(
+                  color: kAltoBlue,
+                ))
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    return TagService.instance.queryPivs(true);
+                  },
+                  child: Stack(children: [
+                    CustomScrollView(
+                      slivers: [
+                        SliverList.builder(
+                            itemCount: queryResult['pivs'].length,
+                            itemBuilder: (BuildContext context, int index) {
+                              debug(['drawing piv', index]);
+                              return Padding(
+                                  padding: const EdgeInsets.only(bottom: 40),
+                                  child: (() {
+                                    var piv = queryResult['pivs'][index];
+                                    var date =
+                                        DateTime.fromMillisecondsSinceEpoch(
+                                            piv['date']);
+                                    if (piv['local'] == true &&
+                                        piv['piv'].type == AssetType.image)
+                                      return LocalPhoto(
+                                        piv: piv['piv'],
+                                        date: date,
+                                      );
+                                    if (piv['local'] == true &&
+                                        piv['piv'].type != AssetType.image)
+                                      return LocalVideo(
+                                        vid: piv['piv'],
+                                        date: date,
+                                      );
+                                    if (piv['local'] == null &&
+                                        piv['vid'] == null)
+                                      return CloudPhoto(
+                                        piv: piv,
+                                        date: date,
+                                      );
+                                    if (piv['local'] == null &&
+                                        piv['vid'] != null)
+                                      return CloudVideo(
+                                        piv: piv,
+                                      );
+                                  })());
+                            })
+                      ],
+                    ),
+                    Align(
+                      alignment: const Alignment(0, .9),
+                      child: FloatingActionButton.extended(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          extendedPadding:
+                              const EdgeInsets.only(left: 20, right: 20),
+                          backgroundColor: kAltoBlue,
+                          elevation: 20,
+                          label: const Icon(
+                            kSearchIcon,
+                            color: Colors.white,
+                            size: 15,
+                          ),
+                          icon: const Text('Search', style: kButtonText),
+                          key: const Key('homeFabQuerySelector'),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(
+                                context, 'querySelector');
+                          }),
+                    )
+                  ]))),
     );
   }
 }
