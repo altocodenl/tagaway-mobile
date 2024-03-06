@@ -129,7 +129,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
               ),
               onPressed: () {
                 store.set('queryTags', []);
-                Navigator.pushReplacementNamed(context, 'oldHome');
+                Navigator.pushReplacementNamed(context, 'home');
               }),
           title: TextField(
             controller: searchQueryController,
@@ -571,7 +571,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             onPressed: () {
               FocusManager.instance.primaryFocus?.unfocus();
-              Navigator.pushReplacementNamed(context, 'uploaded');
+              Navigator.pushReplacementNamed(context, 'home');
             },
             backgroundColor: kAltoBlue,
             label: queryInProgress == true
