@@ -203,6 +203,7 @@ class LocalPhoto extends StatefulWidget {
 
 class _LocalPhotoState extends State<LocalPhoto> {
   dynamic cancelListener;
+  late final AssetEntity pivEntity;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -212,6 +213,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
   @override
   void initState() {
     super.initState();
+
     cancelListener = store.listen(['foo'], (Foo) {
       setState(() {});
     });
@@ -229,7 +231,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
     return Column(
       children: [
         Container(
-          height: SizeService.instance.screenHeight(context) * .4,
+          height: SizeService.instance.screenHeight(context) * .5,
           alignment: Alignment.center,
           child: FutureBuilder<File?>(
             future: file,
@@ -241,7 +243,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 12.0, top: 5),
+          padding: const EdgeInsets.only(left: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -335,6 +337,7 @@ class _LocalVideoState extends State<LocalVideo> {
               children: [
                 Container(
                   alignment: Alignment.center,
+                  height: SizeService.instance.screenHeight(context) * .8,
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     // Use the VideoPlayer widget to display the video.
@@ -342,7 +345,7 @@ class _LocalVideoState extends State<LocalVideo> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 12.0, top: 5),
+                  padding: const EdgeInsets.only(left: 12.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -369,7 +372,7 @@ class _LocalVideoState extends State<LocalVideo> {
               ],
             ),
             Positioned(
-              bottom: 40,
+              bottom: 70,
               left: SizeService.instance.screenWidth(context) * .43,
               child: FloatingActionButton(
                 shape: const CircleBorder(),
