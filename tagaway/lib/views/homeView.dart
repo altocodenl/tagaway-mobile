@@ -3,18 +3,17 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:open_mail_app/open_mail_app.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import 'package:tagaway/views/accountView.dart';
+import 'package:open_mail_app/open_mail_app.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
+import 'package:tagaway/views/accountView.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 class HomeView extends StatefulWidget {
@@ -373,21 +372,12 @@ class LocalVideo extends StatefulWidget {
 class _LocalVideoState extends State<LocalVideo> {
   late VideoPlayerController _controller;
   bool initialized = false;
-  bool fullScreen = false;
   dynamic cancelListener;
 
   @override
   void initState() {
     _initVideo();
-    setState(() {
-      fullScreen = store.get('fullScreenCarrousel') == true;
-    });
-    cancelListener =
-        store.listen(['fullScreenCarrousel'], (FullScreenCarrousel) {
-      setState(() {
-        fullScreen = FullScreenCarrousel == true;
-      });
-    });
+
     super.initState();
   }
 
