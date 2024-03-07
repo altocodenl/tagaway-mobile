@@ -692,8 +692,8 @@ class _CloudVideoState extends State<CloudVideo> {
               Align(
                 alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
                 child: FloatingActionButton(
+                  key: Key('playPause' + widget.piv['id']),
                   shape: const CircleBorder(),
-                  key: const Key('playPause'),
                   backgroundColor: kAltoBlue,
                   onPressed: () {
                     // Wrap the play or pause in a call to `setState`. This ensures the
