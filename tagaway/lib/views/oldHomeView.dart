@@ -330,7 +330,7 @@ class _OldHomeViewState extends State<OldHomeView> {
                             size: 15,
                           ),
                           icon: const Text('Search', style: kButtonText),
-                          key: const Key('homeFabQuerySelector'),
+                          key: const Key('homeFabQuerySelectorOld'),
                           onPressed: () {
                             store.set('queryTags', []);
                             Navigator.pushReplacementNamed(
