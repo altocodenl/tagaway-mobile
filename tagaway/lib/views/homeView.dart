@@ -118,16 +118,21 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: kAltoBlack,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'images/tag check - 0c0c0cff - 400x400.png',
-              scale: 10,
-            ),
-            const Text('tagaway', style: kTagawayMain),
-          ],
-        ),
+        title: GestureDetector(
+            onTap: () {
+              store.set('queryTags', [], '', 'mute');
+              TagService.instance.queryPivs(true);
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'images/tag check - 0c0c0cff - 400x400.png',
+                  scale: 10,
+                ),
+                const Text('tagaway', style: kTagawayMain),
+              ],
+            )),
       ),
       endDrawer: Drawer(
           child: ListView(
@@ -252,6 +257,7 @@ class _HomeViewState extends State<HomeView> {
                     Align(
                       alignment: const Alignment(0, .9),
                       child: FloatingActionButton.extended(
+                          key: const Key('homeFabQuerySelector'),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50)),
                           extendedPadding:
@@ -264,7 +270,6 @@ class _HomeViewState extends State<HomeView> {
                             size: 15,
                           ),
                           icon: const Text('Search', style: kButtonText),
-                          key: const Key('homeFabQuerySelector'),
                           onPressed: () {
                             Navigator.pushReplacementNamed(
                                 context, 'querySelector');
@@ -456,6 +461,7 @@ class _LocalVideoState extends State<LocalVideo> {
               bottom: 70,
               left: SizeService.instance.screenWidth(context) * .43,
               child: FloatingActionButton(
+                key: Key('vidPlay' + widget.vid.id),
                 shape: const CircleBorder(),
                 backgroundColor: kAltoBlue,
                 onPressed: () {
