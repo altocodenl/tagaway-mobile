@@ -384,10 +384,10 @@ class _LocalVideoState extends State<LocalVideo> {
   void dispose() {
     try {
       _controller.dispose();
+      super.dispose();
     } catch (_) {
       // We ignore the error.
     }
-    super.dispose();
   }
 
   _initVideo() async {
