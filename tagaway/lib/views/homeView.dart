@@ -406,6 +406,9 @@ class _LocalVideoState extends State<LocalVideo> {
 
   @override
   Widget build(BuildContext context) {
+    var height = widget.vid.height > widget.vid.width
+        ? SizeService.instance.screenHeight(context) * .8
+        : SizeService.instance.screenHeight(context) * .35;
     return initialized
         // If the video is initialized, display it
         ? Stack(children: [
@@ -413,9 +416,7 @@ class _LocalVideoState extends State<LocalVideo> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  height: widget.vid.height > widget.vid.width
-                      ? SizeService.instance.screenHeight(context) * .8
-                      : SizeService.instance.screenHeight(context) * .35,
+                  height: height,
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     // Use the VideoPlayer widget to display the video.
@@ -479,10 +480,12 @@ class _LocalVideoState extends State<LocalVideo> {
             ),
           ])
         // If the video is not yet initialized, display a spinner
-        : const Center(
-            child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
-          ));
+        : Container(
+            height: height,
+            child: Center(
+                child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+            )));
   }
 }
 

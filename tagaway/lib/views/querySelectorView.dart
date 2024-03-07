@@ -92,7 +92,8 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             .where(matchFilter)
             .toList();
         usertags.sort();
-        if (RegExp ('^unt', caseSensitive: false).hasMatch (RegExp.escape (v3))) usertags.add ('u::');
+        if (RegExp('^unt', caseSensitive: false).hasMatch(RegExp.escape(v3)))
+          usertags.add('u::');
         filteredYears = (expandYears || years.length < 4)
             ? years
             : years.sublist(years.length - 4, years.length);
