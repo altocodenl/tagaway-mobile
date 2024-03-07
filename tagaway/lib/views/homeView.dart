@@ -372,7 +372,6 @@ class LocalVideo extends StatefulWidget {
 class _LocalVideoState extends State<LocalVideo> {
   late VideoPlayerController _controller;
   bool initialized = false;
-  dynamic cancelListener;
 
   @override
   void initState() {
@@ -388,7 +387,6 @@ class _LocalVideoState extends State<LocalVideo> {
     } catch (_) {
       // We ignore the error.
     }
-    cancelListener();
     super.dispose();
   }
 

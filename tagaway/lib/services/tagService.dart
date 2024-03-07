@@ -975,6 +975,7 @@ class TagService {
       if (usertags.length == 0) usertags.addAll (['Family (example)', 'Holidays (example)', 'Friends (example)']);
 
       if (RegExp ('^org', caseSensitive: false).hasMatch (RegExp.escape (tagFilter))) usertags.add ('o::');
+      if (RegExp ('^unt', caseSensitive: false).hasMatch (RegExp.escape (tagFilter))) usertags.add ('u::');
 
       return usertags;
    }

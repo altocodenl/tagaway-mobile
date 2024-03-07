@@ -92,6 +92,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             .where(matchFilter)
             .toList();
         usertags.sort();
+        if (RegExp ('^unt', caseSensitive: false).hasMatch (RegExp.escape (v3))) usertags.add ('u::');
         filteredYears = (expandYears || years.length < 4)
             ? years
             : years.sublist(years.length - 4, years.length);
@@ -568,6 +569,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           key: const Key('querySelectorSeeNPivs'),
           alignment: const Alignment(0.11, 1),
           child: FloatingActionButton.extended(
+            key: const Key('querySelectorSeeNPivsSub'),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             onPressed: () {
