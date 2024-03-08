@@ -316,12 +316,25 @@ class _LocalPhotoState extends State<LocalPhoto> {
   @override
   Widget build(BuildContext context) {
     Future<File?> file = loadImage(widget.piv);
+
     return Column(
       children: [
         Container(
-          height: widget.piv.height > widget.piv.width
-              ? SizeService.instance.screenHeight(context) * .7
-              : SizeService.instance.screenHeight(context) * .35,
+          height: widget.piv.height > widget.piv.width * 1.7
+              ? SizeService.instance.screenHeight(context) * .85
+              : widget.piv.height > widget.piv.width * 1.4
+                  ? SizeService.instance.screenHeight(context) * .7
+                  : widget.piv.height > widget.piv.width * 1.2
+                      ? SizeService.instance.screenHeight(context) * .6
+                      : widget.piv.height > widget.piv.width
+                          ? SizeService.instance.screenHeight(context) * .5
+                          : widget.piv.height == widget.piv.width
+                              ? SizeService.instance.screenHeight(context) * .5
+                              : widget.piv.height * 1.4 > widget.piv.width
+                                  ? SizeService.instance.screenHeight(context) *
+                                      .4
+                                  : SizeService.instance.screenHeight(context) *
+                                      .35,
           alignment: Alignment.center,
           child: FutureBuilder<File?>(
             future: file,
@@ -330,6 +343,41 @@ class _LocalPhotoState extends State<LocalPhoto> {
               if (file == null) return Container();
               return Image.file(file);
             },
+          ),
+        ),
+        Padding(
+          padding: widget.piv.height > widget.piv.width
+              ? EdgeInsets.only(left: 12.0, right: 12, top: 10)
+              : EdgeInsets.only(left: 12.0, right: 12, bottom: 10),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                kTrashCanIcon,
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              Icon(
+                kSlashedEyeIcon,
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: 30,
+              ),
+              Icon(
+                kShareIcon,
+                color: Colors.white,
+              ),
+              Expanded(
+                child: SizedBox(),
+              ),
+              Icon(
+                kTagIcon,
+                color: Colors.white,
+              ),
+            ],
           ),
         ),
         Padding(
