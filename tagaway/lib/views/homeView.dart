@@ -26,12 +26,24 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
+  dynamic cancelListener2;
 
   dynamic account = {
     'username': '',
     'usage': {'byfs': 0}
   };
   dynamic queryResult = {'pivs': [], 'total': 0};
+
+  dynamic seenPivIndexes = [];
+
+  getNextIndex(int length) {
+    var index = (new math.Random().nextInt(length - 1));
+    if (!seenPivIndexes.contains(index)) {
+      seenPivIndexes.add(index);
+      return index;
+    }
+    return getNextIndex(length);
+  }
 
   _launchUrl() async {
     if (!await launchUrl(Uri.parse(kTagawayURL),
@@ -92,12 +104,19 @@ class _HomeViewState extends State<HomeView> {
     Future.delayed(Duration(seconds: 1), () {
       TagService.instance.queryPivs();
     });
-    cancelListener =
-        store.listen(['account', 'queryResult'], (Account, QueryResult) {
+    cancelListener = store.listen(['account'], (Account) {
       // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
       if (mounted) {
         setState(() {
           if (Account != '') account = Account;
+        });
+      }
+    });
+    // We need a separate listener for queryResult so we only reset seenPivIndexes when the query result changes, not when the account data is loaded.
+    cancelListener2 = store.listen(['queryResult'], (QueryResult) {
+      // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
+      if (mounted) {
+        setState(() {
           if (QueryResult != '') queryResult = QueryResult;
         });
       }
@@ -108,6 +127,7 @@ class _HomeViewState extends State<HomeView> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
   }
 
   @override
@@ -121,6 +141,7 @@ class _HomeViewState extends State<HomeView> {
         title: GestureDetector(
             onTap: () {
               store.set('queryTags', [], '', 'mute');
+              seenPivIndexes = [];
               TagService.instance.queryPivs(true);
             },
             child: Row(
@@ -216,10 +237,12 @@ class _HomeViewState extends State<HomeView> {
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
                               debug(['drawing piv', index]);
+                              var nextIndex =
+                                  getNextIndex(queryResult['pivs'].length);
                               return Padding(
                                   padding: const EdgeInsets.only(bottom: 40),
                                   child: (() {
-                                    var piv = queryResult['pivs'][index];
+                                    var piv = queryResult['pivs'][nextIndex];
                                     var date =
                                         DateTime.fromMillisecondsSinceEpoch(
                                             piv['date']);

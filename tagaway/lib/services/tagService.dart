@@ -475,7 +475,6 @@ class TagService {
          localPivsToAdd.add (piv);
       });
 
-      localPivsToAdd.shuffle ();
       localPivsToAdd.forEach ((piv) {
          queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
       });
@@ -581,7 +580,6 @@ class TagService {
       var queryResult = response ['body'];
 
       queryResult = localQuery (tags, queryResult);
-      queryResult ['pivs'].shuffle ();
 
       if (queryResult ['total'] == 0 && tags.length > 0) {
          store.remove ('currentlyTaggingUploaded');
@@ -624,7 +622,6 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var secondQueryResult = response ['body'];
-      secondQueryResult ['pivs'].shuffle ();
 
       store.set ('queryResult', {
          'total':       queryResult ['total'],

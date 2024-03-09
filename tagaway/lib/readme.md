@@ -2,54 +2,19 @@
 
 ## TODO
 
------
+- Respect previous scroll
+- Readd sorting to localQuery and get oldest pivs, not random
+- Hide local piv
+- Delete
+- Share
 
-- Delete has to say local
-- Send to a random place after deleting
-- Coming back from the grid from a local piv, nothing works
-
 -----
-- Rework zoom in carrousel (Tom)
-- Reimplement carrousel to slide sideways?
-- Swipe sideways to navigate months in uploaded?
-- Store info of impressions and clicks on tags
+- Tag & show tags
+- Add full screen
+- Add login flow with Google, Apple and Facebook
+- Show info of piv
+- Share Tagaway button and link
 - Finish annotated source code: tagService, storeService, tools.
-
-- Sharebox
-   - Backend
-      - List
-         - Show list of shareboxes
-         - Add sharebox from someone else to my list of shareboxes
-         - Delete sharebox from someone else from my list of shareboxes
-      - Sharebox
-         - Create (name)
-         - Delete (id)
-         - Rename
-      - Consume
-         - Query: get pivs in sharebox
-         - See piv in someone else's sharebox
-         - Download piv from someone else's sharebox
-      - Add pivs to sharebox
-         - Upload piv to own sharebox
-         - Upload piv to someone else's sharebox (public or logged in)
-         - Add cloud piv to own sharebox
-         - Add cloud piv to someone else's sharebox
-      - Delete piv in sharebox (whether own or not)
-      - Tag
-         - Tag piv in own sharebox
-         - Tag piv in someone else's sharebox
-         - Untag piv in own sharebox
-         - Untag piv in someone else's sharebox
-         - Note: tagging/untagging from sharebox view is different than doing it from cloud view
-      - Autodelete
-
------
-- Draggable selection
-- Info view for each piv on cloud (Tom)
-- Tutorial (Tom)
-- Share Tagaway button and link (Tom)
-- Write a QA script (Tom)
-- Add login flow with Google, Apple and Facebook (Tom)
 
 ## Store structure
 
@@ -2959,12 +2924,6 @@ We add the piv to `localPivsToAdd`. This concludes the iteration of all local pi
       });
 ```
 
-We shuffle `localPivsToAdd`, to keep it interesting. Note this will not shuffle the pivs already in `queryResult.pivs`, only the new ones we're about to add.
-
-```dart
-      localPivsToAdd.shuffle ();
-```
-
 We include each of the `localPivsToAdd` into the list of pivs. We do this in a map that containas three properties:
 
 - `date`, the date of the piv in ms. This is added to make the entry more like the entries returned by the server.
@@ -3307,12 +3266,6 @@ We modify `queryResult` by invoking `localQuery`. This function will update the 
       queryResult = localQuery (tags, queryResult);
 ```
 
-We shuffle in place the pivs we just got from the server, plus the local pivs that match the query.
-
-```dart
-      queryResult ['pivs'].shuffle ();
-```
-
 If we currently have tags in our query, and we got no pivs back, it may be the case that through an untagging operation, or a deletion, we have rendered the current query an empty one. Since we don't want to show an empty query to the user, in this case we will set `currentlyTaggingUploaded` to an empty string, to get the user out of "tagging mode" in the uploaded view. We will also set `showSelectAllButtonUploaded` to an empty string, to hide the select all button.
 
 We will also reset the query by setting `queryTags` to an empty list. There will be listeners in the views which, when we update `queryTags`, invoke `queryPivs` again, so we don't need to perform a recursive invocation to the function here.
@@ -3407,11 +3360,10 @@ As before, if the tags in the query changed in the meantime, we don't do anythin
       if (! listEquals (queryTags, tags)) return 409;
 ```
 
-We store the result of the second query in a `secondQueryResult` variable. We also shuffle its pivs.
+We store the result of the second query in a `secondQueryResult` variable.
 
 ```dart
       var secondQueryResult = response ['body'];
-      secondQueryResult ['pivs'].shuffle ();
 ```
 
 We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest as it was before. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
