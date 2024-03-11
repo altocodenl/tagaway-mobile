@@ -472,7 +472,7 @@ class _LocalVideoState extends State<LocalVideo> {
                 IconsRow(
                   piv: widget.vid,
                   deletePiv: () {
-                    PivService.instance.deleteLocalPivs([widget.piv.id]);
+                    PivService.instance.deleteLocalPivs([widget.vid.id]);
                   },
                   hidePiv: () {},
                   sharePiv: () {},
