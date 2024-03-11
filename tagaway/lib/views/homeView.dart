@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -124,7 +125,6 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    debug(['piv count', queryResult['pivs'].length]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -228,7 +228,6 @@ class _HomeViewState extends State<HomeView> {
                         SliverList.builder(
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
-                              debug(['drawing piv', index]);
                               var nextIndex;
                               if (seenPivIndexes.length - 1 < index)
                                 nextIndex =
@@ -369,13 +368,17 @@ class _LocalPhotoState extends State<LocalPhoto> {
           padding: widget.piv.height > widget.piv.width
               ? EdgeInsets.only(left: 12.0, right: 12, top: 10)
               : EdgeInsets.only(left: 12.0, right: 12, bottom: 10),
-          child: const Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Icon(
-                kTrashCanIcon,
-                color: Colors.white,
-              ),
+              GestureDetector(
+                  onTap: () {
+                    PivService.instance.deleteLocalPivs([widget.piv.id]);
+                  },
+                  child: Icon(
+                    kTrashCanIcon,
+                    color: Colors.white,
+                  )),
               SizedBox(
                 width: 20,
               ),
