@@ -479,6 +479,10 @@ class TagService {
          queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
       });
 
+      queryResult ['pivs'].sort ((a, b) {
+         return (b ['date'] as int).compareTo ((a ['date'] as int));
+      });
+
       return queryResult;
    }
 
@@ -560,7 +564,7 @@ class TagService {
         store.set ('queryInProgress', true);
       });
 
-      var sort = (new Random ().nextInt (100) < 50) ? 'newest' : 'oldest';
+      var sort = 'newest';
 
       var response = await ajax ('post', 'query', {
          'tags': tags,

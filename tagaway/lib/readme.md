@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Readd sorting to localQuery and get oldest pivs, not random
 - Hide local piv
 - Delete
 - Share
@@ -2816,7 +2815,7 @@ We will invoke `localPivsById` to obtain a map `localPivsById`, where each key i
       var localPivsById = PivService.instance.localPivsById ();
 ```
 
-We will create a list `localPivsToAdd`, which we will only use if `currentMonth` is not set.
+We will create a list `localPivsToAdd`.
 
 ```dart
       var localPivsToAdd = [];
@@ -2933,6 +2932,14 @@ We include each of the `localPivsToAdd` into the list of pivs. We do this in a m
       localPivsToAdd.forEach ((piv) {
          queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
       });
+```
+
+We are almost done. We simply sort the pivs inside queryResult, with the newest pivs first. Note that the date property is the same for both local and uploaded pivs, so we don't have to add special logic to sort them together.
+
+```dart
+      localPivsToAdd.forEach ((piv) {
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+      }
 ```
 
 We return `queryResult` and close the function.
@@ -3211,13 +3218,13 @@ Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this,
       });
 ```
 
-We randomly determine whether we'll first show oldest or newest pivs.
+We will ask the server to sort pivs by latest date first.
 
 ```dart
-      var sort = (new Random ().nextInt (100) < 50) ? 'newest' : 'oldest';
+      var sort = 'newest';
 ```
 
-We invoke `POST /query` in the server. We're going to pass the `tags` we received and get either the oldest or the newest pivs first, depending on `sort`.
+We invoke `POST /query` in the server. We're going to pass the `tags` we received and the `sort` parameter.
 
 ```dart
       var response = await ajax ('post', 'query', {

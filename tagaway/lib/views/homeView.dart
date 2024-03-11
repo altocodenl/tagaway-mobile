@@ -27,7 +27,6 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
-  dynamic cancelListener2;
 
   dynamic account = {
     'username': '',
@@ -38,7 +37,7 @@ class _HomeViewState extends State<HomeView> {
   dynamic seenPivIndexes = [];
 
   getNextIndex(int length) {
-    var index = (new math.Random().nextInt(length - 1));
+    var index = (new math.Random().nextInt(length));
     if (!seenPivIndexes.contains(index)) {
       seenPivIndexes.add(index);
       return index;
@@ -105,19 +104,12 @@ class _HomeViewState extends State<HomeView> {
     Future.delayed(Duration(seconds: 1), () {
       TagService.instance.queryPivs();
     });
-    cancelListener = store.listen(['account'], (Account) {
+    cancelListener =
+        store.listen(['account', 'queryResult'], (Account, QueryResult) {
       // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
       if (mounted) {
         setState(() {
           if (Account != '') account = Account;
-        });
-      }
-    });
-    // We need a separate listener for queryResult so we only reset seenPivIndexes when the query result changes, not when the account data is loaded.
-    cancelListener2 = store.listen(['queryResult'], (QueryResult) {
-      // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
-      if (mounted) {
-        setState(() {
           if (QueryResult != '') queryResult = QueryResult;
         });
       }
@@ -128,7 +120,6 @@ class _HomeViewState extends State<HomeView> {
   void dispose() {
     super.dispose();
     cancelListener();
-    cancelListener2();
   }
 
   @override
