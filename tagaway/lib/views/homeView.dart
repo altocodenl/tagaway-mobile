@@ -18,6 +18,7 @@ import 'package:video_player/video_player.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'home';
+
   const HomeView({Key? key}) : super(key: key);
 
   @override
@@ -306,6 +307,7 @@ class _HomeViewState extends State<HomeView> {
 class LocalPhoto extends StatefulWidget {
   final AssetEntity piv;
   final DateTime date;
+
   const LocalPhoto({Key? key, required this.piv, required this.date})
       : super(key: key);
 
@@ -336,6 +338,20 @@ class _LocalPhotoState extends State<LocalPhoto> {
     cancelListener();
   }
 
+  computeHeight() {
+    if (widget.piv.height > widget.piv.width * 1.7)
+      return SizeService.instance.screenHeight(context) * .85;
+    if (widget.piv.height > widget.piv.width * 1.4)
+      return SizeService.instance.screenHeight(context) * .7;
+    if (widget.piv.height > widget.piv.width * 1.2)
+      return SizeService.instance.screenHeight(context) * .6;
+    if (widget.piv.height >= widget.piv.width)
+      return SizeService.instance.screenHeight(context) * .5;
+    if (widget.piv.height * 1.4 > widget.piv.width)
+      return SizeService.instance.screenHeight(context) * .4;
+    return SizeService.instance.screenHeight(context) * .35;
+  }
+
   @override
   Widget build(BuildContext context) {
     Future<File?> file = loadImage(widget.piv);
@@ -343,21 +359,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
     return Column(
       children: [
         Container(
-          height: widget.piv.height > widget.piv.width * 1.7
-              ? SizeService.instance.screenHeight(context) * .85
-              : widget.piv.height > widget.piv.width * 1.4
-                  ? SizeService.instance.screenHeight(context) * .7
-                  : widget.piv.height > widget.piv.width * 1.2
-                      ? SizeService.instance.screenHeight(context) * .6
-                      : widget.piv.height > widget.piv.width
-                          ? SizeService.instance.screenHeight(context) * .5
-                          : widget.piv.height == widget.piv.width
-                              ? SizeService.instance.screenHeight(context) * .5
-                              : widget.piv.height * 1.4 > widget.piv.width
-                                  ? SizeService.instance.screenHeight(context) *
-                                      .4
-                                  : SizeService.instance.screenHeight(context) *
-                                      .35,
+          height: computeHeight(),
           alignment: Alignment.center,
           child: FutureBuilder<File?>(
             future: file,
@@ -569,6 +571,7 @@ class _LocalVideoState extends State<LocalVideo> {
 class CloudPhoto extends StatefulWidget {
   final dynamic piv;
   final DateTime date;
+
   const CloudPhoto({Key? key, required this.piv, required this.date})
       : super(key: key);
 
