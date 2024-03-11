@@ -1730,7 +1730,7 @@ class _IconsRowState extends State<IconsRow> {
         children: [
           GestureDetector(
             onTap: () {
-              widget.deletePiv;
+              widget.deletePiv();
             },
             child: const Icon(
               kTrashCanIcon,
@@ -1742,7 +1742,7 @@ class _IconsRowState extends State<IconsRow> {
           ),
           GestureDetector(
             onTap: () {
-              widget.hidePiv;
+              widget.hidePiv();
             },
             child: const Icon(
               kSlashedEyeIcon,
@@ -1754,7 +1754,7 @@ class _IconsRowState extends State<IconsRow> {
           ),
           GestureDetector(
             onTap: () {
-              widget.sharePiv;
+              widget.sharePiv();
             },
             child: const Icon(
               kShareIcon,
@@ -1766,7 +1766,7 @@ class _IconsRowState extends State<IconsRow> {
           ),
           GestureDetector(
             onTap: () {
-              widget.tagPiv;
+              widget.tagPiv();
             },
             child: const Icon(
               kTagIcon,
