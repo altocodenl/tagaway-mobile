@@ -38,7 +38,8 @@ class _HomeViewState extends State<HomeView> {
   dynamic seenPivIndexes = [];
 
   getNextIndex(int length) {
-    var index = (new math.Random().nextInt(length - 1));
+    debug(['length', length, seenPivIndexes]);
+    var index = (new math.Random().nextInt(length));
     if (!seenPivIndexes.contains(index)) {
       seenPivIndexes.add(index);
       return index;
@@ -374,45 +375,17 @@ class _LocalPhotoState extends State<LocalPhoto> {
             },
           ),
         ),
-        Padding(
-          padding: widget.piv.height > widget.piv.width
-              ? EdgeInsets.only(left: 12.0, right: 12, top: 10)
-              : EdgeInsets.only(left: 12.0, right: 12, bottom: 10),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(
-                kTrashCanIcon,
-                color: Colors.white,
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Icon(
-                kSlashedEyeIcon,
-                color: Colors.white,
-              ),
-              SizedBox(
-                width: 30,
-              ),
-              Icon(
-                kShareIcon,
-                color: Colors.white,
-              ),
-              Expanded(
-                child: SizedBox(),
-              ),
-              Icon(
-                kTagIcon,
-                color: Colors.white,
-              ),
-            ],
-          ),
+        IconsRow(
+          piv: widget.piv,
+          deletePiv: () {},
+          hidePiv: () {},
+          sharePiv: () {},
+          tagPiv: () {},
         ),
         Padding(
           padding: widget.piv.height > widget.piv.width
-              ? EdgeInsets.only(left: 12.0, top: 10)
-              : EdgeInsets.only(left: 12.0),
+              ? const EdgeInsets.only(left: 12.0, top: 10)
+              : const EdgeInsets.only(left: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -505,6 +478,13 @@ class _LocalVideoState extends State<LocalVideo> {
                     child: VideoPlayer(_controller),
                   ),
                 ),
+                IconsRow(
+                  piv: widget.vid,
+                  deletePiv: () {},
+                  hidePiv: () {},
+                  sharePiv: () {},
+                  tagPiv: () {},
+                ),
                 Padding(
                   padding: widget.vid.height > widget.vid.width
                       ? EdgeInsets.only(left: 12.0, top: 10)
@@ -535,7 +515,7 @@ class _LocalVideoState extends State<LocalVideo> {
               ],
             ),
             Positioned(
-              bottom: 70,
+              bottom: 90,
               left: SizeService.instance.screenWidth(context) * .43,
               child: FloatingActionButton(
                 key: Key('vidPlay' + widget.vid.id),
