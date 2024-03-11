@@ -238,8 +238,12 @@ class _HomeViewState extends State<HomeView> {
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
                               debug(['drawing piv', index]);
-                              var nextIndex =
-                                  getNextIndex(queryResult['pivs'].length);
+                              var nextIndex;
+                              if (seenPivIndexes.length - 1 < index)
+                                nextIndex =
+                                    getNextIndex(queryResult['pivs'].length);
+                              else
+                                nextIndex = seenPivIndexes[index];
                               return Padding(
                                   padding: const EdgeInsets.only(bottom: 40),
                                   child: (() {

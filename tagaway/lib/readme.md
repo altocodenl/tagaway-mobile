@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Respect previous scroll
 - Readd sorting to localQuery and get oldest pivs, not random
 - Hide local piv
 - Delete
