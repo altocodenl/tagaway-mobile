@@ -602,64 +602,44 @@ class _CloudPhotoState extends State<CloudPhoto> {
           final height = askance ? screenWidth : screenHeight;
           final width = askance ? screenHeight : screenWidth;
 
+          var pivHeight = () {
+            if (height > width * 1.7)
+              return SizeService.instance.screenHeight(context) * .85;
+            if (height > width * 1.4)
+              return SizeService.instance.screenHeight(context) * .7;
+            if (height > width * 1.2)
+              return SizeService.instance.screenHeight(context) * .6;
+            if (height >= width)
+              return SizeService.instance.screenHeight(context) * .5;
+            if (height * 1.4 > width)
+              return SizeService.instance.screenHeight(context) * .4;
+            return SizeService.instance.screenHeight(context) * .35;
+          };
+
           var left = (askance ? -(width - height) / 2 : 0).toDouble();
           // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
           var top = (askance ? -(height - width + 50) / 2 : 0).toDouble();
 
-          return ValueListenableBuilder(
-            valueListenable: controller,
-            builder: (context, Matrix4 matrix, child) {
-              if (matrixAlmostEqual(matrix, Matrix4.identity())) {
-                if (pageBuilderScroll is! BouncingScrollPhysics) {
-                  Future.delayed(Duration.zero, () {
-                    if (mounted)
-                      setState(() =>
-                          pageBuilderScroll = const BouncingScrollPhysics());
-                  });
-                }
-              } else {
-                if (pageBuilderScroll is! NeverScrollableScrollPhysics) {
-                  Future.delayed(Duration.zero, () {
-                    setState(() => pageBuilderScroll =
-                        const NeverScrollableScrollPhysics());
-                  });
-                }
-              }
-              return InteractiveViewer(
-                transformationController: controller,
-                clipBehavior: Clip.none,
-                minScale: 1,
-                maxScale: 8,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Transform.rotate(
-                      angle:
-                          (widget.piv['deg'] == null ? 0 : widget.piv['deg']) *
-                              math.pi /
-                              180.0,
-                      child: AnimatedContainer(
-                        width: SizeService.instance.screenWidth(context),
-                        height:
-                            SizeService.instance.screenHeight(context) * .45,
-                        duration: const Duration(seconds: 1),
-                        curve: Curves.fastOutSlowIn,
-                        decoration: const BoxDecoration(
-                            color: kGreyDarker,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15))),
-                        child: Image(
-                          // alignment: Alignment.center,
-                          fit: BoxFit.contain,
-                          image: imageProvider,
-                        ),
-                      ),
-                    ),
-                  ],
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Transform.rotate(
+                angle: (widget.piv['deg'] == null ? 0 : widget.piv['deg']) *
+                    math.pi /
+                    180.0,
+                child: Container(
+                  width: SizeService.instance.screenWidth(context),
+                  height: pivHeight(),
+                  child: Image(
+                    fit: BoxFit.contain,
+                    image: imageProvider,
+                  ),
                 ),
-              );
-            },
+              ),
+              Text('height ${height.toString()}', style: kLightBackgroundDate),
+              Text('width ${width.toString()}', style: kLightBackgroundDate),
+              Text('deg ${widget.piv['deg']}', style: kLightBackgroundDate),
+            ],
           );
         });
   }
