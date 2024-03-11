@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
 import 'package:tagaway/services/tagService.dart';
 import 'package:tagaway/services/tools.dart';
@@ -27,7 +28,6 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
-  dynamic cancelListener2;
 
   dynamic account = {
     'username': '',
@@ -38,7 +38,6 @@ class _HomeViewState extends State<HomeView> {
   dynamic seenPivIndexes = [];
 
   getNextIndex(int length) {
-    debug(['length', length, seenPivIndexes]);
     var index = (new math.Random().nextInt(length));
     if (!seenPivIndexes.contains(index)) {
       seenPivIndexes.add(index);
@@ -106,19 +105,12 @@ class _HomeViewState extends State<HomeView> {
     Future.delayed(Duration(seconds: 1), () {
       TagService.instance.queryPivs();
     });
-    cancelListener = store.listen(['account'], (Account) {
+    cancelListener =
+        store.listen(['account', 'queryResult'], (Account, QueryResult) {
       // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
       if (mounted) {
         setState(() {
           if (Account != '') account = Account;
-        });
-      }
-    });
-    // We need a separate listener for queryResult so we only reset seenPivIndexes when the query result changes, not when the account data is loaded.
-    cancelListener2 = store.listen(['queryResult'], (QueryResult) {
-      // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
-      if (mounted) {
-        setState(() {
           if (QueryResult != '') queryResult = QueryResult;
         });
       }
@@ -129,12 +121,10 @@ class _HomeViewState extends State<HomeView> {
   void dispose() {
     super.dispose();
     cancelListener();
-    cancelListener2();
   }
 
   @override
   Widget build(BuildContext context) {
-    debug(['piv count', queryResult['pivs'].length]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -238,7 +228,6 @@ class _HomeViewState extends State<HomeView> {
                         SliverList.builder(
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
-                              debug(['drawing piv', index]);
                               var nextIndex;
                               if (seenPivIndexes.length - 1 < index)
                                 nextIndex =
@@ -377,7 +366,9 @@ class _LocalPhotoState extends State<LocalPhoto> {
         ),
         IconsRow(
           piv: widget.piv,
-          deletePiv: () {},
+          deletePiv: () {
+            PivService.instance.deleteLocalPivs([widget.piv.id]);
+          },
           hidePiv: () {},
           sharePiv: () {},
           tagPiv: () {},
@@ -480,7 +471,9 @@ class _LocalVideoState extends State<LocalVideo> {
                 ),
                 IconsRow(
                   piv: widget.vid,
-                  deletePiv: () {},
+                  deletePiv: () {
+                    PivService.instance.deleteLocalPivs([widget.piv.id]);
+                  },
                   hidePiv: () {},
                   sharePiv: () {},
                   tagPiv: () {},
