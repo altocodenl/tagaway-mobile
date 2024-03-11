@@ -464,7 +464,7 @@ class PivService {
       }
    }
 
-   deleteLocalPivs (ids, [reportBytes = null]) async {
+   deleteLocalPivs (ids, [reportBytes = null, onDelete = null]) async {
       uploadQueue.forEach ((queuedPiv) {
          if (! ids.contains (queuedPiv.id)) return;
          store.set ('pendingDeletion:' + queuedPiv.id, true, 'disk');
@@ -485,6 +485,8 @@ class PivService {
       }
 
       if (! firstPivDeleted) return;
+
+      if (onDelete != null) onDelete ();
 
       var indexesToDelete = [];
       for (int k = 0; k < localPivs.length; k++) {

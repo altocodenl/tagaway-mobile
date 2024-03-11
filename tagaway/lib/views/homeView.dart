@@ -220,6 +220,7 @@ class _HomeViewState extends State<HomeView> {
                 ))
               : RefreshIndicator(
                   onRefresh: () async {
+                    seenPivIndexes = [];
                     return TagService.instance.queryPivs(true);
                   },
                   child: Stack(children: [
@@ -311,6 +312,7 @@ class LocalPhoto extends StatefulWidget {
 
 class _LocalPhotoState extends State<LocalPhoto> {
   dynamic cancelListener;
+  bool pivDeleted = false;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -350,6 +352,8 @@ class _LocalPhotoState extends State<LocalPhoto> {
   Widget build(BuildContext context) {
     Future<File?> file = loadImage(widget.piv);
 
+    if (pivDeleted) return Container();
+
     return Column(
       children: [
         Container(
@@ -367,7 +371,9 @@ class _LocalPhotoState extends State<LocalPhoto> {
         IconsRow(
           piv: widget.piv,
           deletePiv: () {
-            PivService.instance.deleteLocalPivs([widget.piv.id]);
+            PivService.instance.deleteLocalPivs([widget.piv.id], null, () {
+              setState(() => pivDeleted = true);
+            });
           },
           hidePiv: () {},
           sharePiv: () {},
@@ -418,6 +424,7 @@ class LocalVideo extends StatefulWidget {
 class _LocalVideoState extends State<LocalVideo> {
   late VideoPlayerController _controller;
   bool initialized = false;
+  bool pivDeleted = false;
 
   @override
   void initState() {
@@ -455,6 +462,7 @@ class _LocalVideoState extends State<LocalVideo> {
     var height = widget.vid.height > widget.vid.width
         ? SizeService.instance.screenHeight(context) * .8
         : SizeService.instance.screenHeight(context) * .35;
+    if (pivDeleted) return Container();
     return initialized
         // If the video is initialized, display it
         ? Stack(children: [
@@ -472,7 +480,10 @@ class _LocalVideoState extends State<LocalVideo> {
                 IconsRow(
                   piv: widget.vid,
                   deletePiv: () {
-                    PivService.instance.deleteLocalPivs([widget.vid.id]);
+                    PivService.instance.deleteLocalPivs([widget.vid.id], null,
+                        () {
+                      setState(() => pivDeleted = true);
+                    });
                   },
                   hidePiv: () {},
                   sharePiv: () {},

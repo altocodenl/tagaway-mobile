@@ -3,7 +3,7 @@
 ## TODO
 
 - Hide local piv
-- Delete
+- Delete: when coming back up in scroll, keep it hidden
 - Share
 
 -----
@@ -1568,10 +1568,10 @@ This concludes the initialization logic and the function itself.
 
 We now define `deleteLocalPivs`, the function that will delete local pivs from the phone. It takes a single argument, `ids`, which is an array of the ids of the asssets to be deleted.
 
-The function also takes an optional argument, `reportBytes`, which if present will be a number of bytes liberated by a successful deletion, which will be printed in a snackbar.
+The function also takes two optional arguments, `reportBytes`, which if present will be a number of bytes liberated by a successful deletion, which will be printed in a snackbar; and `onDelete`, an argument that, if passed, should contain a function that will be executed if the piv deletion is confirmed by the user.
 
 ```dart
-   deleteLocalPivs (ids, [reportBytes = null]) async {
+   deleteLocalPivs (ids, [reportBytes = null, onDelete = null]) async {
 ```
 
 We first start by iterating our `uploadQueue`, since it's *essential* that we do not delete pivs that are in the upload queue. If we didn't do this, users may well tag a piv, consider it uploaded (even if it's not) and then delete it, which would mean that the user would lose the file forever!
@@ -1653,7 +1653,13 @@ If `firstPivDeleted` is still `false`, it means that the 60 seconds have elapsed
       if (! firstPivDeleted) return;
 ```
 
-If we're here, the user indeed deleted the first piv of the batch. We now proceed to remove the pivs from `localPivs`. While we could invoke `loadLocalPivs`, that could take many seconds in a phone with thousands of pivs, so we instead remove them quickly from `localPivs`.
+If we're here, the user indeed deleted the first piv of the batch. If `onDelete` was passed, we execute it.
+
+```dart
+      if (onDelete != null) onDelete ();
+```
+
+We now proceed to remove the pivs from `localPivs`. While we could invoke `loadLocalPivs`, that could take many seconds in a phone with thousands of pivs, so we instead remove them quickly from `localPivs`.
 
 We start by creating a list of the indexes of the deleted pivs.
 
