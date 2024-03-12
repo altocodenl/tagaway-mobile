@@ -2,11 +2,11 @@
 
 ## TODO
 
-- Hide local piv
-- Delete: when coming back up in scroll, keep it hidden
-- Share
+- Cloud: delete, share
 
 -----
+- Query videos
+- Query recent
 - Tag & show tags
 - Add full screen
 - Add login flow with Google, Apple and Facebook
@@ -31,9 +31,11 @@
 - currentlyDeletingPivs(Local|Uploaded) <list>: list of ids of pivs that are currently being deleted, either Local or Uploaded.
 - displayMode <obj>: if set, has the form `{showOrganized: BOOLEAN, cameraOnly: BOOLEAN}`. `showOrganized` shows organized pivs in the local view; `cameraOnly` hides non-camera pivs from the local view.
 - deleteTag(Local|Uploaded|ManageTags) <str>: tag currently being deleted in LocalView/UploadedView/ManageTagsView
+- deletedPivs [<str>, ...]: a list of piv ids that are shown on the current view and have just been deleted.
 - fullScreenCarrousel (bool): if set, the piv is shown in full screen in CarrouselView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
+- hiddenLocalPivs [<str>, ...] [DISK]: a list of local piv ids that are hidden from all searches.
 - hometags [<str>, ...]: list of hometags, brought from the server.
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.

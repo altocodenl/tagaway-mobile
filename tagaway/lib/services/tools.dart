@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:photo_manager/photo_manager.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:tagaway/main.dart';
 import 'package:tagaway/ui_elements/constants.dart';
@@ -311,4 +313,13 @@ getAvailableStorage () async {
 printBytes (int bytes) {
    if (bytes < 1000 * 1000 * 1000) return ((bytes / (1000 * 100)).round () / 10).toString () + 'MB';
    return ((bytes / (1000 * 1000 * 100)).round () / 10).toString () + 'GB';
+}
+
+shareLocalPiv (context, piv, isVid) async {
+  WhiteSnackBar.buildSnackBar(context, 'Preparing your piv for sharing...');
+  final response = await piv.originBytes;
+  final temp = await getTemporaryDirectory();
+  final path = '${temp.path}/sharedPiv.' + (isVid ? 'mp4' : 'jpg');
+  File(path).writeAsBytesSync(response!);
+  await Share.shareXFiles([XFile(path)]);
 }

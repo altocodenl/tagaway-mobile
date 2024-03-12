@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
+
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
@@ -14,8 +17,6 @@ import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/accountView.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'home';
@@ -134,6 +135,7 @@ class _HomeViewState extends State<HomeView> {
             onTap: () {
               store.set('queryTags', [], '', 'mute');
               seenPivIndexes = [];
+              store.remove('deletedPivs');
               TagService.instance.queryPivs(true);
             },
             child: Row(
@@ -221,6 +223,7 @@ class _HomeViewState extends State<HomeView> {
               : RefreshIndicator(
                   onRefresh: () async {
                     seenPivIndexes = [];
+                    store.remove('deletedPivs');
                     return TagService.instance.queryPivs(true);
                   },
                   child: Stack(children: [
@@ -253,7 +256,7 @@ class _HomeViewState extends State<HomeView> {
                                     if (piv['local'] == true &&
                                         piv['piv'].type != AssetType.image)
                                       return LocalVideo(
-                                        vid: piv['piv'],
+                                        piv: piv['piv'],
                                         date: date,
                                       );
                                     // CLOUD PHOTO
@@ -312,7 +315,7 @@ class LocalPhoto extends StatefulWidget {
 
 class _LocalPhotoState extends State<LocalPhoto> {
   dynamic cancelListener;
-  bool pivDeleted = false;
+  bool hidePiv = false;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -323,8 +326,16 @@ class _LocalPhotoState extends State<LocalPhoto> {
   void initState() {
     super.initState();
 
-    cancelListener = store.listen(['foo'], (Foo) {
-      setState(() {});
+    cancelListener = store.listen(['deletedPivs', 'hiddenLocalPivs'],
+        (DeletedPivs, HiddenPivs) {
+      if (DeletedPivs == '') DeletedPivs = [];
+      if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+      if (HiddenPivs == '') HiddenPivs = [];
+      if (HiddenPivs.contains(widget.piv.id) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
     });
   }
 
@@ -352,7 +363,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
   Widget build(BuildContext context) {
     Future<File?> file = loadImage(widget.piv);
 
-    if (pivDeleted) return Container();
+    if (hidePiv) return Container();
 
     return Column(
       children: [
@@ -372,11 +383,17 @@ class _LocalPhotoState extends State<LocalPhoto> {
           piv: widget.piv,
           deletePiv: () {
             PivService.instance.deleteLocalPivs([widget.piv.id], null, () {
-              setState(() => pivDeleted = true);
+              store.set(
+                  'deletedPivs', getList('deletedPivs') + [widget.piv.id]);
             });
           },
-          hidePiv: () {},
-          sharePiv: () {},
+          hidePiv: () {
+            store.set('hiddenLocalPivs',
+                getList('hiddenLocalPivs') + [widget.piv.id], 'disk');
+          },
+          sharePiv: () {
+            shareLocalPiv(context, widget.piv, false);
+          },
           tagPiv: () {},
         ),
         Padding(
@@ -412,9 +429,9 @@ class _LocalPhotoState extends State<LocalPhoto> {
 }
 
 class LocalVideo extends StatefulWidget {
-  const LocalVideo({Key? key, required this.vid, required this.date})
+  const LocalVideo({Key? key, required this.piv, required this.date})
       : super(key: key);
-  final AssetEntity vid;
+  final AssetEntity piv;
   final DateTime date;
 
   @override
@@ -424,20 +441,32 @@ class LocalVideo extends StatefulWidget {
 class _LocalVideoState extends State<LocalVideo> {
   late VideoPlayerController _controller;
   bool initialized = false;
-  bool pivDeleted = false;
+  bool hidePiv = false;
+  dynamic cancelListener;
 
   @override
   void initState() {
     _initVideo();
-
     super.initState();
+    cancelListener = store.listen(['deletedPivs', 'hiddenLocalPivs'],
+        (DeletedPivs, HiddenPivs) {
+      if (DeletedPivs == '') DeletedPivs = [];
+      if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+      if (HiddenPivs == '') HiddenPivs = [];
+      if (HiddenPivs.contains(widget.piv.id) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+    });
   }
 
   @override
   void dispose() {
     try {
-      _controller.dispose();
       super.dispose();
+      cancelListener();
+      _controller.dispose();
     } catch (_) {
       // We ignore the error.
     }
@@ -446,7 +475,7 @@ class _LocalVideoState extends State<LocalVideo> {
   _initVideo() async {
     // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
     if (!mounted) return;
-    final video = await widget.vid.file;
+    final video = await widget.piv.file;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
       ..setLooping(true)
@@ -459,10 +488,10 @@ class _LocalVideoState extends State<LocalVideo> {
 
   @override
   Widget build(BuildContext context) {
-    var height = widget.vid.height > widget.vid.width
+    var height = widget.piv.height > widget.piv.width
         ? SizeService.instance.screenHeight(context) * .8
         : SizeService.instance.screenHeight(context) * .35;
-    if (pivDeleted) return Container();
+    if (hidePiv) return Container();
     return initialized
         // If the video is initialized, display it
         ? Stack(children: [
@@ -478,19 +507,25 @@ class _LocalVideoState extends State<LocalVideo> {
                   ),
                 ),
                 IconsRow(
-                  piv: widget.vid,
+                  piv: widget.piv,
                   deletePiv: () {
-                    PivService.instance.deleteLocalPivs([widget.vid.id], null,
+                    PivService.instance.deleteLocalPivs([widget.piv.id], null,
                         () {
-                      setState(() => pivDeleted = true);
+                      store.set('deletedPivs',
+                          getList('deletedPivs') + [widget.piv.id]);
                     });
                   },
-                  hidePiv: () {},
-                  sharePiv: () {},
+                  hidePiv: () {
+                    store.set('hiddenLocalPivs',
+                        getList('hiddenLocalPivs') + [widget.piv.id], 'disk');
+                  },
+                  sharePiv: () {
+                    shareLocalPiv(context, widget.piv, true);
+                  },
                   tagPiv: () {},
                 ),
                 Padding(
-                  padding: widget.vid.height > widget.vid.width
+                  padding: widget.piv.height > widget.piv.width
                       ? EdgeInsets.only(left: 12.0, top: 10)
                       : EdgeInsets.only(left: 12.0),
                   child: Row(
@@ -522,7 +557,7 @@ class _LocalVideoState extends State<LocalVideo> {
               bottom: 90,
               left: SizeService.instance.screenWidth(context) * .43,
               child: FloatingActionButton(
-                key: Key('vidPlay' + widget.vid.id),
+                key: Key('vidPlay' + widget.piv.id),
                 shape: const CircleBorder(),
                 backgroundColor: kAltoBlue,
                 onPressed: () {
@@ -909,6 +944,87 @@ class UserMenuElementDarkGrey extends StatelessWidget {
                     color: Colors.white,
                   ))),
         ),
+      ),
+    );
+  }
+}
+
+class IconsRow extends StatefulWidget {
+  const IconsRow({
+    super.key,
+    required this.piv,
+    required this.deletePiv,
+    required this.hidePiv,
+    required this.sharePiv,
+    required this.tagPiv,
+  });
+
+  final AssetEntity piv;
+  final Function deletePiv;
+  final Function hidePiv;
+  final Function sharePiv;
+  final Function tagPiv;
+
+  @override
+  State<IconsRow> createState() => _IconsRowState();
+}
+
+class _IconsRowState extends State<IconsRow> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: widget.piv.height > widget.piv.width
+          ? const EdgeInsets.only(left: 12.0, right: 12, top: 10)
+          : const EdgeInsets.only(left: 12.0, right: 12, bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () {
+              widget.deletePiv();
+            },
+            child: const Icon(
+              kTrashCanIcon,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          GestureDetector(
+            onTap: () {
+              widget.hidePiv();
+            },
+            child: const Icon(
+              kSlashedEyeIcon,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(
+            width: 30,
+          ),
+          GestureDetector(
+            onTap: () {
+              widget.sharePiv();
+            },
+            child: const Icon(
+              kShareIcon,
+              color: Colors.white,
+            ),
+          ),
+          const Expanded(
+            child: SizedBox(),
+          ),
+          GestureDetector(
+            onTap: () {
+              widget.tagPiv();
+            },
+            child: const Icon(
+              kTagIcon,
+              color: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
