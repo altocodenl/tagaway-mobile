@@ -644,7 +644,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
           final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
           final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
 
-          var pivHeight = () {
+          var containerHeight = () {
             if (height > width * 1.7)
               return SizeService.instance.screenHeight(context) * .85;
             if (height > width * 1.4)
@@ -657,6 +657,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
               return SizeService.instance.screenHeight(context) * .4;
             return SizeService.instance.screenHeight(context) * .35;
           };
+          var containerWidth = SizeService.instance.screenWidth(context);
 
           var left = (askance ? -(width - height) / 2 : 0).toDouble();
           // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
@@ -670,8 +671,8 @@ class _CloudPhotoState extends State<CloudPhoto> {
                     math.pi /
                     180.0,
                 child: Container(
-                  width: SizeService.instance.screenWidth(context),
-                  height: pivHeight(),
+                  width: askance ? containerHeight() : containerWidth,
+                  height: askance ? containerWidth : containerHeight(),
                   child: Image(
                     fit: BoxFit.contain,
                     image: imageProvider,
