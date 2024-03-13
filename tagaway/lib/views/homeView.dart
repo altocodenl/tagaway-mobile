@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
-
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/sizeService.dart';
@@ -17,6 +14,8 @@ import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/accountView.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeView extends StatefulWidget {
   static const String id = 'home';
@@ -379,7 +378,8 @@ class _LocalPhotoState extends State<LocalPhoto> {
           ),
         ),
         IconsRow(
-          piv: widget.piv,
+          pivHeight: widget.piv.height,
+          pivWidth: widget.piv.width,
           deletePiv: () {
             PivService.instance.deleteLocalPivs([widget.piv.id], null, () {
               store.set(
@@ -504,7 +504,8 @@ class _LocalVideoState extends State<LocalVideo> {
                   ),
                 ),
                 IconsRow(
-                  piv: widget.piv,
+                  pivHeight: widget.piv.height,
+                  pivWidth: widget.piv.width,
                   deletePiv: () {
                     PivService.instance.deleteLocalPivs([widget.piv.id], null,
                         () {
@@ -679,9 +680,51 @@ class _CloudPhotoState extends State<CloudPhoto> {
                   ),
                 ),
               ),
-              Text('height ${height.toString()}', style: kLightBackgroundDate),
-              Text('width ${width.toString()}', style: kLightBackgroundDate),
-              Text('deg ${widget.piv['deg']}', style: kLightBackgroundDate),
+              IconsRow(
+                pivHeight: height,
+                pivWidth: width,
+                deletePiv: () {
+                  // PivService.instance.deleteLocalPivs([widget.piv.id], null,
+                  //     () {
+                  //   store.set('deletedPivs',
+                  //       getList('deletedPivs') + [widget.piv.id]);
+                  // });
+                },
+                hidePiv: () {
+                  // store.set('hideMap:' + widget.piv.id, true, 'disk');
+                },
+                sharePiv: () {
+                  // shareLocalPiv(context, widget.piv, false);
+                },
+                tagPiv: () {},
+              ),
+              Padding(
+                padding: height > width
+                    ? EdgeInsets.only(left: 12.0, top: 10)
+                    : EdgeInsets.only(left: 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      shortMonthNames[widget.date.month - 1].toString(),
+                      style: kLightBackgroundDate,
+                    ),
+                    const Text(
+                      ' ',
+                      style: kLightBackgroundDate,
+                    ),
+                    Text(pad(widget.date.day), style: kLightBackgroundDate),
+                    const Text(
+                      ', ',
+                      style: kLightBackgroundDate,
+                    ),
+                    Text(
+                      widget.date.year.toString(),
+                      style: kLightBackgroundDate,
+                    ),
+                  ],
+                ),
+              ),
             ],
           );
         });
@@ -743,28 +786,62 @@ class _CloudVideoState extends State<CloudVideo> {
 
   @override
   Widget build(BuildContext context) {
+    var height = _controller.value.size.height > _controller.value.size.width
+        ? SizeService.instance.screenHeight(context) * .8
+        : SizeService.instance.screenHeight(context) * .35;
     return _controller.value.isInitialized
         ? Stack(
             children: [
-              AnimatedContainer(
-                width: SizeService.instance.screenWidth(context),
-                height: fullScreen
-                    ? SizeService.instance.screenHeight(context) * .85
-                    : SizeService.instance.screenHeight(context) * .45,
-                duration: const Duration(milliseconds: 500),
-                alignment: Alignment.topCenter,
-                decoration: const BoxDecoration(
-                    color: kGreyDarker,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15))),
-                child: AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                ),
+              Column(
+                children: [
+                  Container(
+                    width: SizeService.instance.screenWidth(context),
+                    height: height,
+                    child: AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: VideoPlayer(_controller),
+                    ),
+                  ),
+                  IconsRow(
+                      pivHeight: _controller.value.size.height.toInt(),
+                      pivWidth: _controller.value.size.width.toInt(),
+                      deletePiv: () {},
+                      hidePiv: () {},
+                      sharePiv: () {},
+                      tagPiv: () {}),
+                  Padding(
+                    padding: _controller.value.size.height >
+                            _controller.value.size.width
+                        ? EdgeInsets.only(left: 12.0, top: 10)
+                        : EdgeInsets.only(left: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Month',
+                          style: kLightBackgroundDate,
+                        ),
+                        const Text(
+                          ' ',
+                          style: kLightBackgroundDate,
+                        ),
+                        Text('day', style: kLightBackgroundDate),
+                        const Text(
+                          ', ',
+                          style: kLightBackgroundDate,
+                        ),
+                        Text(
+                          'Year',
+                          style: kLightBackgroundDate,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Align(
-                alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
+              Positioned(
+                bottom: 90,
+                left: SizeService.instance.screenWidth(context) * .43,
                 child: FloatingActionButton(
                   key: Key('playPause' + widget.piv['id']),
                   shape: const CircleBorder(),
@@ -793,10 +870,14 @@ class _CloudVideoState extends State<CloudVideo> {
               ),
             ],
           )
-        : const Center(
-            child: CircularProgressIndicator(
-            backgroundColor: kGreyDarkest,
-            color: kAltoBlue,
+        : Center(
+            child: Container(
+            height: height,
+            width: SizeService.instance.screenWidth(context),
+            child: const CircularProgressIndicator(
+              backgroundColor: kGreyDarkest,
+              color: kAltoBlue,
+            ),
           ));
   }
 }
@@ -949,14 +1030,16 @@ class UserMenuElementDarkGrey extends StatelessWidget {
 class IconsRow extends StatefulWidget {
   const IconsRow({
     super.key,
-    required this.piv,
+    required this.pivHeight,
+    required this.pivWidth,
     required this.deletePiv,
     required this.hidePiv,
     required this.sharePiv,
     required this.tagPiv,
   });
 
-  final AssetEntity piv;
+  final int pivHeight;
+  final int pivWidth;
   final Function deletePiv;
   final Function hidePiv;
   final Function sharePiv;
@@ -970,7 +1053,7 @@ class _IconsRowState extends State<IconsRow> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: widget.piv.height > widget.piv.width
+      padding: widget.pivHeight > widget.pivWidth
           ? const EdgeInsets.only(left: 12.0, right: 12, top: 10)
           : const EdgeInsets.only(left: 12.0, right: 12, bottom: 10),
       child: Row(
