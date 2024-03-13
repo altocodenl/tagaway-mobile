@@ -3,11 +3,10 @@
 ## TODO
 
 - Cloud: delete, share
-
------
 - Query videos
 - Query recent
 - Tag & show tags
+-----
 - Add full screen
 - Add login flow with Google, Apple and Facebook
 - Show info of piv

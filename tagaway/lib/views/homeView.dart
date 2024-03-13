@@ -645,8 +645,8 @@ class _CloudPhotoState extends State<CloudPhoto> {
           final screenWidth = MediaQuery.of(context).size.width;
           final screenHeight = MediaQuery.of(context).size.height - 100;
           final askance = widget.piv['deg'] == 90 || widget.piv['deg'] == -90;
-          final height = askance ? screenWidth : screenHeight;
-          final width = askance ? screenHeight : screenWidth;
+          final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
+          final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
 
           var pivHeight = () {
             if (height > width * 1.7)
