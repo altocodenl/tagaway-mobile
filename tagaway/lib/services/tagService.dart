@@ -448,6 +448,7 @@ class TagService {
 
       PivService.instance.localPivs.forEach ((piv) {
          if (store.get ('pivMap:' + piv.id) != '') return;
+         if (store.get ('hideMap:' + piv.id) != '') return;
 
          if (localPivsAlreadyPresent [piv.id] == true) return;
 

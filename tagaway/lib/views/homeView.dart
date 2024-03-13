@@ -326,14 +326,13 @@ class _LocalPhotoState extends State<LocalPhoto> {
   void initState() {
     super.initState();
 
-    cancelListener = store.listen(['deletedPivs', 'hiddenLocalPivs'],
-        (DeletedPivs, HiddenPivs) {
+    cancelListener = store.listen(['deletedPivs', 'hideMap:' + widget.piv.id],
+        (DeletedPivs, PivHidden) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
         setState(() => hidePiv = true);
       }
-      if (HiddenPivs == '') HiddenPivs = [];
-      if (HiddenPivs.contains(widget.piv.id) && hidePiv == false) {
+      if (PivHidden == true && hidePiv == false) {
         setState(() => hidePiv = true);
       }
     });
@@ -388,8 +387,7 @@ class _LocalPhotoState extends State<LocalPhoto> {
             });
           },
           hidePiv: () {
-            store.set('hiddenLocalPivs',
-                getList('hiddenLocalPivs') + [widget.piv.id], 'disk');
+            store.set('hideMap:' + widget.piv.id, true, 'disk');
           },
           sharePiv: () {
             shareLocalPiv(context, widget.piv, false);
@@ -448,14 +446,13 @@ class _LocalVideoState extends State<LocalVideo> {
   void initState() {
     _initVideo();
     super.initState();
-    cancelListener = store.listen(['deletedPivs', 'hiddenLocalPivs'],
-        (DeletedPivs, HiddenPivs) {
+    cancelListener = store.listen(['deletedPivs', 'hideMap:' + widget.piv.id],
+        (DeletedPivs, PivHidden) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
         setState(() => hidePiv = true);
       }
-      if (HiddenPivs == '') HiddenPivs = [];
-      if (HiddenPivs.contains(widget.piv.id) && hidePiv == false) {
+      if (PivHidden == true && hidePiv == false) {
         setState(() => hidePiv = true);
       }
     });
@@ -516,8 +513,7 @@ class _LocalVideoState extends State<LocalVideo> {
                     });
                   },
                   hidePiv: () {
-                    store.set('hiddenLocalPivs',
-                        getList('hiddenLocalPivs') + [widget.piv.id], 'disk');
+                    store.set('hideMap:' + widget.piv.id, true, 'disk');
                   },
                   sharePiv: () {
                     shareLocalPiv(context, widget.piv, true);

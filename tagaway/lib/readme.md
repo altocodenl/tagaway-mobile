@@ -34,7 +34,7 @@
 - fullScreenCarrousel (bool): if set, the piv is shown in full screen in CarrouselView
 - gridControllerUploaded <scroll controller>: controller that drives the scroll of the uploaded grid
 - hashMap:<id> [DISK]: maps the id of a local piv to a hash.
-- hiddenLocalPivs [<str>, ...] [DISK]: a list of local piv ids that are hidden from all searches.
+- hideMap:<id> [DISK]: indicates that a piv with that id should be hidden.
 - hometags [<str>, ...]: list of hometags, brought from the server.
 - hideAddMoreTagsButton(Local|Uploaded) <bool>: if set, this will hide the "add second tag" button when tagging.
 - initialScrollableSize <float>: the percentage of the screen height that the unexpanded scrollable sheets should take.
@@ -2844,6 +2844,12 @@ We will iterate all the local pivs for which we don't have a cloud counterpart. 
 ```dart
       PivService.instance.localPivs.forEach ((piv) {
          if (store.get ('pivMap:' + piv.id) != '') return;
+```
+
+If the piv is marked as hidden, we'll remove it from the query altogether.
+
+```dart
+         if (store.get ('hideMap:' + piv.id) != '') return;
 ```
 
 We will get the pending tags for this piv.
