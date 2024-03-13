@@ -463,6 +463,7 @@ String tagType(tag) {
   if (tag == 'u::') return 'untagged';
   if (tag == 't::') return 'toOrganize';
   if (tag == 'o::') return 'organized';
+  if (tag == 'v::') return 'videos';
   if (RegExp('^d::[0-9]').hasMatch(tag)) return 'year';
   if (RegExp('^d::M').hasMatch(tag)) return 'month';
   if (RegExp('^g::').hasMatch(tag)) {
@@ -479,6 +480,7 @@ String tagTitle(tag) {
   if (type == 'untagged') return 'Untagged';
   if (type == 'toOrganize') return 'To Organize';
   if (type == 'organized') return 'Organized';
+  if (type == 'videos') return 'Videos';
   if (type == 'year' || type == 'country' || type == 'city')
     return tag.substring(3);
   if (type == 'month') return shortMonthNames[int.parse(tag.substring(4)) - 1];
@@ -490,6 +492,7 @@ tagIcon(tag) {
   if (type == 'untagged') return kTagIcon;
   if (type == 'toOrganize') return kBoxArchiveIcon;
   if (type == 'organized') return kCircleCheckIcon;
+  if (type == 'videos') return kClockIcon;
   if (type == 'year' || type == 'month') return kClockIcon;
   if (type == 'country') return kLocationDotIcon;
   if (type == 'city') return kLocationPinIcon;
@@ -500,6 +503,7 @@ Color tagIconColor(tag) {
   var type = tagType(tag);
   if (type == 'untagged' || type == 'toOrganize') return kGrey;
   if (type == 'organized') return kAltoOrganized;
+  if (type == 'videos') return kAltoOrganized;
   if (type == 'year' || type == 'month') return kGreyDarker;
   if (type == 'country' || type == 'city') return kGreyDarker;
   return tagColor(tag);

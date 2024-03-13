@@ -4,7 +4,6 @@
 
 - Cloud: delete, share
 - Query videos
-- Query recent
 - Tag & show tags
 -----
 - Add full screen
