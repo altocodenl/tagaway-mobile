@@ -643,7 +643,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
 
   @override
   Widget build(BuildContext context) {
-    //if (hidePiv) return Container();
+    if (hidePiv) return Container();
     return CachedNetworkImage(
         imageUrl: (kTagawayThumbMURL) + (widget.piv['id']),
         httpHeaders: {'cookie': store.get('cookie')},
@@ -703,7 +703,6 @@ class _CloudPhotoState extends State<CloudPhoto> {
                   store.set('currentlyDeletingModalUploaded', true);
                 },
                 hidePiv: () {
-                  debug(['hideMap:' + widget.piv['id'], true, 'disk']);
                   store.set('hideMap:' + widget.piv['id'], true, 'disk');
                 },
                 sharePiv: () {
