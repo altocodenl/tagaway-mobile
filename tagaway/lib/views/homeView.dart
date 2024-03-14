@@ -604,6 +604,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
   dynamic cancelListener;
   late TransformationController controller;
   ScrollPhysics? pageBuilderScroll;
+  bool hidePiv = false;
 
   bool matrixAlmostEqual(Matrix4 a, Matrix4 b, [double epsilon = 10]) {
     for (var i = 0; i < 16; i++) {
@@ -618,8 +619,16 @@ class _CloudPhotoState extends State<CloudPhoto> {
   void initState() {
     controller = TransformationController();
     super.initState();
-    cancelListener = store.listen(['foo'], (Foo) {
-      setState(() {});
+    cancelListener = store
+        .listen(['deletedPivs', 'hideMap:' + widget.piv['id']],
+            (DeletedPivs, PivHidden) {
+      if (DeletedPivs == '') DeletedPivs = [];
+      if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+      if (PivHidden == true && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
     });
   }
 
@@ -631,6 +640,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
 
   @override
   Widget build(BuildContext context) {
+    if (hidePiv) return Container();
     return CachedNetworkImage(
         imageUrl: (kTagawayThumbMURL) + (widget.piv['id']),
         httpHeaders: {'cookie': store.get('cookie')},
@@ -692,7 +702,8 @@ class _CloudPhotoState extends State<CloudPhoto> {
                   // });
                 },
                 hidePiv: () {
-                  // store.set('hideMap:' + widget.piv.id, true, 'disk');
+                  debug(['hideMap:' + widget.piv['id'], true, 'disk']);
+                  store.set('hideMap:' + widget.piv['id'], true, 'disk');
                 },
                 sharePiv: () {
                   // shareLocalPiv(context, widget.piv, false);
@@ -745,22 +756,24 @@ class CloudVideo extends StatefulWidget {
 class _CloudVideoState extends State<CloudVideo> {
   late VideoPlayerController _controller;
   bool initialized = false;
-  bool fullScreen = false;
+  bool hidePiv = false;
   dynamic cancelListener;
 
   @override
   void initState() {
     _initVideo();
-    setState(() {
-      fullScreen = store.get('fullScreenCarrousel') == true;
-    });
-    cancelListener =
-        store.listen(['fullScreenCarrousel'], (FullScreenCarrousel) {
-      setState(() {
-        fullScreen = FullScreenCarrousel == true;
-      });
-    });
     super.initState();
+    cancelListener = store
+        .listen(['deletedPivs', 'hideMap:' + widget.piv['id']],
+            (DeletedPivs, PivHidden) {
+      if (DeletedPivs == '') DeletedPivs = [];
+      if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+      if (PivHidden == true && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+    });
   }
 
   @override
@@ -789,6 +802,7 @@ class _CloudVideoState extends State<CloudVideo> {
 
   @override
   Widget build(BuildContext context) {
+    if (hidePiv) return Container();
     var height = _controller.value.size.height > _controller.value.size.width
         ? SizeService.instance.screenHeight(context) * .8
         : SizeService.instance.screenHeight(context) * .35;
@@ -809,7 +823,9 @@ class _CloudVideoState extends State<CloudVideo> {
                       pivHeight: _controller.value.size.height.toInt(),
                       pivWidth: _controller.value.size.width.toInt(),
                       deletePiv: () {},
-                      hidePiv: () {},
+                      hidePiv: () {
+                        store.set('hideMap:' + widget.piv['id'], true, 'disk');
+                      },
                       sharePiv: () {},
                       tagPiv: () {}),
                   Padding(

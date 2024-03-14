@@ -7,6 +7,7 @@
 - Tag & show tags
 -----
 - Add full screen
+- Show hidden in query to be able to unhide
 - Add login flow with Google, Apple and Facebook
 - Show info of piv
 - Share Tagaway button and link
