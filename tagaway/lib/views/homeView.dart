@@ -296,7 +296,8 @@ class _HomeViewState extends State<HomeView> {
                             Navigator.pushReplacementNamed(
                                 context, 'querySelector');
                           }),
-                    )
+                    ),
+                    DeleteModal(view: 'Uploaded')
                   ]))),
     );
   }
@@ -640,7 +641,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
 
   @override
   Widget build(BuildContext context) {
-    if (hidePiv) return Container();
+    //if (hidePiv) return Container();
     return CachedNetworkImage(
         imageUrl: (kTagawayThumbMURL) + (widget.piv['id']),
         httpHeaders: {'cookie': store.get('cookie')},
@@ -695,11 +696,9 @@ class _CloudPhotoState extends State<CloudPhoto> {
                 pivHeight: height,
                 pivWidth: width,
                 deletePiv: () {
-                  // PivService.instance.deleteLocalPivs([widget.piv.id], null,
-                  //     () {
-                  //   store.set('deletedPivs',
-                  //       getList('deletedPivs') + [widget.piv.id]);
-                  // });
+                  store
+                      .set('currentlyDeletingPivsUploaded', [widget.piv['id']]);
+                  store.set('currentlyDeletingModalUploaded', true);
                 },
                 hidePiv: () {
                   debug(['hideMap:' + widget.piv['id'], true, 'disk']);
@@ -822,7 +821,11 @@ class _CloudVideoState extends State<CloudVideo> {
                   IconsRow(
                       pivHeight: _controller.value.size.height.toInt(),
                       pivWidth: _controller.value.size.width.toInt(),
-                      deletePiv: () {},
+                      deletePiv: () {
+                        store.set('currentlyDeletingPivsUploaded',
+                            [widget.piv['id']]);
+                        store.set('currentlyDeletingModalUploaded', true);
+                      },
                       hidePiv: () {
                         store.set('hideMap:' + widget.piv['id'], true, 'disk');
                       },
