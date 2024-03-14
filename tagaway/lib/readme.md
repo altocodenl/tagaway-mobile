@@ -2,7 +2,7 @@
 
 ## TODO
 
-- Cloud: delete, share
+- Cloud: delete, share, hide
 - Query videos
 - Tag & show tags
 -----

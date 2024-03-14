@@ -270,6 +270,7 @@ class _HomeViewState extends State<HomeView> {
                                         piv['vid'] != null)
                                       return CloudVideo(
                                         piv: piv,
+                                        date: date,
                                       );
                                   })());
                             })
@@ -732,8 +733,10 @@ class _CloudPhotoState extends State<CloudPhoto> {
 }
 
 class CloudVideo extends StatefulWidget {
-  const CloudVideo({Key? key, required this.piv}) : super(key: key);
+  const CloudVideo({Key? key, required this.piv, required this.date})
+      : super(key: key);
   final dynamic piv;
+  final DateTime date;
 
   @override
   State<CloudVideo> createState() => _CloudVideoState();
@@ -818,20 +821,20 @@ class _CloudVideoState extends State<CloudVideo> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          'Month',
+                          shortMonthNames[widget.date.month - 1].toString(),
                           style: kLightBackgroundDate,
                         ),
                         const Text(
                           ' ',
                           style: kLightBackgroundDate,
                         ),
-                        Text('day', style: kLightBackgroundDate),
+                        Text(pad(widget.date.day), style: kLightBackgroundDate),
                         const Text(
                           ', ',
                           style: kLightBackgroundDate,
                         ),
                         Text(
-                          'Year',
+                          widget.date.year.toString(),
                           style: kLightBackgroundDate,
                         ),
                       ],
