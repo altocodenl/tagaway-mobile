@@ -474,9 +474,9 @@ class _LocalVideoState extends State<LocalVideo> {
   _initVideo() async {
     // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
     if (!mounted) return;
-    // If video was deleted or hidden, don't do anything.
-    if (hidePiv == true) return;
     final video = await widget.piv.file;
+    // If video was deleted or hidden, don't do anything.
+    if (hidePiv == true || video == null) return;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
       ..setLooping(true)
