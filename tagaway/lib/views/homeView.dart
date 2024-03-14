@@ -804,7 +804,7 @@ class _CloudVideoState extends State<CloudVideo> {
     if (hidePiv) return Container();
     var height = _controller.value.size.height > _controller.value.size.width
         ? SizeService.instance.screenHeight(context) * .8
-        : SizeService.instance.screenHeight(context) * .35;
+        : SizeService.instance.screenHeight(context) * .25;
     return _controller.value.isInitialized
         ? Stack(
             children: [
@@ -818,21 +818,28 @@ class _CloudVideoState extends State<CloudVideo> {
                       child: VideoPlayer(_controller),
                     ),
                   ),
-                  IconsRow(
-                      pivHeight: _controller.value.size.height.toInt(),
-                      pivWidth: _controller.value.size.width.toInt(),
-                      deletePiv: () {
-                        store.set('currentlyDeletingPivsUploaded',
-                            [widget.piv['id']]);
-                        store.set('currentlyDeletingModalUploaded', true);
-                      },
-                      hidePiv: () {
-                        store.set('hideMap:' + widget.piv['id'], true, 'disk');
-                      },
-                      sharePiv: () {
-                        shareCloudPiv(context, widget.piv['id'], true);
-                      },
-                      tagPiv: () {}),
+                  Padding(
+                    padding: _controller.value.size.height >
+                            _controller.value.size.width
+                        ? EdgeInsets.only(top: 0)
+                        : EdgeInsets.only(top: 15.0),
+                    child: IconsRow(
+                        pivHeight: _controller.value.size.height.toInt(),
+                        pivWidth: _controller.value.size.width.toInt(),
+                        deletePiv: () {
+                          store.set('currentlyDeletingPivsUploaded',
+                              [widget.piv['id']]);
+                          store.set('currentlyDeletingModalUploaded', true);
+                        },
+                        hidePiv: () {
+                          store.set(
+                              'hideMap:' + widget.piv['id'], true, 'disk');
+                        },
+                        sharePiv: () {
+                          shareCloudPiv(context, widget.piv['id'], true);
+                        },
+                        tagPiv: () {}),
+                  ),
                   Padding(
                     padding: _controller.value.size.height >
                             _controller.value.size.width
