@@ -323,3 +323,13 @@ shareLocalPiv (context, piv, isVid) async {
   File(path).writeAsBytesSync(response!);
   await Share.shareXFiles([XFile(path)]);
 }
+
+shareCloudPiv (context, id, isVid) async {
+   WhiteSnackBar.buildSnackBar(context, 'Preparing your piv for sharing...');
+   final response = await http.get(Uri.parse((isVid ? kTagawayVideoURL : kTagawayThumbMURL) + (id)), headers: {'cookie': store.get('cookie')});
+   final bytes = response.bodyBytes;
+   final temp = await getTemporaryDirectory();
+   final path = '${temp.path}/sharedPiv.' + (isVid ? 'mp4' : 'jpg');
+   File(path).writeAsBytesSync(bytes);
+   await Share.shareXFiles([XFile(path)]);
+}

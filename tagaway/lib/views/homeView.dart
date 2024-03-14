@@ -706,7 +706,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
                   store.set('hideMap:' + widget.piv['id'], true, 'disk');
                 },
                 sharePiv: () {
-                  // shareLocalPiv(context, widget.piv, false);
+                  shareCloudPiv(context, widget.piv['id'], true);
                 },
                 tagPiv: () {},
               ),
@@ -826,7 +826,9 @@ class _CloudVideoState extends State<CloudVideo> {
                       hidePiv: () {
                         store.set('hideMap:' + widget.piv['id'], true, 'disk');
                       },
-                      sharePiv: () {},
+                      sharePiv: () {
+                        shareCloudPiv(context, widget.piv['id'], true);
+                      },
                       tagPiv: () {}),
                   Padding(
                     padding: _controller.value.size.height >
