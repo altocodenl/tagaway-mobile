@@ -474,6 +474,8 @@ class _LocalVideoState extends State<LocalVideo> {
   _initVideo() async {
     // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
     if (!mounted) return;
+    // If video was deleted or hidden, don't do anything.
+    if (hidePiv == true) return;
     final video = await widget.piv.file;
     _controller = VideoPlayerController.file(video!)
       // Play the video again when it ends
@@ -783,6 +785,8 @@ class _CloudVideoState extends State<CloudVideo> {
   }
 
   _initVideo() async {
+    // If video was deleted or hidden, don't do anything.
+    if (hidePiv == true) return;
     _controller = VideoPlayerController.network(
       (kTagawayVideoURL) + (widget.piv['id']),
       httpHeaders: {
