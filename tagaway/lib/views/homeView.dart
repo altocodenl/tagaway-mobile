@@ -314,9 +314,14 @@ class LocalPhoto extends StatefulWidget {
   State<LocalPhoto> createState() => _LocalPhotoState();
 }
 
-class _LocalPhotoState extends State<LocalPhoto> {
+class _LocalPhotoState extends State<LocalPhoto>
+    with SingleTickerProviderStateMixin {
   dynamic cancelListener;
   bool hidePiv = false;
+  late AnimationController animationController;
+  late TransformationController controller;
+  Animation<Matrix4>? animation;
+  OverlayEntry? entry;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -326,7 +331,6 @@ class _LocalPhotoState extends State<LocalPhoto> {
   @override
   void initState() {
     super.initState();
-
     cancelListener = store.listen(['deletedPivs', 'hideMap:' + widget.piv.id],
         (DeletedPivs, PivHidden) {
       if (DeletedPivs == '') DeletedPivs = [];
@@ -337,12 +341,39 @@ class _LocalPhotoState extends State<LocalPhoto> {
         setState(() => hidePiv = true);
       }
     });
+    controller = TransformationController();
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )
+      ..addListener(() => controller.value = animation!.value)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          removeOverlay();
+        }
+      });
+  }
+
+  void removeOverlay() {
+    entry?.remove();
+    entry = null;
   }
 
   @override
   void dispose() {
     super.dispose();
+    controller.dispose();
+    animationController.dispose();
     cancelListener();
+  }
+
+  void resetAnimation() {
+    animation = Matrix4Tween(
+      begin: controller.value,
+      end: Matrix4.identity(),
+    ).animate(
+        CurvedAnimation(parent: animationController, curve: Curves.linear));
+    animationController.forward(from: 0);
   }
 
   computeHeight() {
@@ -370,13 +401,22 @@ class _LocalPhotoState extends State<LocalPhoto> {
         Container(
           height: computeHeight(),
           alignment: Alignment.center,
-          child: FutureBuilder<File?>(
-            future: file,
-            builder: (_, snapshot) {
-              final file = snapshot.data;
-              if (file == null) return Container();
-              return Image.file(file);
+          child: InteractiveViewer(
+            transformationController: controller,
+            clipBehavior: Clip.none,
+            minScale: 1,
+            maxScale: 8,
+            onInteractionEnd: (details) {
+              resetAnimation();
             },
+            child: FutureBuilder<File?>(
+              future: file,
+              builder: (_, snapshot) {
+                final file = snapshot.data;
+                if (file == null) return Container();
+                return Image.file(file);
+              },
+            ),
           ),
         ),
         IconsRow(
