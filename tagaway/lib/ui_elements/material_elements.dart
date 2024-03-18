@@ -501,7 +501,7 @@ class _DeleteButtonState extends State<DeleteButton> {
       alignment: const Alignment(0, .45),
       child: FloatingActionButton(
         shape: const CircleBorder(),
-        heroTag: null,
+        heroTag: 'deleteButton' + widget.view,
         elevation: 10,
         key: const Key('delete'),
         onPressed: () {
@@ -560,7 +560,7 @@ class _DeleteButtonTunnelState extends State<DeleteButtonTunnel> {
       alignment: const Alignment(-.85, -0.3),
       child: FloatingActionButton(
         shape: const CircleBorder(),
-        heroTag: null,
+        heroTag: 'deleteButtonTunnel' + widget.view,
         elevation: 10,
         key: const Key('delete'),
         onPressed: widget.onPressed != null
@@ -616,7 +616,7 @@ class _ShareButtonTunnelState extends State<ShareButtonTunnel> {
       alignment: const Alignment(-.85, -0.65),
       child: FloatingActionButton(
         shape: const CircleBorder(),
-        heroTag: null,
+        heroTag: 'shareButton' + widget.view,
         elevation: 10,
         key: const Key('share'),
         onPressed: widget.onPressed != null ? widget.onPressed : () {},
@@ -668,7 +668,7 @@ class _TagButtonState extends State<TagButton> {
     return Align(
       alignment: const Alignment(0, .68),
       child: FloatingActionButton(
-        heroTag: null,
+        heroTag: 'tagButton' + widget.view,
         shape: const CircleBorder(),
         elevation: 10,
         key: const Key('tag'),
@@ -838,7 +838,7 @@ class _StartButtonState extends State<StartButton> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           key: const Key('startButton'),
           extendedPadding: const EdgeInsets.only(left: 20, right: 20),
-          heroTag: null,
+          heroTag: 'startButton' + widget.view,
           onPressed: () {
             store.set('showButtons' + widget.view, true);
           },
@@ -910,7 +910,7 @@ class _AddMoreTagsButtonState extends State<AddMoreTagsButton> {
       alignment: const Alignment(-0.8, .9),
       child: FloatingActionButton.extended(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        heroTag: null,
+        heroTag: 'addMoreTagsButton' + widget.view,
         onPressed: () {
           store.set('swiped' + widget.view, true);
           store.set('showButtons' + widget.view, false);
@@ -986,7 +986,7 @@ class _DoneButtonState extends State<DoneButton> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           key: const Key('doneButton'),
-          heroTag: null,
+          heroTag: 'doneButton' + widget.view,
           onPressed: () {
             // Done tagging
             if (currentlyTagging != '') {

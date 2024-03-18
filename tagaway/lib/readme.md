@@ -2,15 +2,16 @@
 
 ## TODO
 
-- Query videos
+- Add zoom
+- Fix share
 - Tag & show tags
 -----
-- Add full screen
+- Query videos
 - Show hidden in query to be able to unhide
-- Add login flow with Google, Apple and Facebook
 - Show info of piv
 - Share Tagaway button and link
 - Finish annotated source code: tagService, storeService, tools.
+- Add login flow with Google, Apple and Facebook
 
 ## Store structure
 

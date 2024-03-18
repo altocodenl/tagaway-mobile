@@ -240,6 +240,10 @@ class _HomeViewState extends State<HomeView> {
                               return Padding(
                                   padding: const EdgeInsets.only(bottom: 40),
                                   child: (() {
+                                    // We check whether the index is in bound, because sometimes when the query changes, we might no longer be in bound
+                                    if (nextIndex >
+                                        queryResult['pivs'].length + 1)
+                                      return Container();
                                     var piv = queryResult['pivs'][nextIndex];
                                     var date =
                                         DateTime.fromMillisecondsSinceEpoch(
@@ -517,7 +521,7 @@ class _LocalVideoState extends State<LocalVideo> {
     final video = await widget.piv.file;
     // If video was deleted or hidden, don't do anything.
     if (hidePiv == true || video == null) return;
-    _controller = VideoPlayerController.file(video!)
+    _controller = VideoPlayerController.file(video)
       // Play the video again when it ends
       ..setLooping(true)
       // initialize the controller and notify UI when done
