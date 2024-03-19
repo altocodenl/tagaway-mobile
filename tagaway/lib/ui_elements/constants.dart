@@ -167,6 +167,19 @@ const kLightBackgroundDate = TextStyle(
   color: Colors.white,
 );
 
+const kLightBackgroundTitle = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
+  color: Colors.white,
+);
+
+const kLightBackgroundTagName = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 12,
+  color: Colors.white,
+);
+
 const kBigTitleOffline = TextStyle(
   fontFamily: 'Montserrat-Regular',
   fontSize: 25,

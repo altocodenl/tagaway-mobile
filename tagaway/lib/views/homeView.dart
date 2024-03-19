@@ -1194,7 +1194,6 @@ class _TagInHomeState extends State<TagInHome> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        print('showModalBottomSheet');
         showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
@@ -1213,10 +1212,52 @@ class _TagInHomeState extends State<TagInHome> {
                           color: Colors.white,
                           size: 30,
                         ),
-                        Text(
+                        const Text(
                           'Add/Change Tags',
                           textAlign: TextAlign.center,
-                          style: kLightBackgroundDate,
+                          style: kLightBackgroundTitle,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              print('go to search tag mode');
+                            },
+                            child: Container(
+                              height: 40,
+                              width: SizeService.instance.screenWidth(context) *
+                                  .8,
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(
+                                  color: kGreyLightest, // Border color
+                                  width: 1, // Border width
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                    25), // Rounded border with radius of 10
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Icon(
+                                    kSearchIcon,
+                                    color: kGreyLightest,
+                                    size: 15,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    'Search or add new tag',
+                                    style: kLightBackgroundDate,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 20.0),
@@ -1226,18 +1267,40 @@ class _TagInHomeState extends State<TagInHome> {
                               itemCount: 9,
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
+                                childAspectRatio: .9,
                                 crossAxisCount: 3,
-                                mainAxisSpacing: 8,
-                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 1,
+                                crossAxisSpacing: 1,
                               ),
                               itemBuilder: (BuildContext context, index) {
-                                return Container(
-                                  height: 150,
-                                  width: 150,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
+                                return Column(
+                                  children: [
+                                    Container(
+                                      height: SizeService.instance
+                                              .screenWidth(context) *
+                                          .25,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color:
+                                              kAltoOrganized, // Set the border color
+                                          width: 6, // Set the border width
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                      width: SizeService.instance
+                                              .screenWidth(context) *
+                                          .3,
+                                      child: const Text(
+                                        'Tag Name',
+                                        textAlign: TextAlign.center,
+                                        style: kLightBackgroundTagName,
+                                      ),
+                                    )
+                                  ],
                                 );
                               }),
                         )
