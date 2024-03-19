@@ -1173,16 +1173,84 @@ class _IconsRowState extends State<IconsRow> {
           const Expanded(
             child: SizedBox(),
           ),
-          GestureDetector(
-            onTap: () {
-              widget.tagPiv();
-            },
-            child: const Icon(
-              kTagIcon,
-              color: Colors.white,
-            ),
-          ),
+          TagInHome(),
         ],
+      ),
+    );
+  }
+}
+
+class TagInHome extends StatefulWidget {
+  const TagInHome({
+    super.key,
+  });
+
+  @override
+  State<TagInHome> createState() => _TagInHomeState();
+}
+
+class _TagInHomeState extends State<TagInHome> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        print('showModalBottomSheet');
+        showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                padding: const EdgeInsets.only(left: 12, right: 12),
+                color: Colors.black,
+                height: SizeService.instance.screenHeight(context) * .5,
+                child: Stack(
+                  children: [
+                    ListView(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      children: [
+                        const Icon(
+                          kMinusIcon,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        Text(
+                          'Add/Change Tags',
+                          textAlign: TextAlign.center,
+                          style: kLightBackgroundDate,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: 9,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                              ),
+                              itemBuilder: (BuildContext context, index) {
+                                return Container(
+                                  height: 150,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                );
+                              }),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              );
+            });
+      },
+      child: const Icon(
+        kTagIcon,
+        color: Colors.white,
       ),
     );
   }
