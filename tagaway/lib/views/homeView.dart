@@ -1210,6 +1210,15 @@ class _TagInHomeState extends State<TagInHome> {
 
   @override
   Widget build(BuildContext context) {
+    var piv = widget.piv;
+    var currentTags = piv['local'] == true
+        ? getList('pendingTags:' + piv['piv'].id)
+        : piv['tags']
+            .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+            .toList();
+    var filter = '';
+    var tagList = TagService.instance.getTagList(currentTags, filter, false);
+
     return GestureDetector(
       onTap: () {
         showModalBottomSheet(
@@ -1343,7 +1352,7 @@ class _TagInHomeState extends State<TagInHome> {
                             child: GridView.builder(
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
-                                itemCount: 18,
+                                itemCount: tagList.length,
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                   childAspectRatio: .9,
@@ -1352,6 +1361,8 @@ class _TagInHomeState extends State<TagInHome> {
                                   crossAxisSpacing: 1,
                                 ),
                                 itemBuilder: (BuildContext context, index) {
+                                  var tag = tagList[index];
+                                  var greenBorder = currentTags.contains(tag);
                                   return Column(
                                     children: [
                                       Container(
@@ -1364,7 +1375,9 @@ class _TagInHomeState extends State<TagInHome> {
                                           border: Border.all(
                                             color:
                                                 kAltoOrganized, // Set the border color
-                                            width: 6, // Set the border width
+                                            width: greenBorder
+                                                ? 6
+                                                : 0, // Set the border width
                                           ),
                                         ),
                                       ),
@@ -1373,8 +1386,8 @@ class _TagInHomeState extends State<TagInHome> {
                                         width: SizeService.instance
                                                 .screenWidth(context) *
                                             .3,
-                                        child: const Text(
-                                          'Tag Name',
+                                        child: Text(
+                                          tag,
                                           textAlign: TextAlign.center,
                                           style: kLightBackgroundTagName,
                                         ),
