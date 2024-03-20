@@ -424,6 +424,7 @@ class _LocalPhotoState extends State<LocalPhoto>
           ),
         ),
         IconsRow(
+          piv: {'piv': widget.piv, 'local': true},
           pivHeight: widget.piv.height,
           pivWidth: widget.piv.width,
           deletePiv: () {
@@ -552,6 +553,7 @@ class _LocalVideoState extends State<LocalVideo> {
                   ),
                 ),
                 IconsRow(
+                  piv: {'piv': widget.piv, 'local': true},
                   pivHeight: widget.piv.height,
                   pivWidth: widget.piv.width,
                   deletePiv: () {
@@ -739,6 +741,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
                 ),
               ),
               IconsRow(
+                piv: widget.piv,
                 pivHeight: height,
                 pivWidth: width,
                 deletePiv: () {
@@ -871,6 +874,7 @@ class _CloudVideoState extends State<CloudVideo> {
                         ? EdgeInsets.only(top: 0)
                         : EdgeInsets.only(top: 15.0),
                     child: IconsRow(
+                        piv: widget.piv,
                         pivHeight: _controller.value.size.height.toInt(),
                         pivWidth: _controller.value.size.width.toInt(),
                         deletePiv: () {
@@ -1114,6 +1118,7 @@ class IconsRow extends StatefulWidget {
     required this.hidePiv,
     required this.sharePiv,
     required this.tagPiv,
+    required this.piv,
   });
 
   final int pivHeight;
@@ -1122,6 +1127,7 @@ class IconsRow extends StatefulWidget {
   final Function hidePiv;
   final Function sharePiv;
   final Function tagPiv;
+  final dynamic piv;
 
   @override
   State<IconsRow> createState() => _IconsRowState();
@@ -1173,7 +1179,7 @@ class _IconsRowState extends State<IconsRow> {
           const Expanded(
             child: SizedBox(),
           ),
-          TagInHome(),
+          TagInHome(piv: widget.piv),
         ],
       ),
     );
@@ -1183,7 +1189,10 @@ class _IconsRowState extends State<IconsRow> {
 class TagInHome extends StatefulWidget {
   const TagInHome({
     super.key,
+    required this.piv,
   });
+
+  final dynamic piv;
 
   @override
   State<TagInHome> createState() => _TagInHomeState();
@@ -1273,6 +1282,7 @@ class _TagInHomeState extends State<TagInHome> {
                               ),
                             ),
                           ),
+                          // LIST OF THUMBS FOR TAGS
                           Padding(
                             padding: const EdgeInsets.only(top: 20.0),
                             child: GridView.builder(

@@ -2,11 +2,11 @@
 
 ## TODO
 
-- Add zoom
-- Fix share
 - Tag & show tags
 -----
+- Improve zoom
 - Query videos
+- Use metadata to get a better date for some pivs
 - Show hidden in query to be able to unhide
 - Show info of piv
 - Share Tagaway button and link
