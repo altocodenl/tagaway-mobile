@@ -1202,6 +1202,24 @@ class _TagInHomeState extends State<TagInHome> {
   bool showModalBottomSheetBig = false;
   final TextEditingController searchTagController = TextEditingController();
 
+  dynamic currentTags = [];
+  dynamic tagList = [];
+  String filter = '';
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      tagList = TagService.instance.getTagList(currentTags, filter, false);
+      debug(['tl', tagList]);
+      currentTags = widget.piv['local'] == true
+          ? getList('pendingTags:' + widget.piv['piv'].id)
+          : widget.piv['tags']
+              .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+              .toList();
+    });
+  }
+
   @override
   void dispose() {
     searchTagController.dispose();
@@ -1210,15 +1228,6 @@ class _TagInHomeState extends State<TagInHome> {
 
   @override
   Widget build(BuildContext context) {
-    var piv = widget.piv;
-    var currentTags = piv['local'] == true
-        ? getList('pendingTags:' + piv['piv'].id)
-        : piv['tags']
-            .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
-            .toList();
-    var filter = '';
-    var tagList = TagService.instance.getTagList(currentTags, filter, false);
-
     return GestureDetector(
       onTap: () {
         showModalBottomSheet(
@@ -1363,37 +1372,42 @@ class _TagInHomeState extends State<TagInHome> {
                                 itemBuilder: (BuildContext context, index) {
                                   var tag = tagList[index];
                                   var greenBorder = currentTags.contains(tag);
-                                  return Column(
-                                    children: [
-                                      Container(
-                                        height: SizeService.instance
-                                                .screenWidth(context) *
-                                            .25,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color:
-                                                kAltoOrganized, // Set the border color
-                                            width: greenBorder
-                                                ? 6
-                                                : 0, // Set the border width
+                                  return GestureDetector(
+                                      onTap: () {
+                                        // tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
+                                        // tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: SizeService.instance
+                                                    .screenWidth(context) *
+                                                .25,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color:
+                                                    kAltoOrganized, // Set the border color
+                                                width: greenBorder
+                                                    ? 6
+                                                    : 0, // Set the border width
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                        width: SizeService.instance
-                                                .screenWidth(context) *
-                                            .3,
-                                        child: Text(
-                                          tag,
-                                          textAlign: TextAlign.center,
-                                          style: kLightBackgroundTagName,
-                                        ),
-                                      )
-                                    ],
-                                  );
+                                          SizedBox(
+                                            height: 20,
+                                            width: SizeService.instance
+                                                    .screenWidth(context) *
+                                                .3,
+                                            child: Text(
+                                              tag,
+                                              textAlign: TextAlign.center,
+                                              style: kLightBackgroundTagName,
+                                            ),
+                                          )
+                                        ],
+                                      ));
                                 }),
                           )
                         ],
