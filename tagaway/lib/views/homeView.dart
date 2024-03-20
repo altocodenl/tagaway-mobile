@@ -1191,6 +1191,13 @@ class TagInHome extends StatefulWidget {
 
 class _TagInHomeState extends State<TagInHome> {
   bool showModalBottomSheetBig = false;
+  final TextEditingController searchTagController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchTagController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1226,49 +1233,97 @@ class _TagInHomeState extends State<TagInHome> {
                             textAlign: TextAlign.center,
                             style: kLightBackgroundTitle,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                print('go to search tag mode');
-                                seModalState(() {
-                                  showModalBottomSheetBig =
-                                      !showModalBottomSheetBig;
-                                });
-                              },
-                              child: Container(
-                                height: 40,
-                                width:
-                                    SizeService.instance.screenWidth(context) *
-                                        .8,
-                                decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  border: Border.all(
-                                    color: kGreyLightest, // Border color
-                                    width: 1, // Border width
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                      25), // Rounded border with radius of 10
-                                ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Icon(
-                                      kSearchIcon,
-                                      color: kGreyLightest,
-                                      size: 15,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Text(
-                                      'Search or add new tag',
+                          Visibility(
+                            visible: showModalBottomSheetBig == false,
+                            replacement: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: TextField(
+                                      controller: searchTagController,
+                                      keyboardType: TextInputType.emailAddress,
+                                      autofocus: true,
+                                      textAlign: TextAlign.left,
+                                      enableSuggestions: true,
                                       style: kLightBackgroundDate,
-                                    )
-                                  ],
+                                      decoration: const InputDecoration(
+                                        prefixIcon: Icon(
+                                          kSearchIcon,
+                                          color: kGreyLightest,
+                                          size: 15,
+                                        ),
+                                        hintText: 'Search or add new tag',
+                                        contentPadding: EdgeInsets.symmetric(
+                                            vertical: 10.0, horizontal: 20.0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(25)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      print('cancel search');
+                                      seModalState(() {
+                                        showModalBottomSheetBig = false;
+                                      });
+                                    },
+                                    child: const Text(
+                                      'Cancel',
+                                      style: kLightBackgroundDate,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: GestureDetector(
+                                onTap: () {
+                                  print('go to search tag mode');
+                                  seModalState(() {
+                                    showModalBottomSheetBig = true;
+                                  });
+                                },
+                                child: Container(
+                                  height: 40,
+                                  width: SizeService.instance
+                                          .screenWidth(context) *
+                                      .8,
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                      color: kGreyLightest, // Border color
+                                      width: 1, // Border width
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                        25), // Rounded border with radius of 10
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Icon(
+                                        kSearchIcon,
+                                        color: kGreyLightest,
+                                        size: 15,
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Text(
+                                        'Search or add new tag',
+                                        style: kLightBackgroundDate,
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
