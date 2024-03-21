@@ -1422,17 +1422,19 @@ class _TagInHomeState extends State<TagInHome> {
                                             height: SizeService.instance
                                                     .screenWidth(context) *
                                                 .25,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color:
-                                                    kAltoOrganized, // Set the border color
-                                                width: greenBorder
-                                                    ? 6
-                                                    : 0, // Set the border width
-                                              ),
-                                            ),
+                                            decoration: (() {
+                                              return BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color:
+                                                      kAltoOrganized, // Set the border color
+                                                  width: greenBorder
+                                                      ? 6
+                                                      : 0, // Set the border width
+                                                ),
+                                              );
+                                            })(),
                                           ),
                                           SizedBox(
                                             height: 20,

@@ -571,6 +571,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
           alignment: const Alignment(0.11, 1),
           child: FloatingActionButton.extended(
             key: const Key('querySelectorSeeNPivsSub'),
+            heroTag: 'querySelectorSeeNPivsSub',
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             onPressed: () {

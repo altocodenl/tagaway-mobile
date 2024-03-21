@@ -856,7 +856,8 @@ class _CloudVideoPlayerWidgetState extends State<CloudVideoPlayerWidget> {
                 alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
                 child: FloatingActionButton(
                   shape: const CircleBorder(),
-                  key: const Key('playPause'),
+                  key: Key('playPause' + widget.pivId),
+                  heroTag: 'playPause' + widget.pivId,
                   backgroundColor: kAltoBlue,
                   onPressed: () {
                     // Wrap the play or pause in a call to `setState`. This ensures the
@@ -1017,6 +1018,8 @@ class _LocalVideoPlayerWidgetState extends State<LocalVideoPlayerWidget> {
               alignment: fullScreen ? Alignment(0, .83) : Alignment(0, 0),
               child: FloatingActionButton(
                 shape: const CircleBorder(),
+                key: Key('playPause' + widget.videoFile.id),
+                heroTag: 'playPause' + widget.videoFile.id,
                 backgroundColor: kAltoBlue,
                 onPressed: () {
                   // Wrap the play or pause in a call to `setState`. This ensures the
