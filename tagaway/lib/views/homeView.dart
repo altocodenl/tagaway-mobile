@@ -1211,7 +1211,6 @@ class _TagInHomeState extends State<TagInHome> {
     super.initState();
     setState(() {
       tagList = TagService.instance.getTagList(currentTags, filter, false);
-      debug(['tl', tagList]);
       currentTags = widget.piv['local'] == true
           ? getList('pendingTags:' + widget.piv['piv'].id)
           : widget.piv['tags']
@@ -1235,7 +1234,7 @@ class _TagInHomeState extends State<TagInHome> {
             context: context,
             builder: (BuildContext context) {
               return StatefulBuilder(
-                  builder: (context, StateSetter seModalState) {
+                  builder: (context, StateSetter setModalState) {
                 return AnimatedContainer(
                   padding: const EdgeInsets.only(left: 12, right: 12),
                   color: Colors.black,
@@ -1268,35 +1267,44 @@ class _TagInHomeState extends State<TagInHome> {
                                 children: [
                                   Flexible(
                                     child: TextField(
-                                      controller: searchTagController,
-                                      keyboardType: TextInputType.emailAddress,
-                                      autofocus: true,
-                                      textAlign: TextAlign.left,
-                                      enableSuggestions: true,
-                                      style: kLightBackgroundDate,
-                                      decoration: const InputDecoration(
-                                        prefixIcon: Icon(
-                                          kSearchIcon,
-                                          color: kGreyLightest,
-                                          size: 15,
+                                        controller: searchTagController,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        autofocus: true,
+                                        textAlign: TextAlign.left,
+                                        enableSuggestions: true,
+                                        style: kLightBackgroundDate,
+                                        decoration: const InputDecoration(
+                                          prefixIcon: Icon(
+                                            kSearchIcon,
+                                            color: kGreyLightest,
+                                            size: 15,
+                                          ),
+                                          hintText: 'Search or add new tag',
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: 10.0, horizontal: 20.0),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(25)),
+                                          ),
                                         ),
-                                        hintText: 'Search or add new tag',
-                                        contentPadding: EdgeInsets.symmetric(
-                                            vertical: 10.0, horizontal: 20.0),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(25)),
-                                        ),
-                                      ),
-                                    ),
+                                        onChanged: (String query) {
+                                          setModalState(() {
+                                            filter = query;
+                                            tagList = TagService.instance
+                                                .getTagList(
+                                                    currentTags, filter, false);
+                                          });
+                                        }),
                                   ),
                                   const SizedBox(
                                     width: 10,
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      print('cancel search');
-                                      seModalState(() {
+                                      setModalState(() {
+                                        searchTagController.clear();
+                                        filter = '';
                                         showModalBottomSheetBig = false;
                                       });
                                     },
@@ -1312,8 +1320,7 @@ class _TagInHomeState extends State<TagInHome> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  print('go to search tag mode');
-                                  seModalState(() {
+                                  setModalState(() {
                                     showModalBottomSheetBig = true;
                                   });
                                 },
@@ -1374,8 +1381,40 @@ class _TagInHomeState extends State<TagInHome> {
                                   var greenBorder = currentTags.contains(tag);
                                   return GestureDetector(
                                       onTap: () {
-                                        // tag = tag.replaceFirst(RegExp(r' \(new tag\)$'), '');
-                                        // tag = tag.replaceFirst(RegExp(r' \(example\)$'), '');
+                                        var originalTag = tag;
+                                        tag = tag.replaceFirst(
+                                            RegExp(r' \(new tag\)$'), '');
+                                        tag = tag.replaceFirst(
+                                            RegExp(r' \(example\)$'), '');
+
+                                        if (widget.piv['local'] == true) {
+                                          store.set(
+                                              'currentlyTaggingLocal', [tag]);
+                                          TagService.instance.toggleTags(
+                                              widget.piv['piv'], 'local');
+                                          TagService.instance
+                                              .doneTagging('local');
+                                          store.remove('currentlyTaggingLocal');
+                                        } else {
+                                          TagService.instance.tagCloudPiv(
+                                              widget.piv['id'],
+                                              [tag],
+                                              currentTags.contains(
+                                                  tag)); // if the piv is tagged, we will untag it by passing `true` as the third argument
+                                        }
+                                        setModalState(() {
+                                          if (!currentTags.contains(tag)) {
+                                            tagList.remove(originalTag);
+                                            tagList = [tag] + tagList;
+                                          }
+                                          currentTags.contains(tag)
+                                              ? currentTags.remove(tag)
+                                              : currentTags.add(tag);
+                                          currentTags = currentTags;
+                                          searchTagController.clear();
+                                          filter = '';
+                                          showModalBottomSheetBig = false;
+                                        });
                                       },
                                       child: Column(
                                         children: [

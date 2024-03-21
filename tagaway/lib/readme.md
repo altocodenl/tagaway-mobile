@@ -3,6 +3,7 @@
 ## TODO
 
 - Tag & show tags
+- Sorting
 -----
 - Improve zoom
 - Query videos
