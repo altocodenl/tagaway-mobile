@@ -284,6 +284,7 @@ class _HomeViewState extends State<HomeView> {
                       alignment: const Alignment(0, .9),
                       child: FloatingActionButton.extended(
                           key: const Key('homeFabQuerySelector'),
+                          heroTag: 'homeFabQuerySelector',
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50)),
                           extendedPadding:
@@ -605,6 +606,7 @@ class _LocalVideoState extends State<LocalVideo> {
               left: SizeService.instance.screenWidth(context) * .43,
               child: FloatingActionButton(
                 key: Key('vidPlay' + widget.piv.id),
+                heroTag: 'vidPlay' + widget.piv.id,
                 shape: const CircleBorder(),
                 backgroundColor: kAltoBlue,
                 onPressed: () {
@@ -925,7 +927,8 @@ class _CloudVideoState extends State<CloudVideo> {
                 bottom: 90,
                 left: SizeService.instance.screenWidth(context) * .43,
                 child: FloatingActionButton(
-                  key: Key('playPause' + widget.piv['id']),
+                  key: Key('vidPlay' + widget.piv['id']),
+                  heroTag: 'vidPlay' + widget.piv['id'],
                   shape: const CircleBorder(),
                   backgroundColor: kAltoBlue,
                   onPressed: () {
