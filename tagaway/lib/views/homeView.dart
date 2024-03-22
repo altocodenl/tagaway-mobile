@@ -1213,7 +1213,6 @@ class _TagInHomeState extends State<TagInHome> {
   void initState() {
     super.initState();
     setState(() {
-      tagList = TagService.instance.getTagList(currentTags, filter, false);
       currentTags = widget.piv['local'] == true
           ? getList('pendingTags:' + widget.piv['piv'].id)
           : widget.piv['tags']
@@ -1232,6 +1231,9 @@ class _TagInHomeState extends State<TagInHome> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        setState(() {
+          tagList = TagService.instance.getTagList(currentTags, filter, false);
+        });
         showModalBottomSheet(
             isScrollControlled: true,
             context: context,
