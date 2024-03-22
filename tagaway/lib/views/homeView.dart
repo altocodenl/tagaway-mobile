@@ -241,10 +241,12 @@ class _HomeViewState extends State<HomeView> {
                                   padding: const EdgeInsets.only(bottom: 40),
                                   child: (() {
                                     // We check whether the index is in bound, because sometimes when the query changes, we might no longer be in bound
-                                    if (nextIndex >
-                                        queryResult['pivs'].length + 1)
+                                    var piv;
+                                    try {
+                                      piv = queryResult['pivs'][nextIndex];
+                                    } catch (error) {
                                       return Container();
-                                    var piv = queryResult['pivs'][nextIndex];
+                                    }
                                     var date =
                                         DateTime.fromMillisecondsSinceEpoch(
                                             piv['date']);
@@ -1318,6 +1320,9 @@ class _TagInHomeState extends State<TagInHome> {
                                       setModalState(() {
                                         searchTagController.clear();
                                         filter = '';
+                                        tagList = TagService.instance
+                                            .getTagList(
+                                                currentTags, filter, false);
                                         showModalBottomSheetBig = false;
                                       });
                                     },
@@ -1426,6 +1431,9 @@ class _TagInHomeState extends State<TagInHome> {
                                           currentTags = currentTags;
                                           searchTagController.clear();
                                           filter = '';
+                                          tagList = TagService.instance
+                                              .getTagList(
+                                                  currentTags, filter, false);
                                           showModalBottomSheetBig = false;
                                         });
                                       },
