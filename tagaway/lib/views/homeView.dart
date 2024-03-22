@@ -326,6 +326,7 @@ class _LocalPhotoState extends State<LocalPhoto>
     with SingleTickerProviderStateMixin {
   dynamic cancelListener;
   bool hidePiv = false;
+  dynamic pendingTags = [];
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -335,8 +336,11 @@ class _LocalPhotoState extends State<LocalPhoto>
   @override
   void initState() {
     super.initState();
-    cancelListener = store.listen(['deletedPivs', 'hideMap:' + widget.piv.id],
-        (DeletedPivs, PivHidden) {
+    cancelListener = store.listen([
+      'deletedPivs',
+      'hideMap:' + widget.piv.id,
+      'pendingTags:' + widget.piv.id
+    ], (DeletedPivs, PivHidden, PendingTags) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
         setState(() => hidePiv = true);
@@ -344,6 +348,7 @@ class _LocalPhotoState extends State<LocalPhoto>
       if (PivHidden == true && hidePiv == false) {
         setState(() => hidePiv = true);
       }
+      if (PendingTags != '') setState(() => pendingTags = PendingTags);
     });
   }
 
@@ -375,7 +380,7 @@ class _LocalPhotoState extends State<LocalPhoto>
 
     return Column(
       children: [
-        TagsRow(),
+        TagsRow(tags: pendingTags),
         Container(
           height: computeHeight(),
           alignment: Alignment.center,
@@ -438,53 +443,6 @@ class _LocalPhotoState extends State<LocalPhoto>
   }
 }
 
-class TagsRow extends StatefulWidget {
-  const TagsRow({
-    super.key,
-  });
-
-  @override
-  State<TagsRow> createState() => _TagsRowState();
-}
-
-class _TagsRowState extends State<TagsRow> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15.0, left: 12, right: 12),
-      child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-        Icon(
-          kTagIcon,
-          color: kAltoBlue,
-          size: 20,
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Text(
-          'Tag Name',
-          style: kLightBackgroundDate,
-        ),
-        SizedBox(
-          width: 20,
-        ),
-        Icon(
-          kTagIcon,
-          color: kAltoBlue,
-          size: 20,
-        ),
-        SizedBox(
-          width: 5,
-        ),
-        Text(
-          'Tag Name',
-          style: kLightBackgroundDate,
-        )
-      ]),
-    );
-  }
-}
-
 class LocalVideo extends StatefulWidget {
   const LocalVideo({Key? key, required this.piv, required this.date})
       : super(key: key);
@@ -500,13 +458,17 @@ class _LocalVideoState extends State<LocalVideo> {
   bool initialized = false;
   bool hidePiv = false;
   dynamic cancelListener;
+  dynamic pendingTags = [];
 
   @override
   void initState() {
     _initVideo();
     super.initState();
-    cancelListener = store.listen(['deletedPivs', 'hideMap:' + widget.piv.id],
-        (DeletedPivs, PivHidden) {
+    cancelListener = store.listen([
+      'deletedPivs',
+      'hideMap:' + widget.piv.id,
+      'pendingTags:' + widget.piv.id
+    ], (DeletedPivs, PivHidden, PendingTags) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
         setState(() => hidePiv = true);
@@ -514,6 +476,7 @@ class _LocalVideoState extends State<LocalVideo> {
       if (PivHidden == true && hidePiv == false) {
         setState(() => hidePiv = true);
       }
+      if (PendingTags != '') setState(() => pendingTags = PendingTags);
     });
   }
 
@@ -555,6 +518,7 @@ class _LocalVideoState extends State<LocalVideo> {
         ? Stack(children: [
             Column(
               children: [
+                TagsRow(tags: pendingTags),
                 Container(
                   alignment: Alignment.center,
                   height: height,
@@ -740,6 +704,10 @@ class _CloudPhotoState extends State<CloudPhoto> {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              TagsRow(
+                  tags: widget.piv['tags']
+                      .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+                      .toList()),
               Transform.rotate(
                 angle: (widget.piv['deg'] == null ? 0 : widget.piv['deg']) *
                     math.pi /
@@ -873,6 +841,10 @@ class _CloudVideoState extends State<CloudVideo> {
             children: [
               Column(
                 children: [
+                  TagsRow(
+                      tags: widget.piv['tags']
+                          .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+                          .toList()),
                   Container(
                     width: SizeService.instance.screenWidth(context),
                     height: height,
@@ -1566,6 +1538,54 @@ class _TagInHomeState extends State<TagInHome> {
         kTagIcon,
         color: Colors.white,
       ),
+    );
+  }
+}
+
+class TagsRow extends StatefulWidget {
+  TagsRow({
+    super.key,
+    required this.tags,
+  });
+
+  dynamic tags;
+
+  @override
+  State<TagsRow> createState() => _TagsRowState();
+}
+
+class _TagsRowState extends State<TagsRow> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 15.0, left: 12, right: 12),
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: widget.tags.take(2).toList().map<Widget>((tag) {
+            return GestureDetector(
+                onTap: () {
+                  store.set('queryTags', [tag], '', 'mute');
+                  store.remove('deletedPivs');
+                  TagService.instance.queryPivs(true);
+                },
+                child: Row(children: [
+                  Icon(
+                    kTagIcon,
+                    color: tagIconColor(tag),
+                    size: 20,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    tag,
+                    style: kLightBackgroundDate,
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                ]));
+          }).toList()),
     );
   }
 }
