@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -1435,18 +1436,99 @@ class _TagInHomeState extends State<TagInHome> {
                                             height: SizeService.instance
                                                     .screenWidth(context) *
                                                 .25,
-                                            decoration: (() {
+                                            child: (() {
+                                              var thumb =
+                                                  store.get('thumbs')[tag];
+                                              // If we're creating a tag on this piv, put it provisionally as thumb
+                                              if (thumb == null)
+                                                thumb = widget.piv;
+
+                                              // Cloud thumb
+                                              if (thumb['local'] == null) {
+                                                return CachedNetworkImage(
+                                                    imageUrl:
+                                                        (kTagawayThumbSURL) +
+                                                            thumb['id'],
+                                                    httpHeaders: {
+                                                      'cookie':
+                                                          store.get('cookie')
+                                                    },
+                                                    placeholder: (context,
+                                                            url) =>
+                                                        const Center(
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                          color: kAltoBlue,
+                                                        )),
+                                                    imageBuilder: (context,
+                                                            imageProvider) =>
+                                                        Transform.rotate(
+                                                          angle: (thumb['deg'] ==
+                                                                      null
+                                                                  ? 0
+                                                                  : thumb[
+                                                                      'deg']) *
+                                                              math.pi /
+                                                              180.0,
+                                                          child: Container(
+                                                            decoration: BoxDecoration(
+                                                                border: Border.all(
+                                                                    color:
+                                                                        kAltoOrganized,
+                                                                    width:
+                                                                        greenBorder
+                                                                            ? 6
+                                                                            : 0),
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                                image: DecorationImage(
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    image:
+                                                                        imageProvider)),
+                                                          ),
+                                                        ));
+                                              } else {
+                                                return FutureBuilder<
+                                                        Uint8List?>(
+                                                    future: thumb['piv']
+                                                        .thumbnailDataWithSize(
+                                                            const ThumbnailSize
+                                                                .square(400)),
+                                                    builder: (_, snapshot) {
+                                                      final bytes =
+                                                          snapshot.data;
+                                                      if (bytes == null) {
+                                                        return const CircularProgressIndicator(
+                                                          valueColor:
+                                                              AlwaysStoppedAnimation<
+                                                                      Color>(
+                                                                  kAltoBlue),
+                                                        );
+                                                      }
+                                                      return Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          image:
+                                                              DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: MemoryImage(
+                                                                bytes),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    });
+                                              }
+                                              /*
                                               return BoxDecoration(
                                                 color: Colors.white,
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                  color:
-                                                      kAltoOrganized, // Set the border color
-                                                  width: greenBorder
-                                                      ? 6
-                                                      : 0, // Set the border width
+                                                  color: kAltoOrganized,
+                                                  width: greenBorder ? 6 : 0,
                                                 ),
                                               );
+                                              */
                                             })(),
                                           ),
                                           SizedBox(
