@@ -2,9 +2,12 @@
 
 ## TODO
 
-- Tag & show tags
-- Sorting
+- Tags
+   - Show thumbnails
+   - Show list when things change
+   - Show tags on top
 -----
+- Sorting
 - Improve zoom
 - Query videos
 - Use metadata to get a better date for some pivs
