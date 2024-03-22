@@ -326,10 +326,6 @@ class _LocalPhotoState extends State<LocalPhoto>
     with SingleTickerProviderStateMixin {
   dynamic cancelListener;
   bool hidePiv = false;
-  late AnimationController animationController;
-  late TransformationController controller;
-  Animation<Matrix4>? animation;
-  OverlayEntry? entry;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -349,39 +345,12 @@ class _LocalPhotoState extends State<LocalPhoto>
         setState(() => hidePiv = true);
       }
     });
-    controller = TransformationController();
-    animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    )
-      ..addListener(() => controller.value = animation!.value)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          removeOverlay();
-        }
-      });
-  }
-
-  void removeOverlay() {
-    entry?.remove();
-    entry = null;
   }
 
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
-    animationController.dispose();
     cancelListener();
-  }
-
-  void resetAnimation() {
-    animation = Matrix4Tween(
-      begin: controller.value,
-      end: Matrix4.identity(),
-    ).animate(
-        CurvedAnimation(parent: animationController, curve: Curves.linear));
-    animationController.forward(from: 0);
   }
 
   computeHeight() {
@@ -406,25 +375,17 @@ class _LocalPhotoState extends State<LocalPhoto>
 
     return Column(
       children: [
+        TagsRow(),
         Container(
           height: computeHeight(),
           alignment: Alignment.center,
-          child: InteractiveViewer(
-            transformationController: controller,
-            clipBehavior: Clip.none,
-            minScale: 1,
-            maxScale: 8,
-            onInteractionEnd: (details) {
-              resetAnimation();
+          child: FutureBuilder<File?>(
+            future: file,
+            builder: (_, snapshot) {
+              final file = snapshot.data;
+              if (file == null) return Container();
+              return Image.file(file);
             },
-            child: FutureBuilder<File?>(
-              future: file,
-              builder: (_, snapshot) {
-                final file = snapshot.data;
-                if (file == null) return Container();
-                return Image.file(file);
-              },
-            ),
           ),
         ),
         IconsRow(
@@ -473,6 +434,53 @@ class _LocalPhotoState extends State<LocalPhoto>
           ),
         ),
       ],
+    );
+  }
+}
+
+class TagsRow extends StatefulWidget {
+  const TagsRow({
+    super.key,
+  });
+
+  @override
+  State<TagsRow> createState() => _TagsRowState();
+}
+
+class _TagsRowState extends State<TagsRow> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 15.0, left: 12, right: 12),
+      child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+        Icon(
+          kTagIcon,
+          color: kAltoBlue,
+          size: 20,
+        ),
+        SizedBox(
+          width: 5,
+        ),
+        Text(
+          'Tag Name',
+          style: kLightBackgroundDate,
+        ),
+        SizedBox(
+          width: 20,
+        ),
+        Icon(
+          kTagIcon,
+          color: kAltoBlue,
+          size: 20,
+        ),
+        SizedBox(
+          width: 5,
+        ),
+        Text(
+          'Tag Name',
+          style: kLightBackgroundDate,
+        )
+      ]),
     );
   }
 }
