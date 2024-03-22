@@ -1310,6 +1310,9 @@ class _TagInHomeState extends State<TagInHome> {
                                       setModalState(() {
                                         searchTagController.clear();
                                         filter = '';
+                                        tagList = TagService.instance
+                                            .getTagList(
+                                                currentTags, filter, false);
                                         showModalBottomSheetBig = false;
                                       });
                                     },
@@ -1418,6 +1421,9 @@ class _TagInHomeState extends State<TagInHome> {
                                           currentTags = currentTags;
                                           searchTagController.clear();
                                           filter = '';
+                                          tagList = TagService.instance
+                                              .getTagList(
+                                                  currentTags, filter, false);
                                           showModalBottomSheetBig = false;
                                         });
                                       },
