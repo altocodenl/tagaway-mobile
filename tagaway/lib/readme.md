@@ -3,13 +3,16 @@
 ## TODO
 
 - Tags
-   - Show thumbnails
-   - Show list when things change
-   - Show tags on top
+   - Resizing of phone piv when it gets uploaded
+   - Jump to tags on top
+   - References by id when scrolling
 -----
 - Sorting
-- Improve zoom
+- Recent
+- Store hide in server
 - Query videos
+-----
+- Improve zoom
 - Use metadata to get a better date for some pivs
 - Show hidden in query to be able to unhide
 - Show info of piv

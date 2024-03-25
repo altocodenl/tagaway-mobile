@@ -29,6 +29,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
+  dynamic cancelListener2;
 
   dynamic account = {
     'username': '',
@@ -37,6 +38,8 @@ class _HomeViewState extends State<HomeView> {
   dynamic queryResult = {'pivs': [], 'total': 0};
 
   dynamic seenPivIndexes = [];
+  dynamic queryTags = [];
+  final ScrollController scrollController = ScrollController();
 
   getNextIndex(int length) {
     var index = (new math.Random().nextInt(length));
@@ -104,17 +107,27 @@ class _HomeViewState extends State<HomeView> {
     AuthService.instance.getAccount();
     // Wait for some local pivs to be loaded.
     Future.delayed(Duration(seconds: 1), () {
-      TagService.instance.queryPivs();
+      store.set('queryTags', []);
     });
     cancelListener =
         store.listen(['account', 'queryResult'], (Account, QueryResult) {
       // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
-      if (mounted) {
-        setState(() {
-          if (Account != '') account = Account;
-          if (QueryResult != '') queryResult = QueryResult;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        if (Account != '') account = Account;
+        if (QueryResult != '') queryResult = QueryResult;
+      });
+    });
+    cancelListener2 = store.listen(['queryTags'], (QueryTags) {
+      if (!mounted) return;
+      if (QueryTags == '') return;
+      setState(() {
+        queryTags = QueryTags;
+        seenPivIndexes = [];
+        store.remove('deletedPivs');
+        TagService.instance.queryPivs(true);
+        if (scrollController.hasClients) scrollController.jumpTo(0);
+      });
     });
   }
 
@@ -122,10 +135,13 @@ class _HomeViewState extends State<HomeView> {
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
+    scrollController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    debug(['key', Key(queryTags.join(','))]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -133,10 +149,9 @@ class _HomeViewState extends State<HomeView> {
         backgroundColor: kAltoBlack,
         title: GestureDetector(
             onTap: () {
-              store.set('queryTags', [], '', 'mute');
-              seenPivIndexes = [];
-              store.remove('deletedPivs');
-              TagService.instance.queryPivs(true);
+              var tags = store.get('queryTags');
+              store.set('queryTags', ['nosuchquery'], '', 'mute');
+              store.set('queryTags', tags);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -224,14 +239,23 @@ class _HomeViewState extends State<HomeView> {
                   onRefresh: () async {
                     seenPivIndexes = [];
                     store.remove('deletedPivs');
-                    return TagService.instance.queryPivs(true);
+                    TagService.instance.queryPivs(true);
+                    if (scrollController.hasClients) scrollController.jumpTo(0);
                   },
                   child: Stack(children: [
                     CustomScrollView(
+                      controller: scrollController,
                       slivers: [
                         SliverList.builder(
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
+                              debug([
+                                'CACHE',
+                                index,
+                                Key(queryResult['pivs'].length.toString() +
+                                    ':' +
+                                    queryTags.join(','))
+                              ]);
                               var nextIndex;
                               if (seenPivIndexes.length - 1 < index)
                                 nextIndex =
@@ -1564,9 +1588,7 @@ class _TagsRowState extends State<TagsRow> {
           children: widget.tags.take(2).toList().map<Widget>((tag) {
             return GestureDetector(
                 onTap: () {
-                  store.set('queryTags', [tag], '', 'mute');
-                  store.remove('deletedPivs');
-                  TagService.instance.queryPivs(true);
+                  store.set('queryTags', [tag]);
                 },
                 child: Row(children: [
                   Icon(
