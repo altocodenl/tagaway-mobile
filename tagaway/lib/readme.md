@@ -6,7 +6,7 @@
    - Resizing of phone piv when it gets uploaded
    - Jump to tags on top
    - References by id when scrolling
-- Sorting
+- Sorting: three modes (random (default), oldest, newest)
 - Recent
 - Store hide in server
 -----
