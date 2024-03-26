@@ -383,6 +383,11 @@ class _LocalPhotoState extends State<LocalPhoto>
   }
 
   computeHeight() {
+    print('I am in LocalPhoto and height is ${widget.piv.height}');
+    print('I am in LocalPhoto and width is ${widget.piv.width}');
+    print(
+        'I am in LocalPhoto and height/width is ${widget.piv.height / widget.piv.width}');
+
     if (widget.piv.height > widget.piv.width * 1.7)
       return SizeService.instance.screenHeight(context) * .85;
     if (widget.piv.height > widget.piv.width * 1.4)
@@ -700,23 +705,34 @@ class _CloudPhotoState extends State<CloudPhoto> {
               color: kAltoBlue,
             )),
         imageBuilder: (context, imageProvider) {
-          final screenWidth = MediaQuery.of(context).size.width;
-          final screenHeight = MediaQuery.of(context).size.height - 100;
           final askance = widget.piv['deg'] == 90 || widget.piv['deg'] == -90;
           final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
           final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
 
           var containerHeight = () {
-            if (height > width * 1.7)
+            print('I am in CloudPhoto and height is $height');
+            print('I am in CloudPhoto and width is $width');
+            print('I am in CloudPhoto and height/width is ${height / width}');
+            if (height > width * 1.7) {
+              print('height > width * 1.7');
               return SizeService.instance.screenHeight(context) * .85;
-            if (height > width * 1.4)
+            }
+            if (height > width * 1.4) {
+              print('height > width * 1.4');
               return SizeService.instance.screenHeight(context) * .7;
-            if (height > width * 1.2)
+            }
+            if (height > width * 1.2) {
+              print('height > width * 1.2');
               return SizeService.instance.screenHeight(context) * .6;
-            if (height >= width)
+            }
+            if (height >= width) {
+              print('height >= width');
               return SizeService.instance.screenHeight(context) * .5;
-            if (height * 1.4 > width)
+            }
+            if (height * 1.4 > width) {
+              print('height * 1.4 > width');
               return SizeService.instance.screenHeight(context) * .4;
+            }
             return SizeService.instance.screenHeight(context) * .35;
           };
           var containerWidth = SizeService.instance.screenWidth(context);
@@ -728,10 +744,15 @@ class _CloudPhotoState extends State<CloudPhoto> {
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              TagsRow(
-                  tags: widget.piv['tags']
-                      .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
-                      .toList()),
+              Padding(
+                padding: askance
+                    ? const EdgeInsets.only(bottom: 80.0)
+                    : const EdgeInsets.all(8.0),
+                child: TagsRow(
+                    tags: widget.piv['tags']
+                        .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+                        .toList()),
+              ),
               Transform.rotate(
                 angle: (widget.piv['deg'] == null ? 0 : widget.piv['deg']) *
                     math.pi /
@@ -739,28 +760,36 @@ class _CloudPhotoState extends State<CloudPhoto> {
                 child: Container(
                   width: askance ? containerHeight() : containerWidth,
                   height: askance ? containerWidth : containerHeight(),
-                  child: Image(
-                    fit: BoxFit.contain,
-                    image: imageProvider,
+                  child: Transform.scale(
+                    scale: askance ? 1.4 : 1,
+                    child: Image(
+                      fit: BoxFit.contain,
+                      image: imageProvider,
+                    ),
                   ),
                 ),
               ),
-              IconsRow(
-                piv: widget.piv,
-                pivHeight: height,
-                pivWidth: width,
-                deletePiv: () {
-                  store
-                      .set('currentlyDeletingPivsUploaded', [widget.piv['id']]);
-                  store.set('currentlyDeletingModalUploaded', true);
-                },
-                hidePiv: () {
-                  store.set('hideMap:' + widget.piv['id'], true, 'disk');
-                },
-                sharePiv: () {
-                  shareCloudPiv(context, widget.piv['id'], true);
-                },
-                tagPiv: () {},
+              Padding(
+                padding: askance
+                    ? const EdgeInsets.only(top: 80.0)
+                    : const EdgeInsets.all(8.0),
+                child: IconsRow(
+                  piv: widget.piv,
+                  pivHeight: height,
+                  pivWidth: width,
+                  deletePiv: () {
+                    store.set(
+                        'currentlyDeletingPivsUploaded', [widget.piv['id']]);
+                    store.set('currentlyDeletingModalUploaded', true);
+                  },
+                  hidePiv: () {
+                    store.set('hideMap:' + widget.piv['id'], true, 'disk');
+                  },
+                  sharePiv: () {
+                    shareCloudPiv(context, widget.piv['id'], true);
+                  },
+                  tagPiv: () {},
+                ),
               ),
               Padding(
                 padding: height > width
