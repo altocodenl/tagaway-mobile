@@ -1513,6 +1513,8 @@ class _TagInHomeState extends State<TagInHome> {
                                                       return Container(
                                                         decoration:
                                                             BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
                                                           image:
                                                               DecorationImage(
                                                             fit: BoxFit.cover,
