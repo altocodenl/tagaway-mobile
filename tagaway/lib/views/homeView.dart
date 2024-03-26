@@ -38,7 +38,6 @@ class _HomeViewState extends State<HomeView> {
   dynamic queryResult = {'pivs': [], 'total': 0};
 
   dynamic seenPivIndexes = [];
-  dynamic queryTags = [];
   final ScrollController scrollController = ScrollController();
 
   getNextIndex(int length) {
@@ -121,13 +120,10 @@ class _HomeViewState extends State<HomeView> {
     cancelListener2 = store.listen(['queryTags'], (QueryTags) {
       if (!mounted) return;
       if (QueryTags == '') return;
-      setState(() {
-        queryTags = QueryTags;
-        seenPivIndexes = [];
-        store.remove('deletedPivs');
-        TagService.instance.queryPivs(true);
-        if (scrollController.hasClients) scrollController.jumpTo(0);
-      });
+      if (scrollController.hasClients) scrollController.jumpTo(0);
+      seenPivIndexes = [];
+      store.remove('deletedPivs');
+      TagService.instance.queryPivs(true);
     });
   }
 
@@ -141,7 +137,6 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    debug(['key', Key(queryTags.join(','))]);
     return Scaffold(
       backgroundColor: kAltoBlack,
       appBar: AppBar(
@@ -249,13 +244,6 @@ class _HomeViewState extends State<HomeView> {
                         SliverList.builder(
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
-                              debug([
-                                'CACHE',
-                                index,
-                                Key(queryResult['pivs'].length.toString() +
-                                    ':' +
-                                    queryTags.join(','))
-                              ]);
                               var nextIndex;
                               if (seenPivIndexes.length - 1 < index)
                                 nextIndex =
