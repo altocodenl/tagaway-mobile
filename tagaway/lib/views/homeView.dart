@@ -1593,6 +1593,7 @@ class _TagInHomeState extends State<TagInHome> {
               });
             }).whenComplete(() {
           afterClosing();
+          afterClosing = () {};
         });
       },
       child: const Icon(
