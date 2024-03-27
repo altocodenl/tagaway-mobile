@@ -1450,14 +1450,9 @@ class _TagInHomeState extends State<TagInHome> {
                                           };
                                         }
                                         setModalState(() {
-                                          if (!currentTags.contains(tag)) {
-                                            tagList.remove(originalTag);
-                                            tagList = [tag] + tagList;
-                                          }
                                           currentTags.contains(tag)
                                               ? currentTags.remove(tag)
                                               : currentTags.add(tag);
-                                          currentTags = currentTags;
                                           searchTagController.clear();
                                           filter = '';
                                           tagList = TagService.instance
@@ -1545,6 +1540,12 @@ class _TagInHomeState extends State<TagInHome> {
                                                       return Container(
                                                         decoration:
                                                             BoxDecoration(
+                                                          border: Border.all(
+                                                              color:
+                                                                  kAltoOrganized,
+                                                              width: greenBorder
+                                                                  ? 6
+                                                                  : 0),
                                                           shape:
                                                               BoxShape.circle,
                                                           image:
