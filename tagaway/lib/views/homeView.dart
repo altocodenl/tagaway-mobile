@@ -1226,7 +1226,7 @@ class _TagInHomeState extends State<TagInHome> {
   dynamic currentTags = [];
   dynamic tagList = [];
   String filter = '';
-  dynamic untaggedFromQuery = false;
+  dynamic afterClosing = () {};
 
   @override
   void initState() {
@@ -1414,26 +1414,26 @@ class _TagInHomeState extends State<TagInHome> {
                                         tag = tag.replaceFirst(
                                             RegExp(r' \(example\)$'), '');
 
-                                        if (getList('queryTags')
-                                            .contains(tag)) {
-                                          untaggedFromQuery =
-                                              currentTags.contains(tag);
-                                        }
-
                                         if (widget.piv['local'] == true) {
                                           store.set(
                                               'currentlyTaggingLocal', [tag]);
                                           TagService.instance.toggleTags(
                                               widget.piv['piv'], 'local');
-                                          TagService.instance
-                                              .doneTagging('local');
-                                          store.remove('currentlyTaggingLocal');
+                                          afterClosing = () {
+                                            TagService.instance
+                                                .doneTagging('local');
+                                            store.remove(
+                                                'currentlyTaggingLocal');
+                                          };
                                         } else {
-                                          TagService.instance.tagCloudPiv(
-                                              widget.piv['id'],
-                                              [tag],
-                                              currentTags.contains(
-                                                  tag)); // if the piv is tagged, we will untag it by passing `true` as the third argument
+                                          var afterClosingOld = afterClosing;
+                                          afterClosing = () {
+                                            afterClosingOld();
+                                            TagService.instance.tagCloudPiv(
+                                                widget.piv['id'],
+                                                [tag],
+                                                !currentTags.contains(tag));
+                                          };
                                         }
                                         setModalState(() {
                                           if (!currentTags.contains(tag)) {
@@ -1577,7 +1577,7 @@ class _TagInHomeState extends State<TagInHome> {
                 );
               });
             }).whenComplete(() {
-          print(untaggedFromQuery);
+          afterClosing();
         });
       },
       child: const Icon(

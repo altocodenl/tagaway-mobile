@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Hide piv from query after untagging
 - Sorting: three modes (random (default), oldest, newest)
 - Recent
 - Store hide in server
