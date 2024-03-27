@@ -106,7 +106,7 @@ class _HomeViewState extends State<HomeView> {
     AuthService.instance.getAccount();
     // Wait for some local pivs to be loaded.
     Future.delayed(Duration(seconds: 1), () {
-      store.set('queryTags', []);
+      if (store.get('queryTags') == '') store.set('queryTags', []);
     });
     cancelListener =
         store.listen(['account', 'queryResult'], (Account, QueryResult) {
@@ -426,7 +426,6 @@ class _LocalPhotoState extends State<LocalPhoto>
           sharePiv: () {
             shareLocalPiv(context, widget.piv, false);
           },
-          tagPiv: () {},
         ),
         Padding(
           padding: widget.piv.height > widget.piv.width
@@ -562,7 +561,6 @@ class _LocalVideoState extends State<LocalVideo> {
                   sharePiv: () {
                     shareLocalPiv(context, widget.piv, true);
                   },
-                  tagPiv: () {},
                 ),
                 Padding(
                   padding: widget.piv.height > widget.piv.width
@@ -776,7 +774,6 @@ class _CloudPhotoState extends State<CloudPhoto> {
                   sharePiv: () {
                     shareCloudPiv(context, widget.piv['id'], true);
                   },
-                  tagPiv: () {},
                 ),
               ),
               Padding(
@@ -900,22 +897,21 @@ class _CloudVideoState extends State<CloudVideo> {
                         ? EdgeInsets.only(top: 0)
                         : EdgeInsets.only(top: 15.0),
                     child: IconsRow(
-                        piv: widget.piv,
-                        pivHeight: _controller.value.size.height.toInt(),
-                        pivWidth: _controller.value.size.width.toInt(),
-                        deletePiv: () {
-                          store.set('currentlyDeletingPivsUploaded',
-                              [widget.piv['id']]);
-                          store.set('currentlyDeletingModalUploaded', true);
-                        },
-                        hidePiv: () {
-                          store.set(
-                              'hideMap:' + widget.piv['id'], true, 'disk');
-                        },
-                        sharePiv: () {
-                          shareCloudPiv(context, widget.piv['id'], true);
-                        },
-                        tagPiv: () {}),
+                      piv: widget.piv,
+                      pivHeight: _controller.value.size.height.toInt(),
+                      pivWidth: _controller.value.size.width.toInt(),
+                      deletePiv: () {
+                        store.set('currentlyDeletingPivsUploaded',
+                            [widget.piv['id']]);
+                        store.set('currentlyDeletingModalUploaded', true);
+                      },
+                      hidePiv: () {
+                        store.set('hideMap:' + widget.piv['id'], true, 'disk');
+                      },
+                      sharePiv: () {
+                        shareCloudPiv(context, widget.piv['id'], true);
+                      },
+                    ),
                   ),
                   Padding(
                     padding: _controller.value.size.height >
@@ -1144,7 +1140,6 @@ class IconsRow extends StatefulWidget {
     required this.deletePiv,
     required this.hidePiv,
     required this.sharePiv,
-    required this.tagPiv,
     required this.piv,
   });
 
@@ -1153,7 +1148,6 @@ class IconsRow extends StatefulWidget {
   final Function deletePiv;
   final Function hidePiv;
   final Function sharePiv;
-  final Function tagPiv;
   final dynamic piv;
 
   @override
@@ -1232,6 +1226,7 @@ class _TagInHomeState extends State<TagInHome> {
   dynamic currentTags = [];
   dynamic tagList = [];
   String filter = '';
+  dynamic untaggedFromQuery = false;
 
   @override
   void initState() {
@@ -1419,6 +1414,12 @@ class _TagInHomeState extends State<TagInHome> {
                                         tag = tag.replaceFirst(
                                             RegExp(r' \(example\)$'), '');
 
+                                        if (getList('queryTags')
+                                            .contains(tag)) {
+                                          untaggedFromQuery =
+                                              currentTags.contains(tag);
+                                        }
+
                                         if (widget.piv['local'] == true) {
                                           store.set(
                                               'currentlyTaggingLocal', [tag]);
@@ -1575,7 +1576,9 @@ class _TagInHomeState extends State<TagInHome> {
                   ),
                 );
               });
-            });
+            }).whenComplete(() {
+          print(untaggedFromQuery);
+        });
       },
       child: const Icon(
         kTagIcon,
