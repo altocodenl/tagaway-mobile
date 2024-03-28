@@ -371,11 +371,6 @@ class _LocalPhotoState extends State<LocalPhoto>
   }
 
   computeHeight() {
-    print('I am in LocalPhoto and height is ${widget.piv.height}');
-    print('I am in LocalPhoto and width is ${widget.piv.width}');
-    print(
-        'I am in LocalPhoto and height/width is ${widget.piv.height / widget.piv.width}');
-
     if (widget.piv.height > widget.piv.width * 1.7)
       return SizeService.instance.screenHeight(context) * .85;
     if (widget.piv.height > widget.piv.width * 1.4)
@@ -715,30 +710,21 @@ class _CloudPhotoState extends State<CloudPhoto> {
             );
         },
         imageBuilder: (context, imageProvider) {
-          print('askance is $askance');
 
           var containerHeight = () {
-            print('I am in CloudPhoto and height is $height');
-            print('I am in CloudPhoto and width is $width');
-            print('I am in CloudPhoto and height/width is ${height / width}');
             if (height > width * 1.7) {
-              print('height > width * 1.7');
               return SizeService.instance.screenHeight(context) * .85;
             }
             if (height > width * 1.4) {
-              print('height > width * 1.4');
               return SizeService.instance.screenHeight(context) * .7;
             }
             if (height > width * 1.2) {
-              print('height > width * 1.2');
               return SizeService.instance.screenHeight(context) * .6;
             }
             if (height >= width) {
-              print('height >= width');
               return SizeService.instance.screenHeight(context) * .5;
             }
             if (height * 1.4 > width) {
-              print('height * 1.4 > width');
               return SizeService.instance.screenHeight(context) * .4;
             }
             return SizeService.instance.screenHeight(context) * .35;
