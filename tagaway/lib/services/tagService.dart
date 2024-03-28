@@ -484,7 +484,9 @@ class TagService {
       });
 
       queryResult ['pivs'].sort ((a, b) {
-         return (b ['date'] as int).compareTo ((a ['date'] as int));
+         var oldest = store.get ('querySort') == 'oldest';
+         if (oldest) return (a ['date'] as int).compareTo ((b ['date'] as int));
+         else        return (b ['date'] as int).compareTo ((a ['date'] as int));
       });
 
       return queryResult;
@@ -568,7 +570,7 @@ class TagService {
         store.set ('queryInProgress', true);
       });
 
-      var sort = 'newest';
+      var sort = store.get ('querySort') == 'oldest' ? 'oldest' : 'newest';
 
       var response = await ajax ('post', 'query', {
          'tags': tags,

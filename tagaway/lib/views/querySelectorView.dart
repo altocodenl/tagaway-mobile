@@ -33,6 +33,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
   dynamic filteredYears = [];
   dynamic filteredCountries = [];
   bool queryInProgress = false;
+  dynamic querySort = '';
 
   // This function will be called every time the text changes
   searchQueryChanged() {
@@ -45,12 +46,17 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
     searchQueryController.addListener(searchQueryChanged);
     if (store.get('queryTags') == '') store.set('queryTags', []);
     // The listeners are separated because we don't want to query pivs again once queryResult is updated.
-    cancelListener = store
-        .listen(['queryTags', 'queryResult', 'queryFilter', 'queryInProgress'],
-            (v1, v2, v3, QueryInProgress) {
+    cancelListener = store.listen([
+      'queryTags',
+      'queryResult',
+      'queryFilter',
+      'queryInProgress',
+      'querySort'
+    ], (v1, v2, v3, QueryInProgress, QuerySort) {
       // queryPivs will not make a call to the server if `queryResult` or `queryFilter` change because it will check if the tags have changed.
       TagService.instance.queryPivs();
       setState(() {
+        if (QuerySort != '') querySort = QuerySort;
         queryTags = v1;
         bool matchFilter(tag) {
           if (v3 == '' || queryTags.contains(tag)) return true;
@@ -602,12 +608,19 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 heroTag: 'sorting',
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50)),
-                onPressed: () {},
+                onPressed: () {
+                  store.set(
+                      'querySort',
+                      querySort == '' || querySort == 'random'
+                          ? 'newest'
+                          : (querySort == 'newest' ? 'oldest' : 'random'));
+                  TagService.instance.queryPivs(true);
+                },
                 backgroundColor: kGreyLightest,
                 child: Icon(
-                  kShuffleIcon,
-                  // kForwardIcon,
-                  // kBackwardIcon,
+                  querySort == '' || querySort == 'random'
+                      ? kShuffleIcon
+                      : (querySort == 'newest' ? kBackwardIcon : kForwardIcon),
                   color: kAltoBlue,
                   size: 25,
                 ),

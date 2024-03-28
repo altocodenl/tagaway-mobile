@@ -41,6 +41,14 @@ class _HomeViewState extends State<HomeView> {
   final ScrollController scrollController = ScrollController();
 
   getNextIndex(int length) {
+    var sort = store.get('querySort');
+    // If we are showing pivs in order, return the next index.
+    if (sort == 'oldest' || sort == 'newest') {
+      seenPivIndexes.add(seenPivIndexes.length);
+      return seenPivIndexes[seenPivIndexes.length - 1];
+    }
+
+    // Otherwise, calculate a random index.
     var index = (new math.Random().nextInt(length));
     if (!seenPivIndexes.contains(index)) {
       seenPivIndexes.add(index);
@@ -710,7 +718,6 @@ class _CloudPhotoState extends State<CloudPhoto> {
             );
         },
         imageBuilder: (context, imageProvider) {
-
           var containerHeight = () {
             if (height > width * 1.7) {
               return SizeService.instance.screenHeight(context) * .85;

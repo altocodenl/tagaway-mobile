@@ -2,9 +2,9 @@
 
 ## TODO
 
-- Sorting: three modes (random (default), oldest, newest)
 - Recent
 - Store hide in server
+- [server] fix hometags deletion issue
 -----
 - Query videos
 - Improve zoom
@@ -62,6 +62,7 @@
 - queryFilter <str>: contains the filter (if any) used to filter out tags in the query/search view
 - queryInProgress <bool>: if set to `true`, indicates that a query is currently taking place.
 - queryResult: {total: <int>, tags: {<tag>: <int>, ...}, pivs: [{...}, ...], timeHeader: {<year:month>: true|false, ...}}: result of query, brought from server
+- querySort: random|newest|oldest <str>: sorting of pivs in query. If undefined, it defaults to random.
 - queryTags: [<string>, ...]: list of tags of the current query
 - rpivMap:<pivId> <str>: maps the id of an uploaded piv to the id of its local counterpart - the converse of `pivMap`
 - showSelectAllButton(Local|Uploaded): if `undefined`, the button will not show; if `true`, it will show the "select all" button; if set to `false`, it will show the "unselect all" button.
@@ -2956,12 +2957,14 @@ We include each of the `localPivsToAdd` into the list of pivs. We do this in a m
       });
 ```
 
-We are almost done. We simply sort the pivs inside queryResult, with the newest pivs first. Note that the date property is the same for both local and uploaded pivs, so we don't have to add special logic to sort them together.
+We are almost done. We simply sort the pivs inside queryResult. Unless `querySort` is set to `oldest`, we sort the newest pivs first (if `querySort` is `random`, we will randomize its order somewhere else). Note that the date property is the same for both local and uploaded pivs, so we don't have to add special logic to sort them together.
 
 ```dart
-      localPivsToAdd.forEach ((piv) {
-         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
-      }
+      queryResult ['pivs'].sort ((a, b) {
+         var oldest = store.get ('querySort') == 'oldest';
+         if (oldest) return (a ['date'] as int).compareTo ((b ['date'] as int));
+         else        return (b ['date'] as int).compareTo ((a ['date'] as int));
+      });
 ```
 
 We return `queryResult` and close the function.
@@ -3240,10 +3243,10 @@ Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this,
       });
 ```
 
-We will ask the server to sort pivs by latest date first.
+We will ask the server to sort pivs by latest date first if `querySort` is `newest`, `random`, or empty (in which case it will default to `random`). That means that only when `querySort` is `oldest` we will ask the server to return the oldest pivs first.
 
 ```dart
-      var sort = 'newest';
+      var sort = store.get ('querySort') == 'oldest' ? 'oldest' : 'newest';
 ```
 
 We invoke `POST /query` in the server. We're going to pass the `tags` we received and the `sort` parameter.
