@@ -5,7 +5,6 @@
 - Sorting: three modes (random (default), oldest, newest)
 - Recent
 - Store hide in server
-- Hot replacing of cloud piv by local counterpart, if it exists
 -----
 - Query videos
 - Improve zoom

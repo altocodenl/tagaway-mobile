@@ -682,18 +682,39 @@ class _CloudPhotoState extends State<CloudPhoto> {
   @override
   Widget build(BuildContext context) {
     if (hidePiv) return Container();
+    final askance = widget.piv['deg'] == 90 || widget.piv['deg'] == -90;
+    final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
+    final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
     return CachedNetworkImage(
         imageUrl: (kTagawayThumbMURL) + (widget.piv['id']),
         httpHeaders: {'cookie': store.get('cookie')},
         filterQuality: FilterQuality.high,
-        placeholder: (context, url) => const Center(
-                child: CircularProgressIndicator(
-              color: kAltoBlue,
-            )),
+        placeholder: (context, url) {
+          var localPivId = store.get('rpivMap:' + widget.piv['id']);
+          if (localPivId == '')
+            return Center(
+              child: Container(
+                height: height,
+                width: SizeService.instance.screenWidth(context),
+                child: const CircularProgressIndicator(
+                  backgroundColor: kGreyDarkest,
+                  color: kAltoBlue,
+                ),
+              ),
+            );
+          var localPiv = PivService.instance.localPivsById()[localPivId];
+          if (localPiv.type == AssetType.image)
+            return LocalPhoto(
+              piv: localPiv,
+              date: localPiv.createDateTime,
+            );
+          else
+            return LocalVideo(
+              piv: localPiv,
+              date: localPiv.createDateTime,
+            );
+        },
         imageBuilder: (context, imageProvider) {
-          final askance = widget.piv['deg'] == 90 || widget.piv['deg'] == -90;
-          final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
-          final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
           print('askance is $askance');
 
           var containerHeight = () {
@@ -989,15 +1010,25 @@ class _CloudVideoState extends State<CloudVideo> {
               ),
             ],
           )
-        : Center(
-            child: Container(
-            height: height,
-            width: SizeService.instance.screenWidth(context),
-            child: const CircularProgressIndicator(
-              backgroundColor: kGreyDarkest,
-              color: kAltoBlue,
-            ),
-          ));
+        : (() {
+            var localPivId = store.get('rpivMap:' + widget.piv['id']);
+            if (localPivId == '')
+              return Center(
+                child: Container(
+                  height: height,
+                  width: SizeService.instance.screenWidth(context),
+                  child: const CircularProgressIndicator(
+                    backgroundColor: kGreyDarkest,
+                    color: kAltoBlue,
+                  ),
+                ),
+              );
+            var localPiv = PivService.instance.localPivsById()[localPivId];
+            return LocalVideo(
+              piv: localPiv,
+              date: localPiv.createDateTime,
+            );
+          })();
   }
 }
 
