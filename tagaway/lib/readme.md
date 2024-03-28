@@ -5,6 +5,7 @@
 - Sorting: three modes (random (default), oldest, newest)
 - Recent
 - Store hide in server
+- Hot replacing of cloud piv by local counterpart, if it exists
 -----
 - Query videos
 - Improve zoom
@@ -2639,6 +2640,13 @@ By now, all the entries in `existing` are stale, since if they weren't, they wou
       existing.forEach ((id) {
         store.remove (tagMapPrefix + id);
       });
+```
+
+Before closing the function, we remove both the `currentlyTagging` key as well as the `toggleTags` key, since the tagging operation is done. This will clear the stage for future tagging operations.
+
+```dart
+      store.remove ('currentlyTagging' + (view == 'local' ? 'Local' : 'Uploaded'));
+      store.remove ('toggleTags'       + (view == 'local' ? 'Local' : 'Uploaded'));
 ```
 
 We are done! This concludes the function.

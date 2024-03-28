@@ -324,6 +324,9 @@ class TagService {
             if (uploadQueueIndex != null) PivService.instance.uploadQueue.removeAt (uploadQueueIndex);
          }
       }
+
+      store.remove ('currentlyTagging' + (view == 'local' ? 'Local' : 'Uploaded'));
+      store.remove ('toggleTags'       + (view == 'local' ? 'Local' : 'Uploaded'));
    }
 
    getTaggedPivs (dynamic tags, String view) async {

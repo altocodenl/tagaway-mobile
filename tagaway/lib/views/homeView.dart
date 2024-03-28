@@ -1436,8 +1436,6 @@ class _TagInHomeState extends State<TagInHome> {
                                           afterClosing = () {
                                             TagService.instance
                                                 .doneTagging('local');
-                                            store.remove(
-                                                'currentlyTaggingLocal');
                                           };
                                         } else {
                                           var afterClosingOld = afterClosing;
