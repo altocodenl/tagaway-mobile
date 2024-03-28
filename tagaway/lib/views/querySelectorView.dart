@@ -566,30 +566,54 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 )),
           ],
         )),
-        floatingActionButton: Align(
-          key: const Key('querySelectorSeeNPivs'),
-          alignment: const Alignment(0.11, 1),
-          child: FloatingActionButton.extended(
-            key: const Key('querySelectorSeeNPivsSub'),
-            heroTag: 'querySelectorSeeNPivsSub',
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-            onPressed: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-              Navigator.pushReplacementNamed(context, 'home');
-            },
-            backgroundColor: kAltoBlue,
-            label: queryInProgress == true
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text('See ' + queryResult['total'].toString() + ' pivs',
-                    style: kSelectAllButton),
-          ),
+        floatingActionButton: Stack(
+          children: [
+            Align(
+              key: const Key('querySelectorSeeNPivs'),
+              alignment: const Alignment(0.11, 1),
+              child: FloatingActionButton.extended(
+                key: const Key('querySelectorSeeNPivsSub'),
+                heroTag: 'querySelectorSeeNPivsSub',
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
+                onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  Navigator.pushReplacementNamed(context, 'home');
+                },
+                backgroundColor: kAltoBlue,
+                label: queryInProgress == true
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text('See ' + queryResult['total'].toString() + ' pivs',
+                        style: kSelectAllButton),
+              ),
+            ),
+            Align(
+              key: const Key('sortingFAB'),
+              alignment: const Alignment(0.8, .8),
+              child: FloatingActionButton(
+                key: const Key('sortingFloating'),
+                heroTag: 'sorting',
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
+                onPressed: () {},
+                backgroundColor: kGreyLightest,
+                child: Icon(
+                  kShuffleIcon,
+                  // kForwardIcon,
+                  // kBackwardIcon,
+                  color: kAltoBlue,
+                  size: 25,
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );

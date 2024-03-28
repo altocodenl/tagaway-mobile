@@ -105,6 +105,9 @@ const kFullScreenIcon = FontAwesomeIcons.expand;
 const kLocalGridIcon = FontAwesomeIcons.grip;
 const kCloudGridIcon = FontAwesomeIcons.gripVertical;
 const kShareIcon = FontAwesomeIcons.shareFromSquare;
+const kShuffleIcon = FontAwesomeIcons.shuffle;
+const kBackwardIcon = FontAwesomeIcons.backward;
+const kForwardIcon = FontAwesomeIcons.forward;
 
 const tagColors = [
   kTagColor1,
