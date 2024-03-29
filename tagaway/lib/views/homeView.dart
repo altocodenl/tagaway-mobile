@@ -152,9 +152,7 @@ class _HomeViewState extends State<HomeView> {
         backgroundColor: kAltoBlack,
         title: GestureDetector(
             onTap: () {
-              var tags = store.get('queryTags');
-              store.set('queryTags', ['nosuchquery'], '', 'mute');
-              store.set('queryTags', tags);
+              store.set('queryTags', []);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -564,7 +562,7 @@ class _LocalVideoState extends State<LocalVideo> {
                 TagsRow(tags: pendingTags),
                 Container(
                   alignment: Alignment.center,
-                  height: height,
+                  height: height.toDouble (),
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     // Use the VideoPlayer widget to display the video.
@@ -718,10 +716,11 @@ class _CloudPhotoState extends State<CloudPhoto> {
         filterQuality: FilterQuality.high,
         placeholder: (context, url) {
           var localPivId = store.get('rpivMap:' + widget.piv['id']);
-          if (localPivId == '')
+          var localPiv = PivService.instance.localPivsById()[localPivId];
+          if (localPiv == null)
             return Center(
               child: Container(
-                height: height,
+                height: height.toDouble(),
                 width: SizeService.instance.screenWidth(context),
                 child: const CircularProgressIndicator(
                   backgroundColor: kGreyDarkest,
@@ -729,7 +728,6 @@ class _CloudPhotoState extends State<CloudPhoto> {
                 ),
               ),
             );
-          var localPiv = PivService.instance.localPivsById()[localPivId];
           if (localPiv.type == AssetType.image)
             return LocalPhoto(
               piv: localPiv,
