@@ -401,7 +401,15 @@ class _LocalPhotoState extends State<LocalPhoto>
 
     return Column(
       children: [
-        TagsRow(tags: pendingTags),
+        Padding(
+          padding: widget.piv.height / widget.piv.width < .85
+              ? const EdgeInsets.only(bottom: 10.0)
+              : widget.piv.height / widget.piv.width >= .85 &&
+                      widget.piv.height / widget.piv.width < 1
+                  ? const EdgeInsets.only(bottom: 45.0)
+                  : const EdgeInsets.only(bottom: 0.0),
+          child: TagsRow(tags: pendingTags),
+        ),
         Container(
           height: computeHeight(),
           alignment: Alignment.center,
@@ -735,6 +743,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
         },
         imageBuilder: (context, imageProvider) {
           var containerHeight = () {
+            print(height / width);
             if (height > width * 1.7) {
               return SizeService.instance.screenHeight(context) * .85;
             }
@@ -755,6 +764,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
           var containerWidth = SizeService.instance.screenWidth(context);
           var scalePiv = () {
             if (height > width * 1.7) return 1.8;
+
             return 1.4;
           };
           var paddingAskance = () {
@@ -773,9 +783,11 @@ class _CloudPhotoState extends State<CloudPhoto> {
               Padding(
                 padding: askance
                     ? EdgeInsets.only(bottom: paddingAskance().toDouble())
-                    : height / width < 1
-                        ? EdgeInsets.only(bottom: 0)
-                        : EdgeInsets.only(bottom: 8.0),
+                    : height / width < .85
+                        ? const EdgeInsets.only(bottom: 00.0)
+                        : height / width >= .85 && height / width < 1
+                            ? const EdgeInsets.only(bottom: 40.0)
+                            : const EdgeInsets.only(bottom: 8.0),
                 child: TagsRow(
                     tags: widget.piv['tags']
                         .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
@@ -789,7 +801,11 @@ class _CloudPhotoState extends State<CloudPhoto> {
                   width: askance ? containerHeight() : containerWidth,
                   height: askance ? containerWidth : containerHeight(),
                   child: Transform.scale(
-                    scale: askance ? scalePiv() : 1,
+                    scale: askance
+                        ? scalePiv()
+                        : height / width >= .85 && height / width < 1
+                            ? 1.2
+                            : 1,
                     child: Image(
                       fit: BoxFit.contain,
                       image: imageProvider,
@@ -800,9 +816,11 @@ class _CloudPhotoState extends State<CloudPhoto> {
               Padding(
                 padding: askance
                     ? EdgeInsets.only(top: paddingAskance().toDouble())
-                    : height / width < 1
-                        ? EdgeInsets.only(top: 0)
-                        : EdgeInsets.only(top: 8.0),
+                    : height / width < .85
+                        ? EdgeInsets.only(top: 00.0)
+                        : height / width >= .85 && height / width < 1
+                            ? EdgeInsets.only(top: 50.0)
+                            : EdgeInsets.only(top: 8.0),
                 child: IconsRow(
                   piv: widget.piv,
                   pivHeight: height,
