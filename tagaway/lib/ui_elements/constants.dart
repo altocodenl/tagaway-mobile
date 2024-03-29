@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:tagaway/services/tools.dart';
+
 const ENV = 'dev';
 // const ENV = 'prod';
 
@@ -480,7 +482,7 @@ String tagType(tag) {
   if (tag == 't::') return 'toOrganize';
   if (tag == 'o::') return 'organized';
   if (tag == 'v::') return 'videos';
-  if (RegExp('^d::[0-9]').hasMatch(tag)) return 'year';
+  if (RegExp('^d::[0-9]').hasMatch(tag) || tag == 'r::') return 'year';
   if (RegExp('^d::M').hasMatch(tag)) return 'month';
   if (RegExp('^g::').hasMatch(tag)) {
     if (RegExp('^g::[A-Z]{2}').hasMatch(tag))
@@ -497,6 +499,7 @@ String tagTitle(tag) {
   if (type == 'toOrganize') return 'To Organize';
   if (type == 'organized') return 'Organized';
   if (type == 'videos') return 'Videos';
+  if (tag == 'r::') return 'Recent';
   if (type == 'year' || type == 'country' || type == 'city')
     return tag.substring(3);
   if (type == 'month') return shortMonthNames[int.parse(tag.substring(4)) - 1];
@@ -539,4 +542,10 @@ String shortenSuggestion(tag, context) {
 
 String shortenN(tag, chars) {
   return tag.length < chars ? tag : tag.substring(0, chars) + '...';
+}
+
+recentMinDate() {
+  var daysAgo = 14;
+  var date = DateTime.now().subtract(Duration(days: daysAgo));
+  return ms(DateTime(date.year, date.month, date.day));
 }

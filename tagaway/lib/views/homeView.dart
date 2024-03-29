@@ -409,7 +409,12 @@ class _LocalPhotoState extends State<LocalPhoto>
             builder: (_, snapshot) {
               final file = snapshot.data;
               if (file == null) return Container();
-              return Image.file(file);
+              try {
+                return Image.file(file);
+              } catch (error) {
+                // Sometimes the piv cannot be loaded due to a FS issue, so we fail gracefully by returning an empty container
+                return Container();
+              }
             },
           ),
         ),

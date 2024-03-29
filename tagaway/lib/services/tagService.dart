@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 import 'package:photo_manager/photo_manager.dart';
 
+import 'package:tagaway/ui_elements/constants.dart';
+
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tools.dart';
 
@@ -440,6 +442,8 @@ class TagService {
          else                maxDate = DateTime.utc (yearTag,     monthTag + 1, 1).millisecondsSinceEpoch;
       }
 
+      if (tags.contains ('r::') && recentMinDate () > minDate) minDate = recentMinDate ();
+
       var localPivsById = PivService.instance.localPivsById ();
 
       var localPivsToAdd = [];
@@ -573,8 +577,9 @@ class TagService {
       var sort = store.get ('querySort') == 'oldest' ? 'oldest' : 'newest';
 
       var response = await ajax ('post', 'query', {
-         'tags': tags,
+         'tags': tags.where ((tag) => tag != 'r::').toList (),
          'sort': sort,
+         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
          'from': 1,
          'to': firstLoadSize
       });
@@ -588,10 +593,11 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
+      var secondQueryNeeded = response ['body'] ['total'] > firstLoadSize;
 
       queryResult = localQuery (tags, queryResult);
 
-      if (queryResult ['total'] == 0 && tags.length > 0) {
+      if (queryResult ['total'] == 0 && tags.length > 0 && ! tags.contains ('r::')) {
          store.remove ('currentlyTaggingUploaded');
          store.remove ('showSelectAllButtonUploaded');
          return store.set ('queryTags', []);
@@ -615,12 +621,13 @@ class TagService {
 
       getTags ();
 
-      if (queryResult ['total'] == 0) return 200;
+      if (! secondQueryNeeded) return 200;
 
       response = await ajax ('post', 'query', {
-         'tags': tags,
+         'tags': tags.where ((tag) => tag != 'r::').toList (),
          'sort': sort,
-         'from': firstLoadSize + 1,
+         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
+         'from': 1,
          'to':   100000
       });
 
@@ -631,21 +638,22 @@ class TagService {
 
       if (! listEquals (queryTags, tags)) return 409;
 
-      var secondQueryResult = response ['body'];
+      queryResult = response ['body'];
+      queryResult = localQuery (tags, queryResult);
 
       store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
-         'pivs':        queryResult ['pivs'] + secondQueryResult ['pivs']
+         'pivs':        queryResult ['pivs']
       }, '', 'mute');
 
       if (tags.contains ('o::')) {
-         secondQueryResult ['pivs'].forEach ((piv) {
+         queryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
             store.set ('orgMap:' + piv ['id'], true);
          });
       }
-      else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
       return 200;
    }
