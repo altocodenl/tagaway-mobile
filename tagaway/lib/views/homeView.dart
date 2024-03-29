@@ -410,9 +410,7 @@ class _LocalPhotoState extends State<LocalPhoto>
             builder: (_, snapshot) {
               final file = snapshot.data;
               if (file == null) return Container();
-              return Transform.scale(
-                  scale: widget.piv.width > widget.piv.height ? 1.2 : 1,
-                  child: Image.file(file));
+              return Image.file(file);
             },
           ),
         ),
