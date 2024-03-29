@@ -379,6 +379,7 @@ class _LocalPhotoState extends State<LocalPhoto>
   }
 
   computeHeight() {
+    print('height/width is ${widget.piv.height / widget.piv.width}');
     if (widget.piv.height > widget.piv.width * 1.7)
       return SizeService.instance.screenHeight(context) * .85;
     if (widget.piv.height > widget.piv.width * 1.4)
@@ -409,26 +410,36 @@ class _LocalPhotoState extends State<LocalPhoto>
             builder: (_, snapshot) {
               final file = snapshot.data;
               if (file == null) return Container();
-              return Image.file(file);
+              return Transform.scale(
+                  scale: widget.piv.width > widget.piv.height ? 1.2 : 1,
+                  child: Image.file(file));
             },
           ),
         ),
-        IconsRow(
-          piv: {'piv': widget.piv, 'local': true},
-          pivHeight: widget.piv.height,
-          pivWidth: widget.piv.width,
-          deletePiv: () {
-            PivService.instance.deleteLocalPivs([widget.piv.id], null, () {
-              store.set(
-                  'deletedPivs', getList('deletedPivs') + [widget.piv.id]);
-            });
-          },
-          hidePiv: () {
-            store.set('hideMap:' + widget.piv.id, true, 'disk');
-          },
-          sharePiv: () {
-            shareLocalPiv(context, widget.piv, false);
-          },
+        Padding(
+          padding: widget.piv.height / widget.piv.width < .85
+              ? const EdgeInsets.only(top: 20.0)
+              : widget.piv.height / widget.piv.width >= .85 &&
+                      widget.piv.height / widget.piv.width < 1
+                  ? const EdgeInsets.only(top: 45.0)
+                  : const EdgeInsets.only(top: 0.0),
+          child: IconsRow(
+            piv: {'piv': widget.piv, 'local': true},
+            pivHeight: widget.piv.height,
+            pivWidth: widget.piv.width,
+            deletePiv: () {
+              PivService.instance.deleteLocalPivs([widget.piv.id], null, () {
+                store.set(
+                    'deletedPivs', getList('deletedPivs') + [widget.piv.id]);
+              });
+            },
+            hidePiv: () {
+              store.set('hideMap:' + widget.piv.id, true, 'disk');
+            },
+            sharePiv: () {
+              shareLocalPiv(context, widget.piv, false);
+            },
+          ),
         ),
         Padding(
           padding: widget.piv.height > widget.piv.width
