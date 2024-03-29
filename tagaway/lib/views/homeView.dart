@@ -411,7 +411,9 @@ class _LocalPhotoState extends State<LocalPhoto>
               final file = snapshot.data;
               if (file == null) return Container();
               try {
-                return Image.file(file);
+                return Transform.scale(
+                    scale: widget.piv.width > widget.piv.height ? 1.2 : 1,
+                    child: Image.file(file));
               } catch (error) {
                 // Sometimes the piv cannot be loaded due to a FS issue, so we fail gracefully by returning an empty container
                 return Container();
