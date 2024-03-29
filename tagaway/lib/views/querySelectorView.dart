@@ -57,7 +57,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
       TagService.instance.queryPivs();
       setState(() {
         if (QuerySort != '') querySort = QuerySort;
-        queryTags = v1;
+        queryTags = v1 == '' ? [] : v1;
         bool matchFilter(tag) {
           if (v3 == '' || queryTags.contains(tag)) return true;
           return tag.toLowerCase().contains(v3.toLowerCase());
@@ -76,6 +76,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
             .where(matchFilter)
             .toList();
         years.sort();
+        if (!queryTags.contains('r::')) years += ['r::'];
         months = selectableTags
             .where((tag) => RegExp('^d::M').hasMatch(tag))
             .where(matchFilter)
@@ -583,6 +584,7 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50)),
                 onPressed: () {
+                  if (queryResult['total'] == 0) return;
                   FocusManager.instance.primaryFocus?.unfocus();
                   Navigator.pushReplacementNamed(context, 'home');
                 },
@@ -596,7 +598,12 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : Text('See ' + queryResult['total'].toString() + ' pivs',
+                    : Text(
+                        queryResult['total'] == 0
+                            ? 'No results'
+                            : ('See ' +
+                                queryResult['total'].toString() +
+                                ' pivs'),
                         style: kSelectAllButton),
               ),
             ),

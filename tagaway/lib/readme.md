@@ -2,10 +2,9 @@
 
 ## TODO
 
-- Recent
-- Store hide in server
 - [server] fix hometags deletion issue
 -----
+- Store hide in server
 - Query videos
 - Improve zoom
 - Use metadata to get a better date for some pivs
@@ -1832,6 +1831,8 @@ import 'package:flutter/material.dart';
 
 import 'package:photo_manager/photo_manager.dart';
 
+import 'package:tagaway/ui_elements/constants.dart';
+
 import 'package:tagaway/services/pivService.dart';
 import 'package:tagaway/services/tools.dart';
 ```
@@ -2826,6 +2827,12 @@ In the case where `yearTag` is present and `monthTag` is also present, we'll set
       }
 ```
 
+If the recent pseudotag (`r::`) is in the query tags, and the `minDate` we have is lower than the one belonging to recent pivs, we update `minDate`. We don't set this variable outright in case there's a year or month tag that actually yields a `minDate` greater than that yielded by `recentMinDate`. `recentMinDate` will yield a date that is 14 days in the past -- that is our definition of "recent".
+
+```dart
+      if (tags.contains ('r::') && recentMinDate () > minDate) minDate = recentMinDate ();
+```
+
 We will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
 
 ```dart
@@ -3249,12 +3256,13 @@ We will ask the server to sort pivs by latest date first if `querySort` is `newe
       var sort = store.get ('querySort') == 'oldest' ? 'oldest' : 'newest';
 ```
 
-We invoke `POST /query` in the server. We're going to pass the `tags` we received and the `sort` parameter.
+We invoke `POST /query` in the server. We're going to pass the `tags` we received (after removing the `r::` pseudotag) and the `sort` parameter. We will also pass a `mindate` field that will only make a difference if `r::` is contained in our `tags`. In this query, we will load up to `firstLoadSize` pivs, to make the query reasonably fast.
 
 ```dart
       var response = await ajax ('post', 'query', {
-         'tags': tags,
+         'tags': tags.where ((tag) => tag != 'r::').toList (),
          'sort': sort,
+         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
          'from': 1,
          'to': firstLoadSize
       });
@@ -3291,6 +3299,12 @@ We return the result of the body in a local variable `queryResult`.
       var queryResult = response ['body'];
 ```
 
+We note whether we need to perform a second query later; this will only be the case if the `total` returned by the server exceeds our `firstLoadSize` variable.
+
+```dart
+      var secondQueryNeeded = response ['body'] ['total'] > firstLoadSize;
+```
+
 We modify `queryResult` by invoking `localQuery`. This function will update the query result adding local pivs, tags and potentially modifying the total and time header. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
 
 ```dart
@@ -3305,8 +3319,10 @@ In this case, there is nothing else to do, so we `return`. As with the case wher
 
 Note that if we have local pivs that match the query, they will already be in `queryResult`, so we won't consider this to be a ronin query.
 
+One exception: if the recent pseudotag (`r::`) is in the query, and the query is empty, we will still leave that tag inside the query, since we want to show the user that there are no recent pivs that match the query.
+
 ```dart
-      if (queryResult ['total'] == 0 && tags.length > 0) {
+      if (queryResult ['total'] == 0 && tags.length > 0 && ! tags.contains ('r::')) {
          store.remove ('currentlyTaggingUploaded');
          store.remove ('showSelectAllButtonUploaded');
          return store.set ('queryTags', []);
@@ -3356,20 +3372,25 @@ While we are at it, it's a good idea to refresh the list of tags. This is useful
       getTags ();
 ```
 
-If we're here, we need to get all the remaining pivs for the query. We do so by requesting all the pivs from `firstLoadSize + 1` to a large number.
+If there is no need for a second query to get all matching pivs, we just return a 200 to indicate success.
+
+```dart
+      if (! secondQueryNeeded) return 200;
+```
+
+If we're here, we need to get all the remaining pivs for the query. We do so by requesting all the pivs from `1` to a large number.
 
 ```dart
       response = await ajax ('post', 'query', {
-         'tags': tags,
+         'tags': tags.where ((tag) => tag != 'r::').toList (),
          'sort': sort,
-         'from': firstLoadSize + 1,
+         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
+         'from': 1,
          'to':   100000
       });
 ```
 
-Why did we get them all and not those after `firstLoadSize`? Or why didn't we get them using extra tags for the year and the month of the last month? Quite simply, because if there is an inconsistency created by the delay between the two queries (when, in the background, there are uploads/taggings or deletions/untaggings that affect the query), we want to glaze over it by showing still the same amount of pivs as in the first query.
-
-There might be room for improvement here, but this is a good solution for the time being. We're choosing (client-side) performance over correctness. In the absence of updates between the first and second query, there will be no inconsistencies.
+Why did we get them all and not those after `firstLoadSize`? Quite simply, so that when we call again `localQuery` on the result, all the pivs will be properly sorted; we are not concerned with the extra load in the server (since `firstLoadSize` is quite small) and we are in no hurry, since the user will already be enjoying the results of the first query.
 
 As before, if we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another error message already shown by the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:B:CODE`.
 
@@ -3391,19 +3412,20 @@ As before, if the tags in the query changed in the meantime, we don't do anythin
       if (! listEquals (queryTags, tags)) return 409;
 ```
 
-We store the result of the second query in a `secondQueryResult` variable.
+We store the result of the second query in `queryResult`. We immediately invoke `localQuery` to add local piv information to the query.
 
 ```dart
-      var secondQueryResult = response ['body'];
+      queryResult = response ['body'];
+      queryResult = localQuery (tags, queryResult);
 ```
 
-We only update the `queryResult.pivs` entry in `queryResult`, leaving the rest as it was before. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
+We update `queryResult`. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
 
 ```dart
       store.set ('queryResult', {
          'total':       queryResult ['total'],
          'tags':        queryResult ['tags'],
-         'pivs':        queryResult ['pivs'] + secondQueryResult ['pivs']
+         'pivs':        queryResult ['pivs']
       }, '', 'mute');
 ```
 
@@ -3411,7 +3433,7 @@ As before, we check whether the returned pivs are organized or not. If the `'o::
 
 ```dart
       if (tags.contains ('o::')) {
-         secondQueryResult ['pivs'].forEach ((piv) {
+         queryResult ['pivs'].forEach ((piv) {
             if (piv ['local'] == true) return;
             store.set ('orgMap:' + piv ['id'], true);
          });
@@ -3421,7 +3443,7 @@ As before, we check whether the returned pivs are organized or not. If the `'o::
 Otherwise, we don't know whether they are organized or not, so we ask the server through `queryOrganizedIds`. Note that we exclude local pivs from the query.
 
 ```dart
-      else queryOrganizedIds (secondQueryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
+      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 ```
 
 We return a 200 to indicate success and close the function.
