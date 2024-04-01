@@ -378,17 +378,29 @@ class _LocalPhotoState extends State<LocalPhoto>
 
   computeHeight() {
     print('height/width is ${widget.piv.height / widget.piv.width}');
-    if (widget.piv.height > widget.piv.width * 1.7)
+    if (widget.piv.height > widget.piv.width * 1.7) {
+      print('1.7');
       return SizeService.instance.screenHeight(context) * .85;
-    if (widget.piv.height > widget.piv.width * 1.4)
+    }
+    if (widget.piv.height > widget.piv.width * 1.4) {
+      print('1.4');
       return SizeService.instance.screenHeight(context) * .7;
-    if (widget.piv.height > widget.piv.width * 1.2)
+    }
+    if (widget.piv.height > widget.piv.width * 1.2) {
+      print('1.2');
       return SizeService.instance.screenHeight(context) * .6;
-    if (widget.piv.height >= widget.piv.width)
+    }
+    if (widget.piv.height >= widget.piv.width) {
+      print('=');
       return SizeService.instance.screenHeight(context) * .5;
-    if (widget.piv.height * 1.4 > widget.piv.width)
+    }
+    if (widget.piv.height * 1.4 > widget.piv.width) {
+      print('height * 1.4');
       return SizeService.instance.screenHeight(context) * .4;
-    return SizeService.instance.screenHeight(context) * .35;
+    } else {
+      print('else');
+      return SizeService.instance.screenHeight(context) * .35;
+    }
   }
 
   @override
@@ -401,7 +413,7 @@ class _LocalPhotoState extends State<LocalPhoto>
       children: [
         Padding(
           padding: widget.piv.height / widget.piv.width < .85
-              ? const EdgeInsets.only(bottom: 10.0)
+              ? const EdgeInsets.only(bottom: 30.0)
               : widget.piv.height / widget.piv.width >= .85 &&
                       widget.piv.height / widget.piv.width < 1
                   ? const EdgeInsets.only(bottom: 45.0)
@@ -429,7 +441,7 @@ class _LocalPhotoState extends State<LocalPhoto>
         ),
         Padding(
           padding: widget.piv.height / widget.piv.width < .85
-              ? const EdgeInsets.only(top: 20.0)
+              ? const EdgeInsets.only(top: 30.0)
               : widget.piv.height / widget.piv.width >= .85 &&
                       widget.piv.height / widget.piv.width < 1
                   ? const EdgeInsets.only(top: 45.0)
@@ -562,7 +574,7 @@ class _LocalVideoState extends State<LocalVideo> {
                 TagsRow(tags: pendingTags),
                 Container(
                   alignment: Alignment.center,
-                  height: height.toDouble (),
+                  height: height.toDouble(),
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     // Use the VideoPlayer widget to display the video.
