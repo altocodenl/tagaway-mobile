@@ -550,14 +550,22 @@ class _LocalVideoState extends State<LocalVideo> {
     final video = await widget.piv.file;
     // If video was deleted or hidden, don't do anything.
     if (hidePiv == true || video == null) return;
-    _controller = VideoPlayerController.file(video)
-      // Play the video again when it ends
-      ..setLooping(true)
-      // initialize the controller and notify UI when done
-      ..initialize().then((_) => setState(() {
-            initialized = true;
-            _controller.pause();
-          }));
+    try {
+      _controller = VideoPlayerController.file(video)
+        // Play the video again when it ends
+        ..setLooping(true)
+        // initialize the controller and notify UI when done
+        ..initialize().then((_) => setState(() {
+              initialized = true;
+              _controller.pause();
+            }));
+    } catch (error) {
+      // Sometimes certain video formats produce an error, so we report it and move on.
+      ajax('post', 'error', {
+        'error': 'Video initialization error',
+        'piv': widget.piv,
+      });
+    }
   }
 
   @override
@@ -1049,7 +1057,8 @@ class _CloudVideoState extends State<CloudVideo> {
           )
         : (() {
             var localPivId = store.get('rpivMap:' + widget.piv['id']);
-            if (localPivId == '')
+            var localPiv = PivService.instance.localPivsById()[localPivId];
+            if (localPiv == null)
               return Center(
                 child: Container(
                   height: height,
@@ -1060,7 +1069,6 @@ class _CloudVideoState extends State<CloudVideo> {
                   ),
                 ),
               );
-            var localPiv = PivService.instance.localPivsById()[localPivId];
             return LocalVideo(
               piv: localPiv,
               date: localPiv.createDateTime,

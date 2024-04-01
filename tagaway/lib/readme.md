@@ -2,6 +2,9 @@
 
 ## TODO
 
+- fix indexes: when deleting; when untagging?
+- make containers with height but not the circular progress indicators
+- fix recent
 - [server] fix hometags deletion issue
 -----
 - Store hide in server
