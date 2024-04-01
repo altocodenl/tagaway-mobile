@@ -427,7 +427,13 @@ class _LocalPhotoState extends State<LocalPhoto>
             future: file,
             builder: (_, snapshot) {
               final file = snapshot.data;
-              if (file == null) return Container();
+              if (file == null)
+                return const SizedBox(
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      backgroundColor: kGreyDarkest,
+                      color: kAltoBlue,
+                    ));
               try {
                 return Transform.scale(
                     scale: widget.piv.width > widget.piv.height ? 1.2 : 1,
@@ -734,9 +740,12 @@ class _CloudPhotoState extends State<CloudPhoto> {
               child: Container(
                 height: height.toDouble(),
                 width: SizeService.instance.screenWidth(context),
-                child: const CircularProgressIndicator(
-                  backgroundColor: kGreyDarkest,
-                  color: kAltoBlue,
+                child: SizedBox(
+                  height: 20,
+                  child: const CircularProgressIndicator(
+                    backgroundColor: kGreyDarkest,
+                    color: kAltoBlue,
+                  ),
                 ),
               ),
             );
