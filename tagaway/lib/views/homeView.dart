@@ -233,8 +233,11 @@ class _HomeViewState extends State<HomeView> {
       body: SafeArea(
           child: queryResult['pivs'].length == 0
               ? const Center(
+                  child: SizedBox(
+                  height: 20,
                   child: CircularProgressIndicator(
-                  color: kAltoBlue,
+                    color: kAltoBlue,
+                  ),
                 ))
               : RefreshIndicator(
                   onRefresh: () async {
@@ -427,6 +430,7 @@ class _LocalPhotoState extends State<LocalPhoto>
             future: file,
             builder: (_, snapshot) {
               final file = snapshot.data;
+
               if (file == null)
                 return const SizedBox(
                     height: 20,
@@ -675,8 +679,11 @@ class _LocalVideoState extends State<LocalVideo> {
         : Container(
             height: height,
             child: Center(
-                child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+                child: SizedBox(
+              height: 20,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
+              ),
             )));
   }
 }
@@ -743,16 +750,20 @@ class _CloudPhotoState extends State<CloudPhoto> {
         placeholder: (context, url) {
           var localPivId = store.get('rpivMap:' + widget.piv['id']);
           var localPiv = PivService.instance.localPivsById()[localPivId];
+
           if (localPiv == null)
             return Center(
               child: Container(
                 height: height.toDouble(),
                 width: SizeService.instance.screenWidth(context),
-                child: SizedBox(
-                  height: 20,
-                  child: const CircularProgressIndicator(
-                    backgroundColor: kGreyDarkest,
-                    color: kAltoBlue,
+                child: Center(
+                  child: Container(
+                    height: 20,
+                    width: 20,
+                    child: const CircularProgressIndicator(
+                      backgroundColor: kGreyDarkest,
+                      color: kAltoBlue,
+                    ),
                   ),
                 ),
               ),
@@ -799,10 +810,6 @@ class _CloudPhotoState extends State<CloudPhoto> {
             if (height < width) return 10;
             return 80;
           };
-
-          // var left = (askance ? -(width - height) / 2 : 0).toDouble();
-          // // The 50px are to center the image a bit. We need to properly compute the space taken up by the header and the footer.
-          // var top = (askance ? -(height - width + 50) / 2 : 0).toDouble();
 
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -1072,9 +1079,12 @@ class _CloudVideoState extends State<CloudVideo> {
                 child: Container(
                   height: height,
                   width: SizeService.instance.screenWidth(context),
-                  child: const CircularProgressIndicator(
-                    backgroundColor: kGreyDarkest,
-                    color: kAltoBlue,
+                  child: SizedBox(
+                    height: 20,
+                    child: const CircularProgressIndicator(
+                      backgroundColor: kGreyDarkest,
+                      color: kAltoBlue,
+                    ),
                   ),
                 ),
               );
@@ -1570,9 +1580,12 @@ class _TagInHomeState extends State<TagInHome> {
                                                     placeholder: (context,
                                                             url) =>
                                                         const Center(
-                                                            child:
-                                                                CircularProgressIndicator(
-                                                          color: kAltoBlue,
+                                                            child: SizedBox(
+                                                          height: 20,
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            color: kAltoBlue,
+                                                          ),
                                                         )),
                                                     imageBuilder: (context,
                                                             imageProvider) =>
@@ -1613,11 +1626,15 @@ class _TagInHomeState extends State<TagInHome> {
                                                       final bytes =
                                                           snapshot.data;
                                                       if (bytes == null) {
-                                                        return const CircularProgressIndicator(
-                                                          valueColor:
-                                                              AlwaysStoppedAnimation<
-                                                                      Color>(
-                                                                  kAltoBlue),
+                                                        return SizedBox(
+                                                          height: 20,
+                                                          child:
+                                                              const CircularProgressIndicator(
+                                                            valueColor:
+                                                                AlwaysStoppedAnimation<
+                                                                        Color>(
+                                                                    kAltoBlue),
+                                                          ),
                                                         );
                                                       }
                                                       return Container(
