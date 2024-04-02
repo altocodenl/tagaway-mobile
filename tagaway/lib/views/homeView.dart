@@ -549,7 +549,8 @@ class _LocalVideoState extends State<LocalVideo> {
       }
       PendingTags = PendingTags == '' ? [] : PendingTags;
       CachedTags = CachedTags == '' ? [] : CachedTags;
-      tagsInPiv = (PendingTags + CachedTags).toSet().toList();
+
+      setState(() => tagsInPiv = (PendingTags + CachedTags).toSet().toList());
     });
   }
 
