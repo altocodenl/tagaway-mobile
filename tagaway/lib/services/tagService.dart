@@ -227,10 +227,6 @@ class TagService {
 
       await queryOrganizedIds ([id]);
 
-      var hometags = getList ('hometags');
-      if (! del && hometags.isEmpty) await editHometags (tags [0], true);
-
-      queryPivs (true);
       return 200;
    }
 
@@ -292,11 +288,6 @@ class TagService {
       }
 
       if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
-
-      var hometags = getList ('hometags');
-      if (cloudPivsToTag.length > 0 && hometags.isEmpty) editHometags (tags [0], true);
-
-      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true);
 
       if (localPivsToTagUntag.keys.length == 0) return;
 
@@ -789,7 +780,6 @@ class TagService {
        }
     });
     store.remove ('currentlyDeletingPivsUploaded');
-    await queryPivs (true);
   }
 
    renameTag (String from, String to) async {

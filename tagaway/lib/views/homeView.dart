@@ -131,6 +131,7 @@ class _HomeViewState extends State<HomeView> {
       if (scrollController.hasClients) scrollController.jumpTo(0);
       seenPivIndexes = [];
       store.remove('deletedPivs');
+      store.remove('cachedTags:*');
       TagService.instance.queryPivs(true);
     });
   }
@@ -347,7 +348,7 @@ class _LocalPhotoState extends State<LocalPhoto>
     with SingleTickerProviderStateMixin {
   dynamic cancelListener;
   bool hidePiv = false;
-  dynamic pendingTags = [];
+  dynamic tagsInPiv = [];
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -360,8 +361,9 @@ class _LocalPhotoState extends State<LocalPhoto>
     cancelListener = store.listen([
       'deletedPivs',
       'hideMap:' + widget.piv.id,
-      'pendingTags:' + widget.piv.id
-    ], (DeletedPivs, PivHidden, PendingTags) {
+      'pendingTags:' + widget.piv.id,
+      'cachedTags:' + widget.piv.id,
+    ], (DeletedPivs, PivHidden, PendingTags, CachedTags) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
         setState(() => hidePiv = true);
@@ -369,7 +371,10 @@ class _LocalPhotoState extends State<LocalPhoto>
       if (PivHidden == true && hidePiv == false) {
         setState(() => hidePiv = true);
       }
-      if (PendingTags != '') setState(() => pendingTags = PendingTags);
+      PendingTags = PendingTags == '' ? [] : PendingTags;
+      CachedTags = CachedTags == '' ? [] : CachedTags;
+
+      setState(() => tagsInPiv = (PendingTags + CachedTags).toSet().toList());
     });
   }
 
@@ -421,7 +426,9 @@ class _LocalPhotoState extends State<LocalPhoto>
                       widget.piv.height / widget.piv.width < 1
                   ? const EdgeInsets.only(bottom: 45.0)
                   : const EdgeInsets.only(bottom: 0.0),
-          child: TagsRow(tags: pendingTags),
+          child: TagsRow(
+              tags: tagsInPiv,
+              key: Key(widget.piv.id + ':' + tagsInPiv.toString())),
         ),
         Container(
           height: computeHeight(),
@@ -521,7 +528,7 @@ class _LocalVideoState extends State<LocalVideo> {
   bool initialized = false;
   bool hidePiv = false;
   dynamic cancelListener;
-  dynamic pendingTags = [];
+  dynamic tagsInPiv = [];
 
   @override
   void initState() {
@@ -530,8 +537,9 @@ class _LocalVideoState extends State<LocalVideo> {
     cancelListener = store.listen([
       'deletedPivs',
       'hideMap:' + widget.piv.id,
-      'pendingTags:' + widget.piv.id
-    ], (DeletedPivs, PivHidden, PendingTags) {
+      'pendingTags:' + widget.piv.id,
+      'cachedTags:' + widget.piv.id
+    ], (DeletedPivs, PivHidden, PendingTags, CachedTags) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv.id) && hidePiv == false) {
         setState(() => hidePiv = true);
@@ -539,7 +547,9 @@ class _LocalVideoState extends State<LocalVideo> {
       if (PivHidden == true && hidePiv == false) {
         setState(() => hidePiv = true);
       }
-      if (PendingTags != '') setState(() => pendingTags = PendingTags);
+      PendingTags = PendingTags == '' ? [] : PendingTags;
+      CachedTags = CachedTags == '' ? [] : CachedTags;
+      tagsInPiv = (PendingTags + CachedTags).toSet().toList();
     });
   }
 
@@ -589,7 +599,7 @@ class _LocalVideoState extends State<LocalVideo> {
         ? Stack(children: [
             Column(
               children: [
-                TagsRow(tags: pendingTags),
+                TagsRow(tags: tagsInPiv),
                 Container(
                   alignment: Alignment.center,
                   height: height.toDouble(),
@@ -1332,7 +1342,7 @@ class _TagInHomeState extends State<TagInHome> {
   bool showModalBottomSheetBig = false;
   final TextEditingController searchTagController = TextEditingController();
 
-  dynamic currentTags = [];
+  dynamic tagsInPiv = [];
   dynamic tagList = [];
   String filter = '';
   dynamic afterClosing = () {};
@@ -1341,8 +1351,9 @@ class _TagInHomeState extends State<TagInHome> {
   void initState() {
     super.initState();
     setState(() {
-      currentTags = widget.piv['local'] == true
-          ? getList('pendingTags:' + widget.piv['piv'].id)
+      tagsInPiv = widget.piv['local'] == true
+          ? getList('pendingTags:' + widget.piv['piv'].id) +
+              getList('cachedTags:' + widget.piv['piv'].id)
           : widget.piv['tags']
               .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
               .toList();
@@ -1360,7 +1371,7 @@ class _TagInHomeState extends State<TagInHome> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          tagList = TagService.instance.getTagList(currentTags, filter, false);
+          tagList = TagService.instance.getTagList(tagsInPiv, filter, false);
         });
         showModalBottomSheet(
             isScrollControlled: true,
@@ -1426,7 +1437,7 @@ class _TagInHomeState extends State<TagInHome> {
                                             filter = query;
                                             tagList = TagService.instance
                                                 .getTagList(
-                                                    currentTags, filter, false);
+                                                    tagsInPiv, filter, false);
                                           });
                                         }),
                                   ),
@@ -1440,7 +1451,7 @@ class _TagInHomeState extends State<TagInHome> {
                                         filter = '';
                                         tagList = TagService.instance
                                             .getTagList(
-                                                currentTags, filter, false);
+                                                tagsInPiv, filter, false);
                                         showModalBottomSheetBig = false;
                                       });
                                     },
@@ -1514,7 +1525,7 @@ class _TagInHomeState extends State<TagInHome> {
                                 ),
                                 itemBuilder: (BuildContext context, index) {
                                   var tag = tagList[index];
-                                  var greenBorder = currentTags.contains(tag);
+                                  var greenBorder = tagsInPiv.contains(tag);
                                   return GestureDetector(
                                       onTap: () {
                                         var originalTag = tag;
@@ -1523,34 +1534,71 @@ class _TagInHomeState extends State<TagInHome> {
                                         tag = tag.replaceFirst(
                                             RegExp(r' \(example\)$'), '');
 
+                                        var pivId = widget.piv['local'] == true
+                                            ? widget.piv['piv'].id
+                                            : widget.piv['id'];
+                                        var cloudCounterpart =
+                                            store.get('pivMap:' + pivId);
+
                                         if (widget.piv['local'] == true) {
-                                          store.set(
-                                              'currentlyTaggingLocal', [tag]);
-                                          TagService.instance.toggleTags(
-                                              widget.piv['piv'], 'local');
-                                          afterClosing = () {
+                                          // Queue the piv and tag it like a pure local piv
+                                          if (cloudCounterpart == '') {
+                                            store.set(
+                                                'currentlyTaggingLocal', [tag]);
+                                            TagService.instance.toggleTags(
+                                                widget.piv['piv'], 'local');
                                             TagService.instance
                                                 .doneTagging('local');
-                                          };
-                                        } else {
-                                          var afterClosingOld = afterClosing;
-                                          afterClosing = () {
-                                            afterClosingOld();
+                                          }
+                                          // Tag the cloud counterpart of the local piv
+                                          else {
                                             TagService.instance.tagCloudPiv(
-                                                widget.piv['id'],
+                                                cloudCounterpart,
                                                 [tag],
-                                                !currentTags.contains(tag));
-                                          };
+                                                tagsInPiv.contains(
+                                                    tag)); // If we contain the tag, we want to remove it, so we will set `untag` to true; the converse will be true.
+                                          }
+                                          // We store the tags for this local piv in a cache that we will use until we perform a new query
+                                          // This goes for all local pivs, whether they have a cloud counterpart or not
+                                          var cachedTags =
+                                              getList('cachedTags:' + pivId);
+                                          if (tagsInPiv.contains(tag))
+                                            cachedTags.remove(tag);
+                                          else
+                                            cachedTags.add(tag);
+                                          store.set('cachedTags:' + pivId,
+                                              cachedTags);
+                                        } else {
+                                          TagService.instance.tagCloudPiv(pivId,
+                                              [tag], tagsInPiv.contains(tag));
+                                          // We manually update the piv's list of tags in our query data because we won't query after tagging.
+                                          if (widget.piv['tags'].contains(tag))
+                                            widget.piv['tags'].add(tag);
+                                          else
+                                            widget.piv['tags'].remove(tag);
                                         }
+
+                                        var afterClosingOld = afterClosing;
+                                        afterClosing = () {
+                                          // If multiple tags were untagged, we need multiple afterClosing function executions, so we make the new one execute the old one.
+                                          afterClosingOld();
+                                          // If piv was untagged with a tag that is on the query, hide the piv by putting it into deletedPivs.
+                                          // The naming is misleading, but this won't delete the piv, just hide it.
+                                          if (!tagsInPiv.contains(tag) &&
+                                              getList('queryTags')
+                                                  .contains(tag))
+                                            store.set('deletedPivs',
+                                                getList('deletedPivs') + pivId);
+                                        };
                                         setModalState(() {
-                                          currentTags.contains(tag)
-                                              ? currentTags.remove(tag)
-                                              : currentTags.add(tag);
+                                          tagsInPiv.contains(tag)
+                                              ? tagsInPiv.remove(tag)
+                                              : tagsInPiv.add(tag);
                                           searchTagController.clear();
                                           filter = '';
                                           tagList = TagService.instance
                                               .getTagList(
-                                                  currentTags, filter, false);
+                                                  tagsInPiv, filter, false);
                                           showModalBottomSheetBig = false;
                                         });
                                       },

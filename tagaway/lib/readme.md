@@ -2,8 +2,6 @@
 
 ## TODO
 
-- fix indexes: when deleting; when untagging?
-- make containers with height but not the circular progress indicators
 - fix recent
 - [server] fix hometags deletion issue
 -----
@@ -23,6 +21,7 @@
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - achievements: [[<year>, <month>|'all'>], ...]: indicates which months (or entire years) are completely organized both in cloud and on this device.
 - addMoreTags <bool>: if `true`, the user is currently tagging within the carrousel.
+- cachedTags:ID <list>: a list of tags that correspond to a local piv with id ID. These entries are removed as soon as a new query is performed.
 - cameraPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
@@ -2168,21 +2167,6 @@ We pass a single id to `queryOrganizedIds` because if this cloud piv has a local
       await queryOrganizedIds ([id]);
 ```
 
-We get the list of hometags. If there are no hometags set yet, and we are tagging a piv, we add the first tag in `tags` to the hometags through `editHometags`. This allows us to "seed" the hometags with a first tag.
-
-```dart
-      var hometags = getList ('hometags');
-      if (! del && hometags.isEmpty) await editHometags (tags [0], true);
-```
-
-We invoke `queryPivs` passing to it the `refresh` flag set to `true`. This flag will tell `queryPivs` to refresh the query if the `queryTags` haven't changed.
-
-Note we do not await for the operation, since we want the query to happen in the background.
-
-```dart
-      queryPivs (true);
-```
-
 There's nothing else to do but to return the response code of the tagging operations (which was a 200) and close the function.
 
 ```dart
@@ -2366,19 +2350,6 @@ If we tagged or untagged cloud pivs, we update the `orgMap:ID` entries for all t
 
 ```dart
       if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryOrganizedIds (cloudPivsToTag + cloudPivsToUntag);
-```
-
-We get the list of hometags. If there are no hometags set yet, and we are tagging one or more cloud pivs, we add the first tag in `tags` to the hometags through `editHometags`. This allows us to "seed" the hometags with a first tag. Note we do not `await` for this call.
-
-```dart
-      var hometags = getList ('hometags');
-      if (cloudPivsToTag.length > 0 && hometags.isEmpty) editHometags (tags [0], true);
-```
-
-If we tagged or untagged cloud pivs, we refresh the query. Note we do not `await` for this call, but rather let it run in the background.
-
-```dart
-      if ((cloudPivsToTag + cloudPivsToUntag).length > 0) queryPivs (true);
 ```
 
 If there's no local pivs to tag or untag, there's nothing left to do, so we `return`.
