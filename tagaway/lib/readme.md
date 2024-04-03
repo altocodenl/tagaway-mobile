@@ -6,6 +6,9 @@
 - when deleting cloud piv, delete local counterpart?
 - [server] fix hometags deletion issue
 -----
+- Fix manage tags view:
+   - Scroll doesn't work
+   - Modals to edit/delete appear only when you go one view back
 - Query videos
 - Improve zoom
 - Use metadata to get a better date for some pivs
