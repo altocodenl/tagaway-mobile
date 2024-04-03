@@ -729,16 +729,20 @@ class _CloudPhotoState extends State<CloudPhoto> {
   void initState() {
     controller = TransformationController();
     super.initState();
-    cancelListener = store
-        .listen(['deletedPivs', 'hideMap:' + widget.piv['id']],
-            (DeletedPivs, PivHidden) {
-      if (DeletedPivs == '') DeletedPivs = [];
-      if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
-        setState(() => hidePiv = true);
-      }
-      if (PivHidden == true && hidePiv == false) {
-        setState(() => hidePiv = true);
-      }
+    cancelListener = store.listen([
+      'deletedPivs',
+      'hideMap:' + widget.piv['id'],
+      'cachedTags:' + widget.piv['id']
+    ], (DeletedPivs, PivHidden, CachedTags) {
+      setState(() {
+        if (DeletedPivs == '') DeletedPivs = [];
+        if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
+          hidePiv = true;
+        }
+        if (PivHidden == true && hidePiv == false) {
+          hidePiv = true;
+        }
+      });
     });
   }
 
@@ -936,16 +940,20 @@ class _CloudVideoState extends State<CloudVideo> {
   void initState() {
     _initVideo();
     super.initState();
-    cancelListener = store
-        .listen(['deletedPivs', 'hideMap:' + widget.piv['id']],
-            (DeletedPivs, PivHidden) {
-      if (DeletedPivs == '') DeletedPivs = [];
-      if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
-        setState(() => hidePiv = true);
-      }
-      if (PivHidden == true && hidePiv == false) {
-        setState(() => hidePiv = true);
-      }
+    cancelListener = store.listen([
+      'deletedPivs',
+      'hideMap:' + widget.piv['id'],
+      'cachedTags:' + widget.piv['id']
+    ], (DeletedPivs, PivHidden, CachedTags) {
+      setState(() {
+        if (DeletedPivs == '') DeletedPivs = [];
+        if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
+          setState(() => hidePiv = true);
+        }
+        if (PivHidden == true && hidePiv == false) {
+          setState(() => hidePiv = true);
+        }
+      });
     });
   }
 
@@ -1320,15 +1328,15 @@ class _IconsRowState extends State<IconsRow> {
           const Expanded(
             child: SizedBox(),
           ),
-          TagInHome(piv: widget.piv),
+          TagPiv(piv: widget.piv),
         ],
       ),
     );
   }
 }
 
-class TagInHome extends StatefulWidget {
-  const TagInHome({
+class TagPiv extends StatefulWidget {
+  const TagPiv({
     super.key,
     required this.piv,
   });
@@ -1336,10 +1344,10 @@ class TagInHome extends StatefulWidget {
   final dynamic piv;
 
   @override
-  State<TagInHome> createState() => _TagInHomeState();
+  State<TagPiv> createState() => _TagPivState();
 }
 
-class _TagInHomeState extends State<TagInHome> {
+class _TagPivState extends State<TagPiv> {
   bool showModalBottomSheetBig = false;
   final TextEditingController searchTagController = TextEditingController();
 
@@ -1559,25 +1567,27 @@ class _TagInHomeState extends State<TagInHome> {
                                                 tagsInPiv.contains(
                                                     tag)); // If we contain the tag, we want to remove it, so we will set `untag` to true; the converse will be true.
                                           }
-                                          // We store the tags for this local piv in a cache that we will use until we perform a new query
-                                          // This goes for all local pivs, whether they have a cloud counterpart or not
-                                          var cachedTags =
-                                              getList('cachedTags:' + pivId);
-                                          if (tagsInPiv.contains(tag))
-                                            cachedTags.remove(tag);
-                                          else
-                                            cachedTags.add(tag);
-                                          store.set('cachedTags:' + pivId,
-                                              cachedTags);
                                         } else {
                                           TagService.instance.tagCloudPiv(pivId,
                                               [tag], tagsInPiv.contains(tag));
                                           // We manually update the piv's list of tags in our query data because we won't query after tagging.
                                           if (widget.piv['tags'].contains(tag))
-                                            widget.piv['tags'].add(tag);
-                                          else
                                             widget.piv['tags'].remove(tag);
+                                          else
+                                            widget.piv['tags'].add(tag);
                                         }
+
+                                        // We store the tags for the piv in a cache that we will use until we perform a new query
+                                        // This goes for all local pivs, whether they have a cloud counterpart or not
+                                        // While we don't need this for cloud pivs since we can (and do) update widget.piv['tags'] directly, by updating this list we also redraw the piv and therefore we can update the list of tags shown on top of the piv.
+                                        var cachedTags =
+                                            getList('cachedTags:' + pivId);
+                                        if (tagsInPiv.contains(tag))
+                                          cachedTags.remove(tag);
+                                        else
+                                          cachedTags.add(tag);
+                                        store.set(
+                                            'cachedTags:' + pivId, cachedTags);
 
                                         var afterClosingOld = afterClosing;
                                         afterClosing = () {
@@ -1588,8 +1598,10 @@ class _TagInHomeState extends State<TagInHome> {
                                           if (!tagsInPiv.contains(tag) &&
                                               getList('queryTags')
                                                   .contains(tag))
-                                            store.set('deletedPivs',
-                                                getList('deletedPivs') + pivId);
+                                            store.set(
+                                                'deletedPivs',
+                                                getList('deletedPivs') +
+                                                    [pivId]);
                                         };
                                         setModalState(() {
                                           tagsInPiv.contains(tag)

@@ -3,9 +3,9 @@
 ## TODO
 
 - fix recent
+- when deleting cloud piv, delete local counterpart?
 - [server] fix hometags deletion issue
 -----
-- Store hide in server
 - Query videos
 - Improve zoom
 - Use metadata to get a better date for some pivs
@@ -21,7 +21,7 @@
 - account: {username: STRING, email: STRING, type: STRING, created: INTEGER, usage: {limit: INTEGER, byfs: INTEGER, bys3: INTEGER}, geo: true|UNDEFINED, geoInProgress: true|UNDEFINED, suggestGeotagging: true|UNDEFINED, suggestSelection: true|UNDEFINED}
 - achievements: [[<year>, <month>|'all'>], ...]: indicates which months (or entire years) are completely organized both in cloud and on this device.
 - addMoreTags <bool>: if `true`, the user is currently tagging within the carrousel.
-- cachedTags:ID <list>: a list of tags that correspond to a local piv with id ID. These entries are removed as soon as a new query is performed.
+- cachedTags:ID <list>: a list of tags that correspond to a piv with id ID. These entries are removed as soon as a new query is performed.
 - cameraPiv:ID <bool>: if `true`, the local piv with this id is in the camera.
 - context: a reference to the context of a Flutter widget, which comes useful for services that want to draw widgets into views.
 - cookie <str> [DISK]: cookie of current session, brought from server - deleted on logout.
