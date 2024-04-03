@@ -225,7 +225,8 @@ class TagService {
          if (response ['code'] != 200) return response ['code'];
       }
 
-      await queryOrganizedIds ([id]);
+      queryOrganizedIds ([id]);
+      getTags ();
 
       return 200;
    }

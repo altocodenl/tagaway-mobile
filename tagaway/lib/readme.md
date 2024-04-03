@@ -2161,10 +2161,16 @@ If we don't get a successful response from the server, we return the code. This 
       }
 ```
 
-We pass a single id to `queryOrganizedIds` because if this cloud piv has a local counterpart, and the cloud piv is not in the current query, we need to know whether it is organized or not.
+We pass a single id to `queryOrganizedIds` because if this cloud piv has a local counterpart, and the cloud piv is not in the current query, we need to know whether it is organized or not. Note we do not await for this call.
 
 ```dart
-      await queryOrganizedIds ([id]);
+      queryOrganizedIds ([id]);
+```
+
+We also update the list of tags. Note also that we do not await for this call.
+
+```dart
+      getTags ();
 ```
 
 There's nothing else to do but to return the response code of the tagging operations (which was a 200) and close the function.
