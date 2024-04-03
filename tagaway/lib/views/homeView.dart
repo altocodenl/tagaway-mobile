@@ -447,7 +447,13 @@ class _LocalPhotoState extends State<LocalPhoto>
                     ));
               try {
                 return Transform.scale(
-                    scale: widget.piv.width > widget.piv.height ? 1.2 : 1,
+                    scale: widget.piv.height / widget.piv.width < .85
+                        ? 1
+                        : widget.piv.height / widget.piv.width >= .85 &&
+                                widget.piv.height / widget.piv.width < 1
+                            ? 1.2
+                            : 1,
+                    // scale: widget.piv.width > widget.piv.height ? 1.2 : 1,
                     child: Image.file(file));
               } catch (error) {
                 // Sometimes the piv cannot be loaded due to a FS issue, so we fail gracefully by returning an empty container
@@ -458,7 +464,7 @@ class _LocalPhotoState extends State<LocalPhoto>
         ),
         Padding(
           padding: widget.piv.height / widget.piv.width < .85
-              ? const EdgeInsets.only(top: 30.0)
+              ? const EdgeInsets.only(top: 20.0)
               : widget.piv.height / widget.piv.width >= .85 &&
                       widget.piv.height / widget.piv.width < 1
                   ? const EdgeInsets.only(top: 45.0)
