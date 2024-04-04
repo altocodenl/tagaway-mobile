@@ -769,6 +769,16 @@ class _CloudPhotoState extends State<CloudPhoto> {
         httpHeaders: {'cookie': store.get('cookie')},
         filterQuality: FilterQuality.high,
         placeholder: (context, url) {
+          return Container(
+            height: height.toDouble(),
+            color: Colors.white,
+            child: const Center(
+              child: CircularProgressIndicator(
+                backgroundColor: kGreyDarkest,
+                color: kAltoBlue,
+              ),
+            ),
+          );
           var localPivId = store.get('rpivMap:' + widget.piv['id']);
           var localPiv = PivService.instance.localPivsById[localPivId];
 
