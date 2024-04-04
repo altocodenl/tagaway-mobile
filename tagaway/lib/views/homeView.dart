@@ -442,6 +442,7 @@ class _LocalPhotoState extends State<LocalPhoto>
               if (file == null)
                 return const SizedBox(
                     height: 20,
+                    width: 20,
                     child: CircularProgressIndicator(
                       backgroundColor: kGreyDarkest,
                       color: kAltoBlue,
@@ -699,6 +700,7 @@ class _LocalVideoState extends State<LocalVideo> {
             child: Center(
                 child: SizedBox(
               height: 20,
+              width: 20,
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(kAltoBlue),
               ),
@@ -1625,6 +1627,7 @@ class _TagPivState extends State<TagPiv> {
                                                         const Center(
                                                             child: SizedBox(
                                                           height: 20,
+                                                          width: 20,
                                                           child:
                                                               CircularProgressIndicator(
                                                             color: kAltoBlue,
@@ -1671,6 +1674,7 @@ class _TagPivState extends State<TagPiv> {
                                                       if (bytes == null) {
                                                         return SizedBox(
                                                           height: 20,
+                                                          width: 20,
                                                           child:
                                                               const CircularProgressIndicator(
                                                             valueColor:
