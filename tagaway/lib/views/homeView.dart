@@ -236,6 +236,7 @@ class _HomeViewState extends State<HomeView> {
               ? const Center(
                   child: SizedBox(
                   height: 20,
+                  width: 20,
                   child: CircularProgressIndicator(
                     color: kAltoBlue,
                   ),
@@ -761,17 +762,51 @@ class _CloudPhotoState extends State<CloudPhoto> {
   @override
   Widget build(BuildContext context) {
     if (hidePiv) return Container();
+
     final askance = widget.piv['deg'] == 90 || widget.piv['deg'] == -90;
     final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
     final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
+    var containerHeight = () {
+      print(height / width);
+      if (height > width * 1.7) {
+        return SizeService.instance.screenHeight(context) * .85;
+      }
+      if (height > width * 1.4) {
+        return SizeService.instance.screenHeight(context) * .7;
+      }
+      if (height > width * 1.2) {
+        return SizeService.instance.screenHeight(context) * .6;
+      }
+      if (height >= width) {
+        return SizeService.instance.screenHeight(context) * .5;
+      }
+      if (height * 1.4 > width) {
+        return SizeService.instance.screenHeight(context) * .4;
+      }
+      return SizeService.instance.screenHeight(context) * .35;
+    };
+    var containerWidth = SizeService.instance.screenWidth(context);
+    var scalePiv = () {
+      if (height > width * 1.7) return 1.8;
+
+      return 1.4;
+    };
+    var paddingAskance = () {
+      if (height > width * 1.7) return 160;
+      if (height < width) return 10;
+      return 80;
+    };
+
     return CachedNetworkImage(
         imageUrl: (kTagawayThumbMURL) + (widget.piv['id']),
         httpHeaders: {'cookie': store.get('cookie')},
         filterQuality: FilterQuality.high,
         placeholder: (context, url) {
           return Container(
-            height: height.toDouble(),
-            color: Colors.white,
+            height: containerHeight(),
+            decoration: BoxDecoration(
+              border: Border.all(color: kGreyLightest),
+            ),
             child: const Center(
               child: CircularProgressIndicator(
                 backgroundColor: kGreyDarkest,
@@ -779,69 +814,8 @@ class _CloudPhotoState extends State<CloudPhoto> {
               ),
             ),
           );
-          var localPivId = store.get('rpivMap:' + widget.piv['id']);
-          var localPiv = PivService.instance.localPivsById[localPivId];
-
-          if (localPiv == null)
-            return Center(
-              child: Container(
-                height: height.toDouble(),
-                width: SizeService.instance.screenWidth(context),
-                child: Center(
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    child: const CircularProgressIndicator(
-                      backgroundColor: kGreyDarkest,
-                      color: kAltoBlue,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          if (localPiv.type == AssetType.image)
-            return LocalPhoto(
-              piv: localPiv,
-              date: localPiv.createDateTime,
-            );
-          else
-            return LocalVideo(
-              piv: localPiv,
-              date: localPiv.createDateTime,
-            );
         },
         imageBuilder: (context, imageProvider) {
-          var containerHeight = () {
-            print(height / width);
-            if (height > width * 1.7) {
-              return SizeService.instance.screenHeight(context) * .85;
-            }
-            if (height > width * 1.4) {
-              return SizeService.instance.screenHeight(context) * .7;
-            }
-            if (height > width * 1.2) {
-              return SizeService.instance.screenHeight(context) * .6;
-            }
-            if (height >= width) {
-              return SizeService.instance.screenHeight(context) * .5;
-            }
-            if (height * 1.4 > width) {
-              return SizeService.instance.screenHeight(context) * .4;
-            }
-            return SizeService.instance.screenHeight(context) * .35;
-          };
-          var containerWidth = SizeService.instance.screenWidth(context);
-          var scalePiv = () {
-            if (height > width * 1.7) return 1.8;
-
-            return 1.4;
-          };
-          var paddingAskance = () {
-            if (height > width * 1.7) return 160;
-            if (height < width) return 10;
-            return 80;
-          };
-
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -1107,25 +1081,17 @@ class _CloudVideoState extends State<CloudVideo> {
             ],
           )
         : (() {
-            var localPivId = store.get('rpivMap:' + widget.piv['id']);
-            var localPiv = PivService.instance.localPivsById[localPivId];
-            if (localPiv == null)
-              return Center(
-                child: Container(
-                  height: height,
-                  width: SizeService.instance.screenWidth(context),
-                  child: SizedBox(
-                    height: 20,
-                    child: const CircularProgressIndicator(
-                      backgroundColor: kGreyDarkest,
-                      color: kAltoBlue,
-                    ),
-                  ),
+            return Container(
+              height: height,
+              decoration: BoxDecoration(
+                border: Border.all(color: kGreyLightest),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: kGreyDarkest,
+                  color: kAltoBlue,
                 ),
-              );
-            return LocalVideo(
-              piv: localPiv,
-              date: localPiv.createDateTime,
+              ),
             );
           })();
   }
