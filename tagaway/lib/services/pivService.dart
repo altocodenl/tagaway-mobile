@@ -14,9 +14,10 @@ class PivService {
    PivService._ ();
    static final PivService instance = PivService._ ();
 
-   var localPivs   = [];
-   var upload      = {};
-   var uploadQueue = [];
+   var localPivs     = [];
+   var localPivsById = {};
+   var upload        = {};
+   var uploadQueue   = [];
 
    bool recomputeLocalPages = true;
    bool uploading           = false;
@@ -29,12 +30,12 @@ class PivService {
       uploading = false;
    }
 
-   localPivsById () {
-      var localPivsById = {};
+   updateLocalPivsById () {
+      var output = {};
       localPivs.forEach ((v) {
-         localPivsById [v.id] = v;
+         output [v.id] = v;
       });
-      return localPivsById;
+      localPivsById = output;
    }
 
    startUpload () async {
@@ -262,6 +263,7 @@ class PivService {
          }
 
          localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+         updateLocalPivsById ();
          store.set ('cameraPiv:foo', now ());
          if (offset == 0) computeLocalPages ();
 
@@ -498,6 +500,7 @@ class PivService {
       indexesToDelete.reversed.forEach ((k) {
          localPivs.removeAt (k);
       });
+      updateLocalPivsById ();
       recomputeLocalPages = true;
       if (reportBytes != null) showSnackbar ('You have freed up ' + printBytes (reportBytes) + ' of space!', 'green');
    }

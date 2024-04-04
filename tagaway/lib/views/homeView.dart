@@ -770,7 +770,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
         filterQuality: FilterQuality.high,
         placeholder: (context, url) {
           var localPivId = store.get('rpivMap:' + widget.piv['id']);
-          var localPiv = PivService.instance.localPivsById()[localPivId];
+          var localPiv = PivService.instance.localPivsById[localPivId];
 
           if (localPiv == null)
             return Center(
@@ -1098,7 +1098,7 @@ class _CloudVideoState extends State<CloudVideo> {
           )
         : (() {
             var localPivId = store.get('rpivMap:' + widget.piv['id']);
-            var localPiv = PivService.instance.localPivsById()[localPivId];
+            var localPiv = PivService.instance.localPivsById[localPivId];
             if (localPiv == null)
               return Center(
                 child: Container(

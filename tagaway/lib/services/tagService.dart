@@ -292,8 +292,6 @@ class TagService {
 
       if (localPivsToTagUntag.keys.length == 0) return;
 
-      var localPivsById = PivService.instance.localPivsById ();
-
       for (var id in localPivsToTagUntag.keys) {
 
          var untag = localPivsToTagUntag [id] == false;
@@ -308,7 +306,7 @@ class TagService {
          if (pendingTags.length > 0) store.set    ('pendingTags:' + id, pendingTags, 'disk');
          else                        store.remove ('pendingTags:' + id, 'disk');
 
-         if (! untag) PivService.instance.queuePiv (localPivsById [id]);
+         if (! untag) PivService.instance.queuePiv (PivService.instance.localPivsById [id]);
          if (pendingTags.length == 0) {
             store.remove ('pivMap:' + id);
             var uploadQueueIndex;
@@ -436,8 +434,6 @@ class TagService {
 
       if (tags.contains ('r::') && recentMinDate () > minDate) minDate = recentMinDate ();
 
-      var localPivsById = PivService.instance.localPivsById ();
-
       var localPivsToAdd = [];
 
       var localPivsAlreadyPresent = {};
@@ -507,11 +503,9 @@ class TagService {
          return store.set (storageKey, []);
       }
 
-      var localPivsById = PivService.instance.localPivsById ();
-
       var localCount = {}, localQueryTotal = 0;
       store.getKeys ('^pendingTags:').forEach ((key) {
-         var piv = localPivsById [key.replaceAll ('pendingTags:', '')];
+         var piv = PivService.instance.localPivsById [key.replaceAll ('pendingTags:', '')];
          if (piv == null) return;
          if (page ['from'] > ms (piv.createDateTime) || page ['to'] < ms (piv.createDateTime)) return;
 
@@ -750,15 +744,13 @@ class TagService {
   deleteUploadedPivs (dynamic ids) async {
 
    // remove queued local piv
-    var localPivsById = PivService.instance.localPivsById ();
-
     var filteredIds = ids.toList ();
     var localPivs = [];
     ids.forEach ((id) {
-       if (localPivsById [id] == null) return;
+       if (PivService.instance.localPivsById [id] == null) return;
        filteredIds.remove (id);
        localPivs.add (id);
-       PivService.instance.uploadQueue.remove (localPivsById [id]);
+       PivService.instance.uploadQueue.remove (PivService.instance.localPivsById [id]);
        store.remove ('pendingTags:' + id);
     });
 

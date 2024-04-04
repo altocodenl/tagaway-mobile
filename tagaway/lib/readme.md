@@ -3,12 +3,12 @@
 ## TODO
 
 - fix recent
-- when deleting cloud piv, delete local counterpart?
-- [server] fix hometags deletion issue
------
+- when deleting cloud piv, offer to delete local counterpart
 - Fix manage tags view:
    - Scroll doesn't work
    - Modals to edit/delete appear only when you go one view back
+-----
+- [server] fix hometags deletion issue
 - Query videos
 - Improve zoom
 - Use metadata to get a better date for some pivs
@@ -205,13 +205,15 @@ The function takes no arguments, since it gets all its info from the store. Whil
 PivService has three properties that hold data:
 
 - `localPivs`, an array with all local pivs, sorted with the most recent ones first.
+- `localPivsById`, a map with all local pivs, with the keys being the id of the piv. This map is handy to quickly find a certain piv by id.
 - `upload`, an upload object of the form `{'id': ..., 'time': INT}`, which indicates the id of the last upload object created from this client. The `time` entry indicates when the upload object was last used, since the server makes them expire after 10 minutes of inactivity.
 - `uploadQueue`, which contains the pivs to be uploaded.
 
 ```dart
-   var localPivs   = [];
-   var upload      = {};
-   var uploadQueue = [];
+   var localPivs     = [];
+   var localPivsById = {};
+   var upload        = {};
+   var uploadQueue   = [];
 ```
 
 
@@ -234,6 +236,28 @@ We now define a `reset` method that restores all the instance properties to thei
       uploadQueue = [];
       recomputeLocalPages = true;
       uploading = false;
+   }
+```
+
+We now define a function `updateLocalPivsById` which will recreate `localPivsById` by iterating `localPivs` and constructing a map from it. This function should be invoked every time that we update `localPivs`.
+
+```dart
+   updateLocalPivsById () {
+      var output = {};
+```
+
+We add an entry on `output` for each local piv in `localPivs`.
+
+```dart
+      localPivs.forEach ((v) {
+         output [v.id] = v;
+      });
+```
+
+We update `localPivsById` with the newly generated map.
+
+```dart
+      localPivsById = output;
    }
 ```
 
@@ -903,6 +927,12 @@ Note we sort the pivs after we have added the full page of pivs, rather than aft
 
 ```dart
       localPivs.sort ((a, b) => b.createDateTime.compareTo (a.createDateTime));
+```
+
+We update `localPivsById` since we just added more local pivs to `localPivs`.
+
+```dart
+         updateLocalPivsById ();
 ```
 
 Now for a hack: after adding each page of pivs, we want to make `computeLocalPages` recompute the local pages. For this reason, we set a dummy key (`cameraPiv:foo`) to a value it didn't have before. Since the listener set by `computeLocalPages` will be triggered by a change to any key starting with `cameraPiv`, this will work. Earlier we considered doing this by making the listener of `computeLocalPages` also be triggered by changes to `pivDate`; however, that could have triggered more than one redraw for each added page, which is undesirable. For that reason, we go with this dummy key approach instead, to make sure that the pages are recomputed at most only once per page of local pivs loaded.
@@ -1712,6 +1742,12 @@ For each index, we delete its corresponding piv from `localPivs`.
       });
 ```
 
+We update `localPivsById` since we just removed local pivs from `localPivs`.
+
+```dart
+         updateLocalPivsById ();
+```
+
 We finally set `recomputeLocalPages` to `true`, to indicate that we need to recompute them and update the local view.
 
 ```dart
@@ -2367,12 +2403,6 @@ If there's no local pivs to tag or untag, there's nothing left to do, so we `ret
       if (localPivsToTagUntag.keys.length == 0) return;
 ```
 
-We will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
-
-```dart
-      var localPivsById = PivService.instance.localPivsById ();
-```
-
 We iterate each local piv to tag/untag, which are stored in a map where the keys are ids and the values are `true` for pivs to tag and `false` for pivs to untag:
 
 ```dart
@@ -2410,7 +2440,7 @@ If `pendingTags` is now empty, we will remove the key outright from the store. O
 If we are tagging the piv, all we have left to do is call the `queuePiv` function of the `PivService`.
 
 ```dart
-         if (! untag) PivService.instance.queuePiv (localPivsById [id]);
+         if (! untag) PivService.instance.queuePiv (PivService.instance.localPivsById [id]);
 ```
 
 Now for an interesting bit of logic. If we are untagging a local piv that hasn't been uploaded yet, and we happen to have removed the last tag in `pendingTags`, there should be no need to actually upload the piv at all! If the piv has been completely untagged before being uploaded, uploading it serves no purpose.
@@ -2816,12 +2846,6 @@ If the recent pseudotag (`r::`) is in the query tags, and the `minDate` we have 
       if (tags.contains ('r::') && recentMinDate () > minDate) minDate = recentMinDate ();
 ```
 
-We will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
-
-```dart
-      var localPivsById = PivService.instance.localPivsById ();
-```
-
 We will create a list `localPivsToAdd`.
 
 ```dart
@@ -3013,12 +3037,6 @@ If we got an error when making the request, we will print an error in the snackb
 
 Things get more interesting when we realize that we also have to show the score once the user has finished tagging/deleting all the pivs in the page, whether they have already been uploaded or not.
 
-For this reason, we will invoke `localPivsById` to obtain a map `localPivsById`, where each key is an id and each value is a local piv. This is simply to quickly be able to access a piv without going through the entire `localPivs` list.
-
-```dart
-      var localPivsById = PivService.instance.localPivsById ();
-```
-
 We will count how many local pivs in the upload queue have each of the tags. We will also count the amount of local pivs in the upload queue that are in this page.
 
 ```dart
@@ -3034,7 +3052,7 @@ We iterate all the `pendingTags:ID` keys, of which there will be one per piv in 
 We get the piv itself. If it has been deleted, we ignore this key.
 
 ```dart
-         var piv = localPivsById [key.replaceAll ('pendingTags:', '')];
+         var piv = PivService.instance.localPivsById [key.replaceAll ('pendingTags:', '')];
          if (piv == null) return;
 ```
 
