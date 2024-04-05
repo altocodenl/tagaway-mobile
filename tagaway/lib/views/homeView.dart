@@ -811,8 +811,9 @@ class _CloudPhotoState extends State<CloudPhoto> {
             ),
             child: const Center(
               child: CircularProgressIndicator(
-                backgroundColor: kGreyDarkest,
-                color: kAltoBlue,
+                backgroundColor: kAltoBlack,
+                color: kGreyLightest,
+                strokeWidth: 2,
               ),
             ),
           );

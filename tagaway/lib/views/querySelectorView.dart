@@ -519,24 +519,24 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                   child: Row(
                     children: [
                       const Text('Your tags', style: kQuerySelectorSubtitles),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: kAltoOrganized,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(
-                                  context, 'manageTags');
-                            },
-                            child: const Text(
-                              'Manage',
-                              style: kButtonText,
-                            )),
-                      )
+                      // Padding(
+                      //   padding: const EdgeInsets.only(left: 10.0),
+                      //   child: ElevatedButton(
+                      //       style: ElevatedButton.styleFrom(
+                      //         backgroundColor: kAltoOrganized,
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(30.0),
+                      //         ),
+                      //       ),
+                      //       onPressed: () {
+                      //         Navigator.pushReplacementNamed(
+                      //             context, 'manageTags');
+                      //       },
+                      //       child: const Text(
+                      //         'Manage',
+                      //         style: kButtonText,
+                      //       )),
+                      // )
                     ],
                   ),
                 )),
