@@ -386,28 +386,21 @@ class _LocalPhotoState extends State<LocalPhoto>
   }
 
   computeHeight() {
-    print('height/width is ${widget.piv.height / widget.piv.width}');
     if (widget.piv.height > widget.piv.width * 1.7) {
-      print('1.7');
       return SizeService.instance.screenHeight(context) * .85;
     }
     if (widget.piv.height > widget.piv.width * 1.4) {
-      print('1.4');
       return SizeService.instance.screenHeight(context) * .7;
     }
     if (widget.piv.height > widget.piv.width * 1.2) {
-      print('1.2');
       return SizeService.instance.screenHeight(context) * .6;
     }
     if (widget.piv.height >= widget.piv.width) {
-      print('=');
       return SizeService.instance.screenHeight(context) * .5;
     }
     if (widget.piv.height * 1.4 > widget.piv.width) {
-      print('height * 1.4');
       return SizeService.instance.screenHeight(context) * .4;
     } else {
-      print('else');
       return SizeService.instance.screenHeight(context) * .35;
     }
   }
@@ -769,7 +762,6 @@ class _CloudPhotoState extends State<CloudPhoto> {
     final height = askance ? widget.piv['dimw'] : widget.piv['dimh'];
     final width = askance ? widget.piv['dimh'] : widget.piv['dimw'];
     var containerHeight = () {
-      print(height / width);
       if (height > width * 1.7) {
         return SizeService.instance.screenHeight(context) * .85;
       }

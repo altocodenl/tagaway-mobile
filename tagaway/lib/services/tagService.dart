@@ -959,8 +959,8 @@ class TagService {
       // If there's a filter, sort at the top the tags that start with the filter
       // Sorting is stable in Dart
       if (tagFilter != '') usertags.sort ((a, b) {
-         bool startsWithA = a.startsWith (tagFilter);
-         bool startsWithB = b.startsWith (tagFilter);
+         bool startsWithA = a.toLowerCase ().startsWith (tagFilter.toLowerCase ());
+         bool startsWithB = b.toLowerCase ().startsWith (tagFilter.toLowerCase ());
          if (startsWithA   && ! startsWithB) return -1;
          if (! startsWithA && startsWithB) return 1;
          // The Dart type system needs the `as int`, apparently, but the weird thing is that if this is not here, we get a runtime error (not a compile-time error)
