@@ -1780,7 +1780,9 @@ class _TagsRowState extends State<TagsRow> {
                     width: 5,
                   ),
                   Text(
-                    tag,
+                    widget.tags.length == 1
+                        ? tag
+                        : shortenSuggestion(tag, context),
                     style: kLightBackgroundDate,
                   ),
                   SizedBox(
