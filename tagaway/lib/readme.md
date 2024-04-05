@@ -3235,12 +3235,6 @@ This, by the way, is how `queryPivs` knows whether the query has changed. The `q
       queryTags = List.from (tags);
 ```
 
-In our first query, we will load up to 1000 pivs. This is because we want the query to be lighter in both execution time and network transfer time, so we can show pivs to the user as quickly as possible.
-
-```dart
-      var firstLoadSize = 1000;
-```
-
 Before we send the query, we set the `queryInProgress` store key to `true`. This is used by the QuerySelector view to give feedback to the user on how long a query takes to complete.
 
 Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this, for some reason, the view will be redrawn but the value of `queryInProgress` will not be updated. The timeout solves the issue.
@@ -3251,13 +3245,13 @@ Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this,
       });
 ```
 
-We will ask the server to sort pivs by latest date first if `querySort` is `newest`, `random`, or empty (in which case it will default to `random`). That means that only when `querySort` is `oldest` we will ask the server to return the oldest pivs first.
+We will ask the server to sort pivs by latest date first if `querySort` is `newest` or `random`. That means that only when `querySort` is `oldest` we will ask the server to return the oldest pivs first.
 
 ```dart
-      var sort = store.get ('querySort') == 'oldest' ? 'oldest' : 'newest';
+      var sort = store.get ('querySort');
 ```
 
-We invoke `POST /query` in the server. We're going to pass the `tags` we received (after removing the `r::` pseudotag) and the `sort` parameter. We will also pass a `mindate` field that will only make a difference if `r::` is contained in our `tags`. In this query, we will load up to `firstLoadSize` pivs, to make the query reasonably fast.
+We invoke `POST /query` in the server. We're going to pass the `tags` we received (after removing the `r::` pseudotag) and the `sort` parameter. We will also pass a `mindate` field that will only make a difference if `r::` is contained in our `tags`. In this query, we will load up to 2000 pivs, to make the query reasonably fast.
 
 ```dart
       var response = await ajax ('post', 'query', {
@@ -3265,7 +3259,8 @@ We invoke `POST /query` in the server. We're going to pass the `tags` we receive
          'sort': sort,
          'mindate': tags.contains ('r::') ? recentMinDate () : 0,
          'from': 1,
-         'to': firstLoadSize
+         'to': 100000,
+         'limit': 2000,
       });
 ```
 
@@ -3298,12 +3293,6 @@ We return the result of the body in a local variable `queryResult`.
 
 ```dart
       var queryResult = response ['body'];
-```
-
-We note whether we need to perform a second query later; this will only be the case if the `total` returned by the server exceeds our `firstLoadSize` variable.
-
-```dart
-      var secondQueryNeeded = response ['body'] ['total'] > firstLoadSize;
 ```
 
 We modify `queryResult` by invoking `localQuery`. This function will update the query result adding local pivs, tags and potentially modifying the total and time header. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
@@ -3371,80 +3360,6 @@ While we are at it, it's a good idea to refresh the list of tags. This is useful
 
 ```dart
       getTags ();
-```
-
-If there is no need for a second query to get all matching pivs, we just return a 200 to indicate success.
-
-```dart
-      if (! secondQueryNeeded) return 200;
-```
-
-If we're here, we need to get all the remaining pivs for the query. We do so by requesting all the pivs from `1` to a large number.
-
-```dart
-      response = await ajax ('post', 'query', {
-         'tags': tags.where ((tag) => tag != 'r::').toList (),
-         'sort': sort,
-         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
-         'from': 1,
-         'to':   100000
-      });
-```
-
-Why did we get them all and not those after `firstLoadSize`? Quite simply, so that when we call again `localQuery` on the result, all the pivs will be properly sorted; we are not concerned with the extra load in the server (since `firstLoadSize` is quite small) and we are in no hurry, since the user will already be enjoying the results of the first query.
-
-As before, if we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another error message already shown by the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:B:CODE`.
-
-```dart
-      if (response ['code'] != 200) {
-         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
-```
-
-Whatever the error is, we cannot continue executing the function, so we return its response code.
-
-```dart
-         return response ['code'];
-      }
-```
-
-As before, if the tags in the query changed in the meantime, we don't do anything else in this function execution, since there will be another instance of queryPivs being executed concurrently that will be in charge of updating `queryResult`.
-
-```dart
-      if (! listEquals (queryTags, tags)) return 409;
-```
-
-We store the result of the second query in `queryResult`. We immediately invoke `localQuery` to add local piv information to the query.
-
-```dart
-      queryResult = response ['body'];
-      queryResult = localQuery (tags, queryResult);
-```
-
-We update `queryResult`. Note we perform the update mutely, so that the extra pivs can "slide" into their positions without triggering a general redraw.
-
-```dart
-      store.set ('queryResult', {
-         'total':       queryResult ['total'],
-         'tags':        queryResult ['tags'],
-         'pivs':        queryResult ['pivs']
-      }, '', 'mute');
-```
-
-As before, we check whether the returned pivs are organized or not. If the `'o::'` tag was inside `tags`, then we know that all the pivs returned by the query are organized, so we simply set an `orgMap:ID` entry to `true` for each of them. Note that we exclude local pivs.
-
-```dart
-      if (tags.contains ('o::')) {
-         queryResult ['pivs'].forEach ((piv) {
-            if (piv ['local'] == true) return;
-            store.set ('orgMap:' + piv ['id'], true);
-         });
-      }
-```
-
-Otherwise, we don't know whether they are organized or not, so we ask the server through `queryOrganizedIds`. Note that we exclude local pivs from the query.
-
-```dart
-      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 ```
 
 We return a 200 to indicate success and close the function.

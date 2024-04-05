@@ -40,7 +40,7 @@ class _HomeViewState extends State<HomeView> {
   dynamic seenPivIndexes = [];
   final ScrollController scrollController = ScrollController();
 
-  getNextIndex(int length) {
+  getNextIndex() {
     var sort = store.get('querySort');
     // If we are showing pivs in order, return the next index.
     if (sort == 'oldest' || sort == 'newest') {
@@ -48,13 +48,15 @@ class _HomeViewState extends State<HomeView> {
       return seenPivIndexes[seenPivIndexes.length - 1];
     }
 
+    var pivsLength = store.get('queryResult')['pivs'].length;
+
     // Otherwise, calculate a random index.
-    var index = (new math.Random().nextInt(length));
+    var index = (new math.Random().nextInt(pivsLength));
     if (!seenPivIndexes.contains(index)) {
       seenPivIndexes.add(index);
       return index;
     }
-    return getNextIndex(length);
+    return getNextIndex();
   }
 
   _launchUrl() async {
@@ -114,6 +116,7 @@ class _HomeViewState extends State<HomeView> {
     AuthService.instance.getAccount();
     // Wait for some local pivs to be loaded.
     Future.delayed(Duration(seconds: 1), () {
+      if (store.get('querySort') == '') store.set('querySort', 'random');
       if (store.get('queryTags') == '') store.set('queryTags', []);
     });
     cancelListener =
@@ -257,8 +260,7 @@ class _HomeViewState extends State<HomeView> {
                             itemBuilder: (BuildContext context, int index) {
                               var nextIndex;
                               if (seenPivIndexes.length - 1 < index)
-                                nextIndex =
-                                    getNextIndex(queryResult['pivs'].length);
+                                nextIndex = getNextIndex();
                               else
                                 nextIndex = seenPivIndexes[index];
                               return Padding(

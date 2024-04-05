@@ -554,20 +554,19 @@ class TagService {
 
       queryTags = List.from (tags);
 
-      var firstLoadSize = 1000;
-
       Future.delayed (Duration (milliseconds: 1), () {
         store.set ('queryInProgress', true);
       });
 
-      var sort = store.get ('querySort') == 'oldest' ? 'oldest' : 'newest';
+      var sort = store.get ('querySort');
 
       var response = await ajax ('post', 'query', {
          'tags': tags.where ((tag) => tag != 'r::').toList (),
          'sort': sort,
          'mindate': tags.contains ('r::') ? recentMinDate () : 0,
          'from': 1,
-         'to': firstLoadSize
+         'to': 100000,
+         'limit': 2000,
       });
 
       if (response ['code'] != 200) {
@@ -579,7 +578,6 @@ class TagService {
       if (! listEquals (queryTags, tags)) return 409;
 
       var queryResult = response ['body'];
-      var secondQueryNeeded = response ['body'] ['total'] > firstLoadSize;
 
       queryResult = localQuery (tags, queryResult);
 
@@ -606,40 +604,6 @@ class TagService {
       store.remove ('queryInProgress');
 
       getTags ();
-
-      if (! secondQueryNeeded) return 200;
-
-      response = await ajax ('post', 'query', {
-         'tags': tags.where ((tag) => tag != 'r::').toList (),
-         'sort': sort,
-         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
-         'from': 1,
-         'to':   100000
-      });
-
-      if (response ['code'] != 200) {
-         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:B:' + response ['code'].toString (), 'yellow');
-         return response ['code'];
-      }
-
-      if (! listEquals (queryTags, tags)) return 409;
-
-      queryResult = response ['body'];
-      queryResult = localQuery (tags, queryResult);
-
-      store.set ('queryResult', {
-         'total':       queryResult ['total'],
-         'tags':        queryResult ['tags'],
-         'pivs':        queryResult ['pivs']
-      }, '', 'mute');
-
-      if (tags.contains ('o::')) {
-         queryResult ['pivs'].forEach ((piv) {
-            if (piv ['local'] == true) return;
-            store.set ('orgMap:' + piv ['id'], true);
-         });
-      }
-      else queryOrganizedIds (queryResult ['pivs'].where ((v) => v ['local'] == null).map ((v) => v ['id']).toList ());
 
       return 200;
    }
