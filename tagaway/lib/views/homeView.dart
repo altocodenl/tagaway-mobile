@@ -875,7 +875,7 @@ class _CloudPhotoState extends State<CloudPhoto> {
                     store.set('hideMap:' + widget.piv['id'], true, 'disk');
                   },
                   sharePiv: () {
-                    shareCloudPiv(context, widget.piv['id'], true);
+                    shareCloudPiv(context, widget.piv['id'], false);
                   },
                 ),
               ),

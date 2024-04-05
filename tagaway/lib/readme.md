@@ -4,10 +4,10 @@
 
 - fix recent
 - when deleting cloud piv, offer to delete local counterpart
+-----
 - Fix manage tags view:
    - Scroll doesn't work
    - Modals to edit/delete appear only when you go one view back
------
 - [server] fix hometags deletion issue
 - Query videos
 - Improve zoom
