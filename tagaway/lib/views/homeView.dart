@@ -594,9 +594,13 @@ class _LocalVideoState extends State<LocalVideo> {
 
   @override
   Widget build(BuildContext context) {
+    print('localVideo Height is ${widget.piv.height}');
+    print('localVideo width is ${widget.piv.width}');
     var height = widget.piv.height > widget.piv.width
         ? SizeService.instance.screenHeight(context) * .8
-        : SizeService.instance.screenHeight(context) * .35;
+        : widget.piv.height == widget.piv.width
+            ? SizeService.instance.screenHeight(context) * .45
+            : SizeService.instance.screenHeight(context) * .35;
     if (hidePiv) return Container();
     return initialized
         // If the video is initialized, display it
@@ -613,23 +617,26 @@ class _LocalVideoState extends State<LocalVideo> {
                     child: VideoPlayer(_controller),
                   ),
                 ),
-                IconsRow(
-                  piv: {'piv': widget.piv, 'local': true},
-                  pivHeight: widget.piv.height,
-                  pivWidth: widget.piv.width,
-                  deletePiv: () {
-                    PivService.instance.deleteLocalPivs([widget.piv.id], null,
-                        () {
-                      store.set('deletedPivs',
-                          getList('deletedPivs') + [widget.piv.id]);
-                    });
-                  },
-                  hidePiv: () {
-                    store.set('hideMap:' + widget.piv.id, true, 'disk');
-                  },
-                  sharePiv: () {
-                    shareLocalPiv(context, widget.piv, true);
-                  },
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: IconsRow(
+                    piv: {'piv': widget.piv, 'local': true},
+                    pivHeight: widget.piv.height,
+                    pivWidth: widget.piv.width,
+                    deletePiv: () {
+                      PivService.instance.deleteLocalPivs([widget.piv.id], null,
+                          () {
+                        store.set('deletedPivs',
+                            getList('deletedPivs') + [widget.piv.id]);
+                      });
+                    },
+                    hidePiv: () {
+                      store.set('hideMap:' + widget.piv.id, true, 'disk');
+                    },
+                    sharePiv: () {
+                      shareLocalPiv(context, widget.piv, true);
+                    },
+                  ),
                 ),
                 Padding(
                   padding: widget.piv.height > widget.piv.width
@@ -973,9 +980,20 @@ class _CloudVideoState extends State<CloudVideo> {
   @override
   Widget build(BuildContext context) {
     if (hidePiv) return Container();
-    var height = _controller.value.size.height > _controller.value.size.width
-        ? SizeService.instance.screenHeight(context) * .8
-        : SizeService.instance.screenHeight(context) * .25;
+    print('cloudVideo height is ${_controller.value.size.height}');
+    print('cloudVideo width is ${_controller.value.size.width}');
+    var height =
+        _controller.value.size.width / _controller.value.size.height == 0.5625
+            ? SizeService.instance.screenHeight(context) * .8
+            : _controller.value.size.height > _controller.value.size.width
+                ? SizeService.instance.screenHeight(context) * .6
+                : _controller.value.size.height == _controller.value.size.width
+                    ? SizeService.instance.screenHeight(context) * .45
+                    : _controller.value.size.height /
+                                _controller.value.size.width ==
+                            .75
+                        ? SizeService.instance.screenHeight(context) * .35
+                        : SizeService.instance.screenHeight(context) * .25;
     return _controller.value.isInitialized
         ? Stack(
             children: [
