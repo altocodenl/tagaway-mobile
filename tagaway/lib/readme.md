@@ -2,7 +2,6 @@
 
 ## TODO
 
-- fix recent
 - when deleting cloud piv, offer to delete local counterpart
 -----
 - Fix manage tags view:
@@ -2572,13 +2571,27 @@ Note that we compute the `pivMap` entries for local pivs even if `view` is uploa
 We will now query the server, to get all the uploaded pivs that are already tagged with `tags`. Note that we pass the `idsOnly`, just to get their ids; we also pass a very large number as `to`, to get all of them.
 
 ```dart
-      var response = await ajax ('post', 'query', {
-         'tags':    tags,
-         'sort':    'newest',
-         'from':    1,
-         'to':      100000,
-         'idsOnly': true
-      });
+      var query = {
+         'tags': tags.where ((tag) => tag != 'r::').toList (),
+         'sort': sort,
+         'from': 1,
+         'to': 100000,
+         'limit': 2000,
+      };
+```
+
+If we are querying the recent pivs, we will add the `mindate` field to the query, using the utility function `recentMinDate`.
+
+You might ask: why didn't you inline the `mindate` field with a ternary, such as `'mindate': tags.contains ('r::') ? recentMinDate () : 0`? Interesting that you asked: on Android, if we add that ternary, the resulting value of `mindate`, after stringification, will be a *negative* value. I have no further desire to explore this bizarre behavior, so I left it as is.
+
+```dart
+      if (tags.contains ('r::')) query ['mindate'] = recentMinDate ();
+```
+
+We make the call to the server to query pivs.
+
+```dart
+      var response = await ajax ('post', 'query', query);
 ```
 
 First we will cover the case in which we obtained an error.

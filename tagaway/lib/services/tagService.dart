@@ -560,14 +560,16 @@ class TagService {
 
       var sort = store.get ('querySort');
 
-      var response = await ajax ('post', 'query', {
+      var query = {
          'tags': tags.where ((tag) => tag != 'r::').toList (),
          'sort': sort,
-         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
          'from': 1,
          'to': 100000,
          'limit': 2000,
-      });
+      };
+      if (tags.contains ('r::')) query ['mindate'] = recentMinDate ();
+
+      var response = await ajax ('post', 'query', query);
 
       if (response ['code'] != 200) {
          if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
