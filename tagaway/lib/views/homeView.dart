@@ -596,11 +596,20 @@ class _LocalVideoState extends State<LocalVideo> {
   Widget build(BuildContext context) {
     print('localVideo Height is ${widget.piv.height}');
     print('localVideo width is ${widget.piv.width}');
-    var height = widget.piv.height > widget.piv.width
-        ? SizeService.instance.screenHeight(context) * .8
-        : widget.piv.height == widget.piv.width
-            ? SizeService.instance.screenHeight(context) * .45
-            : SizeService.instance.screenHeight(context) * .35;
+    var height = widget.piv.width / widget.piv.height > .44 &&
+            widget.piv.width / widget.piv.height < .47
+        ? SizeService.instance.screenHeight(context)
+        : widget.piv.width / widget.piv.height >= 0.56 &&
+                widget.piv.width / widget.piv.height < 0.57
+            ? SizeService.instance.screenHeight(context) * .8
+            : widget.piv.height > widget.piv.width
+                ? SizeService.instance.screenHeight(context) * .6
+                : widget.piv.height == widget.piv.width
+                    ? SizeService.instance.screenHeight(context) * .45
+                    : widget.piv.height / widget.piv.width == .75
+                        ? SizeService.instance.screenHeight(context) * .35
+                        : SizeService.instance.screenHeight(context) * .25;
+
     if (hidePiv) return Container();
     return initialized
         // If the video is initialized, display it
@@ -982,8 +991,15 @@ class _CloudVideoState extends State<CloudVideo> {
     if (hidePiv) return Container();
     print('cloudVideo height is ${_controller.value.size.height}');
     print('cloudVideo width is ${_controller.value.size.width}');
-    var height =
-        _controller.value.size.width / _controller.value.size.height == 0.5625
+
+    var height = _controller.value.size.width / _controller.value.size.height >
+                .44 &&
+            _controller.value.size.width / _controller.value.size.height < .47
+        ? SizeService.instance.screenHeight(context)
+        : _controller.value.size.width / _controller.value.size.height >=
+                    0.56 &&
+                _controller.value.size.width / _controller.value.size.height <
+                    0.57
             ? SizeService.instance.screenHeight(context) * .8
             : _controller.value.size.height > _controller.value.size.width
                 ? SizeService.instance.screenHeight(context) * .6
@@ -994,6 +1010,7 @@ class _CloudVideoState extends State<CloudVideo> {
                             .75
                         ? SizeService.instance.screenHeight(context) * .35
                         : SizeService.instance.screenHeight(context) * .25;
+
     return _controller.value.isInitialized
         ? Stack(
             children: [
