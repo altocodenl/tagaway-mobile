@@ -594,8 +594,6 @@ class _LocalVideoState extends State<LocalVideo> {
 
   @override
   Widget build(BuildContext context) {
-    print('localVideo Height is ${widget.piv.height}');
-    print('localVideo width is ${widget.piv.width}');
     var height = widget.piv.width / widget.piv.height > .44 &&
             widget.piv.width / widget.piv.height < .47
         ? SizeService.instance.screenHeight(context)
