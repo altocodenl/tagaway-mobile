@@ -608,6 +608,20 @@ class _LocalVideoState extends State<LocalVideo> {
                         ? SizeService.instance.screenHeight(context) * .35
                         : SizeService.instance.screenHeight(context) * .25;
 
+    var heightSmall = widget.piv.width / widget.piv.height > .44 &&
+            widget.piv.width / widget.piv.height < .47
+        ? SizeService.instance.screenHeight(context) * 1.25
+        : widget.piv.width / widget.piv.height >= 0.56 &&
+                widget.piv.width / widget.piv.height < 0.57
+            ? SizeService.instance.screenHeight(context)
+            : widget.piv.height > widget.piv.width
+                ? SizeService.instance.screenHeight(context) * .75
+                : widget.piv.height == widget.piv.width
+                    ? SizeService.instance.screenHeight(context) * .55
+                    : widget.piv.height / widget.piv.width == .75
+                        ? SizeService.instance.screenHeight(context) * .45
+                        : SizeService.instance.screenHeight(context) * .3;
+
     if (hidePiv) return Container();
     return initialized
         // If the video is initialized, display it
@@ -617,7 +631,9 @@ class _LocalVideoState extends State<LocalVideo> {
                 TagsRow(tags: tagsInPiv),
                 Container(
                   alignment: Alignment.center,
-                  height: height.toDouble(),
+                  height: SizeService.instance.screenHeight(context) < 670
+                      ? heightSmall.toDouble()
+                      : height.toDouble(),
                   child: AspectRatio(
                     aspectRatio: _controller.value.aspectRatio,
                     // Use the VideoPlayer widget to display the video.
@@ -987,6 +1003,8 @@ class _CloudVideoState extends State<CloudVideo> {
   @override
   Widget build(BuildContext context) {
     if (hidePiv) return Container();
+    print('device width is ${SizeService.instance.screenWidth(context)}');
+    print('device height is ${SizeService.instance.screenHeight(context)}');
     print('cloudVideo height is ${_controller.value.size.height}');
     print('cloudVideo width is ${_controller.value.size.width}');
 
@@ -1008,6 +1026,25 @@ class _CloudVideoState extends State<CloudVideo> {
                             .75
                         ? SizeService.instance.screenHeight(context) * .35
                         : SizeService.instance.screenHeight(context) * .25;
+    var heightSmall = _controller.value.size.width /
+                    _controller.value.size.height >
+                .44 &&
+            _controller.value.size.width / _controller.value.size.height < .47
+        ? SizeService.instance.screenHeight(context) * 1.25
+        : _controller.value.size.width / _controller.value.size.height >=
+                    0.56 &&
+                _controller.value.size.width / _controller.value.size.height <
+                    0.57
+            ? SizeService.instance.screenHeight(context)
+            : _controller.value.size.height > _controller.value.size.width
+                ? SizeService.instance.screenHeight(context) * .75
+                : _controller.value.size.height == _controller.value.size.width
+                    ? SizeService.instance.screenHeight(context) * .55
+                    : _controller.value.size.height /
+                                _controller.value.size.width ==
+                            .75
+                        ? SizeService.instance.screenHeight(context) * .45
+                        : SizeService.instance.screenHeight(context) * .3;
 
     return _controller.value.isInitialized
         ? Stack(
@@ -1020,7 +1057,9 @@ class _CloudVideoState extends State<CloudVideo> {
                           .toList()),
                   Container(
                     width: SizeService.instance.screenWidth(context),
-                    height: height,
+                    height: SizeService.instance.screenHeight(context) < 670
+                        ? heightSmall
+                        : height,
                     child: AspectRatio(
                       aspectRatio: _controller.value.aspectRatio,
                       child: VideoPlayer(_controller),
