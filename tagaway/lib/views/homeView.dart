@@ -1057,7 +1057,7 @@ class _CloudVideoState extends State<CloudVideo> {
                           .toList()),
                   Container(
                     width: SizeService.instance.screenWidth(context),
-                    height: SizeService.instance.screenHeight(context) < 670
+                    height: SizeService.instance.screenHeight(context) < 671
                         ? heightSmall
                         : height,
                     child: AspectRatio(
