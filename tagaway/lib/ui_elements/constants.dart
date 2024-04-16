@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'package:tagaway/services/tools.dart';
 
 const ENV = 'dev';
@@ -421,10 +420,10 @@ const kGridBottomRowText = TextStyle(
 );
 
 const kBottomNavigationText = TextStyle(
-  fontFamily: 'Montserrat-Regular',
-  fontSize: 12,
-  fontWeight: FontWeight.bold,
-);
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+    color: Colors.white);
 
 const kTaglineText = TextStyle(
   fontFamily: 'Montserrat-Regular',
