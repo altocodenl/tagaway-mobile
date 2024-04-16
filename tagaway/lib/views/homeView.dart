@@ -768,15 +768,13 @@ class _CloudPhotoState extends State<CloudPhoto> {
       'hideMap:' + widget.piv['id'],
       'cachedTags:' + widget.piv['id']
     ], (DeletedPivs, PivHidden, CachedTags) {
-      setState(() {
-        if (DeletedPivs == '') DeletedPivs = [];
-        if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
-          hidePiv = true;
-        }
-        if (PivHidden == true && hidePiv == false) {
-          hidePiv = true;
-        }
-      });
+      if (DeletedPivs == '') DeletedPivs = [];
+      if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+      if (PivHidden == true && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
     });
   }
 
