@@ -122,7 +122,7 @@ class _LoginViewState extends State<LoginView> {
                         const Padding(
                           padding: EdgeInsets.only(bottom: 30),
                           child: Text(
-                            'Your life’s journey, organized.',
+                            'Let your memories surprise you.',
                             style: kSubtitle,
                           ),
                         ),
