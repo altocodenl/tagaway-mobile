@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-
 // IMPORT UI ELEMENTS
 import 'package:tagaway/ui_elements/material_elements.dart';
 
@@ -32,7 +31,7 @@ class RequestPermissionView extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 20),
                   child: Text(
-                    'Start organising and backing up your pictures.',
+                    'Tagaway is fun if you let it.',
                     textAlign: TextAlign.center,
                     style: kBigTitle,
                   ),
@@ -40,13 +39,13 @@ class RequestPermissionView extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 10),
                   child: Text(
-                    'Click the button below and start adding pictures.',
+                    'Click the button below to begin.',
                     textAlign: TextAlign.center,
                     style: kPlainText,
                   ),
                 ),
                 RoundedButton(
-                    title: 'Upload Pictures',
+                    title: 'Allow Access',
                     colour: kAltoBlue,
                     onPressed: () async {
                       await store.set('userWasAskedPermission', true, 'disk');

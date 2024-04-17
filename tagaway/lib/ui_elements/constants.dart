@@ -5,7 +5,7 @@ import 'package:tagaway/services/tools.dart';
 const ENV = 'dev';
 // const ENV = 'prod';
 
-const version = '2.3.0';
+const version = '3.0.0';
 
 const kAltoURL = 'https://altocode.nl/' + (ENV == 'dev' ? 'dev' : '');
 const kTagawayURL = 'https://tagaway.nl/' + (ENV == 'dev' ? 'dev/' : '');
