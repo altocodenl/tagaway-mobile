@@ -960,15 +960,13 @@ class _CloudVideoState extends State<CloudVideo> {
       'hideMap:' + widget.piv['id'],
       'cachedTags:' + widget.piv['id']
     ], (DeletedPivs, PivHidden, CachedTags) {
-      setState(() {
-        if (DeletedPivs == '') DeletedPivs = [];
-        if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
-          setState(() => hidePiv = true);
-        }
-        if (PivHidden == true && hidePiv == false) {
-          setState(() => hidePiv = true);
-        }
-      });
+      if (DeletedPivs == '') DeletedPivs = [];
+      if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
+      if (PivHidden == true && hidePiv == false) {
+        setState(() => hidePiv = true);
+      }
     });
   }
 
