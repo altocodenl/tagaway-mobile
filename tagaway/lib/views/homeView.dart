@@ -1598,7 +1598,8 @@ class _TagPivState extends State<TagPiv> {
 
                                         if (widget.piv['local'] == true) {
                                           // Queue the piv and tag it like a pure local piv
-                                          if (cloudCounterpart == '') {
+                                          if (cloudCounterpart == '' ||
+                                              cloudCounterpart == true) {
                                             store.set(
                                                 'currentlyTaggingLocal', [tag]);
                                             TagService.instance.toggleTags(
