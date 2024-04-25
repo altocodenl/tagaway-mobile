@@ -231,7 +231,7 @@ class PivService {
          filterOption: FilterOptionGroup ()..addOrderOption (const OrderOption (type: OrderOptionType.createDate, asc: false))
       );
 
-      int offset = 0, pageSize = 500;
+      int offset = 0, pageSize = 2000;
 
       while (true) {
          var page;

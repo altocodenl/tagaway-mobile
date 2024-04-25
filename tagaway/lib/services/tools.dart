@@ -333,3 +333,7 @@ shareCloudPiv (context, id, isVid) async {
    File(path).writeAsBytesSync(bytes);
    await Share.shareXFiles([XFile(path)]);
 }
+
+debugLog (dynamic obj) {
+  ajax('post', 'error', {'t': new DateTime.now ().toIso8601String(), 'debug': obj});
+}

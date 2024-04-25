@@ -472,7 +472,7 @@ class TagService {
       });
 
       localPivsToAdd.forEach ((piv) {
-         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true, 'id': piv.id});
       });
 
       queryResult ['pivs'].sort ((a, b) {

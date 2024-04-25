@@ -37,26 +37,27 @@ class _HomeViewState extends State<HomeView> {
   };
   dynamic queryResult = {'pivs': [], 'total': 0};
 
-  dynamic seenPivIndexes = [];
+  dynamic seenPivIds = [];
+  dynamic pivsById = {};
   final ScrollController scrollController = ScrollController();
 
-  getNextIndex() {
+  getNextPivId() {
     var sort = store.get('querySort');
+    var pivs = store.get('queryResult')['pivs'];
+
     // If we are showing pivs in order, return the next index.
     if (sort == 'oldest' || sort == 'newest') {
-      seenPivIndexes.add(seenPivIndexes.length);
-      return seenPivIndexes[seenPivIndexes.length - 1];
+      seenPivIds.add(pivs[seenPivIds.length]);
+      return seenPivIds.last;
     }
-
-    var pivsLength = store.get('queryResult')['pivs'].length;
 
     // Otherwise, calculate a random index.
-    var index = (new math.Random().nextInt(pivsLength));
-    if (!seenPivIndexes.contains(index)) {
-      seenPivIndexes.add(index);
-      return index;
+    var piv = pivs[(new math.Random().nextInt(pivs.length))];
+    if (!seenPivIds.contains(piv['id'])) {
+      seenPivIds.add(piv['id']);
+      return piv['id'];
     }
-    return getNextIndex();
+    return getNextPivId();
   }
 
   _launchUrl() async {
@@ -126,13 +127,18 @@ class _HomeViewState extends State<HomeView> {
       setState(() {
         if (Account != '') account = Account;
         if (QueryResult != '') queryResult = QueryResult;
+        var PivsById = {};
+        queryResult['pivs'].forEach((piv) {
+          PivsById[piv['id']] = piv;
+        });
+        pivsById = PivsById;
       });
     });
     cancelListener2 = store.listen(['queryTags'], (QueryTags) {
       if (!mounted) return;
       if (QueryTags == '') return;
       if (scrollController.hasClients) scrollController.jumpTo(0);
-      seenPivIndexes = [];
+      seenPivIds = [];
       store.remove('deletedPivs');
       store.remove('cachedTags:*');
       TagService.instance.queryPivs(true);
@@ -246,7 +252,7 @@ class _HomeViewState extends State<HomeView> {
                 ))
               : RefreshIndicator(
                   onRefresh: () async {
-                    seenPivIndexes = [];
+                    seenPivIds = [];
                     store.remove('deletedPivs');
                     TagService.instance.queryPivs(true);
                     if (scrollController.hasClients) scrollController.jumpTo(0);
@@ -258,18 +264,19 @@ class _HomeViewState extends State<HomeView> {
                         SliverList.builder(
                             itemCount: queryResult['pivs'].length,
                             itemBuilder: (BuildContext context, int index) {
-                              var nextIndex;
-                              if (seenPivIndexes.length - 1 < index)
-                                nextIndex = getNextIndex();
+                              var pivId;
+                              if (seenPivIds.length - 1 < index)
+                                pivId = getNextPivId();
                               else
-                                nextIndex = seenPivIndexes[index];
+                                pivId = seenPivIds[index];
                               return Padding(
                                   padding: const EdgeInsets.only(bottom: 40),
                                   child: (() {
                                     // We check whether the index is in bound, because sometimes when the query changes, we might no longer be in bound
                                     var piv;
                                     try {
-                                      piv = queryResult['pivs'][nextIndex];
+                                      piv = pivsById[pivId];
+                                      if (piv == null) return Container();
                                     } catch (error) {
                                       return Container();
                                     }
@@ -1593,10 +1600,10 @@ class _TagPivState extends State<TagPiv> {
                                         var pivId = widget.piv['local'] == true
                                             ? widget.piv['piv'].id
                                             : widget.piv['id'];
-                                        var cloudCounterpart =
-                                            store.get('pivMap:' + pivId);
 
                                         if (widget.piv['local'] == true) {
+                                          var cloudCounterpart =
+                                              store.get('pivMap:' + pivId);
                                           // Queue the piv and tag it like a pure local piv
                                           if (cloudCounterpart == '' ||
                                               cloudCounterpart == true) {

@@ -2,20 +2,20 @@
 
 ## TODO
 
-- Build
------
+- When tagging cloud pivs, make list of tags on top change
+- Add login flow with Google, Apple and Facebook
 - When deleting cloud piv, offer to delete local counterpart
+- Query videos
 - Fix manage tags view:
    - Scroll doesn't work
    - Modals to edit/delete appear only when you go one view back
-- Query videos
 - Improve zoom
 - Use metadata to get a better date for some pivs
 - Show hidden in query to be able to unhide
+- Store hidden info in server
 - Show info of piv
 - Share Tagaway button and link
 - Finish annotated source code: tagService, storeService, tools.
-- Add login flow with Google, Apple and Facebook
 
 ## Store structure
 
@@ -738,10 +738,10 @@ If we can't find one, we return.
       }
 ```
 
-We will now load the pivs from the camera in groups of 500.
+We will now load the pivs from the camera in groups of 2000.
 
 ```dart
-      int offset = 0, pageSize = 500;
+      int offset = 0, pageSize = 2000;
 ```
 
 We will do this inside a `while` loop that we will `break` when we're done.
@@ -2977,10 +2977,11 @@ We include each of the `localPivsToAdd` into the list of pivs. We do this in a m
 - `date`, the date of the piv in ms. This is added to make the entry more like the entries returned by the server.
 - `local`, a flag that states that the piv is local.
 - `piv`, the local piv itself.
+- `id`, the id of the piv. This avoids a cumbersome conditional lookup for the id depending on whether the piv is local or not.
 
 ```dart
       localPivsToAdd.forEach ((piv) {
-         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true});
+         queryResult ['pivs'].add ({'date': ms (piv.createDateTime), 'piv': piv, 'local': true, 'id': piv.id});
       });
 ```
 
