@@ -753,6 +753,7 @@ class CloudPhoto extends StatefulWidget {
 
 class _CloudPhotoState extends State<CloudPhoto> {
   dynamic cancelListener;
+  dynamic cancelListener2;
   late TransformationController controller;
   ScrollPhysics? pageBuilderScroll;
   bool hidePiv = false;
@@ -770,11 +771,16 @@ class _CloudPhotoState extends State<CloudPhoto> {
   void initState() {
     controller = TransformationController();
     super.initState();
+    // Initialize the `cachedTags:ID` key to the right list
+    store.set(
+        'cachedTags:' + widget.piv['id'],
+        widget.piv['tags']
+            .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+            .toList());
     cancelListener = store.listen([
       'deletedPivs',
       'hideMap:' + widget.piv['id'],
-      'cachedTags:' + widget.piv['id']
-    ], (DeletedPivs, PivHidden, CachedTags) {
+    ], (DeletedPivs, PivHidden) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
         setState(() => hidePiv = true);
@@ -783,12 +789,18 @@ class _CloudPhotoState extends State<CloudPhoto> {
         setState(() => hidePiv = true);
       }
     });
+    // When `cachedTags:ID` changes, refresh the entire widget. This is needed to update the tag row when tags are added or removed.
+    cancelListener2 =
+        store.listen(['cachedTags:' + widget.piv['id']], (CachedTags) {
+      setState(() => true);
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     cancelListener();
+    cancelListener2();
   }
 
   @override
@@ -957,16 +969,22 @@ class _CloudVideoState extends State<CloudVideo> {
   bool initialized = false;
   bool hidePiv = false;
   dynamic cancelListener;
+  dynamic cancelListener2;
 
   @override
   void initState() {
     _initVideo();
     super.initState();
+    // Initialize the `cachedTags:ID` key to the right list
+    store.set(
+        'cachedTags:' + widget.piv['id'],
+        widget.piv['tags']
+            .where((tag) => !RegExp('^[a-z]::').hasMatch(tag))
+            .toList());
     cancelListener = store.listen([
       'deletedPivs',
       'hideMap:' + widget.piv['id'],
-      'cachedTags:' + widget.piv['id']
-    ], (DeletedPivs, PivHidden, CachedTags) {
+    ], (DeletedPivs, PivHidden) {
       if (DeletedPivs == '') DeletedPivs = [];
       if (DeletedPivs.contains(widget.piv['id']) && hidePiv == false) {
         setState(() => hidePiv = true);
@@ -975,12 +993,19 @@ class _CloudVideoState extends State<CloudVideo> {
         setState(() => hidePiv = true);
       }
     });
+
+    // When `cachedTags:ID` changes, refresh the entire widget. This is needed to update the tag row when tags are added or removed.
+    cancelListener2 =
+        store.listen(['cachedTags:' + widget.piv['id']], (CachedTags) {
+      setState(() => true);
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
     cancelListener();
+    cancelListener2();
     super.dispose();
   }
 

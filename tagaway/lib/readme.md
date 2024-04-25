@@ -2,7 +2,6 @@
 
 ## TODO
 
-- When tagging cloud pivs, make list of tags on top change
 - Add login flow with Google, Apple and Facebook
 - When deleting cloud piv, offer to delete local counterpart
 - Query videos
