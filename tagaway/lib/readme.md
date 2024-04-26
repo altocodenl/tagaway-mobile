@@ -5,13 +5,14 @@
 - Add login flow with Google, Apple and Facebook
 - When deleting cloud piv, offer to delete local counterpart
 - Query videos
+- Hidden
+   - Show hidden in query to be able to unhide
+   - Store hidden info in server
 - Fix manage tags view:
    - Scroll doesn't work
    - Modals to edit/delete appear only when you go one view back
 - Improve zoom
-- Use metadata to get a better date for some pivs
-- Show hidden in query to be able to unhide
-- Store hidden info in server
+- Use local metadata to get a better date for some local pivs
 - Show info of piv
 - Share Tagaway button and link
 - Finish annotated source code: tagService, storeService, tools.
