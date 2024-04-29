@@ -292,6 +292,38 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     ),
                   ],
                 )),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Videos & Phone', style: kQuerySelectorSubtitles),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 20),
+                  child: GridView.count(
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      shrinkWrap: true,
+                      childAspectRatio: 4,
+                      children: (() {
+                        List<Widget> output = [];
+                        if (queryResult['tags']['v::'] > 0)
+                          output.add(QuerySelectionTagElement(
+                            onTap: () {
+                              TagService.instance.toggleQueryTag('v::');
+                              searchQueryController.clear();
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            elementColor: kGreyLighter,
+                            icon: tagIcon('v::'),
+                            iconColor: tagIconColor('v::'),
+                            tagTitle: tagTitle('v::'),
+                          ));
+                        return output;
+                      })()),
+                ),
+              ],
+            ),
             Visibility(
                 visible: years.length > 0,
                 child: const Text('Years', style: kQuerySelectorSubtitles)),

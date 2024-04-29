@@ -510,7 +510,7 @@ tagIcon(tag) {
   if (type == 'untagged') return kTagIcon;
   if (type == 'toOrganize') return kBoxArchiveIcon;
   if (type == 'organized') return kCircleCheckIcon;
-  if (type == 'videos') return kClockIcon;
+  if (type == 'videos') return kVideoIcon;
   if (type == 'year' || type == 'month') return kClockIcon;
   if (type == 'country') return kLocationDotIcon;
   if (type == 'city') return kLocationPinIcon;
@@ -521,7 +521,7 @@ Color tagIconColor(tag) {
   var type = tagType(tag);
   if (type == 'untagged' || type == 'toOrganize') return kGrey;
   if (type == 'organized') return kAltoOrganized;
-  if (type == 'videos') return kAltoOrganized;
+  if (type == 'videos') return kGrey;
   if (type == 'year' || type == 'month') return kGreyDarker;
   if (type == 'country' || type == 'city') return kGreyDarker;
   return tagColor(tag);
