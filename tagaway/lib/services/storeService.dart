@@ -105,7 +105,7 @@ class StoreService {
 
    remove (String key, [String disk = '']) async {
       if (RegExp ('^[^:]+:\\*').hasMatch (key)) {
-         for (var k in store.keys) {
+         for (var k in store.keys.toList ()) {
             if (RegExp (key.split (':') [0]).hasMatch (k)) await remove (k, disk);
          }
          return;

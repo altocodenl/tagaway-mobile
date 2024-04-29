@@ -2,9 +2,10 @@
 
 ## TODO
 
+- Phone only
+- Camera only
 - Add login flow with Google, Apple and Facebook
 - When deleting cloud piv, offer to delete local counterpart
-- Query videos
 - Hidden
    - Show hidden in query to be able to unhide
    - Store hidden info in server
