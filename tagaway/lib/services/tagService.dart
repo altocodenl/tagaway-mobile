@@ -445,6 +445,8 @@ class TagService {
          if (store.get ('pivMap:' + piv.id) != '') return;
          if (store.get ('hideMap:' + piv.id) != '') return;
 
+         if (tags.contains ('v::') && piv.type != AssetType.video) return;
+
          if (localPivsAlreadyPresent [piv.id] == true) return;
 
          var pendingTags = getList ('pendingTags:' + piv.id);
