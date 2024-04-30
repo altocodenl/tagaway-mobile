@@ -447,6 +447,8 @@ class TagService {
 
          if (tags.contains ('v::') && piv.type != AssetType.video) return;
 
+         if (tags.contains ('c::') && store.get ('cameraPiv:' + piv.id) == '') return;
+
          if (localPivsAlreadyPresent [piv.id] == true) return;
 
          var pendingTags = getList ('pendingTags:' + piv.id);
@@ -469,6 +471,8 @@ class TagService {
             if (queryResult ['tags'] [tag] == null) queryResult ['tags'] [tag] = 0;
             queryResult ['tags'] [tag] += 1;
          });
+
+         if (piv.type == AssetType.video) queryResult ['tags'] ['v::'] += 1;
 
          localPivsToAdd.add (piv);
       });
@@ -556,32 +560,39 @@ class TagService {
 
       queryTags = List.from (tags);
 
-      Future.delayed (Duration (milliseconds: 1), () {
-        store.set ('queryInProgress', true);
-      });
+      var queryResult;
+      if (! tags.contains ('p::') && ! tags.contains ('c::')) {
 
-      var sort = store.get ('querySort');
+         Future.delayed (Duration (milliseconds: 1), () {
+           store.set ('queryInProgress', true);
+         });
 
-      var query = {
-         'tags': tags.where ((tag) => tag != 'r::').toList (),
-         'sort': sort,
-         'from': 1,
-         'to': 100000,
-         'limit': 2000,
-      };
-      if (tags.contains ('r::')) query ['mindate'] = recentMinDate ();
+         var sort = store.get ('querySort');
 
-      var response = await ajax ('post', 'query', query);
+         var query = {
+            'tags': tags.where ((tag) => tag != 'r::').toList (),
+            'sort': sort,
+            'from': 1,
+            'to': 100000,
+            'limit': 2000,
+         };
+         if (tags.contains ('r::')) query ['mindate'] = recentMinDate ();
 
-      if (response ['code'] != 200) {
-         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
-         store.remove ('queryInProgress');
-         return response ['code'];
+         var response = await ajax ('post', 'query', query);
+
+         if (response ['code'] != 200) {
+            if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+            store.remove ('queryInProgress');
+            return response ['code'];
+         }
+
+         queryResult = response ['body'];
+      }
+      else {
+         queryResult = {'pivs': [], 'total': 0, 'tags': {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0, 'v::': 0}};
       }
 
       if (! listEquals (queryTags, tags)) return 409;
-
-      var queryResult = response ['body'];
 
       queryResult = localQuery (tags, queryResult);
 

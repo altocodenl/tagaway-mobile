@@ -481,6 +481,8 @@ String tagType(tag) {
   if (tag == 't::') return 'toOrganize';
   if (tag == 'o::') return 'organized';
   if (tag == 'v::') return 'videos';
+  if (tag == 'p::') return 'phone';
+  if (tag == 'c::') return 'camera';
   if (RegExp('^d::[0-9]').hasMatch(tag) || tag == 'r::') return 'year';
   if (RegExp('^d::M').hasMatch(tag)) return 'month';
   if (RegExp('^g::').hasMatch(tag)) {
@@ -498,6 +500,8 @@ String tagTitle(tag) {
   if (type == 'toOrganize') return 'To Organize';
   if (type == 'organized') return 'Organized';
   if (type == 'videos') return 'Videos';
+  if (type == 'phone') return 'Only Phone';
+  if (type == 'camera') return 'Only Camera';
   if (tag == 'r::') return 'Recent';
   if (type == 'year' || type == 'country' || type == 'city')
     return tag.substring(3);
@@ -511,6 +515,7 @@ tagIcon(tag) {
   if (type == 'toOrganize') return kBoxArchiveIcon;
   if (type == 'organized') return kCircleCheckIcon;
   if (type == 'videos') return kVideoIcon;
+  if (type == 'camera') return kCameraIcon;
   if (type == 'year' || type == 'month') return kClockIcon;
   if (type == 'country') return kLocationDotIcon;
   if (type == 'city') return kLocationPinIcon;
@@ -522,6 +527,8 @@ Color tagIconColor(tag) {
   if (type == 'untagged' || type == 'toOrganize') return kGrey;
   if (type == 'organized') return kAltoOrganized;
   if (type == 'videos') return kGrey;
+  if (type == 'phone') return kGrey;
+  if (type == 'camera') return kGrey;
   if (type == 'year' || type == 'month') return kGreyDarker;
   if (type == 'country' || type == 'city') return kGreyDarker;
   return tagColor(tag);

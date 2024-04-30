@@ -30,6 +30,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   dynamic cancelListener;
   dynamic cancelListener2;
+  dynamic cancelListener3;
 
   dynamic account = {
     'username': '',
@@ -47,7 +48,7 @@ class _HomeViewState extends State<HomeView> {
 
     // If we are showing pivs in order, return the next index.
     if (sort == 'oldest' || sort == 'newest') {
-      seenPivIds.add(pivs[seenPivIds.length]);
+      seenPivIds.add(pivs[seenPivIds.length]['id']);
       return seenPivIds.last;
     }
 
@@ -143,6 +144,13 @@ class _HomeViewState extends State<HomeView> {
       store.remove('cachedTags:*');
       TagService.instance.queryPivs(true);
     });
+    cancelListener3 = store.listen(['querySort'], (QuerySort) {
+      if (!mounted) return;
+      if (scrollController.hasClients) scrollController.jumpTo(0);
+      seenPivIds = [];
+      store.remove('deletedPivs');
+      store.remove('cachedTags:*');
+    });
   }
 
   @override
@@ -150,6 +158,7 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
     cancelListener();
     cancelListener2();
+    cancelListener3();
     scrollController.dispose();
   }
 

@@ -292,38 +292,75 @@ class _QuerySelectorViewState extends State<QuerySelectorView> {
                     ),
                   ],
                 )),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Videos & Phone', style: kQuerySelectorSubtitles),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 20),
-                  child: GridView.count(
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      shrinkWrap: true,
-                      childAspectRatio: 4,
-                      children: (() {
-                        List<Widget> output = [];
-                        if (queryResult['tags']['v::'] > 0)
-                          output.add(QuerySelectionTagElement(
-                            onTap: () {
-                              TagService.instance.toggleQueryTag('v::');
-                              searchQueryController.clear();
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            elementColor: kGreyLighter,
-                            icon: tagIcon('v::'),
-                            iconColor: tagIconColor('v::'),
-                            tagTitle: tagTitle('v::'),
-                          ));
-                        return output;
-                      })()),
-                ),
-              ],
-            ),
+            Visibility(
+                // Visible only if one of the conditions for showing the tags inside the column is met
+                visible: (queryResult['tags']['v::'] > 0 &&
+                        !queryTags.contains('v::')) ||
+                    (queryResult['tags']['a::'] > 0 &&
+                        !queryTags.contains('p::')) ||
+                    (queryResult['tags']['a::'] > 0 &&
+                        !queryTags.contains('c::')),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Videos & Phone',
+                        style: kQuerySelectorSubtitles),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 20),
+                      child: GridView.count(
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          shrinkWrap: true,
+                          childAspectRatio: 4,
+                          children: (() {
+                            List<Widget> output = [];
+                            if (queryResult['tags']['v::'] > 0 &&
+                                !queryTags.contains('v::'))
+                              output.add(QuerySelectionTagElement(
+                                onTap: () {
+                                  TagService.instance.toggleQueryTag('v::');
+                                  searchQueryController.clear();
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                elementColor: kGreyLighter,
+                                icon: tagIcon('v::'),
+                                iconColor: tagIconColor('v::'),
+                                tagTitle: tagTitle('v::'),
+                              ));
+                            // Trucazo ahead: to know if we have cloud pivs, we check the `a::` entry, which is not modified by localQuery
+                            if (queryResult['tags']['a::'] > 0 &&
+                                !queryTags.contains('p::'))
+                              output.add(QuerySelectionTagElement(
+                                onTap: () {
+                                  TagService.instance.toggleQueryTag('p::');
+                                  searchQueryController.clear();
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                elementColor: kGreyLighter,
+                                icon: tagIcon('p::'),
+                                iconColor: tagIconColor('p::'),
+                                tagTitle: tagTitle('p::'),
+                              ));
+                            if (queryResult['tags']['a::'] > 0 &&
+                                !queryTags.contains('c::'))
+                              output.add(QuerySelectionTagElement(
+                                onTap: () {
+                                  TagService.instance.toggleQueryTag('c::');
+                                  searchQueryController.clear();
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                elementColor: kGreyLighter,
+                                icon: tagIcon('c::'),
+                                iconColor: tagIconColor('c::'),
+                                tagTitle: tagTitle('c::'),
+                              ));
+                            return output;
+                          })()),
+                    ),
+                  ],
+                )),
             Visibility(
                 visible: years.length > 0,
                 child: const Text('Years', style: kQuerySelectorSubtitles)),

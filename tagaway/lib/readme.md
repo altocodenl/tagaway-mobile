@@ -2,8 +2,7 @@
 
 ## TODO
 
-- Phone only
-- Camera only
+- Update annotated source from 550400e56b46578fb4de2d0865e86c3745bc36ad
 - Add login flow with Google, Apple and Facebook
 - When deleting cloud piv, offer to delete local counterpart
 - Hidden
