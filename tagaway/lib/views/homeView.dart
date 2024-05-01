@@ -368,6 +368,7 @@ class _LocalPhotoState extends State<LocalPhoto>
   dynamic cancelListener;
   bool hidePiv = false;
   dynamic tagsInPiv = [];
+  dynamic file;
 
   Future<File?> loadImage(piv) async {
     var file = await piv.file;
@@ -401,6 +402,8 @@ class _LocalPhotoState extends State<LocalPhoto>
   void dispose() {
     super.dispose();
     cancelListener();
+    // Release memory
+    file = null;
   }
 
   computeHeight() {
@@ -425,7 +428,7 @@ class _LocalPhotoState extends State<LocalPhoto>
 
   @override
   Widget build(BuildContext context) {
-    Future<File?> file = loadImage(widget.piv);
+    file = loadImage(widget.piv);
 
     if (hidePiv) return Container();
 
@@ -548,6 +551,7 @@ class _LocalVideoState extends State<LocalVideo> {
   bool hidePiv = false;
   dynamic cancelListener;
   dynamic tagsInPiv = [];
+  dynamic video;
 
   @override
   void initState() {
@@ -579,6 +583,8 @@ class _LocalVideoState extends State<LocalVideo> {
       super.dispose();
       cancelListener();
       _controller.dispose();
+      // Release memory
+      video = null;
     } catch (_) {
       // We ignore the error.
     }
@@ -588,7 +594,7 @@ class _LocalVideoState extends State<LocalVideo> {
     // Because of the sheer liquid modernity of this interface, we might need to make this `mounted` check.
     if (!mounted) return;
     try {
-      final video = await widget.piv.file;
+      video = await widget.piv.file;
       // If video was deleted or hidden, don't do anything.
       if (hidePiv == true || video == null) return;
       _controller = VideoPlayerController.file(video)
