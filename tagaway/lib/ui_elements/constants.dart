@@ -515,6 +515,7 @@ tagIcon(tag) {
   if (type == 'toOrganize') return kBoxArchiveIcon;
   if (type == 'organized') return kCircleCheckIcon;
   if (type == 'videos') return kVideoIcon;
+  if (type == 'videos') return kMobilePhoneIcon;
   if (type == 'camera') return kCameraIcon;
   if (type == 'year' || type == 'month') return kClockIcon;
   if (type == 'country') return kLocationDotIcon;
