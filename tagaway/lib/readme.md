@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Update annotated source from 550400e56b46578fb4de2d0865e86c3745bc36ad
 - Add login flow with Google, Apple and Facebook
 - When deleting cloud piv, offer to delete local counterpart
 - Hidden
@@ -2571,27 +2570,13 @@ Note that we compute the `pivMap` entries for local pivs even if `view` is uploa
 We will now query the server, to get all the uploaded pivs that are already tagged with `tags`. Note that we pass the `idsOnly`, just to get their ids; we also pass a very large number as `to`, to get all of them.
 
 ```dart
-      var query = {
-         'tags': tags.where ((tag) => tag != 'r::').toList (),
-         'sort': sort,
-         'from': 1,
-         'to': 100000,
-         'limit': 2000,
-      };
-```
-
-If we are querying the recent pivs, we will add the `mindate` field to the query, using the utility function `recentMinDate`.
-
-You might ask: why didn't you inline the `mindate` field with a ternary, such as `'mindate': tags.contains ('r::') ? recentMinDate () : 0`? Interesting that you asked: on Android, if we add that ternary, the resulting value of `mindate`, after stringification, will be a *negative* value. I have no further desire to explore this bizarre behavior, so I left it as is.
-
-```dart
-      if (tags.contains ('r::')) query ['mindate'] = recentMinDate ();
-```
-
-We make the call to the server to query pivs.
-
-```dart
-      var response = await ajax ('post', 'query', query);
+      var response = await ajax ('post', 'query', {
+         'tags':    tags,
+         'sort':    'newest',
+         'from':    1,
+         'to':      100000,
+         'idsOnly': true
+      });
 ```
 
 First we will cover the case in which we obtained an error.
@@ -2883,10 +2868,28 @@ We will iterate all the local pivs for which we don't have a cloud counterpart. 
          if (store.get ('pivMap:' + piv.id) != '') return;
 ```
 
-If the piv is marked as hidden, we'll remove it from the query altogether.
+If the piv is marked as hidden, we'll ignore it.
 
 ```dart
          if (store.get ('hideMap:' + piv.id) != '') return;
+```
+
+If the query is asking for videos and this local piv is not a video, we will ignore it.
+
+```dart
+         if (tags.contains ('v::') && piv.type != AssetType.video) return;
+```
+
+Likewise, if the query is asking for camera pivs and this piv is not a camera piv, we will ignore it.
+
+```dart
+         if (tags.contains ('c::') && store.get ('cameraPiv:' + piv.id) == '') return;
+```
+
+If the local piv is already present in the query because of a local counterpart, we will ignore it.
+
+```dart
+         if (localPivsAlreadyPresent [piv.id] == true) return;
 ```
 
 We will get the pending tags for this piv.
@@ -3249,47 +3252,82 @@ This, by the way, is how `queryPivs` knows whether the query has changed. The `q
       queryTags = List.from (tags);
 ```
 
+We will perform now the query to the server. We open a conditional for the case in which neither `p::` nor `c::` are in the query; if that is the case, we will want to query the server. If that is *not* the case, then all the pivs we want to show are local to the phone, and there's no need to trouble the server for that.
+
+```dart
+      var queryResult;
+      if (! tags.contains ('p::') && ! tags.contains ('c::')) {
+```
+
 Before we send the query, we set the `queryInProgress` store key to `true`. This is used by the QuerySelector view to give feedback to the user on how long a query takes to complete.
 
 Note we do this inside Dart's equivalent of a `setTimeout`. If we don't do this, for some reason, the view will be redrawn but the value of `queryInProgress` will not be updated. The timeout solves the issue.
 
 ```dart
-      Future.delayed (Duration (milliseconds: 1), () {
-        store.set ('queryInProgress', true);
-      });
+         Future.delayed (Duration (milliseconds: 1), () {
+           store.set ('queryInProgress', true);
+         });
 ```
 
 We will ask the server to sort pivs by latest date first if `querySort` is `newest` or `random`. That means that only when `querySort` is `oldest` we will ask the server to return the oldest pivs first.
 
 ```dart
-      var sort = store.get ('querySort');
+         var sort = store.get ('querySort');
 ```
 
-We invoke `POST /query` in the server. We're going to pass the `tags` we received (after removing the `r::` pseudotag) and the `sort` parameter. We will also pass a `mindate` field that will only make a difference if `r::` is contained in our `tags`. In this query, we will load up to 2000 pivs, to make the query reasonably fast.
+We will prepare an object to query the server; We're going to pass the `tags` we received (after removing the `r::` pseudotag) and the `sort` parameter. We will also pass a `mindate` field that will only make a difference if `r::` is contained in our `tags`. In this query, we will load up to 2000 pivs, to make the query reasonably fast.
 
 ```dart
-      var response = await ajax ('post', 'query', {
-         'tags': tags.where ((tag) => tag != 'r::').toList (),
-         'sort': sort,
-         'mindate': tags.contains ('r::') ? recentMinDate () : 0,
-         'from': 1,
-         'to': 100000,
-         'limit': 2000,
-      });
+         var query = {
+            'tags': tags.where ((tag) => tag != 'r::').toList (),
+            'sort': sort,
+            'from': 1,
+            'to': 100000,
+            'limit': 2000,
+         };
+```
+
+If we are querying the recent pivs, we will add the `mindate` field to the query, using the utility function `recentMinDate`.
+
+You might ask: why didn't you inline the `mindate` field with a ternary, such as `'mindate': tags.contains ('r::') ? recentMinDate () : 0`? Interesting that you asked: on Android, if we add that ternary, the resulting value of `mindate`, after stringification, will be a *negative* value. I have no further desire to explore this bizarre behavior, so I left it as is.
+
+```dart
+         if (tags.contains ('r::')) query ['mindate'] = recentMinDate ();
+```
+
+We invoke `POST /query` in the server to query pivs.
+
+```dart
+         var response = await ajax ('post', 'query', query);
 ```
 
 If we didn't get back a 200 code, we have encountered an error. If we experienced a 403, there's another error message already shown by the `ajax` function informing the user that their session has expired; if the error, however, is not a 403, we inform the user with an error code `QUERY:A:CODE`.
 
 ```dart
-      if (response ['code'] != 200) {
-         if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
+         if (response ['code'] != 200) {
+            if (! [0, 403].contains (response ['code'])) showSnackbar ('There was an error getting your pivs - CODE QUERY:A:' + response ['code'].toString (), 'yellow');
 ```
 
 Whatever the error is, we cannot continue executing the function, so we remove the `queryInProgress` key and return the code from the response.
 
 ```dart
-         store.remove ('queryInProgress');
-         return response ['code'];
+            store.remove ('queryInProgress');
+            return response ['code'];
+         }
+```
+
+We set `queryResult` to the body we received back from the server. This concludes the case where we query the server.
+
+```dart
+         queryResult = response ['body'];
+      }
+```
+
+If we're requesting either phone pivs or camera pivs, we don't need to query the server; however, we'll create an object that would be what the server would return if no pivs matched the query.
+
+```dart
+      else {
+         queryResult = {'pivs': [], 'total': 0, 'tags': {'a::': 0, 'u::': 0, 't::': 0, 'o::': 0, 'v::': 0}};
       }
 ```
 
@@ -3301,12 +3339,6 @@ Note that in this case we do not remove the `queryInProgress` key since there wi
 
 ```dart
       if (! listEquals (queryTags, tags)) return 409;
-```
-
-We return the result of the body in a local variable `queryResult`.
-
-```dart
-      var queryResult = response ['body'];
 ```
 
 We modify `queryResult` by invoking `localQuery`. This function will update the query result adding local pivs, tags and potentially modifying the total and time header. We do this as soon as we get the `queryResult`, but after we set the `currentMonth`.
