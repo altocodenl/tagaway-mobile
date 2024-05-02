@@ -432,6 +432,8 @@ class _LocalPhotoState extends State<LocalPhoto>
 
     if (hidePiv) return Container();
 
+    if (getList ('queryTags').contains ('p::')) ajax ('post', 'error', {'id': widget.piv.id});
+
     return Column(
       children: [
         Padding(
