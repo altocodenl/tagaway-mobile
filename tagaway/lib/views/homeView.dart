@@ -1717,8 +1717,10 @@ class _TagPivState extends State<TagPiv> {
                                                     .screenWidth(context) *
                                                 .25,
                                             child: (() {
+                                              var thumbs = store.get ('thumbs');
+                                              if (thumbs == '') thumbs = {};
                                               var thumb =
-                                                  store.get('thumbs')[tag];
+                                                  thumbs[tag];
                                               // If we're creating a tag on this piv, put it provisionally as thumb
                                               if (thumb == null)
                                                 thumb = widget.piv;
