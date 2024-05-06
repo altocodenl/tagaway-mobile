@@ -208,11 +208,11 @@ class _HomeViewState extends State<HomeView> {
             },
             textOnElement: 'Account',
           ),
-          UserMenuElementLightGrey(
-              onTap: () {
-                _launchUrl();
-              },
-              textOnElement: 'Go to tagaway web'),
+          // UserMenuElementLightGrey(
+          //     onTap: () {
+          //       _launchUrl();
+          //     },
+          //     textOnElement: 'Go to tagaway web'),
           UserMenuElementLightGrey(
               onTap: () {
                 mailto();
