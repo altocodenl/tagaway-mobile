@@ -2,7 +2,9 @@
 
 ## TODO
 
+- Bug: after signing up, clicking the back button takes you to the signup page again
 - Add login flow with Google, Apple and Facebook
+- Switch to upload pivs in background, for users that have a limit > 500MB
 - When deleting cloud piv, offer to delete local counterpart
 - Hidden
    - Show hidden in query to be able to unhide
@@ -351,7 +353,7 @@ We get the `uploadId` from `startUpload`, which will either give us an existing 
 
 ```dart
       var uploadId = await startUpload ();
-      if (uploadId == false) return;
+      if (uploadId == false) return {'code': 0};
 ```
 
 We send the actual piv to the server using the `ajaxMulti` function. Besides the piv itself, we send three text fields:
