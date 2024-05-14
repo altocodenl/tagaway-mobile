@@ -70,7 +70,7 @@ class PivService {
       }
 
       var uploadId = await startUpload ();
-      if (uploadId == false) return;
+      if (uploadId == false) return {'code': 0};
 
       var response = await ajaxMulti ('piv', {
          'id':           uploadId,
