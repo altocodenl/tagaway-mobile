@@ -164,191 +164,195 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kAltoBlack,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: kAltoBlack,
-        title: GestureDetector(
-            onTap: () {
-              store.set('queryTags', []);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'images/tag check - 0c0c0cff - 400x400.png',
-                  scale: 10,
+    return WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+          backgroundColor: kAltoBlack,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: kAltoBlack,
+            title: GestureDetector(
+                onTap: () {
+                  store.set('queryTags', []);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'images/tag check - 0c0c0cff - 400x400.png',
+                      scale: 10,
+                    ),
+                    const Text('tagaway', style: kTagawayMain),
+                  ],
+                )),
+          ),
+          endDrawer: Drawer(
+              child: ListView(
+            // padding: const EdgeInsets.all(8),
+            children: <Widget>[
+              SizedBox(
+                height: 64,
+                child: DrawerHeader(
+                  child: Text(account['username'], style: kSubPageAppBarTitle),
                 ),
-                const Text('tagaway', style: kTagawayMain),
-              ],
-            )),
-      ),
-      endDrawer: Drawer(
-          child: ListView(
-        // padding: const EdgeInsets.all(8),
-        children: <Widget>[
-          SizedBox(
-            height: 64,
-            child: DrawerHeader(
-              child: Text(account['username'], style: kSubPageAppBarTitle),
-            ),
-          ),
-          UserMenuElementTransparent(
-              textOnElement: 'Your usage: ' +
-                  (account['usage']['byfs'] / (1000 * 1000 * 1000))
-                      .round()
-                      .toString() +
-                  'GB of your free 5GB'),
-          UserMenuElementLightGrey(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return const AccountView();
-              }));
-            },
-            textOnElement: 'Account',
-          ),
-          // UserMenuElementLightGrey(
-          //     onTap: () {
-          //       _launchUrl();
-          //     },
-          //     textOnElement: 'Go to tagaway web'),
-          UserMenuElementLightGrey(
-              onTap: () {
-                mailto();
-              },
-              textOnElement: 'Send Us Feedback'),
-          UserMenuElementLightGrey(
-              onTap: () {
-                Navigator.pushReplacementNamed(context, 'deleteAccount');
-              },
-              textOnElement: 'Delete My Account'),
-          // UserMenuElementKBlue(
-          //   onTap: () async {
-          //     var availableBytes = await getAvailableStorage();
-          //     var potentialCleanup =
-          //         await PivService.instance.deletePivsByRange('all');
-          //     TagawaySpaceCleanerModal1(scaffoldKey.currentContext!,
-          //         availableBytes, potentialCleanup);
-          //   },
-          //   textOnElement: 'Clear Up Space',
-          // ),
-          UserMenuElementDarkGrey(
-              onTap: () {
-                // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
-                return () {
-                  AuthService.instance.logout().then((value) {
-                    if (value == 200)
-                      return Navigator.pushReplacementNamed(
-                          context, 'distributor');
-                    SnackBarGlobal.buildSnackBar(context,
-                        'Something is wrong on our side. Sorry.', 'red');
-                  });
-                };
-              },
-              textOnElement: 'Log out'),
-        ],
-      )),
-      body: SafeArea(
-          child: queryResult['pivs'].length == 0
-              ? const Center(
-                  child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: kAltoBlue,
-                  ),
-                ))
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    seenPivIds = [];
-                    store.remove('deletedPivs');
-                    TagService.instance.queryPivs(true);
-                    if (scrollController.hasClients) scrollController.jumpTo(0);
+              ),
+              UserMenuElementTransparent(
+                  textOnElement: 'Your usage: ' +
+                      (account['usage']['byfs'] / (1000 * 1000 * 1000))
+                          .round()
+                          .toString() +
+                      'GB of your free 5GB'),
+              UserMenuElementLightGrey(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return const AccountView();
+                  }));
+                },
+                textOnElement: 'Account',
+              ),
+              // UserMenuElementLightGrey(
+              //     onTap: () {
+              //       _launchUrl();
+              //     },
+              //     textOnElement: 'Go to tagaway web'),
+              UserMenuElementLightGrey(
+                  onTap: () {
+                    mailto();
                   },
-                  child: Stack(children: [
-                    CustomScrollView(
-                      controller: scrollController,
-                      slivers: [
-                        SliverList.builder(
-                            itemCount: queryResult['pivs'].length,
-                            itemBuilder: (BuildContext context, int index) {
-                              var pivId;
-                              if (seenPivIds.length - 1 < index)
-                                pivId = getNextPivId();
-                              else
-                                pivId = seenPivIds[index];
-                              return Padding(
-                                  padding: const EdgeInsets.only(bottom: 40),
-                                  child: (() {
-                                    // We check whether the index is in bound, because sometimes when the query changes, we might no longer be in bound
-                                    var piv;
-                                    try {
-                                      piv = pivsById[pivId];
-                                      if (piv == null) return Container();
-                                    } catch (error) {
-                                      return Container();
-                                    }
-                                    var date =
-                                        DateTime.fromMillisecondsSinceEpoch(
-                                            piv['date']);
-                                    // LOCAL PHOTO
-                                    if (piv['local'] == true &&
-                                        piv['piv'].type == AssetType.image)
-                                      return LocalPhoto(
-                                        piv: piv['piv'],
-                                        date: date,
-                                      );
-                                    // LOCAL VIDEO
-                                    if (piv['local'] == true &&
-                                        piv['piv'].type != AssetType.image)
-                                      return LocalVideo(
-                                        piv: piv['piv'],
-                                        date: date,
-                                      );
-                                    // CLOUD PHOTO
-                                    if (piv['local'] == null &&
-                                        piv['vid'] == null)
-                                      return CloudPhoto(
-                                        piv: piv,
-                                        date: date,
-                                      );
-                                    // CLOUD VIDEO
-                                    if (piv['local'] == null &&
-                                        piv['vid'] != null)
-                                      return CloudVideo(
-                                        piv: piv,
-                                        date: date,
-                                      );
-                                  })());
-                            })
-                      ],
-                    ),
-                    Align(
-                      alignment: const Alignment(0, .9),
-                      child: FloatingActionButton.extended(
-                          key: const Key('homeFabQuerySelector'),
-                          heroTag: 'homeFabQuerySelector',
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50)),
-                          extendedPadding:
-                              const EdgeInsets.only(left: 20, right: 20),
-                          backgroundColor: kAltoBlue,
-                          elevation: 20,
-                          label: const Icon(
-                            kSearchIcon,
-                            color: Colors.white,
-                            size: 15,
-                          ),
-                          icon: const Text('Search', style: kButtonText),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(
-                                context, 'querySelector');
-                          }),
-                    ),
-                    DeleteModal(view: 'Uploaded')
-                  ]))),
-    );
+                  textOnElement: 'Send Us Feedback'),
+              UserMenuElementLightGrey(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, 'deleteAccount');
+                  },
+                  textOnElement: 'Delete My Account'),
+              // UserMenuElementKBlue(
+              //   onTap: () async {
+              //     var availableBytes = await getAvailableStorage();
+              //     var potentialCleanup =
+              //         await PivService.instance.deletePivsByRange('all');
+              //     TagawaySpaceCleanerModal1(scaffoldKey.currentContext!,
+              //         availableBytes, potentialCleanup);
+              //   },
+              //   textOnElement: 'Clear Up Space',
+              // ),
+              UserMenuElementDarkGrey(
+                  onTap: () {
+                    // We need to wrap this in another function, otherwise it gets executed on view draw. Madness.
+                    return () {
+                      AuthService.instance.logout().then((value) {
+                        if (value == 200)
+                          return Navigator.pushReplacementNamed(
+                              context, 'distributor');
+                        SnackBarGlobal.buildSnackBar(context,
+                            'Something is wrong on our side. Sorry.', 'red');
+                      });
+                    };
+                  },
+                  textOnElement: 'Log out'),
+            ],
+          )),
+          body: SafeArea(
+              child: queryResult['pivs'].length == 0
+                  ? const Center(
+                      child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: kAltoBlue,
+                      ),
+                    ))
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        seenPivIds = [];
+                        store.remove('deletedPivs');
+                        TagService.instance.queryPivs(true);
+                        if (scrollController.hasClients)
+                          scrollController.jumpTo(0);
+                      },
+                      child: Stack(children: [
+                        CustomScrollView(
+                          controller: scrollController,
+                          slivers: [
+                            SliverList.builder(
+                                itemCount: queryResult['pivs'].length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  var pivId;
+                                  if (seenPivIds.length - 1 < index)
+                                    pivId = getNextPivId();
+                                  else
+                                    pivId = seenPivIds[index];
+                                  return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 40),
+                                      child: (() {
+                                        // We check whether the index is in bound, because sometimes when the query changes, we might no longer be in bound
+                                        var piv;
+                                        try {
+                                          piv = pivsById[pivId];
+                                          if (piv == null) return Container();
+                                        } catch (error) {
+                                          return Container();
+                                        }
+                                        var date =
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                                piv['date']);
+                                        // LOCAL PHOTO
+                                        if (piv['local'] == true &&
+                                            piv['piv'].type == AssetType.image)
+                                          return LocalPhoto(
+                                            piv: piv['piv'],
+                                            date: date,
+                                          );
+                                        // LOCAL VIDEO
+                                        if (piv['local'] == true &&
+                                            piv['piv'].type != AssetType.image)
+                                          return LocalVideo(
+                                            piv: piv['piv'],
+                                            date: date,
+                                          );
+                                        // CLOUD PHOTO
+                                        if (piv['local'] == null &&
+                                            piv['vid'] == null)
+                                          return CloudPhoto(
+                                            piv: piv,
+                                            date: date,
+                                          );
+                                        // CLOUD VIDEO
+                                        if (piv['local'] == null &&
+                                            piv['vid'] != null)
+                                          return CloudVideo(
+                                            piv: piv,
+                                            date: date,
+                                          );
+                                      })());
+                                })
+                          ],
+                        ),
+                        Align(
+                          alignment: const Alignment(0, .9),
+                          child: FloatingActionButton.extended(
+                              key: const Key('homeFabQuerySelector'),
+                              heroTag: 'homeFabQuerySelector',
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50)),
+                              extendedPadding:
+                                  const EdgeInsets.only(left: 20, right: 20),
+                              backgroundColor: kAltoBlue,
+                              elevation: 20,
+                              label: const Icon(
+                                kSearchIcon,
+                                color: Colors.white,
+                                size: 15,
+                              ),
+                              icon: const Text('Search', style: kButtonText),
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, 'querySelector');
+                              }),
+                        ),
+                        DeleteModal(view: 'Uploaded')
+                      ]))),
+        ));
   }
 }
 
@@ -1717,10 +1721,9 @@ class _TagPivState extends State<TagPiv> {
                                                     .screenWidth(context) *
                                                 .25,
                                             child: (() {
-                                              var thumbs = store.get ('thumbs');
+                                              var thumbs = store.get('thumbs');
                                               if (thumbs == '') thumbs = {};
-                                              var thumb =
-                                                  thumbs[tag];
+                                              var thumb = thumbs[tag];
                                               // If we're creating a tag on this piv, put it provisionally as thumb
                                               if (thumb == null)
                                                 thumb = widget.piv;

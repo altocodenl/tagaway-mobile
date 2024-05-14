@@ -2,7 +2,6 @@
 
 ## TODO
 
-- Bug: after signing up, clicking the back button takes you to the signup page again
 - Add login flow with Google, Apple and Facebook
 - Switch to upload pivs in background, for users that have a limit > 500MB
 - When deleting cloud piv, offer to delete local counterpart
