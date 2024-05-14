@@ -201,7 +201,7 @@ class _HomeViewState extends State<HomeView> {
                       (account['usage']['byfs'] / (1000 * 1000 * 1000))
                           .round()
                           .toString() +
-                      'GB of your free 5GB'),
+                      'GB of your free 500MB'),
               UserMenuElementLightGrey(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
