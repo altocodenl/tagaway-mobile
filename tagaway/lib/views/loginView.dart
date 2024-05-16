@@ -1,12 +1,18 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
+import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/tools.dart';
 
-import '../services/authService.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -24,6 +30,24 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final inviteResponse = StreamController<int>.broadcast();
+
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+      clientId: Platform.isAndroid ? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com' : '764404427753-3g56747hiqnk7o8fqtsj7i4kh2c70btt.apps.googleusercontent.com',
+      scopes: [
+        'openid',
+        'email',
+      ]);
+
+  Future<void> _handleSignIn() async {
+    try {
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication? authentication = await account?.authentication;
+      final String? idToken = authentication?.idToken;
+      debug (['done', idToken]);
+    } catch (error) {
+       debug (['error', error]);
+    }
+  }
 
   @override
   void initState() {
@@ -124,6 +148,25 @@ class _LoginViewState extends State<LoginView> {
                           child: Text(
                             'Let your memories surprise you.',
                             style: kSubtitle,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _handleSignIn,
+                          child: Container(
+                            width: 180.0,
+                            height: 40.0,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                SvgPicture.asset(
+                                  'images/google_logo.svg',
+                                  fit: BoxFit.contain
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         TextField(

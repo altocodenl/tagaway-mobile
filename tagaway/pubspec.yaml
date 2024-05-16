@@ -51,7 +51,8 @@ dependencies:
   flutter_isolate: ^2.0.4
   open_mail_app: ^0.4.5
   collection: ^1.17.1
-
+  google_sign_in: ^6.2.1
+  flutter_svg: ^1.0.3
 
 dev_dependencies:
   flutter_test:
