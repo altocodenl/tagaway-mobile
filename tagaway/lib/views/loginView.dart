@@ -3,15 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
-import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/tools.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -155,33 +152,52 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                         const Padding(
-                          padding: EdgeInsets.only(bottom: 30),
+                          padding: EdgeInsets.only(bottom: 20),
                           child: Text(
                             'Let your memories surprise you.',
                             style: kSubtitle,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: _handleSignIn,
-                          child: Container(
-                            width: 180.0,
-                            height: 40.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                SvgPicture.asset('images/google_logo.svg',
-                                    fit: BoxFit.contain),
-                              ],
-                            ),
+                        RoundedExternalServiceLogInButton(
+                          title: 'Continue with Google',
+                          colour: kAltoBlue,
+                          icon: kGoogleIcon,
+                          onPressed: _handleSignIn,
+                        ),
+                        RoundedExternalServiceLogInButton(
+                          title: 'Continue with Apple ',
+                          colour: kAltoBlue,
+                          icon: kAppleIcon,
+                          onPressed: () {},
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10, bottom: 10),
+                          child: Text(
+                            'OR',
+                            style: kPlainText,
                           ),
                         ),
+                        // GestureDetector(
+                        //   onTap: _handleSignIn,
+                        //   child: Container(
+                        //     width: 180.0,
+                        //     height: 40.0,
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //     ),
+                        //     child: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.center,
+                        //       children: <Widget>[
+                        //         SvgPicture.asset('images/google_logo.svg',
+                        //             fit: BoxFit.contain),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                         TextField(
                           controller: usernameController,
                           keyboardType: TextInputType.emailAddress,
-                          autofocus: true,
+                          autofocus: false,
                           textAlign: TextAlign.center,
                           enableSuggestions: true,
                           decoration: const InputDecoration(
@@ -195,10 +211,10 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 20),
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 10),
                           child: TextField(
                             controller: passwordController,
-                            autofocus: true,
+                            autofocus: false,
                             obscureText: true,
                             textAlign: TextAlign.center,
                             decoration: const InputDecoration(

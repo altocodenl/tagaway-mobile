@@ -109,6 +109,9 @@ const kShareIcon = FontAwesomeIcons.shareFromSquare;
 const kShuffleIcon = FontAwesomeIcons.shuffle;
 const kBackwardIcon = FontAwesomeIcons.backward;
 const kForwardIcon = FontAwesomeIcons.forward;
+const kGoogleIcon = FontAwesomeIcons.google;
+const kAppleIcon = FontAwesomeIcons.apple;
+const kEmailIcon = FontAwesomeIcons.envelope;
 
 const tagColors = [
   kTagColor1,
