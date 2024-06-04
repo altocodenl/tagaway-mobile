@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/pivService.dart';
@@ -14,6 +16,18 @@ class AuthService {
    Future <int> login (String username, String password) async {
       int timezone = DateTime.now ().timeZoneOffset.inMinutes.toInt ();
       var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
+      if (response ['code'] == 200) {
+         store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
+         store.set ('csrf',   response ['body']    ['csrf'], 'disk');
+         store.set ('recurringUser', true, 'disk');
+      }
+      // Error code 1 signifies that the user must verify their email
+      if (response ['code'] == 403 && response ['body'] ['error'] == 'verify') return 1;
+      return response ['code'];
+   }
+
+   Future <int> loginGoogle (String idToken) async {
+      var response = await ajax ('post', 'auth/signin/mobile/google', {'token': idToken, 'platform': Platform.isAndroid ? 'android' : 'ios'});
       if (response ['code'] == 200) {
          store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
          store.set ('csrf',   response ['body']    ['csrf'], 'disk');

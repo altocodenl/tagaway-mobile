@@ -13,7 +13,6 @@ import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/tools.dart';
 
-
 class LoginView extends StatefulWidget {
   static const String id = 'login';
 
@@ -32,7 +31,9 @@ class _LoginViewState extends State<LoginView> {
   final inviteResponse = StreamController<int>.broadcast();
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
-      clientId: Platform.isAndroid ? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com' : '764404427753-3g56747hiqnk7o8fqtsj7i4kh2c70btt.apps.googleusercontent.com',
+      clientId: Platform.isAndroid
+          ? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com'
+          : '764404427753-3g56747hiqnk7o8fqtsj7i4kh2c70btt.apps.googleusercontent.com',
       scopes: [
         'openid',
         'email',
@@ -41,11 +42,21 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _handleSignIn() async {
     try {
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication? authentication = await account?.authentication;
+      final GoogleSignInAuthentication? authentication =
+          await account?.authentication;
       final String? idToken = authentication?.idToken;
-      debug (['done', idToken]);
+
+      AuthService.instance.loginGoogle(idToken!).then((value) {
+        if (value != 200) {
+          SnackBarGlobal.buildSnackBar(context,
+              'There was an error logging you in through Google.', 'red');
+        }
+        if (value == 200) {
+          return Navigator.pushReplacementNamed(context, 'distributor');
+        }
+      });
     } catch (error) {
-       debug (['error', error]);
+      debug(['error', error]);
     }
   }
 
@@ -161,10 +172,8 @@ class _LoginViewState extends State<LoginView> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                SvgPicture.asset(
-                                  'images/google_logo.svg',
-                                  fit: BoxFit.contain
-                                ),
+                                SvgPicture.asset('images/google_logo.svg',
+                                    fit: BoxFit.contain),
                               ],
                             ),
                           ),
