@@ -267,6 +267,13 @@ const kButtonText = TextStyle(
   color: Colors.white,
 );
 
+const kButtonTextBlue = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoBlue,
+);
+
 const kWhiteButtonText = TextStyle(
   fontFamily: 'Montserrat-Regular',
   fontSize: 14,
@@ -427,6 +434,12 @@ const kBottomNavigationText = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.bold,
     color: Colors.white);
+
+const kBottomNavigationTextBlue = TextStyle(
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+    color: kAltoBlue);
 
 const kTaglineText = TextStyle(
   fontFamily: 'Montserrat-Regular',

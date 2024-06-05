@@ -4,26 +4,20 @@ import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
-import 'package:tagaway/views/BottomNavigationBar.dart';
 import 'package:tagaway/views/accountView.dart';
-import 'package:tagaway/views/addHometagsView.dart';
 import 'package:tagaway/views/deleteAccountView.dart';
 import 'package:tagaway/views/distributorView.dart';
-import 'package:tagaway/views/editHometagsView.dart';
 import 'package:tagaway/views/homeView.dart';
-import 'package:tagaway/views/localView.dart';
 import 'package:tagaway/views/loginView.dart';
+import 'package:tagaway/views/loginWithEmailView.dart';
 import 'package:tagaway/views/manageTagsView.dart';
 import 'package:tagaway/views/offlineView.dart';
-import 'package:tagaway/views/oldHomeView.dart';
 import 'package:tagaway/views/photoAccessNeededView.dart';
 import 'package:tagaway/views/querySelectorView.dart';
 import 'package:tagaway/views/recoverPasswordView.dart';
 import 'package:tagaway/views/requestPermissionView.dart';
-import 'package:tagaway/views/shareView.dart';
 import 'package:tagaway/views/signupFormView.dart';
 import 'package:tagaway/views/signupView.dart';
-import 'package:tagaway/views/uploadedView.dart';
 
 int initT = DateTime.now().millisecondsSinceEpoch;
 
@@ -104,6 +98,7 @@ class Tagaway extends StatelessWidget {
         'signup': (context) => const SignUpView(),
         'manageTags': (context) => const ManageTagsView(),
         'signupForm': (context) => const SignUpFormView(),
+        'loginWithEmailForm': (context) => const LoginWithEmailView(),
         //'uploaded': (context) => const UploadedView(),
       },
     );

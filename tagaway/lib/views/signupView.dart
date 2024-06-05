@@ -102,7 +102,7 @@ class _SignUpViewState extends State<SignUpView> {
                       onPressed: () {},
                     ),
                     RoundedExternalServiceLogInButton(
-                      title: 'Sign up with email',
+                      title: 'Sign up with email ',
                       colour: kAltoBlue,
                       icon: kEmailIcon,
                       onPressed: () {
@@ -110,24 +110,23 @@ class _SignUpViewState extends State<SignUpView> {
                             builder: (_) => const SignUpFormView()));
                       },
                     ),
-                    // RoundedButton(
-                    //   colour: kAltoBlue,
-                    //   title: 'Sign up with email',
-                    //   onPressed: () {
-                    //     Navigator.of(context).push(MaterialPageRoute(
-                    //         builder: (_) => const SignUpFormView()));
-                    //   },
-                    // ),
-                    TextButton(
+                    RoundedWhiteButton(
+                      title: 'Log In',
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => const LoginView()));
                       },
-                      child: const Text(
-                        'Already have an account?',
-                        style: kPlainHypertext,
-                      ),
                     ),
+                    // TextButton(
+                    //   onPressed: () {
+                    //     Navigator.of(context).push(MaterialPageRoute(
+                    //         builder: (_) => const LoginView()));
+                    //   },
+                    //   child: const Text(
+                    //     'Already have an account?',
+                    //     style: kPlainHypertext,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

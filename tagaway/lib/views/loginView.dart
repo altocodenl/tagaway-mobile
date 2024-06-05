@@ -8,7 +8,7 @@ import 'package:tagaway/services/authService.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/recoverPasswordView.dart';
+import 'package:tagaway/views/loginWithEmailView.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -135,7 +135,7 @@ class _LoginViewState extends State<LoginView> {
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Hero(
                           tag: 'logo',
@@ -170,123 +170,108 @@ class _LoginViewState extends State<LoginView> {
                           icon: kAppleIcon,
                           onPressed: () {},
                         ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 10, bottom: 10),
-                          child: Text(
-                            'OR',
-                            style: kPlainText,
-                          ),
+                        RoundedExternalServiceLogInButton(
+                          title: 'Continue with email ',
+                          colour: kAltoBlue,
+                          icon: kEmailIcon,
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => const LoginWithEmailView()));
+                          },
                         ),
-                        // GestureDetector(
-                        //   onTap: _handleSignIn,
-                        //   child: Container(
-                        //     width: 180.0,
-                        //     height: 40.0,
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.white,
-                        //     ),
-                        //     child: Row(
-                        //       mainAxisAlignment: MainAxisAlignment.center,
-                        //       children: <Widget>[
-                        //         SvgPicture.asset('images/google_logo.svg',
-                        //             fit: BoxFit.contain),
-                        //       ],
+                        // TextField(
+                        //   controller: usernameController,
+                        //   keyboardType: TextInputType.emailAddress,
+                        //   autofocus: false,
+                        //   textAlign: TextAlign.center,
+                        //   enableSuggestions: true,
+                        //   decoration: const InputDecoration(
+                        //     hintText: 'Username or email',
+                        //     contentPadding: EdgeInsets.symmetric(
+                        //         vertical: 10.0, horizontal: 20.0),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius:
+                        //           BorderRadius.all(Radius.circular(100)),
                         //     ),
                         //   ),
                         // ),
-                        TextField(
-                          controller: usernameController,
-                          keyboardType: TextInputType.emailAddress,
-                          autofocus: false,
-                          textAlign: TextAlign.center,
-                          enableSuggestions: true,
-                          decoration: const InputDecoration(
-                            hintText: 'Username or email',
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 20.0),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(100)),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 10),
-                          child: TextField(
-                            controller: passwordController,
-                            autofocus: false,
-                            obscureText: true,
-                            textAlign: TextAlign.center,
-                            decoration: const InputDecoration(
-                              hintText: 'Password',
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 20.0),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(100)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        RoundedButton(
-                          title: 'Log In',
-                          colour: kAltoBlue,
-                          onPressed: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            AuthService.instance
-                                .login(
-                              usernameController.text,
-                              passwordController.text,
-                            )
-                                .then((value) {
-                              if (value != 403) usernameController.clear();
-                              passwordController.clear();
-
-                              if (value == 403) {
-                                SnackBarGlobal.buildSnackBar(
-                                    context,
-                                    'Incorrect username, email or password.',
-                                    'red');
-                              }
-                              if (value == 500) {
-                                SnackBarGlobal.buildSnackBar(
-                                    context,
-                                    'Something is wrong on our side. Sorry.',
-                                    'red');
-                              }
-                              if (value == 200) {
-                                return Navigator.pushReplacementNamed(
-                                    context, 'distributor');
-                              }
-                              if (value == 0) {
-                                Navigator.pushReplacementNamed(
-                                    context, 'offline');
-                              }
-                              if (value == 1) {
-                                showVerifyBanner();
-                              }
-                            });
-                          },
-                        ),
-                        Builder(
-                          builder: (context) => Flexible(
-                            flex: 2,
-                            fit: FlexFit.loose,
-                            child: TextButton(
-                              onPressed: () {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) =>
-                                        const RecoverPasswordView()));
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              child: const Text(
-                                'Forgot password?',
-                                style: kPlainHypertext,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: const EdgeInsets.only(top: 8.0, bottom: 10),
+                        //   child: TextField(
+                        //     controller: passwordController,
+                        //     autofocus: false,
+                        //     obscureText: true,
+                        //     textAlign: TextAlign.center,
+                        //     decoration: const InputDecoration(
+                        //       hintText: 'Password',
+                        //       contentPadding: EdgeInsets.symmetric(
+                        //           vertical: 10.0, horizontal: 20.0),
+                        //       border: OutlineInputBorder(
+                        //         borderRadius:
+                        //             BorderRadius.all(Radius.circular(100)),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // RoundedButton(
+                        //   title: 'Log In',
+                        //   colour: kAltoBlue,
+                        //   onPressed: () {
+                        //     FocusManager.instance.primaryFocus?.unfocus();
+                        //     AuthService.instance
+                        //         .login(
+                        //       usernameController.text,
+                        //       passwordController.text,
+                        //     )
+                        //         .then((value) {
+                        //       if (value != 403) usernameController.clear();
+                        //       passwordController.clear();
+                        //
+                        //       if (value == 403) {
+                        //         SnackBarGlobal.buildSnackBar(
+                        //             context,
+                        //             'Incorrect username, email or password.',
+                        //             'red');
+                        //       }
+                        //       if (value == 500) {
+                        //         SnackBarGlobal.buildSnackBar(
+                        //             context,
+                        //             'Something is wrong on our side. Sorry.',
+                        //             'red');
+                        //       }
+                        //       if (value == 200) {
+                        //         return Navigator.pushReplacementNamed(
+                        //             context, 'distributor');
+                        //       }
+                        //       if (value == 0) {
+                        //         Navigator.pushReplacementNamed(
+                        //             context, 'offline');
+                        //       }
+                        //       if (value == 1) {
+                        //         showVerifyBanner();
+                        //       }
+                        //     });
+                        //   },
+                        // ),
+                        // Builder(
+                        //   builder: (context) => Flexible(
+                        //     flex: 2,
+                        //     fit: FlexFit.loose,
+                        //     child: TextButton(
+                        //       onPressed: () {
+                        //         FocusManager.instance.primaryFocus?.unfocus();
+                        //         Navigator.of(context).push(MaterialPageRoute(
+                        //             builder: (_) =>
+                        //                 const RecoverPasswordView()));
+                        //         FocusManager.instance.primaryFocus?.unfocus();
+                        //       },
+                        //       child: const Text(
+                        //         'Forgot password?',
+                        //         style: kPlainHypertext,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Builder(
                           builder: (context) => Flexible(
                             flex: 2,

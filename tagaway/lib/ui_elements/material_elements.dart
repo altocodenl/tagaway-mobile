@@ -90,6 +90,41 @@ class RoundedButton extends StatelessWidget {
   }
 }
 
+class RoundedWhiteButton extends StatelessWidget {
+  const RoundedWhiteButton(
+      {Key? key, required this.title, required this.onPressed})
+      : super(key: key);
+
+  final String title;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(title,
+            style: SizeService.instance.screenWidth(context) < 380
+                ? kBottomNavigationTextBlue
+                : kButtonTextBlue),
+        style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            side: const BorderSide(
+              width: 1.0,
+              color: kAltoBlue,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            minimumSize: SizeService.instance.screenWidth(context) < 380
+                ? const Size(150, 42)
+                : const Size(200, 42)),
+      ),
+    );
+  }
+}
+
 class RoundedExternalServiceLogInButton extends StatelessWidget {
   const RoundedExternalServiceLogInButton(
       {Key? key,
