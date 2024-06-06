@@ -52,9 +52,9 @@ class _SignUpViewState extends State<SignUpView> {
 
   @override
   Widget build(BuildContext context) {
-    //With WillPopScope() the user cannot 'swipe' back
-    return WillPopScope(
-      onWillPop: () async => false,
+    //With PopScope() the user cannot 'swipe' back
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         body: SafeArea(
             child: Stack(
@@ -117,16 +117,6 @@ class _SignUpViewState extends State<SignUpView> {
                             builder: (_) => const LoginView()));
                       },
                     ),
-                    // TextButton(
-                    //   onPressed: () {
-                    //     Navigator.of(context).push(MaterialPageRoute(
-                    //         builder: (_) => const LoginView()));
-                    //   },
-                    //   child: const Text(
-                    //     'Already have an account?',
-                    //     style: kPlainHypertext,
-                    //   ),
-                    // ),
                   ],
                 ),
               ),

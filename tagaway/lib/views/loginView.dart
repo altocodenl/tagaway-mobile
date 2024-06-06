@@ -23,9 +23,9 @@ class _LoginViewState extends State<LoginView> {
   late Timer materialBannerDelayer;
   bool recurringUserLocal = false;
   late Future myFuture;
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final inviteResponse = StreamController<int>.broadcast();
+  // final TextEditingController usernameController = TextEditingController();
+  // final TextEditingController passwordController = TextEditingController();
+  // final inviteResponse = StreamController<int>.broadcast();
 
   GoogleSignIn _googleSignIn = GoogleSignIn(
       clientId: Platform.isAndroid
@@ -62,13 +62,13 @@ class _LoginViewState extends State<LoginView> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    inviteResponse.close();
-    usernameController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   inviteResponse.close();
+  //   usernameController.dispose();
+  //   passwordController.dispose();
+  //   super.dispose();
+  // }
 
   showVerifyBanner() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -123,9 +123,9 @@ class _LoginViewState extends State<LoginView> {
     return GestureDetector(
       // This makes the keyboard disappear when tapping outside of it
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      //With WillPopScope() the user cannot 'swipe' back
-      child: WillPopScope(
-        onWillPop: () async => false,
+      //With PopScope() the user cannot 'swipe' back
+      child: PopScope(
+        canPop: false,
         child: Scaffold(
             resizeToAvoidBottomInset: false,
             body: SafeArea(
@@ -179,99 +179,6 @@ class _LoginViewState extends State<LoginView> {
                                 builder: (_) => const LoginWithEmailView()));
                           },
                         ),
-                        // TextField(
-                        //   controller: usernameController,
-                        //   keyboardType: TextInputType.emailAddress,
-                        //   autofocus: false,
-                        //   textAlign: TextAlign.center,
-                        //   enableSuggestions: true,
-                        //   decoration: const InputDecoration(
-                        //     hintText: 'Username or email',
-                        //     contentPadding: EdgeInsets.symmetric(
-                        //         vertical: 10.0, horizontal: 20.0),
-                        //     border: OutlineInputBorder(
-                        //       borderRadius:
-                        //           BorderRadius.all(Radius.circular(100)),
-                        //     ),
-                        //   ),
-                        // ),
-                        // Padding(
-                        //   padding: const EdgeInsets.only(top: 8.0, bottom: 10),
-                        //   child: TextField(
-                        //     controller: passwordController,
-                        //     autofocus: false,
-                        //     obscureText: true,
-                        //     textAlign: TextAlign.center,
-                        //     decoration: const InputDecoration(
-                        //       hintText: 'Password',
-                        //       contentPadding: EdgeInsets.symmetric(
-                        //           vertical: 10.0, horizontal: 20.0),
-                        //       border: OutlineInputBorder(
-                        //         borderRadius:
-                        //             BorderRadius.all(Radius.circular(100)),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                        // RoundedButton(
-                        //   title: 'Log In',
-                        //   colour: kAltoBlue,
-                        //   onPressed: () {
-                        //     FocusManager.instance.primaryFocus?.unfocus();
-                        //     AuthService.instance
-                        //         .login(
-                        //       usernameController.text,
-                        //       passwordController.text,
-                        //     )
-                        //         .then((value) {
-                        //       if (value != 403) usernameController.clear();
-                        //       passwordController.clear();
-                        //
-                        //       if (value == 403) {
-                        //         SnackBarGlobal.buildSnackBar(
-                        //             context,
-                        //             'Incorrect username, email or password.',
-                        //             'red');
-                        //       }
-                        //       if (value == 500) {
-                        //         SnackBarGlobal.buildSnackBar(
-                        //             context,
-                        //             'Something is wrong on our side. Sorry.',
-                        //             'red');
-                        //       }
-                        //       if (value == 200) {
-                        //         return Navigator.pushReplacementNamed(
-                        //             context, 'distributor');
-                        //       }
-                        //       if (value == 0) {
-                        //         Navigator.pushReplacementNamed(
-                        //             context, 'offline');
-                        //       }
-                        //       if (value == 1) {
-                        //         showVerifyBanner();
-                        //       }
-                        //     });
-                        //   },
-                        // ),
-                        // Builder(
-                        //   builder: (context) => Flexible(
-                        //     flex: 2,
-                        //     fit: FlexFit.loose,
-                        //     child: TextButton(
-                        //       onPressed: () {
-                        //         FocusManager.instance.primaryFocus?.unfocus();
-                        //         Navigator.of(context).push(MaterialPageRoute(
-                        //             builder: (_) =>
-                        //                 const RecoverPasswordView()));
-                        //         FocusManager.instance.primaryFocus?.unfocus();
-                        //       },
-                        //       child: const Text(
-                        //         'Forgot password?',
-                        //         style: kPlainHypertext,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         Builder(
                           builder: (context) => Flexible(
                             flex: 2,
