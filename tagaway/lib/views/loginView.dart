@@ -1,12 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tagaway/services/authService.dart';
+import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
-import 'package:tagaway/views/recoverPasswordView.dart';
-
-import '../services/authService.dart';
+import 'package:tagaway/views/loginWithEmailView.dart';
 
 class LoginView extends StatefulWidget {
   static const String id = 'login';
@@ -24,6 +26,36 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final inviteResponse = StreamController<int>.broadcast();
+
+  GoogleSignIn _googleSignIn = GoogleSignIn(
+      clientId: Platform.isAndroid
+          ? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com'
+          : '764404427753-3g56747hiqnk7o8fqtsj7i4kh2c70btt.apps.googleusercontent.com',
+      scopes: [
+        'openid',
+        'email',
+      ]);
+
+  Future<void> _handleSignIn() async {
+    try {
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication? authentication =
+          await account?.authentication;
+      final String? idToken = authentication?.idToken;
+
+      AuthService.instance.loginGoogle(idToken!).then((value) {
+        if (value != 200) {
+          SnackBarGlobal.buildSnackBar(context,
+              'There was an error logging you in through Google.', 'red');
+        }
+        if (value == 200) {
+          return Navigator.pushReplacementNamed(context, 'distributor');
+        }
+      });
+    } catch (error) {
+      debug(['error', error]);
+    }
+  }
 
   @override
   void initState() {
@@ -103,7 +135,7 @@ class _LoginViewState extends State<LoginView> {
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Hero(
                           tag: 'logo',
@@ -120,105 +152,126 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                         const Padding(
-                          padding: EdgeInsets.only(bottom: 30),
+                          padding: EdgeInsets.only(bottom: 20),
                           child: Text(
                             'Let your memories surprise you.',
                             style: kSubtitle,
                           ),
                         ),
-                        TextField(
-                          controller: usernameController,
-                          keyboardType: TextInputType.emailAddress,
-                          autofocus: true,
-                          textAlign: TextAlign.center,
-                          enableSuggestions: true,
-                          decoration: const InputDecoration(
-                            hintText: 'Username or email',
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 20.0),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(100)),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 20),
-                          child: TextField(
-                            controller: passwordController,
-                            autofocus: true,
-                            obscureText: true,
-                            textAlign: TextAlign.center,
-                            decoration: const InputDecoration(
-                              hintText: 'Password',
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 20.0),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(100)),
-                              ),
-                            ),
-                          ),
-                        ),
-                        RoundedButton(
-                          title: 'Log In',
+                        RoundedExternalServiceLogInButton(
+                          title: 'Continue with Google',
                           colour: kAltoBlue,
+                          icon: kGoogleIcon,
+                          onPressed: _handleSignIn,
+                        ),
+                        RoundedExternalServiceLogInButton(
+                          title: 'Continue with Apple ',
+                          colour: kAltoBlue,
+                          icon: kAppleIcon,
+                          onPressed: () {},
+                        ),
+                        RoundedExternalServiceLogInButton(
+                          title: 'Continue with email ',
+                          colour: kAltoBlue,
+                          icon: kEmailIcon,
                           onPressed: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            AuthService.instance
-                                .login(
-                              usernameController.text,
-                              passwordController.text,
-                            )
-                                .then((value) {
-                              if (value != 403) usernameController.clear();
-                              passwordController.clear();
-
-                              if (value == 403) {
-                                SnackBarGlobal.buildSnackBar(
-                                    context,
-                                    'Incorrect username, email or password.',
-                                    'red');
-                              }
-                              if (value == 500) {
-                                SnackBarGlobal.buildSnackBar(
-                                    context,
-                                    'Something is wrong on our side. Sorry.',
-                                    'red');
-                              }
-                              if (value == 200) {
-                                return Navigator.pushReplacementNamed(
-                                    context, 'distributor');
-                              }
-                              if (value == 0) {
-                                Navigator.pushReplacementNamed(
-                                    context, 'offline');
-                              }
-                              if (value == 1) {
-                                showVerifyBanner();
-                              }
-                            });
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => const LoginWithEmailView()));
                           },
                         ),
-                        Builder(
-                          builder: (context) => Flexible(
-                            flex: 2,
-                            fit: FlexFit.loose,
-                            child: TextButton(
-                              onPressed: () {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) =>
-                                        const RecoverPasswordView()));
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              child: const Text(
-                                'Forgot password?',
-                                style: kPlainHypertext,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // TextField(
+                        //   controller: usernameController,
+                        //   keyboardType: TextInputType.emailAddress,
+                        //   autofocus: false,
+                        //   textAlign: TextAlign.center,
+                        //   enableSuggestions: true,
+                        //   decoration: const InputDecoration(
+                        //     hintText: 'Username or email',
+                        //     contentPadding: EdgeInsets.symmetric(
+                        //         vertical: 10.0, horizontal: 20.0),
+                        //     border: OutlineInputBorder(
+                        //       borderRadius:
+                        //           BorderRadius.all(Radius.circular(100)),
+                        //     ),
+                        //   ),
+                        // ),
+                        // Padding(
+                        //   padding: const EdgeInsets.only(top: 8.0, bottom: 10),
+                        //   child: TextField(
+                        //     controller: passwordController,
+                        //     autofocus: false,
+                        //     obscureText: true,
+                        //     textAlign: TextAlign.center,
+                        //     decoration: const InputDecoration(
+                        //       hintText: 'Password',
+                        //       contentPadding: EdgeInsets.symmetric(
+                        //           vertical: 10.0, horizontal: 20.0),
+                        //       border: OutlineInputBorder(
+                        //         borderRadius:
+                        //             BorderRadius.all(Radius.circular(100)),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // RoundedButton(
+                        //   title: 'Log In',
+                        //   colour: kAltoBlue,
+                        //   onPressed: () {
+                        //     FocusManager.instance.primaryFocus?.unfocus();
+                        //     AuthService.instance
+                        //         .login(
+                        //       usernameController.text,
+                        //       passwordController.text,
+                        //     )
+                        //         .then((value) {
+                        //       if (value != 403) usernameController.clear();
+                        //       passwordController.clear();
+                        //
+                        //       if (value == 403) {
+                        //         SnackBarGlobal.buildSnackBar(
+                        //             context,
+                        //             'Incorrect username, email or password.',
+                        //             'red');
+                        //       }
+                        //       if (value == 500) {
+                        //         SnackBarGlobal.buildSnackBar(
+                        //             context,
+                        //             'Something is wrong on our side. Sorry.',
+                        //             'red');
+                        //       }
+                        //       if (value == 200) {
+                        //         return Navigator.pushReplacementNamed(
+                        //             context, 'distributor');
+                        //       }
+                        //       if (value == 0) {
+                        //         Navigator.pushReplacementNamed(
+                        //             context, 'offline');
+                        //       }
+                        //       if (value == 1) {
+                        //         showVerifyBanner();
+                        //       }
+                        //     });
+                        //   },
+                        // ),
+                        // Builder(
+                        //   builder: (context) => Flexible(
+                        //     flex: 2,
+                        //     fit: FlexFit.loose,
+                        //     child: TextButton(
+                        //       onPressed: () {
+                        //         FocusManager.instance.primaryFocus?.unfocus();
+                        //         Navigator.of(context).push(MaterialPageRoute(
+                        //             builder: (_) =>
+                        //                 const RecoverPasswordView()));
+                        //         FocusManager.instance.primaryFocus?.unfocus();
+                        //       },
+                        //       child: const Text(
+                        //         'Forgot password?',
+                        //         style: kPlainHypertext,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Builder(
                           builder: (context) => Flexible(
                             flex: 2,

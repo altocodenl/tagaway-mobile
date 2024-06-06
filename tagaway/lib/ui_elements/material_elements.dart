@@ -90,6 +90,91 @@ class RoundedButton extends StatelessWidget {
   }
 }
 
+class RoundedWhiteButton extends StatelessWidget {
+  const RoundedWhiteButton(
+      {Key? key, required this.title, required this.onPressed})
+      : super(key: key);
+
+  final String title;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(title,
+            style: SizeService.instance.screenWidth(context) < 380
+                ? kBottomNavigationTextBlue
+                : kButtonTextBlue),
+        style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            side: const BorderSide(
+              width: 1.0,
+              color: kAltoBlue,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            minimumSize: SizeService.instance.screenWidth(context) < 380
+                ? const Size(150, 42)
+                : const Size(200, 42)),
+      ),
+    );
+  }
+}
+
+class RoundedExternalServiceLogInButton extends StatelessWidget {
+  const RoundedExternalServiceLogInButton(
+      {Key? key,
+      required this.title,
+      required this.colour,
+      required this.icon,
+      required this.onPressed})
+      : super(key: key);
+
+  final Color colour;
+  final IconData icon;
+  final String title;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+            backgroundColor: colour,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            minimumSize: SizeService.instance.screenWidth(context) < 380
+                ? const Size(150, 42)
+                : const Size(200, 42)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 15,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(title,
+                style: SizeService.instance.screenWidth(context) < 380
+                    ? kBottomNavigationText
+                    : kButtonText),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class TagListElement extends StatefulWidget {
   const TagListElement(
       {Key? key,

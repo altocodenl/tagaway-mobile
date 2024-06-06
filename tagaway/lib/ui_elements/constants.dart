@@ -109,6 +109,9 @@ const kShareIcon = FontAwesomeIcons.shareFromSquare;
 const kShuffleIcon = FontAwesomeIcons.shuffle;
 const kBackwardIcon = FontAwesomeIcons.backward;
 const kForwardIcon = FontAwesomeIcons.forward;
+const kGoogleIcon = FontAwesomeIcons.google;
+const kAppleIcon = FontAwesomeIcons.apple;
+const kEmailIcon = FontAwesomeIcons.envelope;
 
 const tagColors = [
   kTagColor1,
@@ -262,6 +265,13 @@ const kButtonText = TextStyle(
   fontSize: 14,
   fontWeight: FontWeight.bold,
   color: Colors.white,
+);
+
+const kButtonTextBlue = TextStyle(
+  fontFamily: 'Montserrat-Regular',
+  fontSize: 14,
+  fontWeight: FontWeight.bold,
+  color: kAltoBlue,
 );
 
 const kWhiteButtonText = TextStyle(
@@ -424,6 +434,12 @@ const kBottomNavigationText = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.bold,
     color: Colors.white);
+
+const kBottomNavigationTextBlue = TextStyle(
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 12,
+    fontWeight: FontWeight.bold,
+    color: kAltoBlue);
 
 const kTaglineText = TextStyle(
   fontFamily: 'Montserrat-Regular',
