@@ -12,9 +12,6 @@
    - Scroll doesn't work
    - Modals to edit/delete appear only when you go one view back
 - Improve zoom
-- Use local metadata to get a better date for some local pivs
-- Show info of piv
-- Share Tagaway button and link
 - Finish annotated source code: tagService, storeService, tools.
 
 ## Store structure
