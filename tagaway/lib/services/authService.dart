@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/pivService.dart';
@@ -26,15 +28,28 @@ class AuthService {
       return response ['code'];
    }
 
-   Future <int> loginGoogle (String idToken) async {
+   Future <int> loginGoogle () async {
+
+      var clientIds = await ajax ('get', 'auth/signin/credentials/google');
+      if (clientIds ['code'] != 200) return clientIds ['code'];
+
+      GoogleSignIn _googleSignIn = GoogleSignIn (
+         clientId: Platform.isAndroid
+            ? clientIds ['body'] ['android']
+            : clientIds ['body'] ['ios'],
+         scopes: ['openid', 'email']
+      );
+
+      final GoogleSignInAccount? account = await _googleSignIn.signIn ();
+      final GoogleSignInAuthentication? authentication = await account?.authentication;
+      final String? idToken = authentication?.idToken;
+
       var response = await ajax ('post', 'auth/signin/mobile/google', {'token': idToken, 'platform': Platform.isAndroid ? 'android' : 'ios'});
       if (response ['code'] == 200) {
          store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
          store.set ('csrf',   response ['body']    ['csrf'], 'disk');
          store.set ('recurringUser', true, 'disk');
       }
-      // Error code 1 signifies that the user must verify their email
-      if (response ['code'] == 403 && response ['body'] ['error'] == 'verify') return 1;
       return response ['code'];
    }
 
