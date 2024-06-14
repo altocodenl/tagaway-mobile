@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:tagaway/main.dart';
@@ -28,7 +29,7 @@ class AuthService {
       return response ['code'];
    }
 
-   Future <int> loginGoogle () async {
+   Future <int> signinGoogle () async {
 
       var clientIds = await ajax ('get', 'auth/signin/credentials/google');
       if (clientIds ['code'] != 200) return clientIds ['code'];
@@ -45,6 +46,25 @@ class AuthService {
       final String? idToken = authentication?.idToken;
 
       var response = await ajax ('post', 'auth/signin/mobile/google', {'token': idToken, 'platform': Platform.isAndroid ? 'android' : 'ios'});
+      if (response ['code'] == 200) {
+         store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
+         store.set ('csrf',   response ['body']    ['csrf'], 'disk');
+         store.set ('recurringUser', true, 'disk');
+      }
+      return response ['code'];
+   }
+
+   Future <int> signinApple () async {
+
+      var credential = await SignInWithApple.getAppleIDCredential (scopes: [
+         AppleIDAuthorizationScopes.email,
+         AppleIDAuthorizationScopes.fullName,
+      ]);
+
+      final idToken = credential.identityToken;
+      debug (['id token', idToken]);
+
+      var response = await ajax ('post', 'auth/signin/mobile/apple', {'token': idToken});
       if (response ['code'] == 200) {
          store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
          store.set ('csrf',   response ['body']    ['csrf'], 'disk');

@@ -20,17 +20,24 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   late Timer materialBannerDelayer;
-  bool recurringUserLocal = false;
-  late Future myFuture;
-  // final TextEditingController usernameController = TextEditingController();
-  // final TextEditingController passwordController = TextEditingController();
-  // final inviteResponse = StreamController<int>.broadcast();
 
-  Future<void> _handleSignIn() async {
-    AuthService.instance.loginGoogle().then((value) {
+  Future<void> _signinGoogle() async {
+    AuthService.instance.signinGoogle().then((value) {
       if (value != 200) {
         SnackBarGlobal.buildSnackBar(context,
             'There was an error logging you in through Google.', 'red');
+      }
+      if (value == 200) {
+        return Navigator.pushReplacementNamed(context, 'distributor');
+      }
+    });
+  }
+
+  Future<void> _signinApple() async {
+    AuthService.instance.signinApple().then((value) {
+      if (value != 200) {
+        SnackBarGlobal.buildSnackBar(
+            context, 'There was an error logging you in through Apple.', 'red');
       }
       if (value == 200) {
         return Navigator.pushReplacementNamed(context, 'distributor');
@@ -143,13 +150,13 @@ class _LoginViewState extends State<LoginView> {
                           title: 'Continue with Google',
                           colour: kAltoBlue,
                           icon: kGoogleIcon,
-                          onPressed: _handleSignIn,
+                          onPressed: _signinGoogle,
                         ),
                         RoundedExternalServiceLogInButton(
                           title: 'Continue with Apple ',
                           colour: kAltoBlue,
                           icon: kAppleIcon,
-                          onPressed: () {},
+                          onPressed: _signinApple,
                         ),
                         RoundedExternalServiceLogInButton(
                           title: 'Continue with email ',

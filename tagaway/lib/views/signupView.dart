@@ -19,11 +19,23 @@ class SignUpView extends StatefulWidget {
 }
 
 class _SignUpViewState extends State<SignUpView> {
-  Future<void> _handleSignIn() async {
-    AuthService.instance.loginGoogle().then((value) {
+  Future<void> _signinGoogle() async {
+    AuthService.instance.signinGoogle().then((value) {
       if (value != 200) {
         SnackBarGlobal.buildSnackBar(context,
             'There was an error logging you in through Google.', 'red');
+      }
+      if (value == 200) {
+        return Navigator.pushReplacementNamed(context, 'distributor');
+      }
+    });
+  }
+
+  Future<void> _signinApple() async {
+    AuthService.instance.signinApple().then((value) {
+      if (value != 200) {
+        SnackBarGlobal.buildSnackBar(
+            context, 'There was an error logging you in through Apple.', 'red');
       }
       if (value == 200) {
         return Navigator.pushReplacementNamed(context, 'distributor');
@@ -74,13 +86,13 @@ class _SignUpViewState extends State<SignUpView> {
                       title: 'Sign up with Google',
                       colour: kAltoBlue,
                       icon: kGoogleIcon,
-                      onPressed: _handleSignIn,
+                      onPressed: _signinGoogle,
                     ),
                     RoundedExternalServiceLogInButton(
                       title: 'Sign up with Apple ',
                       colour: kAltoBlue,
                       icon: kAppleIcon,
-                      onPressed: () {},
+                      onPressed: _signinApple,
                     ),
                     RoundedExternalServiceLogInButton(
                       title: 'Sign up with email ',

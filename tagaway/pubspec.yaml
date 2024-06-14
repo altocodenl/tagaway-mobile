@@ -53,6 +53,7 @@ dependencies:
   collection: ^1.17.1
   google_sign_in: ^6.2.1
   flutter_svg: ^1.0.3
+  sign_in_with_apple: ^5.0.0
 
 dev_dependencies:
   flutter_test:

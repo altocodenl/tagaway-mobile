@@ -3,6 +3,7 @@
 ## TODO
 
 - Add login flow with Google, Apple and Facebook
+   - https://tagaway.nl/app/oauth/notify/apple
 - Switch to upload pivs in background, for users that have a limit > 500MB
 - When deleting cloud piv, offer to delete local counterpart
 - Hidden
