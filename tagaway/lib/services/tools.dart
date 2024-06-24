@@ -45,7 +45,7 @@ Future<dynamic> ajax (String method, String path, [Map<String, dynamic> body = c
           headers: {'cookie': cookie});
     } else {
 
-      if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover' && path != 'auth/signin/mobile/google') {
+      if (path != 'auth/login' && path != 'auth/signup' && path != 'auth/recover' && path != 'auth/signin/mobile/google' && path != 'auth/signin/mobile/apple') {
         body ['csrf'] = await store.getAwait ('csrf');
       }
       var httpOperation = method == 'post' ? http.post : http.put;

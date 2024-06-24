@@ -62,7 +62,6 @@ class AuthService {
       ]);
 
       final idToken = credential.identityToken;
-      debug (['id token', idToken]);
 
       var response = await ajax ('post', 'auth/signin/mobile/apple', {'token': idToken});
       if (response ['code'] == 200) {
