@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/loginView.dart';
@@ -104,7 +102,7 @@ class _SignUpViewState extends State<SignUpView> {
                       },
                     ),
                     RoundedWhiteButton(
-                      title: 'Log In',
+                      title: 'Have an account? Log In!',
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => const LoginView()));

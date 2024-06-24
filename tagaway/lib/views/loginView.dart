@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tagaway/services/authService.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/ui_elements/constants.dart';
 import 'package:tagaway/ui_elements/material_elements.dart';
 import 'package:tagaway/views/loginWithEmailView.dart';
@@ -167,23 +165,12 @@ class _LoginViewState extends State<LoginView> {
                                 builder: (_) => const LoginWithEmailView()));
                           },
                         ),
-                        Builder(
-                          builder: (context) => Flexible(
-                            flex: 2,
-                            fit: FlexFit.loose,
-                            child: TextButton(
-                              onPressed: () {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                Navigator.pushReplacementNamed(
-                                    context, 'signup');
-                                // FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              child: const Text(
-                                'Don\'t have an account? Sign up!',
-                                style: kPlainHypertext,
-                              ),
-                            ),
-                          ),
+                        RoundedWhiteButton(
+                          title: 'No account? Sign Up!',
+                          onPressed: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            Navigator.pushReplacementNamed(context, 'signup');
+                          },
                         ),
                       ],
                     ),

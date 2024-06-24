@@ -73,10 +73,6 @@ class RoundedButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: ElevatedButton(
         onPressed: onPressed,
-        child: Text(title,
-            style: SizeService.instance.screenWidth(context) < 380
-                ? kBottomNavigationText
-                : kButtonText),
         style: ElevatedButton.styleFrom(
             backgroundColor: colour,
             shape: RoundedRectangleBorder(
@@ -85,6 +81,10 @@ class RoundedButton extends StatelessWidget {
             minimumSize: SizeService.instance.screenWidth(context) < 380
                 ? const Size(150, 42)
                 : const Size(200, 42)),
+        child: Text(title,
+            style: SizeService.instance.screenWidth(context) < 380
+                ? kBottomNavigationText
+                : kButtonText),
       ),
     );
   }
@@ -104,10 +104,6 @@ class RoundedWhiteButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: ElevatedButton(
         onPressed: onPressed,
-        child: Text(title,
-            style: SizeService.instance.screenWidth(context) < 380
-                ? kBottomNavigationTextBlue
-                : kButtonTextBlue),
         style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             side: const BorderSide(
@@ -120,6 +116,16 @@ class RoundedWhiteButton extends StatelessWidget {
             minimumSize: SizeService.instance.screenWidth(context) < 380
                 ? const Size(150, 42)
                 : const Size(200, 42)),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(title,
+                style: SizeService.instance.screenWidth(context) < 380
+                    ? kBottomNavigationTextBlue
+                    : kButtonTextBlue)
+          ],
+        ),
       ),
     );
   }
@@ -154,12 +160,13 @@ class RoundedExternalServiceLogInButton extends StatelessWidget {
                 ? const Size(150, 42)
                 : const Size(200, 42)),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               color: Colors.white,
-              size: 15,
+              size: 20,
             ),
             const SizedBox(
               width: 10,
