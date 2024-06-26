@@ -34,6 +34,7 @@ class _HomeViewState extends State<HomeView> {
 
   dynamic account = {
     'username': '',
+    'firstName': '',
     'usage': {'byfs': 0}
   };
   dynamic queryResult = {'pivs': [], 'total': 0};
@@ -193,7 +194,11 @@ class _HomeViewState extends State<HomeView> {
               SizedBox(
                 height: 64,
                 child: DrawerHeader(
-                  child: Text(account['username'], style: kSubPageAppBarTitle),
+                  child: Text(
+                      account['firstName'] != null
+                          ? account['firstName']
+                          : account['username'],
+                      style: kSubPageAppBarTitle),
                 ),
               ),
               UserMenuElementTransparent(
