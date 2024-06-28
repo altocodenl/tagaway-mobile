@@ -112,6 +112,7 @@ Future<dynamic> ajaxMulti (String path, dynamic fields, dynamic filePath) async 
     request.files.add(await http.MultipartFile.fromPath('piv', filePath));
   }
   catch (error) {
+     reportError (error, '', '');
      return {
         'code': 1,
         'error': error
