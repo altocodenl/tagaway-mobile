@@ -69,12 +69,11 @@ android {
         debug {
             keyAlias 'keyalias'
             // Yes, the password is committed, but the key is not.
-            keyPassword CBYmpW9RqxqX
+            keyPassword 'CBYmpW9RqxqX'
             storeFile file('androidkey.jks')
-            storePassword CBYmpW9RqxqX
+            storePassword 'CBYmpW9RqxqX'
         }
     }
-
 }
 
 flutter {
