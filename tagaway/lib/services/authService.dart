@@ -36,8 +36,8 @@ class AuthService {
 
       GoogleSignIn _googleSignIn = GoogleSignIn (
          clientId: Platform.isAndroid
-            ? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com'
-            //? clientIds ['body'] ['android']
+            //? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com'
+            ? clientIds ['body'] ['android']
             : clientIds ['body'] ['ios'],
          scopes: ['openid', 'email']
       );

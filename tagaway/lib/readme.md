@@ -101,6 +101,17 @@
 - Use release & create
 - When it's done, build will be in the `android/app/release` folder.
 
+## Recreating the `/android` folder because the one we have is already too stale
+
+- Copy the existing `android` folder to `old_android`, for reference.
+- Remove `android`
+- Run `flutter create . --platforms=android`
+- Do a `git status` on `android` and restore the following things:
+   - All the icons
+   - Permissions
+   - Method channels
+   - And probably a couple of things here and there
+
 ## Creating a build to publish in the stores
 
 First, run `flutter clean`.
