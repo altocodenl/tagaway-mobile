@@ -69,50 +69,6 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  mailto() async {
-    EmailContent email = EmailContent(
-      to: [
-        'info@altocode.nl',
-      ],
-      subject: 'Tagaway Feedback!',
-      body: 'What needs to be improved in Tagaway is:',
-    );
-
-    OpenMailAppResult result = await OpenMailApp.composeNewEmailInMailApp(
-        nativePickerTitle: 'Select email app to compose', emailContent: email);
-    if (!result.didOpen && !result.canOpen) {
-      showNoMailAppsDialog(context);
-    } else if (!result.didOpen && result.canOpen) {
-      showDialog(
-        context: context,
-        builder: (_) => MailAppPickerDialog(
-          mailApps: result.options,
-          emailContent: email,
-        ),
-      );
-    }
-  }
-
-  void showNoMailAppsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Open Mail App"),
-          content: const Text("No mail apps installed"),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            )
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -220,11 +176,6 @@ class _HomeViewState extends State<HomeView> {
               //       _launchUrl();
               //     },
               //     textOnElement: 'Go to tagaway web'),
-              UserMenuElementLightGrey(
-                  onTap: () {
-                    mailto();
-                  },
-                  textOnElement: 'Send Us Feedback'),
               UserMenuElementLightGrey(
                   onTap: () {
                     Navigator.pushReplacementNamed(context, 'deleteAccount');

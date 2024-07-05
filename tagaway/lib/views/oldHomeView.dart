@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:open_mail_app/open_mail_app.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:tagaway/main.dart';
 import 'package:tagaway/services/authService.dart';
@@ -88,30 +87,6 @@ class _OldHomeViewState extends State<OldHomeView> {
     }
   }
 
-  mailto() async {
-    EmailContent email = EmailContent(
-      to: [
-        'info@altocode.nl',
-      ],
-      subject: 'Tagaway Feedback!',
-      body: 'What needs to be improved in Tagaway is:',
-    );
-
-    OpenMailAppResult result = await OpenMailApp.composeNewEmailInMailApp(
-        nativePickerTitle: 'Select email app to compose', emailContent: email);
-    if (!result.didOpen && !result.canOpen) {
-      showNoMailAppsDialog(context);
-    } else if (!result.didOpen && result.canOpen) {
-      showDialog(
-        context: context,
-        builder: (_) => MailAppPickerDialog(
-          mailApps: result.options,
-          emailContent: email,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,11 +143,6 @@ class _OldHomeViewState extends State<OldHomeView> {
                 _launchUrl();
               },
               textOnElement: 'Go to tagaway web'),
-          UserMenuElementLightGrey(
-              onTap: () {
-                mailto();
-              },
-              textOnElement: 'Send Us Feedback'),
           UserMenuElementLightGrey(
               onTap: () {
                 Navigator.pushReplacementNamed(context, 'deleteAccount');
