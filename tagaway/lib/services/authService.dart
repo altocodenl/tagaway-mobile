@@ -1,139 +1,147 @@
 import 'dart:io';
 
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:tagaway/main.dart';
-import 'package:tagaway/services/tools.dart';
 import 'package:tagaway/services/pivService.dart';
+import 'package:tagaway/services/tools.dart';
 
 class AuthService {
-   AuthService._privateConstructor ();
-   static final AuthService instance = AuthService._privateConstructor ();
+  AuthService._privateConstructor();
+  static final AuthService instance = AuthService._privateConstructor();
 
-   signup (String username, String password, String email) async {
-      var response = await ajax ('post', 'auth/signup', {'username': username, 'password': password, 'email': email});
-      return {'code': response ['code'], 'body': response ['body']};
-   }
+  signup(String username, String password, String email) async {
+    var response = await ajax('post', 'auth/signup',
+        {'username': username, 'password': password, 'email': email});
+    return {'code': response['code'], 'body': response['body']};
+  }
 
-   Future <int> login (String username, String password) async {
-      int timezone = DateTime.now ().timeZoneOffset.inMinutes.toInt ();
-      var response = await ajax ('post', 'auth/login', {'username': username, 'password': password, 'timezone': timezone});
-      if (response ['code'] == 200) {
-         store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
-         store.set ('csrf',   response ['body']    ['csrf'], 'disk');
-         store.set ('recurringUser', true, 'disk');
-      }
-      // Error code 1 signifies that the user must verify their email
-      if (response ['code'] == 403 && response ['body'] ['error'] == 'verify') return 1;
-      return response ['code'];
-   }
+  Future<int> login(String username, String password) async {
+    int timezone = DateTime.now().timeZoneOffset.inMinutes.toInt();
+    var response = await ajax('post', 'auth/login',
+        {'username': username, 'password': password, 'timezone': timezone});
+    if (response['code'] == 200) {
+      store.set('cookie', response['headers']['set-cookie']!, 'disk');
+      store.set('csrf', response['body']['csrf'], 'disk');
+      store.set('recurringUser', true, 'disk');
+    }
+    // Error code 1 signifies that the user must verify their email
+    if (response['code'] == 403 && response['body']['error'] == 'verify')
+      return 1;
+    return response['code'];
+  }
 
-   Future <int> signinGoogle () async {
+  Future<int> signinGoogle() async {
+    var clientIds = await ajax('get', 'auth/signin/credentials/google');
+    if (clientIds['code'] != 200) return clientIds['code'];
 
-      var clientIds = await ajax ('get', 'auth/signin/credentials/google');
-      if (clientIds ['code'] != 200) return clientIds ['code'];
+    GoogleSignIn _googleSignIn = GoogleSignIn(
+        clientId: Platform.isAndroid
+            ? clientIds['body']['android']
+            : clientIds['body']['ios'],
+        scopes: ['openid', 'email']);
 
-      GoogleSignIn _googleSignIn = GoogleSignIn (
-         clientId: Platform.isAndroid
-            //? '764404427753-t9dd8bfdvsvcnomti9e2h56nr6ffaet9.apps.googleusercontent.com'
-            ? clientIds ['body'] ['android']
-            : clientIds ['body'] ['ios'],
-         scopes: ['openid', 'email']
-      );
+    final GoogleSignInAccount? account = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication? authentication =
+        await account?.authentication;
+    final String? idToken = authentication?.idToken;
 
-      final GoogleSignInAccount? account = await _googleSignIn.signIn ();
-      final GoogleSignInAuthentication? authentication = await account?.authentication;
-      final String? idToken = authentication?.idToken;
+    var response = await ajax('post', 'auth/signin/mobile/google',
+        {'token': idToken, 'platform': Platform.isAndroid ? 'android' : 'ios'});
+    if (response['code'] == 200) {
+      store.set('cookie', response['headers']['set-cookie']!, 'disk');
+      store.set('csrf', response['body']['csrf'], 'disk');
+      store.set('recurringUser', true, 'disk');
+    }
+    return response['code'];
+  }
 
-      var response = await ajax ('post', 'auth/signin/mobile/google', {'token': idToken, 'platform': Platform.isAndroid ? 'android' : 'ios'});
-      if (response ['code'] == 200) {
-         store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
-         store.set ('csrf',   response ['body']    ['csrf'], 'disk');
-         store.set ('recurringUser', true, 'disk');
-      }
-      return response ['code'];
-   }
+  Future<int> signinApple() async {
+    var credential = await SignInWithApple.getAppleIDCredential(scopes: [
+      AppleIDAuthorizationScopes.email,
+      AppleIDAuthorizationScopes.fullName,
+    ]);
 
-   Future <int> signinApple () async {
+    final idToken = credential.identityToken;
 
-      var credential = await SignInWithApple.getAppleIDCredential (scopes: [
-         AppleIDAuthorizationScopes.email,
-         AppleIDAuthorizationScopes.fullName,
-      ]);
+    var response =
+        await ajax('post', 'auth/signin/mobile/apple', {'token': idToken});
+    if (response['code'] == 200) {
+      store.set('cookie', response['headers']['set-cookie']!, 'disk');
+      store.set('csrf', response['body']['csrf'], 'disk');
+      store.set('recurringUser', true, 'disk');
+    }
+    return response['code'];
+  }
 
-      final idToken = credential.identityToken;
+  Future<int> recoverPassword(String username) async {
+    var response = await ajax('post', 'auth/recover', {'username': username});
+    return response['code'];
+  }
 
-      var response = await ajax ('post', 'auth/signin/mobile/apple', {'token': idToken});
-      if (response ['code'] == 200) {
-         store.set ('cookie', response ['headers'] ['set-cookie']!, 'disk');
-         store.set ('csrf',   response ['body']    ['csrf'], 'disk');
-         store.set ('recurringUser', true, 'disk');
-      }
-      return response ['code'];
-   }
+  Future<int> logout() async {
+    var response = await ajax('post', 'auth/logout', {});
+    if (response['code'] == 200) await cleanupKeys();
+    return response['code'];
+  }
 
-   Future <int> recoverPassword (String username) async {
-      var response = await ajax ('post', 'auth/recover', {'username': username});
-      return response ['code'];
-   }
+  checkSession() async {
+    var response = await ajax('get', 'auth/csrf', {});
+    if (response['code'] != 200) await cleanupKeys();
+    return response['code'];
+  }
 
-   Future <int> logout () async {
-      var response = await ajax ('post', 'auth/logout', {});
-      if (response ['code'] == 200) await cleanupKeys ();
-      return response ['code'];
-   }
+  cleanupKeys() async {
+    await store.remove('cookie', 'disk');
+    await store.remove('csrf', 'disk');
+    await store.remove('lastNTags', 'disk');
+    await store.remove('uploadQueue', 'disk');
+    await store.remove('pendingTags:*', 'disk');
+    await store.remove('pendingDeletion:*', 'disk');
+    await store.remove('organizedAtDaybreak', 'disk');
+    store.store = {};
+    PivService.instance.reset();
+    navigatorKey.currentState!.pushReplacementNamed('login');
+    // We wait a full second because if we try to reload the store from disk while redraws are taking place after the logout, things break.
+    // The only reason we need to reload is to avoid re-hashing if the user logs back in in the current run of the app.
+    Future.delayed(const Duration(seconds: 1), () {
+      store.load();
+    });
+  }
 
-   checkSession () async {
-      var response = await ajax ('get', 'auth/csrf', {});
-      if (response ['code'] != 200) await cleanupKeys ();
-      return response ['code'];
-   }
+  Future<int> deleteAccount() async {
+    var response = await ajax('post', 'auth/delete', {});
+    return response['code'];
+  }
 
-   cleanupKeys () async {
-      await store.remove ('cookie',      'disk');
-      await store.remove ('csrf',        'disk');
-      await store.remove ('lastNTags',   'disk');
-      await store.remove ('uploadQueue', 'disk');
-      await store.remove ('pendingTags:*',     'disk');
-      await store.remove ('pendingDeletion:*', 'disk');
-      await store.remove ('organizedAtDaybreak', 'disk');
-      store.store = {};
-      PivService.instance.reset ();
-      navigatorKey.currentState!.pushReplacementNamed ('login');
-      // We wait a full second because if we try to reload the store from disk while redraws are taking place after the logout, things break.
-      // The only reason we need to reload is to avoid re-hashing if the user logs back in in the current run of the app.
-      Future.delayed(const Duration(seconds: 1), () {
-        store.load ();
-      });
-   }
+  Future<int> changePassword(String old, String nEw, String repeat) async {
+    if (nEw != repeat) return 1;
+    var response =
+        await ajax('post', 'auth/changePassword', {'old': old, 'new': nEw});
+    return response['code'];
+  }
 
-   Future <int> deleteAccount () async {
-      var response = await ajax ('post', 'auth/delete', {});
-      return response ['code'];
-   }
+  Future<int> getAccount() async {
+    var response = await ajax('get', 'account', {});
+    if (response['code'] == 200) {
+      store.set('account', response['body']);
+    }
+    return response['code'];
+  }
 
-   Future <int> changePassword (String old, String nEw, String repeat) async {
-      if (nEw != repeat) return 1;
-      var response = await ajax ('post', 'auth/changePassword', {'old': old, 'new': nEw});
-      return response ['code'];
-   }
-
-   Future <int> getAccount () async {
-      var response = await ajax ('get', 'account', {});
-      if (response ['code'] == 200) {
-         store.set ('account', response ['body']);
-      }
-      return response ['code'];
-   }
-
-   geotagging (String operation) async {
-      var response = await ajax ('post', 'geo', {'operation': operation});
-      if (response ['code'] == 200) {
-         showSnackbar ('Geotagging ' + operation + 'd successfully', 'green');
-         return getAccount ();
-      }
-      if (response ['code'] == 409) return showSnackbar ('The server is busy processing a recent geotagging request; please wait a couple of minutes and try again.', 'yellow');
-      showSnackbar ('There was an unexpected error concerning geotagging settings - CODE GEO:' + response ['code'].toString (), 'yellow');
-   }
+  geotagging(String operation) async {
+    var response = await ajax('post', 'geo', {'operation': operation});
+    if (response['code'] == 200) {
+      showSnackbar('Geotagging ' + operation + 'd successfully', 'green');
+      return getAccount();
+    }
+    if (response['code'] == 409)
+      return showSnackbar(
+          'The server is busy processing a recent geotagging request; please wait a couple of minutes and try again.',
+          'yellow');
+    showSnackbar(
+        'There was an unexpected error concerning geotagging settings - CODE GEO:' +
+            response['code'].toString(),
+        'yellow');
+  }
 }

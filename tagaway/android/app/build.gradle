@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "nl.altocode.tagaway"
-    compileSdkVersion flutter.compileSdkVersion = 34
+    compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -51,7 +51,15 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
     }
-
+    signingConfigs {
+        debug {
+            keyAlias 'keyalias'
+            // Yes, the password is committed, but the key is not.
+            keyPassword 'CBYmpW9RqxqX'
+            storeFile file('androidkey.jks')
+            storePassword 'CBYmpW9RqxqX'
+        }
+    }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -62,15 +70,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    signingConfigs {
-        debug {
-            keyAlias 'keyalias'
-            // Yes, the password is committed, but the key is not.
-            keyPassword 'CBYmpW9RqxqX'
-            storeFile file('androidkey.jks')
-            storePassword 'CBYmpW9RqxqX'
-        }
-    }
+
 }
 
 flutter {
