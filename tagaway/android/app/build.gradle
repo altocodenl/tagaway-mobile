@@ -64,11 +64,11 @@ android {
     }
     signingConfigs {
         debug {
-            keyAlias 'keyalias'
+            keyAlias '1'
             // Yes, the password is committed, but the key is not.
-            keyPassword 'CBYmpW9RqxqX'
+            keyPassword 'abcdef'
             storeFile file('androidkey.jks')
-            storePassword 'CBYmpW9RqxqX'
+            storePassword 'abcdef'
         }
     }
 }
