@@ -2,14 +2,14 @@
 
 ## TODO
 
-- Switch to upload pivs in background, for users that have a limit > 500MB
-- When deleting cloud piv, offer to delete local counterpart
-- Hidden
-   - Show hidden in query to be able to unhide
-   - Store hidden info in server
 - Fix manage tags view:
    - Scroll doesn't work
    - Modals to edit/delete appear only when you go one view back
+- When deleting cloud piv, offer to delete local counterpart
+- Switch to upload pivs in background, for users that have a limit > 500MB
+- Hidden
+   - Show hidden in query to be able to unhide
+   - Store hidden info in server
 - Improve zoom
 - Finish annotated source code: tagService, storeService, tools.
 

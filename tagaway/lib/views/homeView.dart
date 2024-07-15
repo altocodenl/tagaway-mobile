@@ -152,7 +152,12 @@ class _HomeViewState extends State<HomeView> {
                   child: Text(
                       account['firstName'] != null
                           ? account['firstName']
-                          : account['username'],
+                          : (
+                              // If the username is a uuid, we don't show it so it doesn't look so bad.
+                              RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89ABab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$')
+                                      .hasMatch(account['username'])
+                                  ? 'Hi there'
+                                  : account['username']),
                       style: kSubPageAppBarTitle),
                 ),
               ),
