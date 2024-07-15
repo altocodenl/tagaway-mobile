@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -150,11 +151,14 @@ class _LoginViewState extends State<LoginView> {
                           icon: kGoogleIcon,
                           onPressed: _signinGoogle,
                         ),
-                        RoundedExternalServiceLogInButton(
-                          title: 'Continue with Apple ',
-                          colour: kAltoBlue,
-                          icon: kAppleIcon,
-                          onPressed: _signinApple,
+                        Visibility(
+                          visible: Platform.isIOS,
+                          child: RoundedExternalServiceLogInButton(
+                            title: 'Continue with Apple ',
+                            colour: kAltoBlue,
+                            icon: kAppleIcon,
+                            onPressed: _signinApple,
+                          ),
                         ),
                         RoundedExternalServiceLogInButton(
                           title: 'Continue with email ',

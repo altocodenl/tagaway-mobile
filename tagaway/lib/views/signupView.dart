@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:tagaway/services/authService.dart';
@@ -86,11 +87,14 @@ class _SignUpViewState extends State<SignUpView> {
                       icon: kGoogleIcon,
                       onPressed: _signinGoogle,
                     ),
-                    RoundedExternalServiceLogInButton(
-                      title: 'Sign up with Apple ',
-                      colour: kAltoBlue,
-                      icon: kAppleIcon,
-                      onPressed: _signinApple,
+                    Visibility(
+                      visible: Platform.isIOS,
+                      child: RoundedExternalServiceLogInButton(
+                        title: 'Sign up with Apple ',
+                        colour: kAltoBlue,
+                        icon: kAppleIcon,
+                        onPressed: _signinApple,
+                      ),
                     ),
                     RoundedExternalServiceLogInButton(
                       title: 'Sign up with email ',
