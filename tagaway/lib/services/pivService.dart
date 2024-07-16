@@ -412,7 +412,7 @@ class PivService {
 
          var pivIsCurrentlyBeingTagged = currentlyTaggingPivs.contains (piv.id);
 
-         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || store.get ('cameraPiv:' + piv.id) == true));
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode != '' && displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode != '' && displayMode ['cameraOnly'] == false || store.get ('cameraPiv:' + piv.id) == true));
 
          var placed = false, pivDate = piv.createDateTime;
          pages.forEach ((page) {

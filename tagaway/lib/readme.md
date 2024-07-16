@@ -1419,7 +1419,7 @@ We determine whether the piv should be shown and store the result in `showPiv`. 
 - `displayMode.cameraOnly` is `false` or the piv is a camera piv.
 
 ```dart
-         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode ['cameraOnly'] == false || store.get ('cameraPiv:' + piv.id) == true));
+         var showPiv = pivIsCurrentlyBeingTagged || ((displayMode != '' && displayMode ['showOrganized'] == true || ! pivIsOrganized) && (displayMode != '' && displayMode ['cameraOnly'] == false || store.get ('cameraPiv:' + piv.id) == true));
 ```
 
 We initialize two variables: `placed`, to determine whether the piv has been already placed in a page; and `pivDate`, the create datetime of the piv. `pivDate` will instruct us in which page to place the piv.
